@@ -1,0 +1,20 @@
+# MATLAB
+*.asv
+*.mex*
+slprj/
+*.autosave
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# HERA Output
+Ranking_*/
+
+# OS
+.DS_Store

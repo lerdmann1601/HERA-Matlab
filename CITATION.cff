@@ -1,0 +1,11 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+  - family-names: "von Erdmannsdorff"
+    given-names: "Lukas"
+    affiliation: "Institute of Neuroradiology, Goethe University Frankfurt"
+title: "HERA"
+version: 1.0.0
+date-released: 2025-12-01
+license: MIT
+url: "https://github.com/lerdmann1601/HERA-Matlab"
