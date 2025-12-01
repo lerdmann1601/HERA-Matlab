@@ -1,45 +1,76 @@
 function run_tests()
 % RUN_TESTS - Wrapper script to execute HERA unit tests from outside the package.
 %
-% This script ensures that the parent directory of +HERA is in the MATLAB path
-% and then triggers the main unit test suite.
-%
-% Usage:
+% Syntax:
 %   run_tests()
 %   matlab -batch "run('tests/run_tests.m')"
+%
+% Description:
+%   This function serves as an entry point for the Continuous Integration (CI) pipeline
+%   and manual testing. It ensures that the project root is correctly added to the
+%   MATLAB path so that the '+HERA' package is visible. It then triggers the main
+%   unit test suite located in 'HERA.run_unit_test'.
+%
+% Workflow:
+%   1.  Path Configuration: Determine the script's location and add the project root to the path.
+%   2.  Environment Setup: Create a dedicated log directory for test artifacts.
+%   3.  Test Execution: Call the main 'HERA.run_unit_test' function.
+%   4.  Error Handling: Catch errors, display stack traces, and manage exit codes for CI environments.
+%
+% Inputs:
+%   None
+%
+% Outputs:
+%   None (Console output and exit codes).
+%
+% Author:   Lukas von Erdmannsdorff
 
-    % Get the full path of this script
-    scriptPath = fileparts(mfilename('fullpath'));
+    %% 1. Path Configuration
+    % Get the full path of this script to locate the project root relative to it.
+    script_path = fileparts(mfilename('fullpath'));
     
-    % The project root is one level up from 'tests/'
-    projectRoot = fileparts(scriptPath);
+    % The project root is one level up from the 'tests/' folder.
+    project_root = fileparts(script_path);
     
-    % Add project root to path so +HERA is visible
-    addpath(projectRoot);
+    % Add project root to path so the +HERA package is visible to MATLAB.
+    addpath(project_root);
     
-    fprintf('Running HERA Unit Tests...\n');
-    fprintf('Project Root: %s\n', projectRoot);
+    fprintf('=======================\n');
+    fprintf('Starting HERA CI Runner\n');
+    fprintf('=======================\n');
+    fprintf('Project Root: %s\n', project_root);
     
     try
-        % Define log folder inside tests/logs
-        logDir = fullfile(scriptPath, 'logs');
-        if ~exist(logDir, 'dir')
-            mkdir(logDir);
+        %% 2. Environment Setup
+        % Define a log folder inside tests/logs to store test outputs.
+        log_dir = fullfile(script_path, 'logs');
+        if ~exist(log_dir, 'dir')
+            mkdir(log_dir);
         end
         
-        % Run the package-based unit test
-        % Passing the log directory to the unit test function
-        HERA.run_unit_test(logDir);
+        %% 3. Test Execution
+        % Run the package-based unit test suite.
+        % We pass the log directory to ensure logs are stored in the correct location.
+        HERA.run_unit_test(log_dir);
         
         fprintf('\nSUCCESS: All tests executed without critical errors.\n');
+        
     catch ME
+        %% 4. Error Handling
+        % Report failure and stack trace for debugging in CI logs.
         fprintf('\nFAILURE: Test execution failed.\n');
-        fprintf('Error: %s\n', ME.message);
+        fprintf('Error Message: %s\n', ME.message);
         fprintf('Stack Trace:\n');
         for k = 1:length(ME.stack)
             fprintf('  File: %s, Line: %d, Name: %s\n', ...
                 ME.stack(k).file, ME.stack(k).line, ME.stack(k).name);
         end
-        exit(1); % Return non-zero exit code for CI
+        
+        % Return a non-zero exit code to signal failure to the CI system (e.g., GitHub Actions).
+        if ~usejava('desktop') % Only exit if running in batch mode (no GUI)
+            exit(1); 
+        else
+            error('Test execution failed. See details above.');
+        end
     end
 end
