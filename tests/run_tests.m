@@ -6,10 +6,9 @@ function run_tests()
 %   matlab -batch "run('tests/run_tests.m')"
 %
 % Description:
-%   This function serves as an entry point for the Continuous Integration (CI) pipeline
-%   and manual testing. It ensures that the project root is correctly added to the
-%   MATLAB path so that the '+HERA' package is visible. It then triggers the main
-%   unit test suite located in 'HERA.run_unit_test'.
+%   This function serves as an entry point for the Continuous Integration (CI) pipeline and manual testing. 
+%   It ensures that the project root is correctly added to the MATLAB path so that the '+HERA' package is visible. 
+%   Then it triggers the main unit test located in 'HERA.run_unit_test'.
 %
 % Workflow:
 %   1.  Path Configuration: Determine the script's location and add the project root to the path.
@@ -21,7 +20,7 @@ function run_tests()
 %   None
 %
 % Outputs:
-%   None (Console output and exit codes).
+%   None (Console output and exit codes, Log file is generated via 'HERA.run_unit_test').
 %
 % Author:   Lukas von Erdmannsdorff
 
@@ -34,11 +33,6 @@ function run_tests()
     
     % Add project root to path so the +HERA package is visible to MATLAB.
     addpath(project_root);
-    
-    fprintf('=======================\n');
-    fprintf('Starting HERA CI Runner\n');
-    fprintf('=======================\n');
-    fprintf('Project Root: %s\n', project_root);
     
     try
         %% 2. Environment Setup
