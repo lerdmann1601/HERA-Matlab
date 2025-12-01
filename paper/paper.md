@@ -48,10 +48,13 @@ graph TD
     B --> C[Stage 2: Compensatory Correction]
     C --> D{Rank Stable?}
     D -- No --> C
-    D -- Yes --> E[Stage 3: Tie-Breaking]
-    E --> F[Final Consensus Ranking]
+    D -- Yes --> E{Ambiguity Type?}
+    E -- M2 Neutral --> F[Stage 3a: M3 Correction<br/>(One-time)]
+    E -- M1 & M2 Neutral --> G[Stage 3b: M3 Tie-Break<br/>(Iterative)]
+    F --> H[Final Consensus Ranking]
+    G --> H
     style A fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style F fill:#e6f3ff,stroke:#333,stroke-width:2px
+    style H fill:#e6f3ff,stroke:#333,stroke-width:2px
 ```
 
 1.  **Stage 1 (Initial Sort)**: Methods are initially ranked based on the primary metric ($M_1$). Pairwise comparisons are performed using the Wilcoxon signed-rank test [@Wilcoxon1945], with p-values corrected for multiple comparisons using the Holm-Bonferroni method [@Holm1979].
@@ -59,7 +62,9 @@ graph TD
     *   It is not significantly worse in the primary metric ($M_1$) by a "large" margin (defined by an effect size threshold).
     *   It is significantly better in a secondary metric ($M_2$) with a "medium" or "large" effect size.
     This allows, for example, a slightly less accurate but significantly faster algorithm to be ranked higher, provided the accuracy loss is within acceptable limits.
-3.  **Stage 3 (Tie-Breaking)**: If two methods are statistically indistinguishable in both $M_1$ and $M_2$, a tertiary metric ($M_3$) is used to break the tie.
+3.  **Stage 3 (Tie-Breaking and Correction)**: This stage resolves ambiguity using a tertiary metric ($M_3$) via two distinct sub-logics:
+    *   **Sublogic 3a (M2 Neutrality)**: A **one-time correction** pass. If $M_2$ is statistically neutral (indistinguishable), $M_3$ is allowed to refine the ranking, effectively overriding $M_1$ if $M_2$ offers no guidance.
+    *   **Sublogic 3b (Full Tie)**: An **iterative tie-breaking** loop. If **both** $M_1$ and $M_2$ are statistically neutral, $M_3$ acts as the final tie-breaker to resolve the order.
 
 ## Statistical Rigor
 
