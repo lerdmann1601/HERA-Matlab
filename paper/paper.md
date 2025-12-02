@@ -49,8 +49,8 @@ graph TD
     C --> D{Rank Stable?}
     D -- No --> C
     D -- Yes --> E{Ambiguity Type?}
-    E -- M2 Neutral --> F[Stage 3a: M3 Correction<br/>(One-time)]
-    E -- M1 & M2 Neutral --> G[Stage 3b: M3 Tie-Break<br/>(Iterative)]
+    E -- M2 Neutral --> F["Stage 3a: M3 Correction<br/>(One-time)"]
+    E -- M1 & M2 Neutral --> G["Stage 3b: M3 Tie-Break<br/>(Iterative)"]
     F --> H[Final Consensus Ranking]
     G --> H
     style A fill:#f9f9f9,stroke:#333,stroke-width:2px

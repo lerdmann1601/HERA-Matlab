@@ -1,10 +1,16 @@
-<svg width="467" height="290" viewBox="45 -32 467 290" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="HERA_Logo_Optimized">
-<path id="HERA_Text" d="M45.5 138H69.5V116.5H117.5V138H141.5V42H117.5V96.5H69.5V42H45.5V138ZM158.5 138H229.5V118H182.5V100H224.5V80H182.5V62H229.5V42H158.5V138ZM246.5 138H270.5V103L297.5 138H325.5L291 97C305 93 317.5 84.5 317.5 69C317.5 52.5 303.5 42 284.5 42H246.5V138ZM270.5 86V62H284.5C293 62 297.5 65.5 297.5 74C297.5 82.5 293 86 284.5 86H270.5ZM335.5 138H363L387.5 42H361.5L349 102L337 42H311L335.5 138Z" fill="#333333"/>
-<g id="Arrows">
-<path id="Arrow_Yellow_Top" fill-rule="evenodd" clip-rule="evenodd" d="M385.2 42H479L512 72L479 102H407.6C395.5 102 384.5 95.3 378.7 84.7L357.3 45.3C351.5 34.7 340.5 28 328.4 28H235L202 -2L235 -32H306.4C318.5 -32 329.5 -25.3 335.3 -14.7L356.7 24.7C362.5 35.3 373.5 42 385.2 42Z" fill="#F4C20D"/>
-<path id="Arrow_Red_Middle" fill-rule="evenodd" clip-rule="evenodd" d="M385.2 120H479L512 150L479 180H407.6C395.5 180 384.5 173.3 378.7 162.7L357.3 123.3C351.5 112.7 340.5 106 328.4 106H235L202 76L235 46H306.4C318.5 46 329.5 52.7 335.3 63.3L356.7 102.7C362.5 113.3 373.5 120 385.2 120Z" fill="#DB3236" style="mix-blend-mode:multiply"/>
-<path id="Arrow_Blue_Bottom" fill-rule="evenodd" clip-rule="evenodd" d="M385.2 198H479L512 228L479 258H407.6C395.5 258 384.5 251.3 378.7 240.7L357.3 201.3C351.5 190.7 340.5 184 328.4 184H235L202 154L235 124H306.4C318.5 124 329.5 130.7 335.3 141.3L356.7 180.7C362.5 191.3 373.5 198 385.2 198Z" fill="#2D7EC0" style="mix-blend-mode:multiply"/>
-</g>
-</g>
+<svg width="380" height="150" viewBox="0 0 380 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Text HERA -->
+  <text x="-75" y="65" transform="rotate(-90)" font-family="Arial, sans-serif" font-weight="bold" font-size="50" fill="#333333" text-anchor="middle">HERA</text>
+  <!-- Graphic -->
+  <g transform="translate(80, 0)">
+    <!-- Yellow Path (Top to Bottom) -->
+    <path d="M 20 25 C 150 25 150 125 260 125" stroke="#F2C94C" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 125 L 260 105 L 290 125 L 260 145 Z" fill="#F2C94C" opacity="0.9"/>
+    <!-- Red Path (Middle to Top) -->
+    <path d="M 20 75 C 150 75 150 25 260 25" stroke="#EB5757" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 25 L 260 5 L 290 25 L 260 45 Z" fill="#EB5757" opacity="0.9"/>
+    <!-- Blue Path (Bottom to Middle) -->
+    <path d="M 20 125 C 150 125 150 75 260 75" stroke="#2F80ED" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 75 L 260 55 L 290 75 L 260 95 Z" fill="#2F80ED" opacity="0.9"/>
+  </g>
 </svg>
