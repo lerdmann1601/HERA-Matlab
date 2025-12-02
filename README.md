@@ -54,6 +54,97 @@ ranking system.
 
 ---
 
+## Installation
+
+### Requirements
+
+* **MATLAB** (R2021a or later recommended)
+* **Statistics and Machine Learning Toolbox** (Required)
+* **Parallel Computing Toolbox** (Recommended for performance)
+
+### Setup
+
+1. **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/lerdmann1601/HERA-Matlab.git
+    ```
+
+2. **Add to MATLAB Path:**
+
+    ```matlab
+    % Run the setup script to configure the path automatically
+    setup_HERA
+    ```
+
+### Standalone Runtime
+
+HERA can be compiled into a standalone application for macOS, Linux, and
+Windows. The build process generates an **installer** that automatically
+downloads the required MATLAB Runtime, making it easy to distribute.
+
+> **Download:** Pre-built installers for macOS  are available in the
+> [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) section.
+
+#### Building the Installer
+
+To build the installer, you need a MATLAB installation with the **MATLAB
+Compiler** toolbox.
+
+1. Open MATLAB and navigate to the project root.
+2. Run the build script:
+
+   ```matlab
+   cd deploy
+   build_hera
+   ```
+
+3. The installer will be generated in `deploy/output` (e.g., `HERA_Runtime_Installer`).
+
+#### Installation and Usage
+
+The generated installer handles the dependency setup for you.
+
+1. **Run the Installer**:
+   * **Windows**: Double-click `HERA_Runtime_Installer.exe`.
+   * **macOS**: Double-click `HERA_Runtime_Installer.app`.
+   * **Linux**: Run the installer executable from the terminal.
+2. **Follow the Prompts**: The installer will automatically download and
+   install the correct MATLAB Runtime if it's missing.
+3. **Run HERA**:
+   * **Windows**: Launch `HERA_Runtime` from the installation directory.
+   * **macOS**: Double-click `HERA_Launcher.command` (provided with the release).
+   * **Linux**: Run `./run_HERA_Runtime.sh <RuntimePath>` from the
+     terminal.
+
+#### Automated Build (GitHub Actions)
+
+> **Note:** This requires a valid MATLAB license to be configured as a secret
+> (`MATLAB_LICENSE`) in the repository settings. Student licenses may
+> not support this feature.
+
+To enable GitHub Actions for building and testing, you need to provide a valid MATLAB license:
+
+1. Go to your repository's **Settings** > **Secrets and variables** > **Actions**.
+2. Click **New repository secret**.
+3. Name the secret `MATLAB_LICENSE` and paste the contents of your license file.
+
+**Running the Build:**
+
+This workflow is set to **manual execution** (`workflow_dispatch`) to save resources.
+
+1. Navigate to the **Actions** tab in the repository.
+2. Select **Build HERA Runtime** from the sidebar.
+3. Click the **Run workflow** button.
+
+The workflow performs the following steps:
+
+1. **Unit Testing**: Runs the full test suite (`HERA.run_unit_test`) to ensure code integrity.
+2. **Compilation**: Builds the standalone application for the target operating system (macOS/Linux/Windows) using the `deploy/build_hera.m` script.
+3. **Artifact Upload**: Uploads the compiled installer and application as build artifacts, which can be downloaded from the GitHub Actions run page.
+
+---
+
 ## Quick Start
 
 ### 1. Interactive Mode (Recommended for Beginners)
@@ -86,31 +177,6 @@ HERA.start_ranking('runtest', 'true')
 % Run tests and save log to a specific folder
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
-
----
-
-## Installation
-
-### Requirements
-
-* **MATLAB** (R2021a or later recommended)
-* **Statistics and Machine Learning Toolbox** (Required)
-* **Parallel Computing Toolbox** (Recommended for performance)
-
-### Setup
-
-1. **Clone the repository:**
-
-    ```bash
-    git clone https://github.com/lerdmann1601/HERA-Matlab.git
-    ```
-
-2. **Add to MATLAB Path:**
-
-    ```matlab
-    % Run the setup script to configure the path automatically
-    setup_HERA
-    ```
 
 ---
 
@@ -358,54 +424,6 @@ suite directly on GitHub:
 1. Go to the **Actions** tab in this repository.
 2. Select **Testing HERA** from the left sidebar.
 3. Click **Run workflow**.
-
----
-
-## Standalone Runtime
-
-HERA can be compiled into a standalone application for macOS, Linux, and
-Windows. The build process generates an **installer** that automatically
-downloads the required MATLAB Runtime, making it easy to distribute.
-
-> **Download:** Pre-built installers for macOS  are available in the
-> [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) section.
-
-### Building the Installer
-
-To build the installer, you need a MATLAB installation with the **MATLAB
-Compiler** toolbox.
-
-1. Open MATLAB and navigate to the project root.
-2. Run the build script:
-
-   ```matlab
-   cd deploy
-   build_hera
-   ```
-
-3. The installer will be generated in `deploy/output` (e.g., `HERA_Runtime_Installer`).
-
-### Installation and Usage
-
-The generated installer handles the dependency setup for you.
-
-1. **Run the Installer**:
-   * **Windows**: Double-click `HERA_Runtime_Installer.exe`.
-   * **macOS**: Double-click `HERA_Runtime_Installer.app`.
-   * **Linux**: Run the installer executable from the terminal.
-2. **Follow the Prompts**: The installer will automatically download and
-   install the correct MATLAB Runtime if it's missing.
-3. **Run HERA**:
-   * **Windows**: Launch `HERA_Runtime` from the installation directory.
-   * **macOS**: Double-click `HERA_Launcher.command` (provided with the release).
-   * **Linux**: Run `./run_HERA_Runtime.sh <RuntimePath>` from the
-     terminal.
-
-### Automated Build (GitHub Actions)
-
-> **Note:** This requires a valid MATLAB license to be configured as a secret
-> (`MATLAB_LICENSE`) in the repository settings. Student licenses may
-> not support this feature.
 
 ---
 
