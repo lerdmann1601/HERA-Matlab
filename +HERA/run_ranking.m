@@ -661,13 +661,9 @@ end
 function lang = language_code(language_code)
     % A simplified helper function to load the language JSON file.
     % This is used in non-interactive contexts like the main run script.
-    if isdeployed
-        % Get path if the script is running as a compiled application.
-        base_path = mcr.runtime.getApplicationRoot;
-    else
-        % Get path if running in the MATLAB editor.
-        base_path = fileparts(mfilename('fullpath'));
-    end
+    % Get path relative to this function.
+    % This works in both MATLAB and deployed mode as the file is extracted.
+    base_path = fileparts(mfilename('fullpath'));
     file_path = fullfile(base_path, 'language', [language_code, '.json']);
     if ~exist(file_path, 'file')
         error('Language file for code "%s" not found.', language_code);

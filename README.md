@@ -445,7 +445,7 @@ If you use HERA in your research, please cite:
 ```bibtex
 @software{HERA_Matlab,
   author = {von Erdmannsdorff, Lukas},
-  title = {HERA: Hierarchical-Compensatory Ranking Algorithm (MATLAB)},
+  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.0.0},
   year = {2025}
