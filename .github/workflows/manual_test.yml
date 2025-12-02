@@ -1,11 +1,11 @@
-name: Manual Test for HERA
+name: Testing HERA
 
 on:
   workflow_dispatch:
 
 jobs:
   run-tests:
-    name: Run HERA Unit Tests
+    name: Testing HERA
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository

@@ -151,23 +151,26 @@ import HERA.*
 lang = language_code('en');
 
 % HERA Dependency Check
-required_toolboxes = {'Statistics and Machine Learning Toolbox', 'Parallel Computing Toolbox'};
-installed_ver = ver;
-installed_toolboxes = {installed_ver.Name};
-missing_toolboxes = {};
+% (Only check in MATLAB environment; Runtime has them bundled)
+if ~isdeployed
+    required_toolboxes = {'Statistics and Machine Learning Toolbox', 'Parallel Computing Toolbox'};
+    installed_ver = ver;
+    installed_toolboxes = {installed_ver.Name};
+    missing_toolboxes = {};
 
-for i = 1:length(required_toolboxes)
-    if ~any(strcmp(installed_toolboxes, required_toolboxes{i}))
-        missing_toolboxes{end+1} = required_toolboxes{i};
+    for i = 1:length(required_toolboxes)
+        if ~any(strcmp(installed_toolboxes, required_toolboxes{i}))
+            missing_toolboxes{end+1} = required_toolboxes{i};
+        end
     end
-end
 
-if ~isempty(missing_toolboxes)
-    error_msg = sprintf('HERA requires the following missing toolboxes:\n');
-    for i = 1:length(missing_toolboxes)
-        error_msg = sprintf('%s - %s\n', error_msg, missing_toolboxes{i});
+    if ~isempty(missing_toolboxes)
+        error_msg = sprintf('HERA requires the following missing toolboxes:\n');
+        for i = 1:length(missing_toolboxes)
+            error_msg = sprintf('%s - %s\n', error_msg, missing_toolboxes{i});
+        end
+        error('%s\nPlease install them via the Add-On Explorer.', error_msg);
     end
-    error('%s\nPlease install them via the Add-On Explorer.', error_msg);
 end
 
 % Check if the function is called with the 'userInput' struct.
@@ -1070,18 +1073,52 @@ end
 
 %% Function to load the language JSON file.
 function lang = language_code(language_code)
-    % Determine the base path depending on whether the script is compiled or running in the editor.
+    % Define potential paths for the language file
+    possible_paths = {};
+    
     if isdeployed
-        base_path = mcr.runtime.getApplicationRoot;
+        % 1. Root of the CTF (common for AdditionalFiles)
+        possible_paths{end+1} = fullfile(ctfroot, 'language');
+        % 2. Inside +HERA package in CTF
+        possible_paths{end+1} = fullfile(ctfroot, '+HERA', 'language');
+        % 3. Relative to the compiled function location
+        possible_paths{end+1} = fullfile(fileparts(mfilename('fullpath')), 'language');
     else
-        base_path = fileparts(mfilename('fullpath'));
+        % Standard development path
+        possible_paths{end+1} = fullfile(fileparts(mfilename('fullpath')), 'language');
     end
-    file_path = fullfile(base_path, 'language', [language_code, '.json']);
-    if ~exist(file_path, 'file')
+    
+    file_path = '';
+    found = false;
+    
+    for i = 1:length(possible_paths)
+        candidate = fullfile(possible_paths{i}, [language_code, '.json']);
+        if exist(candidate, 'file')
+            file_path = candidate;
+            found = true;
+            break;
+        end
+    end
+    
+    if ~found
+        % Debugging output for deployed mode
+        if isdeployed
+            fprintf('DEBUG: ctfroot = %s\n', ctfroot);
+            fprintf('DEBUG: mfilename path = %s\n', fileparts(mfilename('fullpath')));
+            fprintf('DEBUG: Searched locations:\n');
+            for i = 1:length(possible_paths)
+                fprintf('  - %s\n', possible_paths{i});
+            end
+            % List contents of ctfroot to help debugging
+            fprintf('DEBUG: Contents of ctfroot:\n');
+            d = dir(ctfroot);
+            for k=1:length(d), fprintf('  %s\n', d(k).name); end
+        end
         error('Language file for code "%s" not found.', language_code);
     end
+    
     % Read and decode the language file.
-    json_text = fileread(file_path); % Corrected: fileread
+    json_text = fileread(file_path); 
     lang = jsondecode(json_text);
 end
 end

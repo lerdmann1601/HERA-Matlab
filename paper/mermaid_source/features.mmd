@@ -1,0 +1,16 @@
+graph TD
+    %% Styling
+    classDef default fill:#ffffff,stroke:#333,stroke-width:2px,color:#000;
+    classDef highlight fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000;
+    classDef start fill:#f9f9f9,stroke:#666,stroke-width:2px,color:#000;
+
+    A[User Configuration]:::start --> B{Number of Metrics}
+    B -- 1 Metric --> C[Stage 1 Only]
+    B -- 2 Metrics --> D{Mode Selection}
+    D -- Compensatory --> E[Stage 1 + Stage 2]
+    D -- Tie-Break --> F[Stage 1 + Stage 3]
+    B -- 3 Metrics --> G[Full Hierarchy]
+    C --> H[Final Ranking]:::highlight
+    E --> H
+    F --> H
+    G --> H

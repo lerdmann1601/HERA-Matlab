@@ -1,0 +1,15 @@
+graph TD
+    %% Styling
+    classDef default fill:#ffffff,stroke:#333,stroke-width:2px,color:#000;
+    classDef highlight fill:#e6f3ff,stroke:#0066cc,stroke-width:3px,color:#000;
+    classDef start fill:#f9f9f9,stroke:#666,stroke-width:2px,color:#000;
+
+    A[Input Data]:::start --> B[Stage 1: Initial Ranking]
+    B --> C[Stage 2: Compensatory Correction]
+    C --> D{Rank Stable?}
+    D -- No --> C
+    D -- Yes --> E{Ambiguity Type?}
+    E -- M2 Neutral --> F["Stage 3a: M3 Correction<br/>(One-time)"]
+    E -- M1 & M2 Neutral --> G["Stage 3b: M3 Tie-Break<br/>(Iterative)"]
+    F --> H[Final Consensus Ranking]:::highlight
+    G --> H
