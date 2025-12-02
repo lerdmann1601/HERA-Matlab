@@ -144,8 +144,6 @@ function start_ranking(varargin)
 %   fclose(fid);
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
 % Import the HERA namespace to find internal functions
 import HERA.*

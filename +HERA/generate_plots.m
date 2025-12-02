@@ -36,8 +36,6 @@ function generate_plots(results, thresholds, shared_info, styles)
 %   PDF reports             - Several PDF files that bundle the graphics thematically.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
 %% 1. Initialization and Style Definition
 % Unpack the passed structures into local variables for easier access.

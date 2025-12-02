@@ -59,9 +59,6 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   h_fig_hist_widths - Handle of the CI width distribution graphic.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
-
 
 %% 1. Dynamic determination of the optimal bootstrap count (B)
 % Initialization of parameters from the configuration structure.

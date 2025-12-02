@@ -32,8 +32,6 @@ function run_unit_test(varargin)
 %   Console output with detailed diagnostics and a saved log file.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
 % Import the HERA namespace to test internal functions
 import HERA.*

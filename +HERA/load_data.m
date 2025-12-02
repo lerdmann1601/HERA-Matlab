@@ -36,8 +36,6 @@ function [is_valid, all_data, dataset_names, num_probanden, num_datasets, pair_i
 %   pair_idx_all  - (matrix) An Nx2 matrix containing the indices for all pairwise comparisons.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
     % Initialize return values for the error case
     is_valid = false;

@@ -93,9 +93,6 @@ function results = run_ranking(userInput)
 %       - (Optional) PDF Report and high-res figures.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
-
 
 %% 1. Initialization and Setup
 

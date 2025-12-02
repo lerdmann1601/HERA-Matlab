@@ -29,8 +29,6 @@ function power_results = power_analysis(all_data, all_alpha_matrices, thresholds
 %   power_results    - Structure containing the power matrix for each metric.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
     num_metrics = numel(all_data);
     num_pairs = size(pair_idx_all, 1);

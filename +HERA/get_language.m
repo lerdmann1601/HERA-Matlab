@@ -21,8 +21,6 @@ function lang = get_language()
 %   lang - A struct containing all localized text strings for the English language.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
 %% 1. Initialization
     % Sets the language code directly to English.

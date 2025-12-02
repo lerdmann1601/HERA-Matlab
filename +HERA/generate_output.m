@@ -33,9 +33,6 @@ function generate_output(results, thresholds, config, shared_info)
 %   Log File         - A CSV file ('*_log.csv') with the detailed log of all comparisons.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
-
 
 %% 1. Initialization and Data Extraction
 % Unpack the passed structures into local variables for easier access.

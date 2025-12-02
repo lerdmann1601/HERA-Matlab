@@ -18,8 +18,6 @@ function defaults = default()
 %              fields with their standard values.
 %
 % Author:   Lukas von Erdmannsdorff
-% Date:     12.10.2025
-% Version:  1
 
     defaults = struct();
     

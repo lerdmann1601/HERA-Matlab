@@ -45,6 +45,8 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 %   all_p_value_matrices - Cell array of raw p-values for each comparison.
 %   swap_details         - Struct with detailed log information about the swap operations.
 %   intermediate_orders  - Struct with the rankings after each stage.
+% 
+%Author:   Lukas von Erdmannsdorff
 
 %% 1. Pre-calculation: Significance for all pairs and metrics
 % Initialization of basic parameters.
