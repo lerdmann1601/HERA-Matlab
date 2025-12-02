@@ -3,14 +3,14 @@
 
 <img src="assets/hera_logo.svg" alt="HERA Logo" width="300"/>
 
-# HERA: Hierarchical-Compensatory Ranking Algorithm
+# HERA: Hierarchical-Compensatory, Effect-Size-Driven and Non-Parametric Ranking Algorithm 
 
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2021a%2B-orange.svg)](https://www.mathworks.com/products/matlab.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
 
-**Objective, Non-Parametric, and Effect-Size-Driven Ranking for Scientific Benchmarking**
+**HERA is made for Scientific Benchmarking**
 
 [Key Features](#key-features) • [Installation](#installation) • [Quick Start](#quick-start) • [Documentation](#documentation) • [Citation](#citation)
 
