@@ -47,22 +47,22 @@ HERA operates on paired data matrices where rows represent subjects (or datasets
 
 HERA quantifies differences using statistical significance and effect sizes to ensure practical relevance independent of sample size [@Cohen1988; @Sullivan2012]. A "win" always requires satisfying three conjunctive criteria, if not it is considered "neutral":
 
-- **Significance**: \(p < \alpha_{\text{Holm}}\) (Holm-Bonferroni corrected). Pairwise comparisons use the Wilcoxon signed-rank test [@Wilcoxon1945], with p-values corrected using the step-down Holm-Bonferroni method [@Holm1979] to control the Family-Wise Error Rate (FWER).
-- **Stochastic Dominance (Cliff's Delta)**: The effect size \(d\) must exceed a bootstrapped threshold \(\theta_d\). Cliff's Delta ($d = P(X>Y) - P(Y>X)$) is robust to outliers and quantifies the degree of overlap between distributions [@Cliff1993].
-- **Magnitude (Relative Difference)**: The Relative Difference (RelDiff) must exceed a threshold \(\theta_r\). RelDiff quantifies the magnitude on the metric scale, normalized to the mean absolute value [@Makridakis1993].
+- **Significance**: $p < \alpha_{\text{Holm}}$ (Holm-Bonferroni corrected). Pairwise comparisons use the Wilcoxon signed-rank test [@Wilcoxon1945], with p-values corrected using the step-down Holm-Bonferroni method [@Holm1979] to control the Family-Wise Error Rate (FWER).
+- **Stochastic Dominance (Cliff's Delta)**: The effect size $d$ must exceed a bootstrapped threshold $\theta_d$. Cliff's Delta ($d = P(X>Y) - P(Y>X)$) is robust to outliers and quantifies the degree of overlap between distributions [@Cliff1993].
+- **Magnitude (Relative Difference)**: The Relative Difference (RelDiff) must exceed a threshold $\theta_r$. RelDiff quantifies the magnitude on the metric scale, normalized to the mean absolute value [@Makridakis1993].
 
 **Dual Criteria & SEM Lower Bound**
-HERA's complementary logic requires both dominance and magnitude, preventing "wins" based on trivial consistent differences or noisy outliers [@Lakens2013]. Thresholds are determined via Percentile Bootstrapping (lower $\alpha/2$-quantile) [@Rousselet2021]. To filter noise in low-variance datasets, the RelDiff threshold enforces a lower bound based on the Standard Error of the Mean (SEM), ensuring $\theta_{r} \geq \theta_{\mathrm{SEM}}$. This approach is inspired by the concept of the 'Smallest Worthwhile Change' [Hopkins 2004], but adapted for HERA to quantify the uncertainty of the group mean rather than individual measurement error.
+HERA's complementary logic requires both dominance and magnitude, preventing "wins" based on trivial consistent differences or noisy outliers [@Lakens2013]. Thresholds are determined via Percentile Bootstrapping (lower $\alpha/2$-quantile) [@Rousselet2021]. To filter noise in low-variance datasets, the RelDiff threshold enforces a lower bound based on the Standard Error of the Mean (SEM), ensuring $\theta_{r} \geq \theta_{\mathrm{SEM}}$. This approach is inspired by the concept of the "Smallest Worthwhile Change" [@Hopkins2004], but adapted for HERA to quantify the uncertainty of the group mean rather than individual measurement error.
 
 ### Hierarchical-Compensatory Logic
 
 The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively:
 
-- **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric \(M_1\). In case of a tie cliffs delta is used to break the tie.
-- **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric \(M_2\). This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
-- **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric \(M_3\). It applies two sub-logics to ensure a total ordering:
+- **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie cliffs delta is used to break the tie.
+- **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric $M_2$. This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
+- **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two sub-logics to ensure a total ordering:
   - **Sublogic 3a**: A one-time correction if the previous metric is "neutral" based on the HERA criteria. This handles cases where two methods are indistinguishable in the second metric while still respecting the initial ranking.
-  - **Sublogic 3b**: To resolve groups of remaining undecided methods, an iterative correction loop is applied if both (M_1) and (M_2) are "neutral", iteratively using metric (M_3) until a final stable ranking is found.
+  - **Sublogic 3b**: To resolve groups of remaining undecided methods, an iterative correction loop is applied if both $M_1$ and $M_2$ are "neutral", iteratively using metric $M_3$ until a final stable ranking is found.
 
 ![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
 
@@ -79,11 +79,11 @@ HERA integrates advanced resampling methods to quantify uncertainty:
 
 HERA offers a flexible configuration of up to three metrics. This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features.
 
-![Flexibal Configuration options for Ranking Logic](images/features.png)
+![Flexible Configuration options for Ranking Logic](images/features.png)
 
 - **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV exports.
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
-- **Convergence Analysis**: To avoid the common pitfall of using an arbitrary number of bootstrap iterations, HERA implements an adaptive algorithm. It automatically monitors the stability of the estimated confidence intervals and effect size thresholds, continuing the resampling process until the estimates converge within a specified tolerance, thus determining the optimal number of iterations \(B\) dynamically. If the charactersitics of the data for bootstapping are known, the number of bootstrap iterations can be set manually.
+- **Convergence Analysis**: To avoid the common pitfall of using an arbitrary number of bootstrap iterations, HERA implements an adaptive algorithm. It automatically monitors the stability of the estimated confidence intervals and effect size thresholds, continuing the resampling process until the estimates converge within a specified tolerance, thus determining the optimal number of iterations $B$ dynamically. If the characteristics of the data for bootstrapping are known, the number of bootstrap iterations can be set manually.
 - **Data Integration**: HERA supports seamless data import from standard formats (CSV, Excel) and MATLAB tables, facilitating integration into existing research pipelines.
 - **Accessibility**: HERA can be easily installed by cloning the GitHub repository and running a setup script, or deployed as a standalone application. An interactive wizard guides users through the analysis without requiring programming expertise, while a comprehensive API allows for automated batch processing.
 
