@@ -22,6 +22,7 @@ jobs:
           products: |
             Statistics_and_Machine_Learning_Toolbox
             Parallel_Computing_Toolbox
+            MATLAB_Compiler
 
       - name: Build HERA Runtime
         uses: matlab-actions/run-command@v2

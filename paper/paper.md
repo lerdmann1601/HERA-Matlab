@@ -52,7 +52,7 @@ HERA quantifies differences using statistical significance and effect sizes to e
 - **Magnitude (Relative Difference)**: The Relative Difference (RelDiff) must exceed a threshold \(\theta_r\). RelDiff quantifies the magnitude on the metric scale, normalized to the mean absolute value [@Makridakis1993].
 
 **Dual Criteria & SEM Lower Bound**
-HERA's complementary logic requires both dominance and magnitude, preventing "wins" based on trivial consistent differences or noisy outliers [@Lakens2013]. Thresholds are determined via Percentile Bootstrapping (lower $\alpha/2$-quantile) [@Rousselet2021]. To filter noise in low-variance datasets, the RelDiff threshold enforces a "Smallest Worthwhile Effect" lower bound derived from the Standard Error of Measurement (SEM) [@Hopkins2004], ensuring $\theta_{r} \geq \theta_{\mathrm{SEM}}$.
+HERA's complementary logic requires both dominance and magnitude, preventing "wins" based on trivial consistent differences or noisy outliers [@Lakens2013]. Thresholds are determined via Percentile Bootstrapping (lower $\alpha/2$-quantile) [@Rousselet2021]. To filter noise in low-variance datasets, the RelDiff threshold enforces a lower bound based on the Standard Error of the Mean (SEM), ensuring $\theta_{r} \geq \theta_{\mathrm{SEM}}$. This approach is inspired by the concept of the 'Smallest Worthwhile Change' [Hopkins 2004], but adapted for HERA to quantify the uncertainty of the group mean rather than individual measurement error.
 
 ### Hierarchical-Compensatory Logic
 

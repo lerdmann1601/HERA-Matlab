@@ -26,19 +26,21 @@ function build_hera()
 % Author:   Lukas von Erdmannsdorff
 
     %% 1. Initialization and Path Detection
-    % Determine the project root directory. 
-    % Assuming this script runs from 'deploy' folder or root.
-    currentPath = pwd;
-    if exist(fullfile(currentPath, '+HERA'), 'dir')
-        projectRoot = currentPath;
-    else
-        % Check parent directory if we are in a subfolder (e.g., /deploy)
-        parentDir = fileparts(currentPath);
-        if exist(fullfile(parentDir, '+HERA'), 'dir')
-            projectRoot = parentDir;
-        else
-            error('Could not locate +HERA package. Run from project root or deploy folder.');
-        end
+    % Determine the project root directory relative to this script.
+    % This script is located in <ProjectRoot>/deploy/build_hera.m
+    
+    % Get the full path of this script
+    scriptPath = mfilename('fullpath');
+    
+    % Get the directory containing this script (the 'deploy' folder)
+    deployDir = fileparts(scriptPath);
+    
+    % Get the parent directory (the Project Root)
+    projectRoot = fileparts(deployDir);
+    
+    % Verify that the +HERA package exists in the root
+    if ~exist(fullfile(projectRoot, '+HERA'), 'dir')
+        error('Could not locate +HERA package. Expected at: %s', fullfile(projectRoot, '+HERA'));
     end
     
     % Define and create the output directory.

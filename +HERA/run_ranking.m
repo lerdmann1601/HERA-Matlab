@@ -448,7 +448,7 @@ fprintf(['\n' lang.run_ranking.bootstrap_ranks '\n']);
 % If enabled, perform a post-hoc, non-parametric power analysis.
 if userInput.run_power_analysis
     fprintf(['\n' lang.run_ranking.calc_power '\n']);
-    power_results = power_analysis(all_data, all_alpha_matrices, thresholds, num_probanden, userInput.power_simulations, pair_idx_all, s, lang);
+    power_results = power_analysis(all_data, config, thresholds, num_probanden, userInput.power_simulations, pair_idx_all, s, lang);
 else
     power_results = []; % Set to empty if not performed.
 end

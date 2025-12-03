@@ -1690,7 +1690,7 @@ clc;
         % We use s_global to ensure the bootstrap sampling is reproducible
         % Use 'evalc' to suppress the function's internal console output
         cmd_pwr = ['power_results = power_analysis(' ...
-                   'all_data_pwr, all_alphas_pwr, thresholds, n_pwr, n_sims, pairs_pwr, s_global, lang);'];
+                   'all_data_pwr, config_pwr, thresholds, n_pwr, n_sims, pairs_pwr, s_global, lang);'];
         [~] = evalc(cmd_pwr);
         
         % Extract Result
