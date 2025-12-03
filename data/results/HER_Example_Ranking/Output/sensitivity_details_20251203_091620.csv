@@ -1,0 +1,7 @@
+"Borda Rank";"Borda Score (%)";"Dataset";"OC -> CNR -> SNR";"OC -> SNR -> CNR";"CNR -> OC -> SNR";"CNR -> SNR -> OC";"SNR -> OC -> CNR";"SNR -> CNR -> OC"
+1;"73.3%";"Method D";1;4;2;4;2;1
+2;"53.3%";"Method A";3;1;4;1;6;5
+3;"50.0%";"Method F";4;3;6;2;3;3
+4;"46.7%";"Method E";5;2;5;3;5;2
+5;"43.3%";"Method B";2;5;3;5;4;4
+6;"33.3%";"Method C";6;6;1;6;1;6

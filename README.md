@@ -1,4 +1,5 @@
-<!-- markdownlint-disable MD033 MD013 MD041 -->
+<!-- markdownlint-disable MD013 MD041 -->
+<!-- markdownlint-disable MD033 -->
 <div align="center">
 
 <img src="assets/hera_logo.svg" alt="HERA Logo" width="300"/>
@@ -9,6 +10,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
+<!-- markdownlint-disable-next-line MD013 -->
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0009--3758--7363-green.svg)](https://orcid.org/0009-0009-3758-7363)
 
 <!-- markdownlint-disable-next-line MD036 -->
@@ -178,6 +180,7 @@ HERA.start_ranking('runtest', 'true')
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
+> **Note:** An example use case with synthetic datasets and results are provided in the `data/examples` directory.
 ---
 
 ## Documentation
@@ -395,7 +398,8 @@ algorithm stability.
 You can run the test suite in three ways:
 
 1. **Auto-Log Mode (Default)**
-    Automatically finds a writable folder (e.g., Documents) to save the log file.
+    Automatically finds a writable folder (e.g., Documents) to save the log
+    file.
 
     ```matlab
     import HERA.run_unit_test
@@ -445,7 +449,8 @@ If you use HERA in your research, please cite:
 ```bibtex
 @software{HERA_Matlab,
   author = {von Erdmannsdorff, Lukas},
-  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm},
+  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking
+           Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.0.0},
   year = {2025}
