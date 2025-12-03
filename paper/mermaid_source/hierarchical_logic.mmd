@@ -8,8 +8,8 @@ graph TD
     B --> C[Stage 2: Compensatory Correction]
     C --> D{Rank Stable?}
     D -- No --> C
-    D -- Yes --> E{Ambiguity Type?}
-    E -- M2 Neutral --> F["Stage 3a: M3 Correction<br/>(One-time)"]
-    E -- M1 & M2 Neutral --> G["Stage 3b: M3 Tie-Break<br/>(Iterative)"]
-    F --> H[Final Consensus Ranking]:::highlight
-    G --> H
+    D -- Yes --> E["Stage 3a: M3 Tie-Break<br/>(One-time)"]
+    E --> F["Stage 3b: M3 Correction<br/>(Iterative)"]
+    F --> G{Rank Stable?}
+    G -- No --> F
+    G -- Yes --> H[Final Ranking]:::highlight

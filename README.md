@@ -180,7 +180,7 @@ HERA.start_ranking('runtest', 'true')
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
-> **Note:** An example use case with synthetic datasets and results are provided in the `data/examples` directory.
+> **Note:** An example use case with synthetic datasets and results are provided in the `data/examples` directory. See [`data/README.md`](data/README.md) for visual examples of the ranking outputs.
 ---
 
 ## Documentation
