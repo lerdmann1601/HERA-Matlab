@@ -62,7 +62,7 @@ ranking system.
 
 ### Requirements
 
-* **MATLAB** (R2021a or later Required)
+* **MATLAB** (R2024a or later Required)
 * **Statistics and Machine Learning Toolbox** (Required)
 * **Parallel Computing Toolbox** (Required for performance)
 
