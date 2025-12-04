@@ -204,7 +204,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 >
 > **Note:** Please ensure you use enough CPU cores since HERA is a
 > CPU-intensive application due to the extensive use of bootstrap procedures.
-> We have implemented parallelization where possible.
+> I have implemented parallelization where possible.
 ---
 
 ## Documentation
