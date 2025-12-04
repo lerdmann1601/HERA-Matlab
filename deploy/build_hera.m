@@ -23,7 +23,7 @@ function build_hera()
 %   The compiled application and installer are saved in 'deploy/output'.
 %   Console output indicates build progress and status.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     %% 1. Initialization and Path Detection
     % Determine the project root directory relative to this script.
@@ -98,21 +98,27 @@ function build_hera()
             'OutputDir', outputDir, ...
             'RuntimeDelivery', 'web');
         
-        % Step 3: Copy Launcher Scripts to Output
-        fprintf('3. Copying Launcher Scripts...\n');
-        launcherSrc = fullfile(projectRoot, 'release', 'macos', 'HERA_Launcher.command');
-        launcherDst = fullfile(outputDir, 'HERA_Launcher.command');
-        copyfile(launcherSrc, launcherDst);
+        % Step 3: Copy Launcher Scripts to Output (macOS only)
+        if ismac
+            fprintf('3. Copying Launcher Scripts...\n');
+            launcherSrc = fullfile(projectRoot, 'release', 'macos', 'HERA_Launcher.command');
+            launcherDst = fullfile(outputDir, 'HERA_Launcher.command');
+            copyfile(launcherSrc, launcherDst);
+        end
         
         % Success Message
         fprintf('\n========================================\n');
         fprintf('SUCCESS!\n');
         fprintf('1. Standalone App: %s\n', fullfile(outputDir, appName));
         fprintf('2. Installer:      %s\n', fullfile(outputDir, [appName '_Installer']));
-        fprintf('3. Launcher:       %s\n', launcherDst);
+        if ismac
+            fprintf('3. Launcher:       %s\n', launcherDst);
+        end
         fprintf('----------------------------------------\n');
-        fprintf('Share the Installer and the Launcher script with users.\n');
-        fprintf(' The installer sets up the Runtime, but the Launcher is needed for the Terminal on macOS.\n');
+        fprintf('Share the Installer with users.\n');
+        if ismac
+            fprintf(' Also share the Launcher script (needed for Terminal on macOS).\n');
+        end
         fprintf('========================================\n');
         
     catch ME
