@@ -309,7 +309,7 @@
     "ranking": {
         "manual_b_info": "Manual Cluster-Bootstrap count B = %d is used for rank CIs.",
         "searching_optimal_b": "Searching for optimal Cluster-Bootstrap count (B) for rank CIs",
-        "primary_criterion": "Primary: IQR/Median-Ratio",
+        "primary_criterion": "Primary: Max IQR",
         "robust_convergence_info": "Convergence averaged over %d iterations, constant in %d runs with < %.1f%% change, starting after %d runs up to B max %d",
         "simple_convergence_info": "Convergence at < %.1f%% change in IQR/Median-Ratio, starting after %d runs up to B max %d",
         "secondary_criterion": "Secondary: Elbow analysis",
