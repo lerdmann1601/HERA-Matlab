@@ -31,22 +31,22 @@ Below are visual outputs generated from the example datasets using HERA.
 
 The final ranking of the methods based on the hierarchical-compensatory logic with the confidence interval.
 
-![Final Ranking](results/HER_Example_Ranking/Final_Ranking_20251204_140853.png)
+![Final Ranking](results/HERA_Example_Ranking/Final_Ranking_20251204_140853.png)
 
 #### Distribution of Bootstrap Ranks
 
 This diagram displays the frequency of each rank achieved by the methods across the bootstrap samples, illustrating the uncertainty in the ranking.
 
-![Distribution of Bootstrap Ranks](results/HER_Example_Ranking/Graphics/Ranking/Distribution_Bootstrap_Ranks_20251204_140853.png)
+![Distribution of Bootstrap Ranks](results/HERA_Example_Ranking/Graphics/Ranking/Distribution_Bootstrap_Ranks_20251204_140853.png)
 
 #### Rank Shifts (Sankey Diagram)
 
 This diagram shows how the ranking of methods changes across different metrics and their hierarchy level.
 
-![Sankey Diagram](results/HER_Example_Ranking/Graphics/Ranking/Sankey_Rank_Shifts_20251204_140853.png)
+![Sankey Diagram](results/HERA_Example_Ranking/Graphics/Ranking/Sankey_Rank_Shifts_20251204_140853.png)
 
 #### Win-Loss Matrix
 
 This matrix visualizes the pairwise comparisons between methods. Green indicates a win, red a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
-![Win-Loss Matrix](results/HER_Example_Ranking/Graphics/Ranking/Win_Loss_Matrix_20251204_140853.png)
+![Win-Loss Matrix](results/HERA_Example_Ranking/Graphics/Ranking/Win_Loss_Matrix_20251204_140853.png)
