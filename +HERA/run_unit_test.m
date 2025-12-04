@@ -104,9 +104,9 @@ clc;
     
     % Start execution timer
     tic;
-    fprintf('==========================\n');
-    fprintf('Test Unit to validate HERA\n');
-    fprintf('==========================\n');
+    fprintf('===============================================\n');
+    fprintf('Scientific Validation and Testing Unit for HERA\n');
+    fprintf('===============================================\n');
     fprintf('Log File:\n%s\n', log_path);
     fprintf('\n')
 

@@ -22,3 +22,10 @@ jobs:
         uses: matlab-actions/run-command@v2
         with:
           command: run('tests/run_tests.m')
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: tests/logs/*.txt
