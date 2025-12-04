@@ -60,9 +60,9 @@ ranking system.
 
 ### Requirements
 
-* **MATLAB** (R2021a or later recommended)
+* **MATLAB** (R2021a or later Required)
 * **Statistics and Machine Learning Toolbox** (Required)
-* **Parallel Computing Toolbox** (Recommended for performance)
+* **Parallel Computing Toolbox** (Required for performance)
 
 ### Setup
 
@@ -180,7 +180,14 @@ HERA.start_ranking('runtest', 'true')
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
-> **Note:** An example use case with synthetic datasets and results are provided in the `data/examples` directory. See [`data/README.md`](data/README.md) for visual examples of the ranking outputs.
+> **Note:** An example use case with synthetic datasets and results is
+> provided in the `data/examples` directory. See `data/README.md` for a
+> walkthrough of the example use case and visual examples of the ranking
+> outputs.
+>
+> **Note:** Please ensure you use enough CPU cores since HERA is a
+> CPU-intensive application due to the extensive use of bootstrap procedures.
+> We have implemented parallelization where possible.
 ---
 
 ## Documentation
