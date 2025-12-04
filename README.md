@@ -232,7 +232,6 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 * **Filename**: Must match `metric_names` (e.g., `Accuracy.csv`).
 * **Format**: CSV or Excel (`.xlsx`).
 * **Organization**: One file per metric.
-* **Filename**: Must match `metric_names` (e.g., `Accuracy.csv`).
 * **Dimensions**: Rows = Subjects ($N$), Columns = Methods ($M$).
 * **Consistency**: All files must have identical dimensions.
 
