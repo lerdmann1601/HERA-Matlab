@@ -492,8 +492,13 @@ clc;
         
         table_data = {
             'ZeroVar: Delta Thresh', sprintf('%.4e', d_thr(1)), '< 1e-12', 'OK';
+            'ZeroVar: RelDiff Boot', sprintf('%.4e', r_thr_b(1)), '0 (No Var)', '-';
+            'ZeroVar: SEM Thr',      sprintf('%.4e', min_r_thr(1)), '0 (No Var)', '-';
+            'ZeroVar: Final RelDiff',sprintf('%.4e', r_thr(1)), 'max(Boot, SEM)', '-';
             'SmallVar: Delta Thresh', sprintf('%.4f', d_thr(2)), '> 0', 'OK';
-            'SEM Logic (SmallVar)', sprintf('%.4f', r_thr(2)), 'max(Boot, SEM)', char(string(sem_logic_ok));
+            'SmallVar: RelDiff Boot', sprintf('%.4f', r_thr_b(2)), 'Bootstrap', '-';
+            'SmallVar: SEM Thr',      sprintf('%.4f', min_r_thr(2)), 'SEM Lower Bound', '-';
+            'SmallVar: Final RelDiff',sprintf('%.4f', r_thr(2)), 'max(Boot, SEM)', char(string(sem_logic_ok));
             'BCa Normal (SmallVar)', sprintf('%.2f / %.2f', z0_val, a_val), 'Finite', char(string(bca_valid_normal));
             'BCa ZeroVar (Safety)', sprintf('%.2f / %.2f', z0_zero, a_zero), '0.00 / 0.00', char(string(protection_ok))
         };

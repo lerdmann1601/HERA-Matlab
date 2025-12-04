@@ -50,7 +50,7 @@
       "smoothing_window": 3,
       "convergence_streak_needed": 3
     },
-    "folderPath": "/HERA-Matlab/data/examples",
+    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples",
     "fileType": ".csv",
     "available_metrics": [
       "CNR",
@@ -62,7 +62,7 @@
       "CNR",
       "SNR"
     ],
-    "output_dir": "/HERA-Matlab/data/results",
+    "output_dir": "/Users/lukasvonerdmannsdorff/Desktop",
     "selected_permutations": [
       [
         3,
