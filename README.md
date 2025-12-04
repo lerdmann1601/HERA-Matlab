@@ -81,7 +81,9 @@ ranking system.
     setup_HERA
     ```
 
-### Standalone Runtime
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Standalone Runtime</strong></summary>
 
 HERA can be compiled into a standalone application for macOS, Linux, and
 Windows. The build process generates an **installer** that automatically
@@ -121,13 +123,19 @@ The generated installer handles the dependency setup for you.
    * **Linux**: Run `./run_HERA_Runtime.sh <RuntimePath>` from the
      terminal.
 
-#### Automated Build (GitHub Actions)
+</details>
+<!-- markdownlint-enable MD033 -->
+
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Automated Build (GitHub Actions)</strong></summary>
 
 > **Note:** This requires a valid MATLAB license to be configured as a secret
 > (`MATLAB_LICENSE`) in the repository settings. Student licenses may
 > not support this feature.
 
-To enable GitHub Actions for building and testing, you need to provide a valid MATLAB license:
+To enable GitHub Actions for building and testing, you need to provide a valid
+MATLAB license:
 
 1. Go to your repository's **Settings** > **Secrets and variables** > **Actions**.
 2. Click **New repository secret**.
@@ -135,7 +143,8 @@ To enable GitHub Actions for building and testing, you need to provide a valid M
 
 **Running the Build:**
 
-This workflow is set to **manual execution** (`workflow_dispatch`) to save resources.
+This workflow is set to **manual execution** (`workflow_dispatch`) to save
+resources.
 
 1. Navigate to the **Actions** tab in the repository.
 2. Select **Build HERA Runtime** from the sidebar.
@@ -143,9 +152,15 @@ This workflow is set to **manual execution** (`workflow_dispatch`) to save resou
 
 The workflow performs the following steps:
 
-1. **Unit Testing**: Runs the full test suite (`HERA.run_unit_test`) to ensure code integrity.
-2. **Compilation**: Builds the standalone application for the target operating system (macOS/Linux/Windows) using the `deploy/build_hera.m` script.
-3. **Artifact Upload**: Uploads the compiled installer and application as build artifacts, which can be downloaded from the GitHub Actions run page.
+1. **Unit Testing**: Runs the full test suite (`HERA.run_unit_test`) to ensure
+   code integrity.
+2. **Compilation**: Builds the standalone application for the target operating
+   system (macOS/Linux/Windows) using the `deploy/build_hera.m` script.
+3. **Artifact Upload**: Uploads the compiled installer and application as build
+   artifacts, which can be downloaded from the GitHub Actions run page.
+
+</details>
+<!-- markdownlint-enable MD033 -->
 
 ---
 
