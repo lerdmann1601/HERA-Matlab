@@ -203,8 +203,8 @@ else
         non_zero_median_idx = med_widths > 0; % Avoid division by zero.
         relative_iqr(non_zero_median_idx) = iqr_widths(non_zero_median_idx) ./ med_widths(non_zero_median_idx);
         
-        % The final stability value is the median of these relative IQRs.
-        stability_vector_b(b_idx) = median(relative_iqr, 'omitnan');
+        % The final stability value is the maximum of the IQR widths (absolute stability).
+        stability_vector_b(b_idx) = max(iqr_widths, [], 'all', 'omitnan');
         final_b_idx = b_idx; % Keep track of the last executed index.
         
         % Perform the convergence check to see if the stability has plateaued.
@@ -351,7 +351,7 @@ else
     names_to_legend = {};
     
     % Plot the raw stability curve.
-    p1 = plot(ax, B_tested_vector_b, stability_vector_b_plotted * 100, '-o', ...
+    p1 = plot(ax, B_tested_vector_b, stability_vector_b_plotted, '-o', ...
          'LineWidth', 1.5, 'MarkerSize', 6, 'MarkerFaceColor', styles.colors.blue_marker, 'Color', styles.colors.blue_marker);
     handles_to_legend(end+1) = p1;
     names_to_legend{end+1} = lang.plots.legend.unsmoothed;
@@ -363,7 +363,7 @@ else
     if use_robust_convergence
         smoothing_window = config.bootstrap_ranks.smoothing_window;
         smoothed_stability_plotted = movmean(stability_vector_b_plotted, smoothing_window, 'omitnan');
-        p2 = plot(ax, B_tested_vector_b, smoothed_stability_plotted * 100, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
+        p2 = plot(ax, B_tested_vector_b, smoothed_stability_plotted, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
         handles_to_legend(end+1) = p2;
         names_to_legend{end+1} = lang.plots.legend.smoothed;
     end
@@ -374,7 +374,7 @@ else
     
     xlim(ax, [min(B_tested_vector_b), max(B_tested_vector_b) * 1.2]);
     xlabel(ax, lang.plots.xlabels.bootstraps, 'Color', styles.colors.text, 'FontSize', styles.font.label);
-    ylabel(ax, lang.plots.ylabels.stability, 'Color', styles.colors.text, 'FontSize', styles.font.label); 
+    ylabel(ax, lang.plots.ylabels.stability_rank, 'Color', styles.colors.text, 'FontSize', styles.font.label); 
     set(ax, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
 
     % Plot the LOCAL elbow (if convergence failed)
@@ -384,7 +384,7 @@ else
         
         if local_elbow_idx <= numel(stability_vector_b_plotted)
             x_local = B_tested_vector_b(local_elbow_idx);
-            y_local = stability_vector_b_plotted(local_elbow_idx) * 100;
+            y_local = stability_vector_b_plotted(local_elbow_idx);
             
             % Define the color for the local elbow (same as smoothed curve)
             color_local_elbow = [0.8500 0.3250 0.0980]; 
@@ -410,7 +410,7 @@ else
     selected_B_final_idx = find(B_tested_vector_b == selected_B_final, 1);
     if ~isempty(selected_B_final_idx)
         x_pos = selected_B_final;
-        y_pos = stability_vector_b_plotted(selected_B_final_idx) * 100;
+        y_pos = stability_vector_b_plotted(selected_B_final_idx);
         
         % Plot the 'x' marker, but hide it from the legend.
         plot(ax, x_pos, y_pos, 'x', 'Color', styles.colors.red_marker, ...

@@ -24,6 +24,11 @@ jobs:
             Parallel_Computing_Toolbox
             MATLAB_Compiler
 
+      - name: Run Unit Tests
+        uses: matlab-actions/run-command@v2
+        with:
+          command: run('tests/run_tests.m')
+
       - name: Build HERA Runtime
         uses: matlab-actions/run-command@v2
         with:

@@ -502,8 +502,8 @@
             "ci_width_dist": "Distribution of Confidence Interval Widths across %d pairwise comparisons (B = %d)\n",
             "rank_stability_convergence_name": "Convergence of Rank Stability",
             "rank_stability_convergence_global": "Convergence of Rank Stability (Global)",
-            "rank_stability_convergence": "Convergence of Cluster-Bootstrap Rank Stability (IQR/Median Ratio)\n",
-            "rank_stability_convergence_n": "Global Convergence of Rank Stability (Cluster Bootstrap)\n\n(Median IQR-to-Median Ratio across all datasets; n = %d trials)\n",
+            "rank_stability_convergence": "Convergence of Cluster-Bootstrap Rank Stability\n",
+            "rank_stability_convergence_n": "Global Convergence of Rank Stability (Cluster Bootstrap)\n\n(Max IQR across all datasets; n = %d trials)\n",
             "rank_dist_name": "Distribution of Bootstrap Ranks",
             "rank_dist": "Distribution of final Bootstrap Ranks (B = %d)\n",
             "initial_ranking": "Ranking by %s",
@@ -549,7 +549,8 @@
             "rank_metric_2": "Rank by Metric 2",
             "rank_metric_3": "Rank by Metric 3",
             "rank": "Rank",
-            "stability": "Stability (IQR/Median) [%]"
+            "stability": "Stability (IQR/Median) [%]",
+            "stability_rank": "Stability (Max IQR in Ranks)"
         },
         "misc": {
             "optimal_b_text": "  B = %d",

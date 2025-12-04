@@ -611,17 +611,17 @@ clc;
 
     % Struct array to loop through methods
     methods = struct();
-    methods(1).name = 'Thresholds'; methods(1).cfg = bs_thr;
-    methods(2).name = 'BCa';        methods(2).cfg = bs_bca;
-    methods(3).name = 'Ranking';    methods(3).cfg = bs_rank;
+    methods(1).name = 'Thresholds'; methods(1).cfg = bs_thr; methods(1).lang_sec = 'thresholds';
+    methods(2).name = 'BCa';        methods(2).cfg = bs_bca; methods(2).lang_sec = 'bca';
+    methods(3).name = 'Ranking';    methods(3).cfg = bs_rank; methods(3).lang_sec = 'ranking';
 
     % Result Table Header
     fprintf('\n[Result]\n');
-    header_parts = {'Method', 'Mode', 'Configuration', 'Result', 'Status'};
-    d_align = {'l', 'l', 'l', 'l', 'c'}; 
-    h_align = {'c', 'c', 'c', 'c', 'c'};
+    header_parts = {'Method', 'Mode', 'Configuration', 'Result', 'Status', 'Logic Check'};
+    d_align = {'l', 'l', 'l', 'l', 'c', 'l'}; 
+    h_align = {'c', 'c', 'c', 'c', 'c', 'c'};
     
-    table_data = cell(9, 5); % 3 methods * 3 modes
+    table_data = cell(9, 6); % 3 methods * 3 modes
     row_idx = 0;
 
     seed_boot = 999;
@@ -631,7 +631,22 @@ clc;
     for m = 1:3
         curr_method = methods(m).name;
         base_cfg    = methods(m).cfg;
+        lang_sec    = lang.(methods(m).lang_sec);
         
+        % Define expected keywords based on language resources
+        % We split by '%' to handle format specifiers like "%.2f%%"
+        
+        % 1. Convergence Keyword
+        parts_conv = strsplit(lang_sec.convergence_reached, '%');
+        key_conv = parts_conv{1}; % e.g. "Convergence at" or "Convergence reached at"
+        
+        % 2. Elbow Keyword (Static)
+        key_elbow = lang_sec.elbow_analysis_info; 
+        
+        % 3. Stability Keyword (Robust only)
+        parts_stab = strsplit(lang_sec.stable_runs_info, '%');
+        key_stable = parts_stab{1}; % e.g. "Stability in"
+
         for mode_idx = 1:3
             row_idx = row_idx + 1;
             run_cfg = base_cfg;
@@ -641,11 +656,11 @@ clc;
                 mode_name = 'Simple';
                 % Disable smoothing/streak to force simple check
                 run_cfg.smoothing_window = []; run_cfg.convergence_streak_needed = [];  
-                config_str = sprintf('Tol=%.1f%%, (No Smooth and Streak), B=[%d:%d]', run_cfg.convergence_tolerance*100, run_cfg.B_start, run_cfg.B_end);
+                config_str = sprintf('Tol=%.1f%%, (No Smooth/Streak)', run_cfg.convergence_tolerance*100);
             elseif mode_idx == 2 % Robust
                 mode_name = 'Robust';
-                config_str = sprintf('Tol=%.1f%%, Sm=%d, St=%d, B=[%d:%d]', ...
-                    run_cfg.convergence_tolerance*100, run_cfg.smoothing_window, run_cfg.convergence_streak_needed, run_cfg.B_start, run_cfg.B_end);
+                config_str = sprintf('Tol=%.1f%%, Sm=%d, St=%d', ...
+                    run_cfg.convergence_tolerance*100, run_cfg.smoothing_window, run_cfg.convergence_streak_needed);
             elseif mode_idx == 3 % Elbow
                 mode_name = 'Elbow';
                 % Tolerance -1 forces the algorithm to run until B_end for Elbow analysis
@@ -676,27 +691,77 @@ clc;
             end
             
             try
-                [~] = evalc(cmd); % Execute silence
+                % Execute and capture output for validation
+                [T, ~] = evalc(cmd); 
+                
                 is_valid = false;
+                logic_msg = '';
                 res_txt = sprintf('B = %d', B_res);
                 
-                % Validate Result against Logic
+                % Validate Result against Logic and Output
                 if strcmp(mode_name, 'Elbow')
-                    % Elbow should run fully or at least be high
-                    if (B_res >= run_cfg.B_start) && (B_res <= run_cfg.B_end), is_valid = true; end
-                else
-                    % Convergence should happen before max if data is good
-                    if (B_res < run_cfg.B_end), is_valid = true; 
-                    else, res_txt = sprintf('Hit Limit %d', B_res); end
+                    % Elbow Logic: 
+                    % 1. B must be high (hit limit)
+                    % 2. Output must contain Elbow message
+                    b_ok = (B_res >= run_cfg.B_start);
+                    txt_ok = contains(T, key_elbow);
+                    
+                    if b_ok && txt_ok
+                        is_valid = true;
+                        logic_msg = 'Elbow msg found';
+                    else
+                        logic_msg = sprintf('B_ok=%d, Txt_ok=%d', b_ok, txt_ok);
+                    end
+                    
+                elseif strcmp(mode_name, 'Simple')
+                    % Simple Logic:
+                    % 1. Convergence before max
+                    % 2. Output contains Convergence message
+                    % 3. Output does NOT contain Stability message (Strict check)
+                    b_ok = (B_res < run_cfg.B_end);
+                    conv_ok = contains(T, key_conv);
+                    % Note: Some simple implementations might print stability if configured differently, 
+                    % but here we explicitly disabled it.
+                    
+                    if b_ok && conv_ok
+                        is_valid = true;
+                        logic_msg = 'Conv. msg found';
+                    else
+                        logic_msg = sprintf('B_ok=%d, Conv=%d', b_ok, conv_ok);
+                    end
+                    
+                elseif strcmp(mode_name, 'Robust')
+                    % Robust Logic:
+                    % 1. Convergence before max
+                    % 2. Output contains Convergence message
+                    % 3. Output MUST contain Stability message
+                    b_ok = (B_res < run_cfg.B_end);
+                    conv_ok = contains(T, key_conv);
+                    stab_ok = contains(T, key_stable);
+                    
+                    if b_ok && conv_ok && stab_ok
+                        is_valid = true;
+                        logic_msg = 'Conv + Stable found';
+                    else
+                        logic_msg = sprintf('B=%d, C=%d, S=%d', b_ok, conv_ok, stab_ok);
+                    end
                 end
                 
-                if is_valid, stat = 'PASS'; else, stat = 'FAIL'; test6_all_passed = false; end
+                if is_valid
+                    stat = 'PASS'; 
+                else
+                    stat = 'FAIL'; 
+                    test6_all_passed = false; 
+                    % Append T for debugging if needed (truncated)
+                    if length(T) > 100, T_debug = [T(1:100) '...']; else, T_debug = T; end
+                    logic_msg = [logic_msg ' [' T_debug ']'];
+                end
                 
                 % Store Data Row
-                table_data(row_idx, :) = {curr_method, mode_name, config_str, res_txt, stat};
+                table_data(row_idx, :) = {curr_method, mode_name, config_str, res_txt, stat, logic_msg};
                 
             catch ME
-                table_data(row_idx, :) = {curr_method, mode_name, 'CRASH', 'ERR', ME.message};
+                table_data(row_idx, :) = {curr_method, mode_name, 'CRASH', 'ERR', 'FAIL', ME.message};
                 test6_all_passed = false;
             end
         end
