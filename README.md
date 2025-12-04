@@ -89,7 +89,7 @@ HERA can be compiled into a standalone application for macOS, Linux, and
 Windows. The build process generates an **installer** that automatically
 downloads the required MATLAB Runtime, making it easy to distribute.
 
-> **Download:** Pre-built installers for macOS  are available in the
+> **Download:** A pre-built installer for macOS (Apple Silicon) is available in the
 > [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) section.
 
 #### Building the Installer
@@ -130,9 +130,8 @@ The generated installer handles the dependency setup for you.
 <details>
 <summary><strong>Automated Build (GitHub Actions)</strong></summary>
 
-> **Note:** For public repositories, no license setup is needed.
-> For private forks, add a valid MATLAB license to be configured as a secret
-> (`MATLAB_LICENSE`) in the repository settings. Student licenses may
+> **Note:** The automated build workflow requires a valid MATLAB license to be configured
+> as a secret(`MATLAB_LICENSE`) in the repository settings. Student licenses may
 > not support this feature.
 
 To enable GitHub Actions for building and testing, you need to provide a valid
