@@ -134,5 +134,8 @@ function build_hera()
             disp('Build Results:');
             disp(buildResults);
         end
+        
+        % Rethrow the error so the CI/CD pipeline knows the build failed
+        rethrow(ME);
     end
 end
