@@ -143,7 +143,7 @@ function start_ranking(varargin)
 %   fprintf(fid, '%s', json_text);
 %   fclose(fid);
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 % Import the HERA namespace to find internal functions
 import HERA.*

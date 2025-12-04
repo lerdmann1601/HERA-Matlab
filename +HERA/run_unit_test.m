@@ -31,7 +31,7 @@ function run_unit_test(varargin)
 % Outputs:
 %   Console output with detailed diagnostics and a saved log file.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 % Import the HERA namespace to test internal functions
 import HERA.*
@@ -610,10 +610,10 @@ clc;
         'convergence_streak_needed', 3, 'convergence_tolerance', 0.005);    
 
     % Struct array to loop through methods
-    methods = struct();
-    methods(1).name = 'Thresholds'; methods(1).cfg = bs_thr; methods(1).lang_sec = 'thresholds';
-    methods(2).name = 'BCa';        methods(2).cfg = bs_bca; methods(2).lang_sec = 'bca';
-    methods(3).name = 'Ranking';    methods(3).cfg = bs_rank; methods(3).lang_sec = 'ranking';
+    test_methods = struct();
+    test_methods(1).name = 'Thresholds'; test_methods(1).cfg = bs_thr; test_methods(1).lang_sec = 'thresholds';
+    test_methods(2).name = 'BCa';        test_methods(2).cfg = bs_bca; test_methods(2).lang_sec = 'bca';
+    test_methods(3).name = 'Ranking';    test_methods(3).cfg = bs_rank; test_methods(3).lang_sec = 'ranking';
 
     % Result Table Header
     fprintf('\n[Result]\n');
@@ -629,9 +629,9 @@ clc;
 
     % Loop through Method -> Mode
     for m = 1:3
-        curr_method = methods(m).name;
-        base_cfg    = methods(m).cfg;
-        lang_sec    = lang.(methods(m).lang_sec);
+        curr_method = test_methods(m).name;
+        base_cfg    = test_methods(m).cfg;
+        lang_sec    = lang.(test_methods(m).lang_sec);
         
         % Define expected keywords based on language resources
         % We split by '%' to handle format specifiers like "%.2f%%"
@@ -674,6 +674,7 @@ clc;
             cmd = '';
             
             % Construct Command String dynamically
+            % Note: We use T = evalc(cmd) to capture output. The assignments inside cmd happen in the workspace.
             if strcmp(curr_method, 'Thresholds')
                 cfg_run.bootstrap_thresholds = run_cfg;
                 cmd = ['[~, ~, ~, ~, ~, ~, ~, B_res, ~, ~, ~, ~, ~] = ' ...
@@ -692,11 +693,18 @@ clc;
             
             try
                 % Execute and capture output for validation
-                [T, ~] = evalc(cmd); 
+                % IMPORTANT: Do not ask for 2nd output from evalc if cmd ends with ;
+                T = evalc(cmd); 
                 
                 is_valid = false;
                 logic_msg = '';
-                res_txt = sprintf('B = %d', B_res);
+                
+                if exist('B_res', 'var')
+                    res_txt = sprintf('B = %d', B_res);
+                else
+                    res_txt = 'B_res missing';
+                    B_res = -1; 
+                end
                 
                 % Validate Result against Logic and Output
                 if strcmp(mode_name, 'Elbow')

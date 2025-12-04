@@ -17,7 +17,7 @@ function defaults = default()
 %   defaults - (struct) A structure containing all necessary configuration
 %              fields with their standard values.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     defaults = struct();
     

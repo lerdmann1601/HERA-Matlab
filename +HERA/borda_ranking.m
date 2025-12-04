@@ -21,7 +21,7 @@ function borda_results = borda_ranking(all_permutation_ranks, dataset_names)
 % Outputs:
 %   borda_results         - Struct with the consensus score (`.score`), final rank (`.rank`), and the detailed rank distribution (`.rank_distribution`).
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     [num_datasets, num_perms] = size(all_permutation_ranks);
     

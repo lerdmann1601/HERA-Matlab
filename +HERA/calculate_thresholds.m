@@ -45,7 +45,7 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %   h_fig_hist_thr     - Handle of the bootstrap median distribution plot.
 %   h_fig_hist_raw     - Handle of the raw effect size distribution plot.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Initialization and Calculation of Initial Statistics
 % Create a dedicated subfolder for the threshold analysis plots.

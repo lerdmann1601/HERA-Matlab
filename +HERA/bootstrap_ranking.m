@@ -54,7 +54,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %   h_figs_rank           - A vector of figure handles for the convergence graphic.
 %   h_fig_hist_rank       - The handle of the histogram graphic showing the final rank distributions.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Initialization and Convergence Check for Optimal B
 % Initialization of local variables from input parameters.

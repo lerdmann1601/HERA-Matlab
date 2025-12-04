@@ -92,7 +92,7 @@ function results = run_ranking(userInput)
 %       - JSON file with machine-readable export.
 %       - (Optional) PDF Report and high-res figures.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Initialization and Setup
 

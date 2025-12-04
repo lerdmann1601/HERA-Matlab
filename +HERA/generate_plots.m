@@ -35,7 +35,7 @@ function generate_plots(results, thresholds, shared_info, styles)
 %   Borda Plot              - PNG file of the consensus ranking (if calculated).
 %   PDF reports             - Several PDF files that bundle the graphics thematically.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Initialization and Style Definition
 % Unpack the passed structures into local variables for easier access.

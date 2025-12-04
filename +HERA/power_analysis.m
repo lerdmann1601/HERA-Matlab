@@ -32,7 +32,7 @@ function power_results = power_analysis(all_data, config, thresholds, num_proban
 % Outputs:
 %   power_results    - Structure containing the power matrix for each metric.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     num_metrics = numel(all_data);
     num_pairs = size(pair_idx_all, 1);

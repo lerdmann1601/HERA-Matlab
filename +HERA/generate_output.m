@@ -32,7 +32,7 @@ function generate_output(results, thresholds, config, shared_info)
 %   Sensitivity File - A CSV file ('*_sensitivity.csv') with the Borda/permutation results (if applicable).
 %   Log File         - A CSV file ('*_log.csv') with the detailed log of all comparisons.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Initialization and Data Extraction
 % Unpack the passed structures into local variables for easier access.

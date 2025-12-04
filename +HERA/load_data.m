@@ -35,7 +35,7 @@ function [is_valid, all_data, dataset_names, num_probanden, num_datasets, pair_i
 %   num_datasets  - (integer) The number of datasets (columns) being compared.
 %   pair_idx_all  - (matrix) An Nx2 matrix containing the indices for all pairwise comparisons.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     % Initialize return values for the error case
     is_valid = false;

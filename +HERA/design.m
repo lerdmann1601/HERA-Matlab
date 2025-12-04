@@ -26,7 +26,7 @@ function styles = design(plot_theme, num_datasets, has_power_results)
 % Outputs:
 %   styles            - Structure containing all color, line, marker, and font definitions.
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 styles = struct();
 is_dark_theme = strcmp(plot_theme, 'dark');
