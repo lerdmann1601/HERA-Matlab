@@ -130,7 +130,8 @@ The generated installer handles the dependency setup for you.
 <details>
 <summary><strong>Automated Build (GitHub Actions)</strong></summary>
 
-> **Note:** This requires a valid MATLAB license to be configured as a secret
+> **Note:** For public repositories, no license setup is needed.
+> For private forks, add a valid MATLAB license to be configured as a secret
 > (`MATLAB_LICENSE`) in the repository settings. Student licenses may
 > not support this feature.
 
