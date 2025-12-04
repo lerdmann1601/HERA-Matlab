@@ -131,8 +131,9 @@ The generated installer handles the dependency setup for you.
 <summary><strong>Automated Build (GitHub Actions)</strong></summary>
 
 > **Note:** The automated build workflow requires a valid MATLAB license to be configured
-> as a secret(`MATLAB_LICENSE`) in the repository settings. Student licenses may
-> not support this feature.
+> as a secret(`MATLAB_LICENSE`) in the repository settings.
+> I sadly can not provide a license for this respository.
+> Student licenses may not support this feature.
 
 To enable GitHub Actions for building and testing, you need to provide a valid
 MATLAB license:
