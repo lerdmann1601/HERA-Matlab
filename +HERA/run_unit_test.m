@@ -2244,6 +2244,7 @@ function [lang, styles] = get_test_resources()
     
     lang.plots.xlabels.bootstraps = 'Bootstraps (B)';
     lang.plots.ylabels.stability = 'Stability (%)';
+    lang.plots.ylabels.stability_rank = 'Stability (Rank)';
     lang.plots.legend.unsmoothed = 'Raw';
     lang.plots.legend.smoothed = 'Smoothed';
     lang.plots.legend.local_elbow = 'Elbow';
