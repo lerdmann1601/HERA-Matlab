@@ -9,7 +9,7 @@ function setup_HERA()
 % Usage:
 %   setup_HERA()
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     fprintf('Initializing HERA Toolbox...\n');
 
