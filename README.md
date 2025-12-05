@@ -6,7 +6,7 @@
 
 # HERA: Hierarchical-Compensatory, Effect-Size-Driven and Non-Parametric Ranking Algorithm
 
-[![MATLAB](https://img.shields.io/badge/MATLAB-R2021a%2B-orange.svg)](https://www.mathworks.com/products/matlab.html)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2024a%2B-orange.svg)](https://www.mathworks.com/products/matlab.html)
 [![Statistics Toolbox](https://img.shields.io/badge/Toolbox-Statistics_and_Machine_Learning-blue.svg)](https://www.mathworks.com/products/statistics.html)
 [![Parallel Computing Toolbox](https://img.shields.io/badge/Toolbox-Parallel_Computing-blue.svg)](https://www.mathworks.com/products/parallel-computing.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -238,6 +238,48 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 * **Organization**: One file per metric.
 * **Dimensions**: Rows = Subjects ($N$), Columns = Methods ($M$).
 * **Consistency**: All files must have identical dimensions.
+
+</details>
+<!-- markdownlint-enable MD033 -->
+
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Methodological Guidelines & Limitations</strong></summary>
+
+The statistical rigor of HERA (e.g., Holm-Bonferroni correction, Bootstrapping)
+imposes practical limits on the number of datasets ($N$) and sample size ($n$).
+Therefore the following guidelines are provided as theoretical considerations
+but should not be taken as strict requirements.
+
+**Number of Datasets ($N$):**
+Increasing $N$ quadratically increases the number of pairwise comparisons ($m =
+N(N-1)/2$), which reduces statistical power due to strict corrections.
+
+* **Minimum ($N=3$)**: Required for a meaningful ranking. ($N=2$ is just a
+    simple comparison).
+* **Optimal ($N \approx 8-10$)**: Balances ranking depth with statistical
+    power (28–45 comparisons).
+* **Upper Limit ($N \approx 15$)**: Not generally recommended. The loss of power
+    from FWER corrections makes detecting true differences unlikely. However,
+    it is possible to use HERA with $N > 15$ and you can just give it a try.
+
+**Sample Size ($n$):**
+A balance between statistical stability and computational feasibility is
+required.
+
+* **Minimum ($n=16$)**: Required for the Wilcoxon test to use the Normal
+    Approximation in Matlab.
+* **Robust Min ($n \approx 25-30$)**: Necessary for stable BCa confidence
+    intervals and Jackknife estimates (Although it automatically switches
+    to Percentil Bootstrap if Bias or Jackknife estimates become unstable).
+* **Optimal ($n \approx 50-300$)**: Best balance of power, stability, and
+    runtime.
+* **Upper Limit ($n \approx 1,000-5,000$)**: Higher $n$ improves statistics
+    but linearly scales runtime. $n \gg 5,000$ may be computationally
+    impractical due to extensive bootstrapping.
+
+> **Recommendation:** Perform an *a priori* power analysis to estimate the
+> required $n$ for your chosen $N$.
 
 </details>
 <!-- markdownlint-enable MD033 -->
