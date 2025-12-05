@@ -341,12 +341,12 @@ $B_{\text{max}}$. In this case, you can try the following:
 2. **Adjust Parameters**: You can relax `convergence_tolerance` (e.g., to
     $0.02$) or increase `n_trials` and/ or `smoothing_window` in the configuration.
 3. **Use Simple Convergence**: Select Simple Convergence in the CLI or set
-    `smoothing_window` to empty to use simple convergence but be aware that
-    this might not be the most robust option and choose a higher `min_steps_for_convergence_check`
+    `smoothing_window` to empty to use simple convergence. Be aware that
+    this might not be the most robust option! Choose a higher `min_steps_for_convergence_check`
     e.g. 3 to ensure that the convergence check will not be influenced by high
     initial fluctuations of stability measures.
 4. **Manual Override**: If no clear convergence is found (no elbow), or for
-    theoretical guarantees of large numbers of bootstrap iterations, you can just
+    theoretical guarantees of large numbers, you can just
     use fixed high $B$ values (e.g., `manual_B_ci = 15000`, `manual_B_thr = 2000`)
     as per literature recommendations.
 
