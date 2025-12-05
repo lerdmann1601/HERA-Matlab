@@ -1,0 +1,13 @@
+Metric,Effect Size,Correction Factor,Median,Mean,Min,Max
+OC,Cliff's Delta,Bias (z0),+0.000,+0.015,-0.125,+0.116
+OC,Cliff's Delta,Skewness (a),+0.000,+0.012,-0.063,+0.101
+OC,Relative Difference,Bias (z0),-0.024,-0.082,-1.383,+0.032
+OC,Relative Difference,Skewness (a),-0.012,-0.015,-0.059,+0.012
+CNR,Cliff's Delta,Bias (z0),+0.036,+0.100,-2.878,+2.536
+CNR,Cliff's Delta,Skewness (a),+0.009,+0.006,-0.045,+0.064
+CNR,Relative Difference,Bias (z0),+0.007,+0.007,-0.027,+0.050
+CNR,Relative Difference,Skewness (a),+0.000,+0.007,-0.005,+0.033
+SNR,Cliff's Delta,Bias (z0),+0.000,-0.002,-0.235,+0.242
+SNR,Cliff's Delta,Skewness (a),+0.000,-0.001,-0.117,+0.106
+SNR,Relative Difference,Bias (z0),+0.000,+0.003,-0.034,+0.041
+SNR,Relative Difference,Skewness (a),-0.004,-0.001,-0.017,+0.009

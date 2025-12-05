@@ -1,0 +1,25 @@
+Final Rank,Dataset,Bootstrap Rank,Frequency (%),Rank Count
+1,"Method D",1,100.00,500
+2,"Method G",2,97.80,489
+2,"Method G",3,2.20,11
+3,"Method B",2,2.20,11
+3,"Method B",3,66.40,332
+3,"Method B",4,4.80,24
+3,"Method B",5,26.60,133
+4,"Method A",3,4.60,23
+4,"Method A",4,20.80,104
+4,"Method A",5,14.40,72
+4,"Method A",6,47.00,235
+4,"Method A",7,13.20,66
+5,"Method F",3,26.80,134
+5,"Method F",4,46.80,234
+5,"Method F",5,24.20,121
+5,"Method F",6,2.20,11
+6,"Method E",4,17.80,89
+6,"Method E",5,31.20,156
+6,"Method E",6,45.00,225
+6,"Method E",7,6.00,30
+7,"Method C",4,9.80,49
+7,"Method C",5,3.60,18
+7,"Method C",6,5.80,29
+7,"Method C",7,80.80,404

@@ -56,15 +56,13 @@ HERA's complementary logic requires both dominance and magnitude, preventing "wi
 
 ### Hierarchical-Compensatory Logic
 
-The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively:
+The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively (Fig. 2):
 
 - **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie cliffs delta is used to break the tie.
 - **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric $M_2$. This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
 - **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two sub-logics to ensure a total ordering:
   - **Sublogic 3a**: A one-time correction if the previous metric is "neutral" based on the HERA criteria. This handles cases where two methods are indistinguishable in the second metric while still respecting the initial ranking.
   - **Sublogic 3b**: To resolve groups of remaining undecided methods, an iterative correction loop is applied if both $M_1$ and $M_2$ are "neutral", iteratively using metric $M_3$ until a final stable ranking is found.
-
-![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
 
 ### Validation and Uncertainty
 
@@ -77,9 +75,7 @@ HERA integrates advanced resampling methods to quantify uncertainty:
 
 ## Software Features
 
-HERA offers a flexible configuration of up to three metrics. This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features.
-
-![Flexible Configuration options for Ranking Logic](images/features.png)
+HERA offers a flexible configuration of up to three metrics. This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features (Fig. 3).
 
 - **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV exports.
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
@@ -98,5 +94,9 @@ We plan to expand HERA's capabilities in several directions:
 ## Acknowledgements
 
 This software was developed at the Institute of Neuroradiology, Goethe University Frankfurt. I thank Prof. Dr. Dipl.-Phys. Ralf Deichmann (Cooperative Brain Imaging Center, Goethe University Frankfurt) for his support during the initial conceptualization of this project. I acknowledge Dr. med. Christophe Arendt (Institute of Neuroradiology, Goethe University Frankfurt) for his supervision and support throughout the project. I also thank Rejane Golbach PhD (Institute of Biostatistics and Mathematical Modeling, Goethe University Frankfurt) for her valuable feedback on the statistical methodology. Finally, I acknowledge the contributions of the scientific community for the development of the underlying statistical methods and the developers of the MATLAB toolboxes that made this project possible.
+
+![Figure 1: Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
+
+![Figure 2: Flexible Configuration options for Ranking Logic](images/features.png)
 
 ## References

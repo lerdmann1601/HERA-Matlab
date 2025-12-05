@@ -74,10 +74,13 @@ ranking system.
     git clone https://github.com/lerdmann1601/HERA-Matlab.git
     ```
 
-2. **Add to MATLAB Path:**
+2. **Install/Configure Path:**
+
+    Navigate to the repository folder and run the setup script to add HERA to
+    your MATLAB path.
 
     ```matlab
-    % Run the setup script to configure the path automatically
+    cd HERA-Matlab
     setup_HERA
     ```
 
@@ -198,9 +201,9 @@ HERA.start_ranking('runtest', 'true')
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
-> **Note:** An example use case with synthetic datasets and results is
+> **Note:** Example use cases with synthetic datasets and results are
 > provided in the `data/examples` directory. See `data/README.md` for a
-> walkthrough of the example use case and visual examples of the ranking
+> walkthrough of the example use cases and visual examples of the ranking
 > outputs.
 >
 > **Note:** Please ensure you use enough CPU cores since HERA is a
@@ -282,9 +285,9 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
-| **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
+| **Bootstrap (Manual)** | `manual_B_thr` | int | `1000` | Iterations for Thresholds (empty = auto). |
 | | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |
-| | `manual_B_rank` | int | `500` | Iterations for Rank Stability (empty = auto). |
+| | `manual_B_rank` | int | `250` | Iterations for Rank Stability (empty = auto). |
 | **Bootstrap (Auto)** | `bootstrap_thresholds` | struct | (See Below) | Config for Threshold convergence. |
 | | `bootstrap_ci` | struct | (See Below) | Config for CI convergence. |
 | | `bootstrap_ranks` | struct | (See Below) | Config for Rank Stability convergence. |
@@ -309,10 +312,47 @@ nested parameters to control the convergence algorithm:
 **Convergence Modes:**
 
 * **Simple Convergence**: Used when `smoothing_window` is empty. Checks if the
-  value changes less than `convergence_tolerance` between steps.
-* **Robust Convergence**: Used when `smoothing_window` is set (default). Uses a
-  moving average to smooth fluctuations and requires `convergence_streak_needed`
-  consecutive stable steps.
+    value changes less than `convergence_tolerance` between steps.
+* **Robust Convergence**: Used when `smoothing_window` is set (default). Uses
+    a moving average to smooth fluctuations and requires
+    `convergence_streak_needed` consecutive stable steps.
+* **Fallback Convergence** (Elbow Method): Triggered if the primary
+    plateau criterion is not met. It uses a heuristic to detect the point of
+    diminishing returns. **Warning:** This is a diagnostic aid, not a guarantee!
+    Results should be treated as a suggestion to be verified by visual inspection
+    and for further analysis (for more details see Troubleshooting Convergence).
+
+> **Note:** The parameters used for convergence checking have not been validated
+> empirically or in simulation studies! They are based on literature recommendations,
+> theoretical considerations, and initial tests. However with the default parameters
+> in robust mode, convergence starts to be evaluated within the lower range of
+> iterations consistent with literature recommendations.
+
+### Troubleshooting Convergence
+
+While the automated check should work for most datasets, "difficult" data with high
+variance or flat likelihood landscapes may fail to converge within
+$B_{\text{max}}$. In this case, you can try the following:
+
+1. **Check the Elbow**: Inspect the generated stability plots. If you see a
+    clear "elbow" where the curve flattens but fluctuates slightly above the
+    strict tolerance $\epsilon$, the convergence parameters might be too strict
+    for your data's noise level.
+2. **Adjust Parameters**: You can relax `convergence_tolerance` (e.g., to
+    $0.02$) or increase `n_trials` and/ or `smoothing_window` in the configuration.
+3. **Use Simple Convergence**: Select Simple Convergence in the CLI or set
+    `smoothing_window` to empty to use simple convergence but be aware that
+    this might not be the most robust option and choose a higher `min_steps_for_convergence_check`
+    e.g. 3 to ensure that the convergence check will not be influenced by high
+    initial fluctuations of stability measures.
+4. **Manual Override**: If no clear convergence is found (no elbow), or for
+    theoretical guarantees of large numbers of bootstrap iterations, you can just
+    use fixed high $B$ values (e.g., `manual_B_ci = 15000`, `manual_B_thr = 2000`)
+    as per literature recommendations.
+
+> **Reproducibility Note:** Visual inspection of convergence plots is strongly recommended
+> for final reporting! All procedures should use the same fixed random seed for full
+> reproducibility.
 
 </details>
 <!-- markdownlint-enable MD033 -->

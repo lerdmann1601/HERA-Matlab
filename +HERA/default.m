@@ -47,9 +47,9 @@ function defaults = default()
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)
-    defaults.manual_B_thr = 2000;
+    defaults.manual_B_thr = 1000;
     defaults.manual_B_ci = 5000;
-    defaults.manual_B_rank = 500;
+    defaults.manual_B_rank = 250;
 
     
     % Thresholds (Percentile Bootstrap)
