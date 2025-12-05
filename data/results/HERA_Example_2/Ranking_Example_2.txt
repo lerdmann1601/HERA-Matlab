@@ -22,10 +22,10 @@ Starting parallel pool with default setting (8 CPU cores).
 Starting parallel pool (parpool) using the 'Processes' profile ...
 Connected to parallel pool with 8 workers.
 
-Importing data from folder: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2
- -> Reading metric 1: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2/OC.csv
- -> Reading metric 2: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2/CNR.csv
- -> Reading metric 3: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2/SNR.csv
+Importing data from folder: /HERA-Matlab/data/examples/Example_2
+ -> Reading metric 1: /HERA-Matlab/data/examples/Example_2/OC.csv
+ -> Reading metric 2: /HERA-Matlab/data/examples/Example_2/CNR.csv
+ -> Reading metric 3: /HERA-Matlab/data/examples/Example_2/SNR.csv
 
 Data successfully loaded.
 -------------------------------------------
@@ -55,8 +55,8 @@ All data validated for analysis.
 Calculating statistical thresholds
 
 Manual Percentile-Bootstrap count B = 2000 is used for thresholds.
-Histogram plot for threshold distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_20251205_111006.png
-Histogram plot for effect sizes saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_20251205_111006.png
+Histogram plot for threshold distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_20251205_111006.png
+Histogram plot for effect sizes saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_20251205_111006.png
 
 Calculating BCa confidence intervals
 
@@ -95,10 +95,10 @@ Skewness (a) RelDiff  | -0.004 | -0.001 | -0.017 | +0.009
 ----------------------------------------------------------
 
 Saving BCa correction factors as CSV file
-CSV file successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/BCa_Correction_Factors_20251205_111006.csv
-Histogram plot for z0 distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_20251205_111006.png
-Histogram plot for a distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_20251205_111006.png
-Histogram plot for CI width distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_CI_Widths_20251205_111006.png
+CSV file successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/BCa_Correction_Factors_20251205_111006.csv
+Histogram plot for z0 distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_20251205_111006.png
+Histogram plot for a distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_20251205_111006.png
+Histogram plot for CI width distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_CI_Widths_20251205_111006.png
 
 Calculating ranking for 6 hierarchy permutation(s)
  -> Permutation 1/6: OC -> CNR -> SNR
@@ -134,8 +134,8 @@ Manual Cluster-Bootstrap count B = 500 is used for rank CIs.
 --------------------------------------------------------------------------
 
 Saving BCa correction factors as CSV file
-Bootstrap rank distribution CSV saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/bootstrap_rank_20251205_111006.csv
-Histogram graphic for rank distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Distribution_Bootstrap_Ranks_20251205_111006.png
+Bootstrap rank distribution CSV saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/bootstrap_rank_20251205_111006.csv
+Histogram graphic for rank distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Distribution_Bootstrap_Ranks_20251205_111006.png
 
 Calculating post-hoc power analysis to estimate the probability of finding a significant and relevant comparison
   Bootstrap Power Analysis with 10000 simulations per comparison.
@@ -307,7 +307,7 @@ Final ranking after SNR comparison:
   7   | Method C | [4.00, 7.00]  | 1.550 ± 0.247  |  6.895 ± 1.130  |  7.456 ± 1.102  
 --------------------------------------------------------------------------------------
 
-Final results table saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/results_20251205_111006.csv
+Final results table saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/results_20251205_111006.csv
 
 ==== Results of the Sensitivity Analysis ====
 
@@ -321,7 +321,7 @@ Final results table saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results
      6       |       33.3%       | Method E   |         6          |         6          |         7          |         2          |         7          |         2         
      7       |       27.8%       | Method C   |         7          |         7          |         2          |         7          |         2          |         7         
 
-Sensitivity analysis results saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/sensitivity_details_20251205_111006.csv
+Sensitivity analysis results saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/sensitivity_details_20251205_111006.csv
 
 === Log of all Dataset Comparisons ===
 
@@ -388,29 +388,29 @@ Sensitivity analysis results saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/dat
  Method E  | vs | Method F  | SNR  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  0.433  | [0.427, 0.439] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Detailed comparison log saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/log_20251205_111006.csv
+Detailed comparison log saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/log_20251205_111006.csv
 
 Starting creation of LIGHT graphics...
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Ranking_Metric1_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_OC_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric2_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_CNR_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric3_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_SNR_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Win_Loss_Matrix_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Sankey_Rank_Shifts_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Final_Ranking_20251205_111006.png
-  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Borda_Plot_20251205_111006.png
-  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Bootstrap_Report_20251205_111006.pdf
-  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Ranking_Report_20251205_111006.pdf
-  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Final_Report_20251205_111006.pdf
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Ranking_Metric1_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_OC_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric2_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_CNR_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric3_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_SNR_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Win_Loss_Matrix_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Sankey_Rank_Shifts_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Final_Ranking_20251205_111006.png
+  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Borda_Plot_20251205_111006.png
+  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Bootstrap_Report_20251205_111006.pdf
+  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Ranking_Report_20251205_111006.pdf
+  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Final_Report_20251205_111006.pdf
 All graphics successfully created.
 
 Saving ranking data to JSON
-Machine-readable JSON saved to: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006/Output/data_20251205_111006.json
+Machine-readable JSON saved to: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/data_20251205_111006.json
 
 Ranking finished.
-All outputs successfully saved in: "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/results/Ranking_20251205_111006"
+All outputs successfully saved in: "/HERA-Matlab/data/results/Ranking_20251205_111006"
 
 Total execution time: 3 minutes and 0.27 seconds.
 
