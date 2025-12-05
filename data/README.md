@@ -59,7 +59,7 @@ This diagram shows how the ranking of methods changes across different metrics a
 
 This matrix visualizes the pairwise comparisons between methods. Green indicates a win, red a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
-![Win-Loss Matrix](results/HERA_Example_Ranking/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
+![Win-Loss Matrix](results/HERA_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
 
 ### Example use case 2
 
