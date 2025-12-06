@@ -25,14 +25,16 @@ Workflow:
      - Remove redundant stable datasets.
      - Plot the optimization curve.
 
-Usage:
+  Usage:
   Run this script directly from the terminal or IDE:
-  $ python3 hera_example_2_workflow.py
+  $ pip install -r requirements.txt
+  $ python3 run_workflow.py
 
 Author: Lukas von Erdmannsdorff
 """
 
 import os
+import time
 import sys
 import shutil
 import json
@@ -46,9 +48,31 @@ from pathlib import Path
 BASE_DIR = Path(__file__).parent.resolve()
 DATA_DIR = BASE_DIR / "data"
 RESULTS_DIR = BASE_DIR / "results"
-HERA_DEPLOY_DIR = BASE_DIR.parent / "release" / "macos"
-HERA_EXECUTABLE_NAME = "run_HERA_Runtime.sh"
-HERA_MCR_PATH = "/Applications/MATLAB_R2025b.app"
+# Determine OS-specific defaults
+import platform
+current_os = platform.system()
+
+if current_os == "Darwin":
+    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "macos"
+    DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
+    # Default MCR path for Mac (User should verify this!)
+    DEFAULT_MCR_PATH = "/Applications/MATLAB_R2025b.app" 
+elif current_os == "Windows":
+    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "windows"
+    DEFAULT_EXE_NAME = "HERA_Runtime.exe" # Verify this name
+    DEFAULT_MCR_PATH = "C:\\Program Files\\MATLAB\\R2025b"
+elif current_os == "Linux":
+    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "linux"
+    DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
+    DEFAULT_MCR_PATH = "/usr/local/MATLAB/R2025b"
+else:
+    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release"
+    DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
+    DEFAULT_MCR_PATH = ""
+
+HERA_DEPLOY_DIR_ENV = os.environ.get("HERA_DEPLOY_DIR")
+HERA_EXECUTABLE_NAME_ENV = os.environ.get("HERA_EXECUTABLE_NAME")
+HERA_MCR_PATH_ENV = os.environ.get("HERA_MCR_PATH")
 
 METRIC_NAMES = ["OC", "CNR", "SNR"]
 RANKING_MODE = "M1_M2_M3"
@@ -92,13 +116,13 @@ class HERAWorkflow:
                 # --- Mandatory ---
                 "folderPath": str(input_path),
                 "metric_names": METRIC_NAMES,
-                "output_dir": str(output_path),
+                "output_dir": str(output_path), # Output directory for results would be "results/Alpha_XX" otherwise by default..
                 
                 # --- Optional ---
                 "fileType": ".csv",
                 "ranking_mode": RANKING_MODE,
                 "reproducible": True,
-                "create_reports": False,  # Disabled for speed as requested
+                "create_reports": False,  # Disabled for speed
                 "ci_level": 0.95,
                 
                 # --- Manual Bootstrap ---
@@ -109,36 +133,110 @@ class HERAWorkflow:
         }
         return config
 
+    def find_executable(self):
+        """
+        Helper: Searches for the HERA executable in likely locations.
+        """
+        # 1. Check Environment Variable
+        if HERA_DEPLOY_DIR_ENV:
+             custom_path = Path(HERA_DEPLOY_DIR_ENV) / (HERA_EXECUTABLE_NAME_ENV or DEFAULT_EXE_NAME)
+             if custom_path.exists():
+                 return custom_path
+        
+        # 2. Check Standard Release/Deploy Paths
+        potential_dirs = [
+            BASE_DIR.parent.parent.parent / "release" / "macos",   # Release structure (Mac)
+            BASE_DIR.parent.parent.parent / "release" / "windows", # Release structure (Win)
+            BASE_DIR.parent.parent.parent / "release" / "linux",   # Release structure (Linux)
+            BASE_DIR.parent.parent.parent / "deploy" / "output",   # Local Build
+        ]
+        
+        target_name = HERA_EXECUTABLE_NAME_ENV or DEFAULT_EXE_NAME
+        
+        for p_dir in potential_dirs:
+            exe_path = p_dir / target_name
+            if exe_path.exists():
+                return exe_path
+                
+        # 3. Fallback: HERA_Launcher.command (Mac specific convenience)
+        launcher_path = BASE_DIR.parent.parent.parent / "release" / "macos" / "HERA_Launcher.command"
+        if launcher_path.exists():
+            return launcher_path
+
+        # 4. Fallback: Check for MATLAB executable in PATH
+        matlab_path = shutil.which("matlab")
+        if matlab_path:
+             return "matlab"
+
+        return None
+
     def run_hera(self, config_path):
         """
         4. Executes HERA using the compiled runtime/launcher.
         Locates the executable and runs it with the provided configuration.
         """
-        hera_cmd = HERA_DEPLOY_DIR / HERA_EXECUTABLE_NAME
+        hera_cmd = self.find_executable()
         
-        if not hera_cmd.exists():
-             # Fallback check
-            local_cmd = BASE_DIR.parent / "HERA_Launcher.command"
-            if local_cmd.exists():
-                 hera_cmd = local_cmd
-            else:
-                 print(f"[Error] HERA executable not found at {hera_cmd}")
-                 return False
+        mcr_path = HERA_MCR_PATH_ENV or DEFAULT_MCR_PATH
 
-        print(f" -> Running HERA with config: {config_path}")
+        if not hera_cmd:
+             print(f"\n[Error] HERA executable NOT found and MATLAB is NOT in the system path!")
+             print(f"  To fix this, either:")
+             print(f"  1. Build the project using 'deploy/build_hera.m'")
+             print(f"  2. Download the release from GitHub")
+             print(f"  3. Ensure 'matlab' is accessible from the terminal (add to PATH)")
+             print(f"  Alternatively, set the 'HERA_DEPLOY_DIR' environment variable.\n")
+             return False
+
+        print(f" -> Running HERA using: {hera_cmd}")
+        print(f" -> Config: {config_path}")
         
-        cmd = [str(hera_cmd), HERA_MCR_PATH, "configFile", str(config_path)]
-        
-        try:
-            result = subprocess.run(cmd, capture_output=True, text=True)
-            if result.returncode != 0:
-                print("[Error] HERA Run Failed!")
-                print(result.stderr)
+        # Branch 1: Run via Compiled Executable
+        if hera_cmd != "matlab":
+            cmd = [str(hera_cmd), mcr_path, "configFile", str(config_path)]
+            try:
+                result = subprocess.run(cmd, capture_output=True, text=True)
+                if result.returncode != 0:
+                    print("[Error] HERA Runtime Failed!")
+                    print(result.stderr)
+                    # print(result.stdout) # optional debug
+                    return False
+                return True
+            except Exception as e:
+                print(f"[Error] Execution Exception: {e}")
                 return False
-            return True
-        except Exception as e:
-            print(f"[Error] Execution Exception: {e}")
-            return False
+                
+        # Branch 2: Run via MATLAB Command Line (No compiled binary needed)
+        else:
+            # We must construct a MATLAB batch command that:
+            # 1. Adds HERA to path (using setup_HERA in the repo root)
+            # 2. Runs start_ranking with the config
+            
+            repo_root = BASE_DIR.parent.parent.parent.resolve()
+            setup_script_path = repo_root 
+            
+            # Note: We need to cd to repo_root to ensure setup_HERA is found, 
+            # OR add repo_root to path explicitly in the command.
+            # Simpler: cd to repo_root in the subprocess call.
+            
+            matlab_cmd_str = f"setup_HERA; HERA.start_ranking('configFile', '{config_path}');"
+            
+            cmd = ["matlab", "-batch", matlab_cmd_str]
+            
+            print(f" -> Executing MATLAB: {matlab_cmd_str}")
+            
+            try:
+                # Run in repo_root so "setup_HERA" is found immediately
+                result = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True)
+                if result.returncode != 0:
+                     print("[Error] MATLAB Execution Failed!")
+                     print(result.stderr)
+                     print(result.stdout)
+                     return False
+                return True
+            except Exception as e:
+                print(f"[Error] MATLAB subprocess error: {e}")
+                return False
 
     def get_latest_result_json(self, result_folder):
         """
@@ -176,33 +274,38 @@ class HERAWorkflow:
         
         final_ranks = results.get('final_rank', [])
         
-        # KEY CHANGE: Calculate CIs from bootstrap distribution
-        # Matlab 'final_bootstrap_ranks' is [num_datasets x B]
-        # JSON export usually preserves this as a list of lists (rows)
-        bootstrap_ranks = results.get('final_bootstrap_ranks', [])
+        # Calculate CIs from bootstrap distribution or use pre-calculated CIs
+        ci_lower = results.get('ci_lower_rank', [])
+        ci_upper = results.get('ci_upper_rank', [])
         
-        ci_lower = []
-        ci_upper = []
-        
-        if bootstrap_ranks and len(bootstrap_ranks) == len(dataset_names):
-            try:
-                # Convert to numpy array for easy percentile calc
-                # Expected shape: (Num_Datasets, B)
-                bs_data = np.array(bootstrap_ranks)
-                
-                # Calculate 95% CI (2.5th and 97.5th percentiles)
-                # axis=1 means along the B dimension (columns)
-                ci_lower = np.percentile(bs_data, 2.5, axis=1)
-                ci_upper = np.percentile(bs_data, 97.5, axis=1)
-                print(f" -> Calculated CIs from {bs_data.shape[1]} bootstrap samples.")
-            except Exception as e:
-                print(f"[Warning] Error calculating CIs from bootstrap ranks: {e}")
-                ci_lower = final_ranks
-                ci_upper = final_ranks
+        if ci_lower and ci_upper and len(ci_lower) == len(dataset_names):
+             print(f" -> Using pre-calculated CIs from JSON.")
         else:
-             print(f"[Warning] Bootstrap ranks missing or shape mismatch in {json_path.name}")
-             ci_lower = final_ranks
-             ci_upper = final_ranks
+            # Fallback: Calculate from bootstrap ranks
+            bootstrap_ranks = results.get('final_bootstrap_ranks', [])
+            
+            ci_lower = []
+            ci_upper = []
+
+            if bootstrap_ranks and len(bootstrap_ranks) == len(dataset_names):
+                try:
+                    # Convert to numpy array for easy percentile calc
+                    # Expected shape: (Num_Datasets, B)
+                    bs_data = np.array(bootstrap_ranks)
+                    
+                    # Calculate 95% CI (2.5th and 97.5th percentiles)
+                    # axis=1 means along the B dimension (columns)
+                    ci_lower = np.percentile(bs_data, 2.5, axis=1)
+                    ci_upper = np.percentile(bs_data, 97.5, axis=1)
+                    print(f" -> Calculated CIs from {bs_data.shape[1]} bootstrap samples.")
+                except Exception as e:
+                    print(f"[Warning] Error calculating CIs from bootstrap ranks: {e}")
+                    ci_lower = final_ranks
+                    ci_upper = final_ranks
+            else:
+                 print(f"[Warning] Bootstrap ranks missing or shape mismatch in {json_path.name}")
+                 ci_lower = final_ranks
+                 ci_upper = final_ranks
 
         rank_map = {}
         for i, name in enumerate(dataset_names):
@@ -235,7 +338,7 @@ class HERAWorkflow:
         alpha_folders.sort(key=parse_alpha, reverse=True)
         
         if not alpha_folders:
-            print("[Info] No Alpha_XX data folders found to process.")
+            print("[Info] No data folders found to process.")
             return
 
         aggregated_results = []
@@ -407,23 +510,23 @@ class HERAWorkflow:
              
              transition_alpha = all_results[first_overlap_index]["Alpha"] * 100
              
-             plt.axvline(x=transition_alpha, color='black', linestyle='-.', alpha=0.7, label="Overlap Start")
+             plt.axvline(x=transition_alpha, color='black', linestyle='-.', alpha=0.7, label="CI-Overlap")
              
-             # Add Alpha Explanation Box
+             # Add Alpha Explanation Box (Below the plot)
              textstr = '\n'.join((
-                r'$\bf{Alpha}$: Contrast Level',
-                r'(Higher values = Stronger Signal)',
-                r' Vertical Line: Methods Indistinguishable'
+                r'$\bf{Alpha}$: Enhancement Level (Higher values = Stronger Contrast)',
                 ))
              
-             # Place a text box in upper right in axes coords
+             # Adjust subplot to make room at bottom
+             plt.subplots_adjust(bottom=0.25)
+             
+             # Place text below x-axis
              props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-             plt.text(0.05, 0.95, textstr, transform=plt.gca().transAxes, fontsize=10,
-                    verticalalignment='top', bbox=props)
+             plt.figtext(0.5, 0.02, textstr, ha='center', fontsize=10, bbox=props)
 
         plt.xlabel("Alpha (%)")
         plt.ylabel("Rank (Lower is Better)")
-        plt.title("Stability Analysis with Confidence Intervals")
+        plt.title("Stability Analysis using Confidence Intervals")
         plt.legend()
         plt.grid(True, alpha=0.3)
         plt.gca().invert_yaxis()
@@ -433,5 +536,20 @@ class HERAWorkflow:
         print(f" -> Optimization Curve saved to: {save_path}")
 
 if __name__ == "__main__":
+    start_time = time.time()
     workflow = HERAWorkflow()
     workflow.process_data()
+    end_time = time.time()
+    duration = end_time - start_time
+    
+    if duration < 60:
+        print(f"Total analysis duration: {duration:.2f} seconds")
+    elif duration < 3600:
+        minutes = int(duration // 60)
+        seconds = duration % 60
+        print(f"Total analysis duration: {minutes} min {seconds:.0f} sec")
+    else:
+        hours = int(duration // 3600)
+        minutes = int((duration % 3600) // 60)
+        seconds = duration % 60
+        print(f"Total analysis duration: {hours} h {minutes} min {seconds:.0f} sec")

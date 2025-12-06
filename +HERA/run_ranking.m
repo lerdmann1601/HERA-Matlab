@@ -193,6 +193,8 @@ tic; % Start a timer to measure the total execution time.
 fprintf('=======================\n');
 fprintf('%s\n', lang.run_ranking.header);
 fprintf('=======================\n');
+fprintf('Version: %s\n', HERA.get_version());
+pause(0.5);
 
 % Save the complete user configuration to a JSON file for reproducibility.
 config_path = fullfile(output_dir, "configuration.json"); 
@@ -443,9 +445,6 @@ end
 
 %% 9. Bootstrap Analysis of Ranks (for Primary Hierarchy)
 % Assess the stability of the primary ranking using a cluster bootstrap.
-% This function now receives the 'config' struct which contains the 'ranking_mode'.
-fprintf(['\n' lang.run_ranking.bootstrap_ranks '\n']);
-% This function now receives the 'config' struct which contains the 'ranking_mode'.
 fprintf(['\n' lang.run_ranking.bootstrap_ranks '\n']);
 [final_bootstrap_ranks, selected_B_rank, stability_data_rank, h_figs_rank, h_fig_hist_rank, ci_lower_rank, ci_upper_rank] = ...
     bootstrap_ranking(all_data, thresholds, config, dataset_names, final_rank, pair_idx_all, num_probanden, graphics_dir, csv_dir,...

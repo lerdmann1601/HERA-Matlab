@@ -1,12 +1,12 @@
 {
     "userInput": {
-        "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/hera_example_2/data/Alpha_0",
+        "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/data/Alpha_0",
         "metric_names": [
             "OC",
             "CNR",
             "SNR"
         ],
-        "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/hera_example_2/results/Alpha_0",
+        "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_0",
         "fileType": ".csv",
         "ranking_mode": "M1_M2_M3",
         "reproducible": true,

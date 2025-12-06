@@ -1633,7 +1633,7 @@ clc;
         overlap_ok = max(ci_d1(1), ci_d2(1)) < min(ci_d1(2), ci_d2(2));
         
         if overlap_ok
-            fprintf('[Status] PASS: Overlap confirmed: Correctly identifies D1 and D2 as indistinguishable.\n');
+            fprintf('[Status] PASS: Overlap confirmed: Correctly identifies D1 and D2 have overlapping CIs.\n');
         else
             fprintf('[Status] FAIL: Unexpected separation of identical datasets.\n');
         end

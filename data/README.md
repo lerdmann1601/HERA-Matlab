@@ -69,7 +69,7 @@ To achieve this, we used the same metrics as in Example 1 but introduced a new m
 
 ### Interpreting the results 2
 
-We progressively reduced the contrast enhancement of Method G to 20%. Below this threshold, Method G begins to lose its robust superiority over Method B, and at 10%, it becomes indistinguishable from Method B.
+We progressively reduced the contrast enhancement of Method G to 20%. Below this threshold, Method G begins to lose its robust superiority over Method B, and at 10%, its confidence interval overlaps with that of Method B.
 
 Examining the final ranking for Example 2, we see that the addition of Method G does not fundamentally alter the initial ranking. Method G achieves a rank of 2 within its 95% confidence interval and secures the second-highest Borda Score. Based on these findings, we can proceed with recalculating our image enhancement technique using 20% contrast enhancement for the final analysis.
 
