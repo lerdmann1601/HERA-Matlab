@@ -236,7 +236,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 * **Filename**: Must match `metric_names` (e.g., `Accuracy.csv`).
 * **Format**: CSV or Excel (`.xlsx`).
 * **Organization**: One file per metric.
-* **Dimensions**: Rows = Subjects ($N$), Columns = Methods ($M$).
+* **Dimensions**: Rows = Subjects (*N*), Columns = Methods (*M*).
 * **Consistency**: All files must have identical dimensions.
 
 </details>
@@ -247,39 +247,39 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 <summary><strong>Methodological Guidelines & Limitations</strong></summary>
 
 The statistical rigor of HERA (e.g., Holm-Bonferroni correction, Bootstrapping)
-imposes practical limits on the number of datasets ($N$) and sample size ($n$).
+imposes practical limits on the number of datasets (*N*) and sample size (*n*).
 Therefore the following guidelines are provided as theoretical considerations
 but should not be taken as strict requirements.
 
-**Number of Datasets ($N$):**
-Increasing $N$ quadratically increases the number of pairwise comparisons ($m =
-N(N-1)/2$), which reduces statistical power due to strict corrections.
+**Number of Datasets (*N*):**
+Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
+*N*(*N*-1)/2), which reduces statistical power due to strict corrections.
 
-* **Minimum ($N=3$)**: Required for a meaningful ranking. ($N=2$ is just a
+* **Minimum (*N*=3)**: Required for a meaningful ranking. (*N*=2 is just a
     simple comparison).
-* **Optimal ($N \approx 8-10$)**: Balances ranking depth with statistical
+* **Optimal (*N* ≈ 8–10)**: Balances ranking depth with statistical
     power (28–45 comparisons).
-* **Upper Limit ($N \approx 15$)**: Not generally recommended. The loss of power
+* **Upper Limit (*N* ≈ 15)**: Not generally recommended. The loss of power
     from FWER corrections makes detecting true differences unlikely. However,
-    it is possible to use HERA with $N > 15$ and you can just give it a try.
+    it is possible to use HERA with *N* > 15 and you can just give it a try.
 
-**Sample Size ($n$):**
+**Sample Size (*n*):**
 A balance between statistical stability and computational feasibility is
 required.
 
-* **Minimum ($n=16$)**: Required for the Wilcoxon test to use the Normal
+* **Minimum (*n*=16)**: Required for the Wilcoxon test to use the Normal
     Approximation in Matlab.
-* **Robust Min ($n \approx 25-30$)**: Necessary for stable BCa confidence
+* **Robust Min (*n* ≈ 25–30)**: Necessary for stable BCa confidence
     intervals and Jackknife estimates (Although it automatically switches
     to Percentil Bootstrap if Bias or Jackknife estimates become unstable).
-* **Optimal ($n \approx 50-300$)**: Best balance of power, stability, and
+* **Optimal (*n* ≈ 50–300)**: Best balance of power, stability, and
     runtime.
-* **Upper Limit ($n \approx 1,000-5,000$)**: Higher $n$ improves statistics
-    but linearly scales runtime. $n \gg 5,000$ may be computationally
+* **Upper Limit (*n* ≈ 1,000–5,000)**: Higher *n* improves statistics
+    but linearly scales runtime. *n* ≫ 5,000 may be computationally
     impractical due to extensive bootstrapping.
 
 > **Recommendation:** Perform an *a priori* power analysis to estimate the
-> required $n$ for your chosen $N$.
+> required *n* for your chosen *N*.
 
 </details>
 <!-- markdownlint-enable MD033 -->
@@ -374,14 +374,14 @@ nested parameters to control the convergence algorithm:
 
 While the automated check should work for most datasets, "difficult" data with high
 variance or flat likelihood landscapes may fail to converge within
-$B_{\text{max}}$. In this case, you can try the following:
+*B*_{max}. In this case, you can try the following:
 
 1. **Check the Elbow**: Inspect the generated stability plots. If you see a
     clear "elbow" where the curve flattens but fluctuates slightly above the
-    strict tolerance $\epsilon$, the convergence parameters might be too strict
+    strict tolerance *ε*, the convergence parameters might be too strict
     for your data's noise level.
 2. **Adjust Parameters**: You can relax `convergence_tolerance` (e.g., to
-    $0.02$) or increase `n_trials` and/ or `smoothing_window` in the configuration.
+    0.02) or increase `n_trials` and/ or `smoothing_window` in the configuration.
 3. **Use Simple Convergence**: Select Simple Convergence in the CLI or set
     `smoothing_window` to empty to use simple convergence. Be aware that
     this might not be the most robust option! Choose a higher `min_steps_for_convergence_check`
@@ -389,7 +389,7 @@ $B_{\text{max}}$. In this case, you can try the following:
     initial fluctuations of stability measures.
 4. **Manual Override**: If no clear convergence is found (no elbow), or for
     theoretical guarantees of large numbers, you can just
-    use fixed high $B$ values (e.g., `manual_B_ci = 15000`, `manual_B_thr = 2000`)
+    use fixed high *B* values (e.g., `manual_B_ci = 15000`, `manual_B_thr = 2000`)
     as per literature recommendations.
 
 > **Reproducibility Note:** Visual inspection of convergence plots is strongly recommended
@@ -455,24 +455,26 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | Field | Dimensions | Description |
 |---|---|---|
 | **Final Results** | | |
-| `final_rank` | $[N \times 1]$ | Final rank for each dataset (1 = Best). |
-| `final_order` | $[1 \times N]$ | Indices of datasets sorted by rank. |
-| `final_bootstrap_ranks` | $[N \times B]$ | Bootstrapped rank distribution for stability analysis. |
+| `final_rank` | `[N x 1]` | Final rank for each dataset (1 = Best). |
+| `final_order` | `[1 x N]` | Indices of datasets sorted by rank. |
+| `final_bootstrap_ranks` | `[N x B]` | Bootstrapped rank distribution for stability analysis. |
+| `ci_lower_rank` | `[N x 1]` | Lower bound of Rank Confidence Interval. |
+| `ci_upper_rank` | `[N x 1]` | Upper bound of Rank Confidence Interval. |
 | **Statistics** | | |
-| `d_vals_all` | $[Pairs \times M]$ | Cliff's Delta effect sizes for all pairs/metrics. |
-| `rel_vals_all` | $[Pairs \times M]$ | Relative Mean Differences. |
-| `ci_d_all` | $[Pairs \times 2 \times M]$ | BCa Confidence Intervals for Delta. |
-| `ci_r_all` | $[Pairs \times 2 \times M]$ | BCa Confidence Intervals for RelDiff. |
-| `all_p_value_matrices` | $\{1 \times M\}$ | Cell array of raw p-values (Wilcoxon). |
-| `all_alpha_matrices` | $\{1 \times M\}$ | Cell array of Holm-Bonferroni corrected alphas. |
-| `all_sig_matrices` | $\{1 \times M\}$ | Logical matrices indicating significant wins. |
+| `d_vals_all` | `[Pairs x M]` | Cliff's Delta effect sizes for all pairs/metrics. |
+| `rel_vals_all` | `[Pairs x M]` | Relative Mean Differences. |
+| `ci_d_all` | `[Pairs x 2 x M]` | BCa Confidence Intervals for Delta. |
+| `ci_r_all` | `[Pairs x 2 x M]` | BCa Confidence Intervals for RelDiff. |
+| `all_p_value_matrices` | `{1 x M}` | Cell array of raw p-values (Wilcoxon). |
+| `all_alpha_matrices` | `{1 x M}` | Cell array of Holm-Bonferroni corrected alphas. |
+| `all_sig_matrices` | `{1 x M}` | Logical matrices indicating significant wins. |
 | **Diagnostics** | | |
 | `swap_details` | struct | Log of logic-based rank swaps (M1 vs M2). |
 | `intermediate_orders` | struct | Rankings after each hierarchical stage. |
 | `borda_results` | struct | Consensus ranking from sensitivity analysis. |
 | `power_results` | struct | Post-hoc power analysis data. |
-| `all_permutation_ranks` | $[N \times Perms]$ | Ranks for every metric permutation tested. |
-| `selected_permutations` | $[Perms \times M]$ | Indices of metrics for each permutation. |
+| `all_permutation_ranks` | `[N x Perms]` | Ranks for every metric permutation tested. |
+| `selected_permutations` | `[Perms x M]` | Indices of metrics for each permutation. |
 <!-- markdownlint-enable MD013 -->
 
 </details>

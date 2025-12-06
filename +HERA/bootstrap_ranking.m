@@ -1,9 +1,9 @@
-function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_rank, h_fig_hist_rank] = bootstrap_ranking(all_data, ...
+function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_rank, h_fig_hist_rank, ci_lower_rank, ci_upper_rank] = bootstrap_ranking(all_data, ...
           thresholds, config, dataset_names, final_rank, pair_idx_all, num_probanden, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
 % BOOTSTRAP_RANKING - Performs a cluster bootstrap analysis to determine rank confidence intervals.
 %
 % Syntax:
-%   [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_rank, h_fig_hist_rank] = bootstrap_ranking(all_data, ...
+%   [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_rank, h_fig_hist_rank, ci_lower_rank, ci_upper_rank] = bootstrap_ranking(all_data, ...
 %    thresholds, config, dataset_names, final_rank, pair_idx_all, num_probanden, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
 %
 % Description:
@@ -25,15 +25,20 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %       Using the optimal B-value, the function runs a final, comprehensive bootstrap analysis to generate the definitive rank distribution for each dataset.
 %   5.  Result Output (Console): 
 %       Calculates the frequency of each rank for each dataset and prints a formatted table to the console.
-%   6.  Result Output (CSV): 
+%   7.  Result Output (csv): 
 %       Saves the detailed rank distribution (counts and percentages) for each dataset to a CSV file.
-%   7.  Visualization (Distribution): 
+%   8.  Visualization (Distribution): 
 %       Generates and saves histograms displaying the final rank distribution for each dataset.
+%   9.  CI Calculation:
+%       Computes the user-defined confidence intervals (e.g., 95%) for the final ranks based on the bootstrap distribution.
 %
 % Inputs:
 %   all_data        - Cell array containing the original data matrices for each metric (1, 2, or 3 cells).
 %   thresholds      - Struct with the pre-calculated effect size thresholds (thresholds.d_thresh, thresholds.rel_thresh).
-%   config          - Global configuration struct (specifically uses 'config.bootstrap_ranks' and 'config.ranking_mode').
+%   config          - Global configuration struct. Uses:
+%                       .bootstrap_ranks (settings)
+%                       .ranking_mode (logic)
+%                       .ci_level (confidence interval width)
 %   dataset_names   - Cell array of strings with the names of the datasets (required for the 'calculate_ranking' function).
 %   final_rank      - Vector of the primary ranking (used for sorting the console output).
 %   pair_idx_all    - Matrix of indices for all pairwise comparisons between datasets.
@@ -53,6 +58,8 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %   stability_data_rank   - Struct with convergence curve data for JSON export.
 %   h_figs_rank           - A vector of figure handles for the convergence graphic.
 %   h_fig_hist_rank       - The handle of the histogram graphic showing the final rank distributions.
+%   ci_lower_rank         - [num_datasets x 1] Lower bound of the 95% Confidence Interval for the rank.
+%   ci_upper_rank         - [num_datasets x 1] Upper bound of the 95% Confidence Interval for the rank.
 %
 % Author: Lukas von Erdmannsdorff
 
@@ -721,6 +728,24 @@ end
 filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
 exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'Padding', 30);
 fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
+
+%% 7. Calculate Rank Confidence Intervals
+% Calculate Rank Confidence Intervals from the bootstrap distribution
+% Respect the user-configured confidence level (e.g., 0.95)
+if isfield(config, 'ci_level') && ~isempty(config.ci_level)
+    target_ci = config.ci_level;
+else
+    target_ci = 0.95; % Default
+end
+
+alpha = 1 - target_ci;
+ci_lower_bound = alpha / 2;
+ci_upper_bound = 1 - (alpha / 2);
+
+ci_final_ranks = quantile(final_bootstrap_ranks, [ci_lower_bound, ci_upper_bound], 2);
+ci_lower_rank = ci_final_ranks(:, 1);
+ci_upper_rank = ci_final_ranks(:, 2);
+
 end
 
 %% Helper Function for table formatting

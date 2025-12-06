@@ -68,11 +68,10 @@ swap_details = results.swap_details;
 intermediate_orders = results.intermediate_orders;
 final_order = results.final_order;
 
-% Extract the point estimate and calculate the 95% confidence intervals of the ranks from the bootstrap distribution.
-point_estimate_ranks = final_rank; % Taken directly from the ranking function
-ci_final_ranks = quantile(final_bootstrap_ranks, [0.025, 0.975], 2);
-ci_lower_rank = ci_final_ranks(:, 1);
-ci_upper_rank = ci_final_ranks(:, 2);
+% Extract the point estimate and the 95% confidence intervals of the ranks (already calculated in bootstrap_ranking)
+point_estimate_ranks = final_rank; 
+ci_lower_rank = results.ci_lower_rank;
+ci_upper_rank = results.ci_upper_rank;
 
 %% 2. Console Output: General Information and Thresholds
 metric_name_list_str = strjoin(metric_names, ', ');

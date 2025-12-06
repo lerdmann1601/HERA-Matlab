@@ -289,6 +289,7 @@ while true
     % Display the main title of the script.
     fprintf('=====================\n');
     fprintf('%s\n', lang.start_ranking.main_title);
+    fprintf('Version: %s\n', HERA.get_version());
     fprintf('=====================\n');
     
     % Initialize structures to hold the user's configuration.

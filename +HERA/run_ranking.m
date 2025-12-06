@@ -64,12 +64,15 @@ function results = run_ranking(userInput)
 %          .ranking_mode - (char) 'M1', 'M1_M2', 'M1_M3A', or 'M1_M2_M3' (Default: M1_M2_M3).
 %          .output_dir   - (char) Path to save results (Default: current dir).
 %          .num_workers  - (int) Number of parallel workers or 'auto'.
+%          .ci_level     - (double) Confidence level for Intervals (Default: 0.95).
 %
 % Outputs:
 %   results - (Optional) Struct containing detailed analysis results:
 %       .final_rank            - [N x 1] Final rank for each dataset (1 = best).
 %       .final_order           - [1 x N] Indices of datasets in ranked order.
 %       .final_bootstrap_ranks - [N x B] Bootstrapped rank distribution for stability analysis.
+%       .ci_lower_rank         - [N x 1] Lower bound of Rank CI.
+%       .ci_upper_rank         - [N x 1] Upper bound of Rank CI.
 %
 %       .all_sig_matrices      - {1 x M} Cell array of logical matrices (significant wins).
 %       .all_p_value_matrices  - {1 x M} Cell array of raw p-values (Wilcoxon).
@@ -85,6 +88,8 @@ function results = run_ranking(userInput)
 %
 %       .borda_results         - (If sensitivity active) Struct with consensus ranking scores.
 %       .power_results         - (If power active) Struct with post-hoc power estimates.
+%       .all_permutation_ranks - [N x Perms] Ranks for all sensitivity permutations.
+%       .selected_permutations - [Perms x Metrics] Indices of metric permutations.
 %
 %   Additionally, the function generates the following files in 'userInput.output_dir':
 %       - Log file (.txt) with console output.
@@ -440,7 +445,9 @@ end
 % Assess the stability of the primary ranking using a cluster bootstrap.
 % This function now receives the 'config' struct which contains the 'ranking_mode'.
 fprintf(['\n' lang.run_ranking.bootstrap_ranks '\n']);
-[final_bootstrap_ranks, selected_B_rank, stability_data_rank, h_figs_rank, h_fig_hist_rank] = ...
+% This function now receives the 'config' struct which contains the 'ranking_mode'.
+fprintf(['\n' lang.run_ranking.bootstrap_ranks '\n']);
+[final_bootstrap_ranks, selected_B_rank, stability_data_rank, h_figs_rank, h_fig_hist_rank, ci_lower_rank, ci_upper_rank] = ...
     bootstrap_ranking(all_data, thresholds, config, dataset_names, final_rank, pair_idx_all, num_probanden, graphics_dir, csv_dir,...
     config.manual_B_rank, s, styles, lang, base_name);
 
@@ -467,6 +474,8 @@ end
 % Aggregate all analysis results into a single 'results' struct.
 results = struct();
 results.final_rank = final_rank;
+results.ci_lower_rank = ci_lower_rank;
+results.ci_upper_rank = ci_upper_rank;
 results.final_bootstrap_ranks = final_bootstrap_ranks;
 results.all_sig_matrices = all_sig_matrices;
 results.all_alpha_matrices = all_alpha_matrices;
@@ -552,7 +561,7 @@ try
     json_export_data.meta = struct();
     json_export_data.meta.n_subjects = shared_info.num_probanden;
     json_export_data.meta.n_datasets = shared_info.num_datasets;
-    json_export_data.meta.version = '2.1'; % Version update
+    json_export_data.meta.version = HERA.get_version(); % Automatic version detection
     json_export_data.meta.timestamp = shared_info.log_basename;
     
     % pair_indices: Maps the N-row pairwise arrays (e.g., in stats_calcs) to their respective [Dataset A, Dataset B] indices.
@@ -604,6 +613,8 @@ try
     % These are the "targets" for downstream analysis.
     results_export = struct();
     results_export.final_rank = results.final_rank;
+    results_export.ci_lower_rank = results.ci_lower_rank;
+    results_export.ci_upper_rank = results.ci_upper_rank;
     results_export.final_order = results.final_order;
     results_export.intermediate_orders = results.intermediate_orders;
     results_export.swap_details = results.swap_details;

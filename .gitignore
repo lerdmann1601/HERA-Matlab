@@ -13,6 +13,11 @@ slprj/
 *.fls
 *.fdb_latexmk
 
+# Python
+*.pyc
+__pycache__
+.venv
+
 # HERA Output
 Ranking_*/
 
