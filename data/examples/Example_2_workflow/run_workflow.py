@@ -1,5 +1,5 @@
 """
-HERA_EXAMPLE_2_WORKFLOW - Example workflow for HERA analysis with pruning and stability checking.
+RUN_WORKFLOW - Example workflow for HERA analysis with pruning and stability checking.
 
 Description:
   This script demonstrates a complete workflow for running HERA on a series of datasets 
@@ -18,14 +18,14 @@ Workflow:
      - Detect input folders.
      - Configure HERA for each dataset.
      - Execute HERA.
-     - specific analysis of JSON output.
+     - Parse JSON output.
   4. Pruning & Plotting:
      - Identify overlap regions between methods (e.g., Method G and Method B).
-     - Keep relevant datasets (overlap + transition point).
+     - Keep relevant datasets (overlapping + transition point).
      - Remove redundant stable datasets.
      - Plot the optimization curve.
 
-  Usage:
+Usage:
   Run this script directly from the terminal or IDE:
   $ pip install -r requirements.txt
   $ python3 run_workflow.py
@@ -39,10 +39,14 @@ import sys
 import shutil
 import json
 import subprocess
+import platform
+from pathlib import Path
+from typing import Dict, List, Optional, Any, Tuple, Union
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
+
 
 # --- Configuration ---
 BASE_DIR = Path(__file__).parent.resolve()
@@ -85,31 +89,46 @@ MANUAL_BOOTSTRAP = {
 }
 
 class HERAWorkflow:
-    def __init__(self):
-        self.data_dir = DATA_DIR
-        self.results_dir = RESULTS_DIR
+    """
+    Main controller for the HERA analysis workflow.
+    
+    This class manages the lifecycle of the analysis, including directory setup, configuration generation,
+    execution of the HERA runtime, and result processing.
+    """
+
+    def __init__(self) -> None:
+        """Initializes the workflow with default data and results directories."""
+        self.data_dir: Path = DATA_DIR
+        self.results_dir: Path = RESULTS_DIR
         
-    def setup_directories(self):
+    def setup_directories(self) -> None:
         """
         1. Ensures the directory structure exists.
+        
         Checks for data and result directories and creates them if missing.
         """
+        # 1. Setup Data Directory
         if not self.data_dir.exists():
             print(f"[Info] Creating Data Directory: {self.data_dir}")
             self.data_dir.mkdir(parents=True)
             
+        # 2. Setup Results Directory
         if not self.results_dir.exists():
             print(f"[Info] Creating Results Directory: {self.results_dir}")
             self.results_dir.mkdir(parents=True)
-            
-    # migrate_legacy_data removed per user request
-
-
-            
-    def create_hera_config(self, input_path, output_path):
+                 
+    def create_hera_config(self, input_path: Path, output_path: Path) -> Dict[str, Any]:
         """
         3. Creates the JSON configuration structure for HERA.
+        
         Constructs the dictionary expected by the HERA runtime.
+
+        Args:
+            input_path (Path): Path to the input data directory.
+            output_path (Path): Path where results should be saved.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing the 'userInput' configuration.
         """
         config = {
             "userInput": {
@@ -133,9 +152,13 @@ class HERAWorkflow:
         }
         return config
 
-    def find_executable(self):
+    def find_executable(self) -> Optional[Union[Path, str]]:
         """
         Helper: Searches for the HERA executable in likely locations.
+        
+        Returns:
+            Optional[Union[Path, str]]: The path to the executable (Path object), "matlab" (str) if using local MATLAB, 
+                                        or None if not found.
         """
         # 1. Check Environment Variable
         if HERA_DEPLOY_DIR_ENV:
@@ -170,10 +193,17 @@ class HERAWorkflow:
 
         return None
 
-    def run_hera(self, config_path):
+    def run_hera(self, config_path: Path) -> bool:
         """
         4. Executes HERA using the compiled runtime/launcher.
+        
         Locates the executable and runs it with the provided configuration.
+
+        Args:
+            config_path (Path): Path to the generated JSON configuration file.
+            
+        Returns:
+            bool: True if execution was successful, False otherwise.
         """
         hera_cmd = self.find_executable()
         
@@ -213,7 +243,6 @@ class HERAWorkflow:
             # 2. Runs start_ranking with the config
             
             repo_root = BASE_DIR.parent.parent.parent.resolve()
-            setup_script_path = repo_root 
             
             # Note: We need to cd to repo_root to ensure setup_HERA is found, 
             # OR add repo_root to path explicitly in the command.
@@ -238,9 +267,15 @@ class HERAWorkflow:
                 print(f"[Error] MATLAB subprocess error: {e}")
                 return False
 
-    def get_latest_result_json(self, result_folder):
+    def get_latest_result_json(self, result_folder: Path) -> Optional[Path]:
         """
         Helper: Finds the latest JSON output in the results folder.
+
+        Args:
+            result_folder (Path): The folder containing HERA results.
+
+        Returns:
+            Optional[Path]: Path to the latest result JSON file, or None if not found.
         """
         if not result_folder.exists():
             return None
@@ -261,16 +296,23 @@ class HERAWorkflow:
             
         return jsons[0]
 
-    def analyze_results(self, json_path):
+    def analyze_results(self, json_path: Path) -> Dict[str, Any]:
         """
         5. Analysis: Reads ranking info and calculates CIs from bootstrap ranks.
+        
         Specific logic to extract bootstrap distributions and compute percentiles.
+
+        Args:
+            json_path (Path): Path to the HERA result JSON.
+
+        Returns:
+            Dict[str, Any]: A dictionary containing rank and CI statistics for each method.
         """
         with open(json_path, 'r') as f:
             data = json.load(f)
             
-        results = data.get('results', {})
-        dataset_names = data.get('dataset_names', [])
+        results: Dict[str, Any] = data.get('results', {})
+        dataset_names: List[str] = data.get('dataset_names', [])
         
         final_ranks = results.get('final_rank', [])
         
@@ -307,7 +349,7 @@ class HERAWorkflow:
                  ci_lower = final_ranks
                  ci_upper = final_ranks
 
-        rank_map = {}
+        rank_map: Dict[str, Dict[str, Any]] = {}
         for i, name in enumerate(dataset_names):
             rank_map[name] = {
                 "rank": final_ranks[i],
@@ -317,9 +359,15 @@ class HERAWorkflow:
             
         return rank_map
 
-    def process_data(self):
+    def process_data(self) -> None:
         """
         Main Loop: Iterates through data folders, runs HERA, and collects results.
+        
+        This method orchestrates the entire batch processing workflow:
+        1. directory setup
+        2. processing loop (config -> run -> analyze)
+        3. result aggregation
+        4. handing off to pruning/plotting.
         """
         self.setup_directories()
 
@@ -384,14 +432,19 @@ class HERAWorkflow:
             
         self.prune_and_plot(aggregated_results)
 
-    def prune_and_plot(self, results):
+    def prune_and_plot(self, results: List[Dict[str, Any]]) -> None:
         """
         6. Pruning and Plotting Logic.
+        
+        Applies pruning rules to the aggregated results and triggers plotting.
         
         Pruning Rules:
           1. Keep all results where Method G and Method B CIs OVERLAP.
           2. Keep the method immediately BEFORE the overlap starts (Transition point).
           3. Delete all others (Stable results).
+          
+        Args:
+            results (List[Dict[str, Any]]): List of result dictionaries from `process_data`.
         """
         if not results:
             return
@@ -457,10 +510,16 @@ class HERAWorkflow:
         # Plotting
         self.plot_curve(final_plot_data, first_overlap_index=first_overlap_index, all_results=results)
 
-    def plot_curve(self, data, first_overlap_index=-1, all_results=None):
+    def plot_curve(self, data: List[Dict[str, Any]], first_overlap_index: int = -1, all_results: Optional[List[Dict[str, Any]]] = None) -> None:
         """
         7. Plots Rank G vs B with CIs.
+        
         Generates the stability analysis plot and saves it to the results directory.
+        
+        Args:
+            data (List[Dict[str, Any]]): Filtered list of results to be plotted.
+            first_overlap_index (int): Index where overlap was first detected (for vertical line).
+            all_results (Optional[List[Dict[str, Any]]]): Full list of results for transition point lookup.
         """
         if not data:
             print("[Info] No data to plot.")
