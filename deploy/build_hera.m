@@ -105,7 +105,7 @@ function build_hera()
         % Step 3: Copy Launcher Scripts to Output (macOS only)
         if ismac
             fprintf('3. Copying Launcher Scripts...\n');
-            launcherSrc = fullfile(projectRoot, 'release', 'macos', 'HERA_Launcher.command');
+            launcherSrc = fullfile(projectRoot, 'deploy', 'dependencies', 'HERA_Launcher.command');
             launcherDst = fullfile(outputDir, 'HERA_Launcher.command');
             copyfile(launcherSrc, launcherDst);
             % Ensure it is executable
