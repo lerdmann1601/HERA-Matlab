@@ -52,6 +52,10 @@ function build_hera()
     % Define Main File
     mainFile = fullfile(projectRoot, '+HERA', 'start_ranking.m');
     
+    % Get Version
+    version_str = HERA.get_version();
+    fprintf('Detected Version: %s\n', version_str);
+
     % Define Application Name
     appName = 'HERA_Runtime';
 
@@ -91,7 +95,7 @@ function build_hera()
         fprintf('2. Creating Installer with Auto-Runtime Download...\n');
         
         % Use Name-Value pairs directly to avoid potential object handling issues
-        installerName = [appName '_Installer'];
+        installerName = [appName '_Installer_' version_str];
         
         compiler.package.installer(buildResults, ...
             'InstallerName', installerName, ...
@@ -104,21 +108,50 @@ function build_hera()
             launcherSrc = fullfile(projectRoot, 'release', 'macos', 'HERA_Launcher.command');
             launcherDst = fullfile(outputDir, 'HERA_Launcher.command');
             copyfile(launcherSrc, launcherDst);
+            % Ensure it is executable
+            system(['chmod +x "' launcherDst '"']);
         end
+        
+        
+        % Step 4: Compress Artifacts (ZIP)
+        fprintf('4. Compressing Artifacts into ZIP...\n');
+        
+        % Define Zip Name (e.g., HERA_Runtime_v1.0.1_maci64.zip)
+        % Sanitize version string for filename (remove potential illegal chars)
+        safe_ver = regexprep(version_str, '[^a-zA-Z0-9_\-\.]', '_');
+        zipName = sprintf('%s_%s_%s.zip', appName, safe_ver, computer('arch'));
+        
+        % Change to output directory to create a clean zip structure (relative paths)
+        owd = pwd;
+        cd(outputDir);
+        cleanupObj = onCleanup(@() cd(owd)); % Ensure we return to original dir
+        
+        filesToZip = {};
+        
+        % Add Installer
+        if ismac
+             filesToZip{end+1} = [installerName '.app'];
+             filesToZip{end+1} = 'HERA_Launcher.command';
+        elseif ispc
+             filesToZip{end+1} = [installerName '.exe'];
+        else
+             filesToZip{end+1} = [installerName '.install'];
+        end
+        
+        % Create Zip
+        zip(zipName, filesToZip);
         
         % Success Message
         fprintf('\n========================================\n');
         fprintf('SUCCESS!\n');
         fprintf('1. Standalone App: %s\n', fullfile(outputDir, appName));
-        fprintf('2. Installer:      %s\n', fullfile(outputDir, [appName '_Installer']));
+        fprintf('2. Installer:      %s\n', fullfile(outputDir, installerName));
+        fprintf('3. ZIP Archive:    %s\n', fullfile(outputDir, zipName));
         if ismac
-            fprintf('3. Launcher:       %s\n', launcherDst);
+             fprintf('Includes Launcher: %s\n', fullfile(outputDir, 'HERA_Launcher.command'));
         end
         fprintf('----------------------------------------\n');
-        fprintf('Share the Installer with users.\n');
-        if ismac
-            fprintf(' Also share the Launcher script (needed for Terminal on macOS).\n');
-        end
+        fprintf('Ready for Release! Upload the ZIP file to GitHub.\n');
         fprintf('========================================\n');
         
     catch ME
