@@ -110,6 +110,28 @@ function build_hera()
             copyfile(launcherSrc, launcherDst);
             % Ensure it is executable
             system(['chmod +x "' launcherDst '"']);
+            
+            % Apply Ad-Hoc Signature (Mitigate Gatekeeper) to avoid issues with MacOS due to not having a developer license...
+            fprintf('   > Applying Ad-Hoc Signature to artifacts...\n');
+            
+            % Sign the Installer App
+            installerAppPath = fullfile(outputDir, [installerName '.app']);
+            signCmdApp = sprintf('codesign --force --deep -s - "%s"', installerAppPath);
+            [statusApp, cmdoutApp] = system(signCmdApp);
+            if statusApp ~= 0
+                 fprintf('   Warning: Failed to sign Installer App. Error: %s\n', cmdoutApp);
+            else
+                 fprintf('   > Signed: %s\n', installerName);
+            end
+            
+            % Sign the Launcher Script
+            signCmdLauncher = sprintf('codesign --force --deep -s - "%s"', launcherDst);
+            [statusLauncher, cmdoutLauncher] = system(signCmdLauncher);
+            if statusLauncher ~= 0
+                 fprintf('   Warning: Failed to sign Launcher. Error: %s\n', cmdoutLauncher);
+            else
+                 fprintf('   > Signed: HERA_Launcher.command\n');
+            end
         end
         
         
