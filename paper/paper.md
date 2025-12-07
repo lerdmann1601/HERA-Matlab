@@ -48,7 +48,7 @@ HERA operates on paired data matrices where rows represent subjects (or datasets
 HERA quantifies differences using statistical significance and effect sizes to ensure practical relevance independent of sample size [@Cohen1988; @Sullivan2012]. A "win" always requires satisfying three conjunctive criteria, if not it is considered "neutral":
 
 - **Significance**: $p < \alpha_{\text{Holm}}$ (Holm-Bonferroni corrected). Pairwise comparisons use the Wilcoxon signed-rank test [@Wilcoxon1945], with p-values corrected using the step-down Holm-Bonferroni method [@Holm1979] to control the Family-Wise Error Rate (FWER).
-- **Stochastic Dominance (Cliff's Delta)**:  Cliff's Delta ($d = P(X>Y) - P(Y>X)$) quantifies distribution overlap, is robust to outliers, and relates to common-language effect sizes [@Cliff1993; @Vargha2000].The effect size $d$ must exceed a bootstrapped threshold $\theta_d$.
+- **Stochastic Dominance (Cliff's Delta)**:  Cliff's Delta ($d = P(X>Y) - P(Y>X)$) quantifies distribution overlap, is robust to outliers, and relates to common-language effect sizes [@Cliff1993; @Vargha2000]. The effect size $d$ must exceed a bootstrapped threshold $\theta_d$.
 - **Magnitude (Relative Difference)**: The Relative Difference (RelDiff) quantifies effect magnitude on the original metric scale, normalized by the mean absolute value. This normalization is formally identical to the Symmetric Mean Absolute Percentage Error (SMAPE) used in forecasting [@Makridakis1993] and conceptually related to the Response Ratio, which uses logarithmic ratios to compare effects across studies [@Hedges1999]. The metric enables scale-independent comparisons and facilitates the interpretation of percentage changes [@Kampenes2007]. RelDiff must exceed a threshold $\delta_{\text{RelDiff}}$.
 
 **Dual Criteria & SEM Lower Bound**
@@ -56,9 +56,9 @@ HERA's complementary logic requires both dominance and magnitude, preventing "wi
 
 ### Hierarchical-Compensatory Logic
 
-The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively (Fig. 2):
+The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively (see Fig. 1):
 
-- **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie cliffs delta is used to break the tie.
+- **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie, Cliff's Delta is used to break the tie.
 - **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric $M_2$. This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
 - **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two sub-logics to ensure a total ordering:
   - **Sublogic 3a**: A one-time correction if the previous metric is "neutral" based on the HERA criteria. This handles cases where two methods are indistinguishable in the second metric while still respecting the initial ranking.
@@ -70,12 +70,12 @@ HERA integrates advanced resampling methods to quantify uncertainty:
 
 - **BCa Confidence Intervals**: Bias-Corrected and Accelerated (BCa) intervals are calculated for all effect sizes [@DiCiccio1996].
 - **Cluster Bootstrap**: To assess the stability of the final ranking, HERA performs a cluster bootstrap resampling subjects with replacement [@Field2007]. This yields a 95% confidence interval for the rank of each method.
-- **Power Analysis**: A post-hoc simulation with bootstrap estimates the probability of detecting a "win", "loss" or neutral" in all tested metrics given the data characteristics.
+- **Power Analysis**: A post-hoc simulation with bootstrap estimates the probability of detecting a "win", "loss" or "neutral" in all tested metrics given the data characteristics.
 - **Sensitivity Analysis**: The algorithm permutes the metric hierarchy and aggregates the resulting rankings using a Borda Count [@Young1974] to evaluate the robustness of the decision against hierarchy changes.
 
 ## Software Features
 
-HERA offers a flexible configuration of up to three metrics. This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features (Fig. 3).
+HERA offers a flexible configuration of up to three metrics. This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features (see Fig. 2).
 
 - **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV exports.
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
@@ -95,8 +95,8 @@ We plan to expand HERA's capabilities in several directions:
 
 This software was developed at the Institute of Neuroradiology, Goethe University Frankfurt. I thank Prof. Dr. Dipl.-Phys. Ralf Deichmann (Cooperative Brain Imaging Center, Goethe University Frankfurt) for his support during the initial conceptualization of this project. I acknowledge Dr. med. Christophe Arendt (Institute of Neuroradiology, Goethe University Frankfurt) for his supervision and support throughout the project. I also thank Rejane Golbach PhD (Institute of Biostatistics and Mathematical Modeling, Goethe University Frankfurt) for her valuable feedback on the statistical methodology. Finally, I acknowledge the contributions of the scientific community for the development of the underlying statistical methods and the developers of the MATLAB toolboxes that made this project possible.
 
-![Figure 1: Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
+![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
 
-![Figure 2: Flexible Configuration options for Ranking Logic](images/features.png)
+![Flexible Configuration options for Ranking Logic](images/features.png)
 
 ## References
