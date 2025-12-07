@@ -11,21 +11,30 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   config, metric_names, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
 %
 % Description:
-%   This function dynamically determines the optimal number of bootstrap samples (B) for bias-corrected and accelerated (BCa) confidence intervals.
-%   Subsequently, it calculates the confidence intervals and the correction factors (z0, a) for effect sizes using the optimal B-value.
+%   This function acts as the main controller for the BCa (Bias-Corrected and Accelerated) 
+%   Bootstrap confidence interval calculation. It dynamically determines the optimal 
+%   number of bootstrap samples (B) by analyzing the stability of the CI widths.
+%   
+%   Refactored to follow the "Strict Controller Pattern":
+%   - Core logic and orchestration remain here.
+%   - Statistical checks are delegated to `+HERA/+stats`.
+%   - Plotting and visualization are delegated to `+HERA/+plot`.
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
-%      Iterates over B-values and checks the stability of the CI widths to find the optimal value through convergence or an elbow analysis.
-%      This works dynamically for 1, 2, or 3 metrics.
+%      Iterates over B-values in a parfor loop. Convergence is strictly checked using
+%      `HERA.stats.check_convergence`. If no convergence is found, the optimal B is 
+%      determined via elbow method using `HERA.stats.find_elbow_point`.
 %   2. Creation of the convergence plot: 
-%      Visualizes the stability analysis for each effect size type and metric and saves the graphic as a PNG file.
+%      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
-%      Calculates the final CIs for Cliff's Delta and the relative difference for all pairwise comparisons using the optimal B-value.
+%      Calculates the final CIs for Cliff's Delta and the relative difference using the 
+%      determined optimal B-value. This calculation is parallelized.
 %   4. Calculation and output of correction factors: 
-%      Determines the bias correction (z0) and skewness correction (a), outputs a summary in the console and saves the results to a CSV file.
+%      Summarizes the bias correction (z0) and skewness correction (a) and exports 
+%      them to a CSV file.
 %   5. Generation of distribution plots:
-%      Creates and saves histograms for the distribution of the correction factors (z0, a) and the confidence interval widths.
+%      Calls `HERA.plot.bca_distributions` to create histograms for z0, a, and CI widths.
 %
 % Inputs:
 %   all_data      - Cell array with the data matrices for each metric (1, 2, or 3 cells).
@@ -44,19 +53,17 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   base_name     - Base name for output files (e.g., from the log timestamp).
 %
 % Outputs:
-%   B_ci     - Optimally determined number of bootstrap samples.
-%   ci_d_all - 3D array of the BCa confidence intervals for Cliff's Delta.
-%   ci_r_all - 3D array of the BCa confidence intervals for the relative difference.
-%   z0_d_all - Matrix of the bias correction factor (z0) for Cliff's Delta.
-%   a_d_all  - Matrix of the skewness correction factor (a) for Cliff's Delta.
-%   z0_r_all - Matrix of the bias correction factor (z0) for the relative difference.
-%   a_r_all  - Matrix of the skewness correction factor (a) for the relative difference.
-%   stability_data_ci - Struct with convergence curve data for JSON export.
-%   h_fig_bca_global  - Handle of the global convergence graphic.
-%   h_fig_bca_detailed- Handle of the detailed convergence graphic.
-%   h_fig_hist_z0     - Handle of the z0 distribution graphic.
-%   h_fig_hist_a      - Handle of the a distribution graphic.
-%   h_fig_hist_widths - Handle of the CI width distribution graphic.
+%   B_ci               - Optimally determined number of bootstrap samples.
+%   ci_d_all           - 3D array of the BCa CI for Cliff's Delta.
+%   ci_r_all           - 3D array of the BCa CI for the relative difference.
+%   z0_d_all, a_d_all  - Matrices of correction factors (z0, a) for Cliff's Delta.
+%   z0_r_all, a_r_all  - Matrices of correction factors (z0, a) for Rel. Diff.
+%   stability_data_ci  - Struct with convergence curve data for JSON export.
+%   h_fig_bca_global   - Handle of the global convergence graphic.
+%   h_fig_bca_detailed - Handle of the detailed convergence graphic.
+%   h_fig_hist_z0      - Handle of the z0 distribution graphic.
+%   h_fig_hist_a       - Handle of the a distribution graphic.
+%   h_fig_hist_widths  - Handle of the CI width distribution graphic.
 %
 % Author: Lukas von Erdmannsdorff
 
@@ -73,7 +80,7 @@ if ~exist(subfolder_bca_CI, 'dir')
     mkdir(subfolder_bca_CI);
 end
 
-% Preparation of variables for the parfor loops to avoid broadcasting the entire workspace.
+% Preparation of variables for the parfor loops
 p_pair_idx_all = pair_idx_all; 
 p_all_data = all_data; 
 p_d_vals_all = d_vals_all; 
@@ -118,8 +125,7 @@ else
     stability_matrix_ci = NaN(2, num_metrics, numel(B_vector_ci));
     final_i_ci = 0;
     converged_ci = false;
-    % Initialization for convergence check.
-    convergence_streak_counter_ci = 0;
+    
     overall_stability_ci = NaN(1, numel(B_vector_ci));
     
     % temp vector is now sized
@@ -261,70 +267,34 @@ else
         % Save the average stability value for the overall convergence check.
         overall_stability_ci(i) = nanmean(stability_matrix_ci(:, :, i), 'all');
     
-        % Convergence check: Determines if the stability has plateaued.
+        % Convergence check via Helper Function
+        [converged_ci, stats] = HERA.stats.check_convergence(overall_stability_ci(1:i), cfg_ci);
+        
+        rel_imp = stats.improvement;
+        
+        % Logging
         if use_robust_convergence_ci
-            % Robust method with smoothing and a "streak" check.
-            warmup_period = cfg_ci.min_steps_for_convergence_check;
-            smoothing_window = cfg_ci.smoothing_window;
-            streak_needed = cfg_ci.convergence_streak_needed;
-            if i >= warmup_period + smoothing_window
-                % Apply a moving average to reduce noise.
-                smoothed_stability = movmean(overall_stability_ci(1:i), smoothing_window, 'omitnan');
-                prev_stab_smooth = smoothed_stability(end-1);
-                curr_stab_smooth = smoothed_stability(end);
-                % Calculate relative improvement in stability.
-                if isnan(curr_stab_smooth) || isnan(prev_stab_smooth), rel_imp = 1.0;
-                elseif isinf(curr_stab_smooth), rel_imp = -1.0;
-                elseif prev_stab_smooth == 0
-                    if curr_stab_smooth == 0, rel_imp = 0; 
-                    else, rel_imp = -1.0; end
-                elseif isinf(prev_stab_smooth)
-                    if isinf(curr_stab_smooth), rel_imp = 0; 
-                    else, rel_imp = 1.0; end
-                else
-                    rel_imp = (prev_stab_smooth - curr_stab_smooth) / prev_stab_smooth;
-                end
-                % Check if the improvement is below the tolerance.
+            % Only print if enough steps have passed for logic to kick in
+            if ~isnan(rel_imp)
                 if abs(rel_imp) < cfg_ci.convergence_tolerance
-                    convergence_streak_counter_ci = convergence_streak_counter_ci + 1;
                     fprintf(['    ' lang.bca.convergence_run_info '\n'],...
-                    rel_imp * 100, convergence_streak_counter_ci, streak_needed);
+                    rel_imp * 100, stats.streak, cfg_ci.convergence_streak_needed);
                 else
-                    % Reset streak counter if improvement is still large.
-                    convergence_streak_counter_ci = 0;
                     fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
                 end
-                % Check if the required number of stable runs has been achieved.
-                if convergence_streak_counter_ci >= streak_needed
+                
+                if converged_ci
                     fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
-                    fprintf([lang.bca.stable_runs_info '\n'], streak_needed);
-                    converged_ci = true;
+                    fprintf([lang.bca.stable_runs_info '\n'], cfg_ci.convergence_streak_needed);
                 end
             end
         else
-            % Simple convergence check without smoothing.
-            if i >= cfg_ci.min_steps_for_convergence_check
-                prev_stab = overall_stability_ci(i - 1);
-                curr_stab = overall_stability_ci(i);
-                
-                % Calculate relative improvement, handling edge cases.
-                if isnan(curr_stab) || isnan(prev_stab), rel_imp = 1.0;
-                elseif isinf(curr_stab), rel_imp = -1.0;
-                elseif prev_stab == 0
-                    if curr_stab == 0, rel_imp = 0; 
-                    else, rel_imp = -1.0; end
-                elseif isinf(prev_stab)
-                    if isinf(curr_stab), rel_imp = 0; 
-                    else, rel_imp = 1.0; end
-                else
-                    rel_imp = (prev_stab - curr_stab) / prev_stab;
-                end
-                fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);           
-                % If improvement is below tolerance, convergence is reached.
-                if abs(rel_imp) < cfg_ci.convergence_tolerance
+            % Simple convergence check logs
+            if ~isnan(rel_imp) && i >= cfg_ci.min_steps_for_convergence_check
+                 fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);    
+                 if converged_ci
                     fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
-                    converged_ci = true;
-                end
+                 end
             end
         end
 
@@ -333,241 +303,42 @@ else
         end
     end % End of the for-loop for stability check.
     
-    % Final B-value determination based on the analysis outcome.
+    % Final B-value determination
     B_tested_vector_ci = B_vector_ci(1:final_i_ci);
     overall_stability_ci_plotted = overall_stability_ci(1:final_i_ci);
+    
+    elbow_indices = [];
     if converged_ci
         % If converged, the last tested B-value is used.
         selected_B_ci = B_tested_vector_ci(end);
         fprintf([lang.bca.convergence_result '\n'], selected_B_ci);
     else
-        % Otherwise, the "elbow" of the curve is determined as the optimal point.
+        % Otherwise, finding 'elbow' via Helper Function
         fprintf([lang.bca.elbow_analysis_info '\n']);
-        % Dynamic elbow analysis
+        
+        % Prepare curves matrix for the helper (steps x curves)
         num_curves = num_metrics * 2;
-        elbow_indices = zeros(1, num_curves);
-        stability_vectors = cell(1, num_curves);
-        % Dynamically create stability vectors for elbow check
+        curves_matrix = zeros(final_i_ci, num_curves);
         for k_sv = 1:num_metrics
-            stability_vectors{k_sv} = squeeze(stability_matrix_ci(1, k_sv, 1:final_i_ci)); % Delta metrics
-            stability_vectors{k_sv + num_metrics} = squeeze(stability_matrix_ci(2, k_sv, 1:final_i_ci)); % RelDiff metrics
+             curves_matrix(:, k_sv) = squeeze(stability_matrix_ci(1, k_sv, 1:final_i_ci));
+             curves_matrix(:, k_sv + num_metrics) = squeeze(stability_matrix_ci(2, k_sv, 1:final_i_ci));
         end
-
-        % Loop through all stability curves.
-        for k_elbow = 1:num_curves
-            x_values = B_tested_vector_ci(:);
-            y_values = stability_vectors{k_elbow}(:); % Vectorize to column
-            % Skip if there's no data or variation to analyze.
-            if any(isnan(y_values)) || numel(unique(y_values)) < 2
-                % If the curve is flat (e.g., stability as IQR/Median is 0), it's stable immediately.
-                % Set elbow to the first index.
-                elbow_indices(k_elbow) = 1; 
-                continue;
-            end
-            % Normalize data for consistent distance calculation.
-            x_norm = (x_values - min(x_values)) / (max(x_values) - min(x_values));
-            y_norm = (y_values - min(y_values)) / (max(y_values) - min(y_values));
-            if all(isnan(x_norm)), x_norm(:) = 0; end
-            if all(isnan(y_norm)), y_norm(:) = 0; end
-            % Find the point with maximum distance to the line connecting start and end points.
-            line_vec = [x_norm(end) - x_norm(1); y_norm(end) - y_norm(1)];
-            vec_from_first = [x_norm - x_norm(1), y_norm - y_norm(1)];
-            cross_prod = vec_from_first(:, 1) * line_vec(2) - vec_from_first(:, 2) * line_vec(1);
-            [~, elbow_idx] = max(abs(cross_prod) / norm(line_vec));
-            if isempty(elbow_idx), elbow_idx = numel(x_values); end
-            elbow_indices(k_elbow) = elbow_idx;
-        end
-        % The selected B is the maximum of all determined elbow points.
-        selected_B_ci = max(B_tested_vector_ci(elbow_indices));
+        
+        [selected_B_ci, elbow_indices] = HERA.stats.find_elbow_point(B_tested_vector_ci, curves_matrix);
         fprintf([lang.bca.elbow_result '\n'], selected_B_ci);
     end
+    
     % Store stability data for JSON export
     stability_data_ci = struct();
     stability_data_ci.B_vector = B_tested_vector_ci;
     stability_data_ci.global_stability = overall_stability_ci_plotted;
     stability_data_ci.detailed_stability = stability_matrix_ci(:, :, 1:final_i_ci);
-    B_ci = selected_B_ci; % Assign to the output variable.
+    B_ci = selected_B_ci; 
 
-%% 2. Creates and saves graphics to visualize the convergence analysis
-% Use the passed global styles.
-set(0, 'DefaultAxesFontName', 'Arial');
-set(0, 'DefaultTextFontName', 'Arial');
-
-% Plot 1: Global Convergence Curve
-% This plot shows the overall stability (mean across all metrics) that was used for the convergence check.
-h_fig_bca_global = figure('Name', lang.plots.titles.bca_convergence_global, 'Color', styles.colors.background, 'Visible', 'off');
-tcl_bca_global = tiledlayout(1, 1, 'Padding', 'compact');
-ax_global = nexttile;
-
-% Plot the raw global stability curve.
-p1_global = plot(ax_global, B_tested_vector_ci, overall_stability_ci_plotted * 100, '-o', 'LineWidth', 1.5, 'MarkerSize', 5, ...
-    'Color', styles.colors.blue_marker, 'MarkerFaceColor', styles.colors.blue_marker);
-grid(ax_global, 'on'); 
-box(ax_global, 'on'); 
-hold(ax_global, 'on');
-set(ax_global, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
-
-% Set title for the global plot.
-fig_title_str_global = sprintf([lang.plots.titles.bca_convergence_long_n_g], config.bootstrap_ci.n_trials);
-title(tcl_bca_global, fig_title_str_global, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text);
-
-% Set axis labels and limits.
-xlim(ax_global, [min(B_tested_vector_ci), max(B_tested_vector_ci) * 1.1]);
-xlabel(ax_global, lang.plots.xlabels.bootstraps, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-ylabel(ax_global, lang.plots.ylabels.stability, 'FontSize', styles.font.label, 'Color', styles.colors.text); 
-set(ax_global, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
-
-% If robust convergence was used, also plot the smoothed curve (as this was used for the check).
-if use_robust_convergence_ci
-    smoothing_window_global = config.bootstrap_ci.smoothing_window;
-    smoothed_curve_plotted_global = movmean(overall_stability_ci_plotted, smoothing_window_global, 'omitnan');
-    p2_global = plot(ax_global, B_tested_vector_ci, smoothed_curve_plotted_global * 100, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
-    lgd_global = legend(ax_global, [p1_global, p2_global], {lang.plots.legend.unsmoothed, lang.plots.legend.smoothed}, 'Location', 'best', ...
-        'FontSize', styles.font.small_text);
-    set(lgd_global, 'Color', styles.colors.background, 'TextColor', styles.colors.text, 'EdgeColor', styles.colors.text);
-    lgd_global.ItemTokenSize = [15, 18];
-end
-
-% Add a marker for the optimal B value.
-selected_B_ci_idx_for_plot_global = find(B_tested_vector_ci == selected_B_ci, 1);
-if ~isempty(selected_B_ci_idx_for_plot_global)
-    x_pos_global = selected_B_ci;
-    y_pos_global = overall_stability_ci_plotted(selected_B_ci_idx_for_plot_global) * 100;
-    plot(ax_global, x_pos_global, y_pos_global, 'x', 'Color', styles.colors.red_marker, 'MarkerSize', 10, 'LineWidth', 2, 'HandleVisibility', 'off');
-    current_xlim_global = xlim(ax_global);
-    if x_pos_global > (current_xlim_global(1) + (current_xlim_global(2) - current_xlim_global(1)) * 0.85)
-        xlim(ax_global, [current_xlim_global(1), x_pos_global * 1.2]);
-    end
-    text(ax_global, x_pos_global, y_pos_global, sprintf(lang.plots.misc.optimal_b_text, selected_B_ci), ...
-         'VerticalAlignment', 'bottom', 'HorizontalAlignment', 'left', 'FontSize', styles.font.small_text, 'Color', styles.colors.red_marker);
-end
-hold(ax_global, 'off');
-
-% Save global graphic.
-[~, fName, fExt] = fileparts(lang.files.convergence_bca_global);
-filename_global = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_bca_global, filename_global, 'Resolution', 300, 'Padding', 30);
-fprintf([lang.bca.convergence_plot_saved '\n'], filename_global);
-
-
-% Plot 2: Detailed Convergence Curves (per Metric) 
-% This plot shows the individual stability curves for each metric (without smoothing).
-h_fig_bca_detailed = figure('Name', lang.plots.titles.bca_convergence_long, 'Color', styles.colors.background, 'Visible', 'off');
-
-% Creates the Tiled Layout and applies the title.
-num_metrics_actual = numel(metric_names);
-tcl_bca_detailed = tiledlayout(2, num_metrics_actual, 'TileSpacing', 'compact', 'Padding', 'compact');
-fig_title_str_detailed = sprintf([lang.plots.titles.bca_convergence_long_n_d], config.bootstrap_ci.n_trials);
-title(tcl_bca_detailed, fig_title_str_detailed, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text);
-
-% Initialization for the plotting loop.
-num_effect_types = 2;
-effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
-% Define the color for the local elbow (same as smoothed curve in global plot)
-color_local_elbow = [0.8500 0.3250 0.0980]; 
-
-% Loop through effect types (rows) and metrics (columns).
-for es_type = 1:num_effect_types
-    for actual_metric_idx = 1:num_metrics_actual
-        ax = nexttile;
-        
-        % Prepare plot handles and names for the dynamic legend 
-        handles_to_legend = [];
-        names_to_legend = {};
-        
-        current_stability_curve_plotted = squeeze(stability_matrix_ci(es_type, actual_metric_idx, 1:final_i_ci));
-        
-        % Plot the raw stability curve.
-        p1 = plot(ax, B_tested_vector_ci, current_stability_curve_plotted * 100, '-o', 'LineWidth', 1.5, 'MarkerSize', 5, ...
-            'Color', styles.colors.blue_marker, 'MarkerFaceColor', styles.colors.blue_marker, ...
-            'DisplayName', lang.plots.legend.unsmoothed);
-        handles_to_legend(end+1) = p1;
-        names_to_legend{end+1} = lang.plots.legend.unsmoothed;
-            
-        grid(ax, 'on'); 
-        box(ax, 'on'); 
-        hold(ax, 'on');
-        set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
-        
-        subplot_title_str = sprintf('%s - %s\n', metric_names{actual_metric_idx}, effect_type_names{es_type});
-        title(ax, subplot_title_str, 'FontSize', styles.font.label, 'Color', styles.colors.text, 'Interpreter', 'none');
-        
-        % Set axis labels and limits.
-        xlim(ax, [min(B_tested_vector_ci), max(B_tested_vector_ci) * 1.1]);
-        xlabel(ax, lang.plots.xlabels.bootstraps, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-        ylabel(ax, lang.plots.ylabels.stability, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-        set(ax, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
-        
-        % Plot the LOCAL elbow (if convergence failed)
-        if ~converged_ci && ~isempty(elbow_indices)
-            % Calculate the index for the 'elbow_indices' vector
-            if es_type == 1
-                k_elbow_idx = actual_metric_idx;
-            else
-                k_elbow_idx = actual_metric_idx + num_metrics_actual;
-            end
-            
-            % Get the specific elbow index for this subplot
-            local_elbow_idx = elbow_indices(k_elbow_idx);
-            
-            if local_elbow_idx <= numel(current_stability_curve_plotted)
-                x_local = B_tested_vector_ci(local_elbow_idx);
-                y_local = current_stability_curve_plotted(local_elbow_idx) * 100;
-        
-                % Plot as a filled circle with a dashed line style for legend
-                p_elbow = plot(ax, x_local, y_local, ':o', ... % Style includes line and marker
-                    'MarkerFaceColor', color_local_elbow, ...
-                    'MarkerEdgeColor', color_local_elbow, ... 
-                    'MarkerSize', 6, 'HandleVisibility', 'on', ... % Slightly larger (p1 is 5)
-                    'LineWidth', 1.5, ... % Match line width for legend
-                    'DisplayName', lang.plots.legend.local_elbow); 
-                
-                % Add vertical line for the elbow 
-                xline(ax, x_local, '--', 'Color', color_local_elbow, 'LineWidth', 1.0, 'HandleVisibility', 'off');
-
-                % Add the handle to our dynamic legend
-                handles_to_legend(end+1) = p_elbow;
-                names_to_legend{end+1} = lang.plots.legend.local_elbow; 
-            end
-        end
-        
-        % Add a marker for the final, globally optimal B value (selected_B_ci).
-        selected_B_ci_idx_for_plot = find(B_tested_vector_ci == selected_B_ci, 1);
-        if ~isempty(selected_B_ci_idx_for_plot)
-            if selected_B_ci_idx_for_plot <= numel(current_stability_curve_plotted)
-                x_pos = selected_B_ci;
-                y_pos = current_stability_curve_plotted(selected_B_ci_idx_for_plot) * 100;
-        
-                % Plot the 'x' marker, but hide it from the legend.
-                plot(ax, x_pos, y_pos, 'x', 'Color', styles.colors.red_marker, 'MarkerSize', 10, 'LineWidth', 2, 'HandleVisibility', 'off');
-        
-                % Expand the axis margin if the marker is too close to the edge.
-                current_xlim = xlim(ax);
-                if x_pos > (current_xlim(1) + (current_xlim(2) - current_xlim(1)) * 0.85)
-                    xlim(ax, [current_xlim(1), x_pos * 1.2]);
-                end
-                
-                % Add text label for the final B value (this explains the 'x')
-                text(ax, x_pos, y_pos, sprintf(lang.plots.misc.optimal_b_text, selected_B_ci), 'VerticalAlignment', 'bottom', ...
-                    'HorizontalAlignment', 'left', 'FontSize', styles.font.small_text, 'Color', styles.colors.red_marker);
-            end
-        end
-        
-        % Create the final, dynamic legend 
-        lgd = legend(handles_to_legend, names_to_legend, 'Location', 'best');
-        set(lgd, 'Color', styles.colors.background, 'TextColor', styles.colors.text, 'EdgeColor', styles.colors.text);
-        lgd.FontSize = styles.font.small_text; % Use smaller font for subplot legends
-        lgd.ItemTokenSize = [15, 18];
-        
-        hold(ax, 'off');
-    end
-end
-
-% Save graphic.
-[~, fName, fExt] = fileparts(lang.files.convergence_bca);
-filename_detailed = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_bca_detailed, filename_detailed, 'Resolution', 300, 'Padding', 30);
-fprintf([lang.bca.convergence_plot_saved '\n\n'], filename_detailed);
+    %% 2. Generate graphics to visualize the convergence analysis via Helper
+    [h_fig_bca_global, h_fig_bca_detailed] = HERA.plot.bca_convergence(...
+        B_tested_vector_ci, overall_stability_ci_plotted, stability_matrix_ci(:, :, 1:final_i_ci), ...
+        selected_B_ci, config, metric_names, graphics_dir, styles, lang, elbow_indices);
 end
 
 %% 3. Final calculation of BCa confidence intervals with optimal B_ci
@@ -808,278 +579,10 @@ catch ME
     fprintf([lang.errors.file_save_error '\n'], ME.message);
 end
 
-%% 5. Creates and saves the histogram distribution of BCa correction factors
-% Use the passed global styles.
-set(0, 'DefaultAxesFontName', 'Arial');
-set(0, 'DefaultTextFontName', 'Arial');
-effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
+%% 5. Generate histogram distributions via Helper Function
+[h_fig_hist_z0, h_fig_hist_a, h_fig_hist_widths] = HERA.plot.bca_distributions(...
+    z0_d_all, a_d_all, z0_r_all, a_r_all, ci_d_all, ci_r_all, metric_names, styles, lang, graphics_dir, ts, B_ci);
 
-% Graphic 1: Distribution of bias correction factors (z0).
-h_fig_hist_z0 = figure('Name', lang.plots.titles.bca_z0_dist_name, ...
-    'Color', styles.colors.background, 'Visible', 'off');
-% Layout is dynamic
-tcl_z0 = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
-sgtitle_str_z0 = sprintf(lang.plots.titles.bca_z0_dist, num_pairs);
-title(tcl_z0, sgtitle_str_z0, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text);
-
-for es_type = 1:2 % 1 for Delta, 2 for Rel Diff
-    for metric_idx = 1:num_metrics
-        ax = nexttile; 
-        if es_type == 1
-            data = z0_d_all(:, metric_idx);
-            face_color = styles.colors.delta_face;
-        else
-            data = z0_r_all(:, metric_idx);
-            face_color = styles.colors.rel_face;
-        end
-        
-        hold on;
-        % Handle cases with no or little data variation for robust plotting.
-        if isscalar(unique(data))
-            bin_center = unique(data);
-            if isempty(bin_center), bin_center = 0; end % Fallback for empty data
-            bin_width = 0.02; % Fixed width for consistency
-
-            histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', 'FaceColor', ...
-                face_color, 'EdgeColor', styles.colors.bar_edge);
-            
-            % Set wider axis limits and defined ticks.
-            xlim([bin_center - bin_width*5, bin_center + bin_width*5]);
-            xticks(sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
-        else
-            [f, xi] = ksdensity(data, 'Bandwidth', 'normal-approx');
-            
-            % Dynamic determination of axis ticks and limits for a clean look.
-            min_val = min([data(:); xi(:)]);
-            max_val = max([data(:); xi(:)]);
-            data_range = max_val - min_val;
-            
-            if data_range > 1e-6 % Only calculate if a real range exists
-                num_ticks_target = 5;
-                raw_step = data_range / num_ticks_target;
-                power = 10^floor(log10(raw_step));
-                norm_step = raw_step / power;
-                if norm_step < 1.5, nice_step = 1 * power;
-                elseif norm_step < 3.5, nice_step = 2 * power;
-                elseif norm_step < 7, nice_step = 5 * power;
-                else
-                    nice_step = 10 * power; 
-                end
-                nice_min = floor(min_val / nice_step) * nice_step;
-                nice_max = ceil(max_val / nice_step) * nice_step;
-                ticks = nice_min:nice_step:nice_max;
-            else
-                ticks = unique(data); % Fallback for constant data
-                nice_step = 0.1 * abs(ticks(1)) + 0.01;
-            end
-            
-            if isempty(ticks), ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
-            if numel(ticks) < 2, ticks = linspace(ticks(1)-nice_step, ticks(1)+nice_step, 3); end
-            
-            % Set the bin edges so that the bars are centered on the ticks.
-            bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
-            
-            h_hist = histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
-            % Overlay the kernel density estimate, scaled to the histogram height.
-            if max(f) > 0, plot(xi, f * (max(h_hist.Values)/max(f)), 'Color', styles.colors.kde_line, 'LineWidth', 1.5); end
-            
-            xlim([bin_edges(1), bin_edges(end)]);
-            xticks(ticks);
-        end
-        
-        grid on; box on; hold off;
-        set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
-        title(sprintf('%s - %s', metric_names{metric_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
-            'Color', styles.colors.text, 'Interpreter', 'none');
-        set(gca, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
-        xlabel(ax, lang.plots.xlabels.bias_z0, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-        ylabel(lang.plots.ylabels.rel_frequency, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-        ylim([0 1]);
-        set(gca, 'YTick', 0:0.1:1);
-    end
-end
-% Save graphic with padding.
-[~, fName, fExt] = fileparts(lang.files.dist_bca_bias_z0); 
-filename_z0 = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_hist_z0, filename_z0, 'Resolution', 300, 'Padding', 30);
-fprintf([lang.bca.z0_histogram_saved '\n'], filename_z0);
-
-% Graphic 2: Distribution of skewness correction factors (a).
-h_fig_hist_a = figure('Name', lang.plots.titles.bca_a_dist_name, ...
-    'Color', styles.colors.background, 'Visible', 'off');
-% Layout is dynamic
-tcl_a = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
-sgtitle_str_a = sprintf(lang.plots.titles.bca_a_dist, num_pairs);
-title(tcl_a, sgtitle_str_a, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text);
-
-for es_type = 1:2 % 1 for Delta, 2 for Rel Diff
-    for metric_idx = 1:num_metrics
-        ax = nexttile;
-        
-        if es_type == 1
-            data = a_d_all(:, metric_idx);
-            face_color = styles.colors.delta_face;
-        else
-            data = a_r_all(:, metric_idx);
-            face_color = styles.colors.rel_face;
-        end
-        
-        hold on;
-        % Handle different data scenarios for robust plotting.
-        if isscalar(unique(data))
-            bin_center = unique(data);
-            if isempty(bin_center), bin_center = 0; end % Fallback for empty data
-            bin_width = 0.02; % Fixed width for consistency
-
-            histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', 'FaceColor', ...
-                face_color, 'EdgeColor', styles.colors.bar_edge);
-            
-            % Set wider axis limits and defined ticks.
-            xlim([bin_center - bin_width*5, bin_center + bin_width*5]);
-            xticks(sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
-        else
-            [f, xi] = ksdensity(data, 'Bandwidth', 'normal-approx');
-            
-            % Dynamic determination of axis ticks and limits.
-            min_val = min([data(:); xi(:)]);
-            max_val = max([data(:); xi(:)]);
-            data_range = max_val - min_val;
-            
-            if data_range > 1e-6
-                num_ticks_target = 5;
-                raw_step = data_range / num_ticks_target;
-                power = 10^floor(log10(raw_step));
-                norm_step = raw_step / power;
-                if norm_step < 1.5, nice_step = 1 * power; 
-                elseif norm_step < 3.5, nice_step = 2 * power;
-                elseif norm_step < 7, nice_step = 5 * power;
-                else, nice_step = 10 * power; 
-                end
-                nice_min = floor(min_val / nice_step) * nice_step;
-                nice_max = ceil(max_val / nice_step) * nice_step;
-                ticks = nice_min:nice_step:nice_max;
-            else
-                ticks = unique(data);
-                nice_step = 0.1 * abs(ticks(1)) + 0.01;
-            end
-            if isempty(ticks), ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
-            if numel(ticks) < 2, ticks = linspace(ticks(1)-nice_step, ticks(1)+nice_step, 3); end
-            bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
-            
-            h_hist = histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
-            if max(f) > 0, plot(xi, f * (max(h_hist.Values)/max(f)), 'Color', styles.colors.kde_line, 'LineWidth', 1.5); end
-            
-            xlim([bin_edges(1), bin_edges(end)]);
-            xticks(ticks);
-        end
-        
-        grid on; box on; hold off;
-        set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
-        title(sprintf('%s - %s', metric_names{metric_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
-            'Color', styles.colors.text, 'Interpreter', 'none');
-        set(gca, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
-        xlabel(lang.plots.xlabels.skewness_a, 'FontSize', styles.font.label, 'Color', styles.colors.text); 
-        ylabel(lang.plots.ylabels.rel_frequency, 'FontSize', styles.font.label, 'Color', styles.colors.text);
-        ylim([0 1]);
-        set(gca, 'YTick', 0:0.1:1);
-    end
-end
-% Save graphic with padding.
-[~, fName, fExt] = fileparts(lang.files.dist_bca_skew_a); 
-filename_a = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_hist_a, filename_a, 'Resolution', 300, 'Padding', 30);
-fprintf([lang.bca.a_histogram_saved '\n'], filename_a);
-
-%% 6. Creates and saves the histogram distribution of CI widths
-% Calculation of CI widths from the lower and upper bounds.
-ci_widths_d = ci_d_all(:, 2, :) - ci_d_all(:, 1, :);
-ci_widths_r = ci_r_all(:, 2, :) - ci_r_all(:, 1, :);
-
-% Graphic 3: Distribution of CI widths.
-h_fig_hist_widths = figure('Name', lang.plots.titles.ci_width_dist_name, ...
-    'Color', styles.colors.background, 'Visible', 'off');
-% Layout is dynamic
-tcl_widths = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
-sgtitle_str = sprintf(lang.plots.titles.ci_width_dist, num_pairs, B_ci);
-title(tcl_widths, sgtitle_str, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text);
-
-for es_type = 1:2 % 1 for Delta, 2 for Rel Diff
-    for metric_idx = 1:num_metrics
-        ax = nexttile; 
-        if es_type == 1
-            data = ci_widths_d(:, 1, metric_idx);
-            face_color = styles.colors.delta_face;
-        else
-            data = ci_widths_r(:, 1, metric_idx);
-            face_color = styles.colors.rel_face;
-        end
-        hold on;
-        % Handle different data scenarios for robust plotting.
-        if isscalar(unique(data))
-            bin_center = unique(data);
-            if isempty(bin_center), bin_center = 0; end % Fallback for empty data
-            bin_width = 0.02; % Fixed width for consistency
-
-            histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', 'FaceColor', ...
-                face_color, 'EdgeColor', styles.colors.bar_edge);
-            
-            % Set wider axis limits and defined ticks.
-            xlim([bin_center - bin_width*5, bin_center + bin_width*5]);
-            xticks(sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
-        else
-            [f, xi] = ksdensity(data, 'Bandwidth', 'normal-approx');
-            
-            % Dynamic determination of axis ticks and limits.
-            min_val = min([data(:); xi(:)]);
-            max_val = max([data(:); xi(:)]);
-            data_range = max_val - min_val;
-            if data_range > 1e-6
-                num_ticks_target = 5;
-                raw_step = data_range / num_ticks_target;
-                power = 10^floor(log10(raw_step));
-                norm_step = raw_step / power;
-                if norm_step < 1.5, nice_step = 1 * power;
-                elseif norm_step < 3.5, nice_step = 2 * power;
-                elseif norm_step < 7, nice_step = 5 * power;
-                else, nice_step = 10 * power; 
-                end
-                nice_min = floor(min_val / nice_step) * nice_step;
-                nice_max = ceil(max_val / nice_step) * nice_step;
-                ticks = nice_min:nice_step:nice_max;
-            else
-                ticks = unique(data);
-                nice_step = 0.1 * abs(ticks(1)) + 0.01;
-            end
-            
-            if isempty(ticks), ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
-            if numel(ticks) < 2, ticks = linspace(ticks(1)-nice_step, ticks(1)+nice_step, 3); end
-            
-            bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
-            
-            h_hist = histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
-            if max(f) > 0, plot(xi, f * (max(h_hist.Values)/max(f)), 'Color', styles.colors.kde_line, 'LineWidth', 1.5); end
-            
-            xlim([bin_edges(1), bin_edges(end)]);
-            xticks(ticks);
-        end
-        
-        grid on; box on; hold off;
-        set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
-        title(sprintf('%s - %s', metric_names{metric_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
-            'Color', styles.colors.text, 'Interpreter', 'none');
-        set(gca, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
-        xlabel(lang.plots.xlabels.ci_width, 'FontSize', styles.font.label, 'Color', styles.colors.text); 
-        ylabel(lang.plots.ylabels.rel_frequency, 'FontSize', styles.font.label, 'Color', styles.colors.text); 
-        ylim([0 1]);
-        set(gca, 'YTick', 0:0.1:1);
-    end
-end
-
-% Save graphic with padding.
-[~, fName, fExt] = fileparts(lang.files.dist_ci_widths); 
-filename_widths = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_hist_widths, filename_widths, 'Resolution', 300, 'Padding', 30);
-fprintf([lang.bca.ci_width_histogram_saved '\n'], filename_widths);
 end
 
 %% Helper Function for table formatting

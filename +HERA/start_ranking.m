@@ -147,8 +147,9 @@ function start_ranking(varargin)
 
 % Import the HERA namespace to find internal functions
 import HERA.*
+import HERA.start.*
 % Load the language file containing all user-facing strings.
-lang = language_code('en');
+lang = Utils.language_code('en');
 
 % HERA Dependency Check
 % (Only check in MATLAB environment; Runtime has them bundled)
@@ -320,10 +321,15 @@ while true
             lang.start_ranking.action_manual, ...
             lang.start_ranking.action_load, ...
             lang.general.standard_char);
-        main_choice = input(main_prompt_str, 's'); % Get user input as a string.
-        if isempty(main_choice), main_choice = lang.general.standard_char; end % Default to 'standard' if input is empty.
-    
         % Process the user's choice.
+        user_input = input(main_prompt_str, 's'); 
+        [isValid, error_msg, main_choice] = HERA.ConfigValidator.validate_main_action(user_input, lang);
+        
+        if ~isValid
+            fprintf('%s\n', error_msg);
+            continue;
+        end
+        
         switch lower(main_choice)
             % Case 1: Use standard settings.
             case lang.general.standard_char
@@ -390,7 +396,7 @@ while true
                     if isfield(loadedData, 'userInput')
                         % Load defaults and merge the loaded configuration.
                         userInput_defaults = HERA.default();
-                        userInput = fill_defaults(loadedData.userInput, userInput_defaults);
+                        userInput = Utils.fill_defaults(loadedData.userInput, userInput_defaults);
                         % Ensure compatibility for direct calls. If input has no .config, wrap it to match expected structure.
                         if ~isfield(userInput, 'config')
                             userInput.config = userInput;
@@ -436,34 +442,31 @@ while true
             % Prompt the user to select the data file type (.csv or .xlsx).
             prompt = sprintf(lang.prompts.file_type_formatted, ...
                 lang.prompts.file_type, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char);
-            choice = input(prompt, 's');
-            if isempty(choice), choice = lang.general.csv_char; 
-            end % Default to .csv.   
-            % Set file type and mask for file search based on user choice.
-            if strcmpi(choice, lang.general.csv_char)
-                userInput.fileType = '.csv';
-                file_mask = '*.csv';
-                break;
-            elseif strcmpi(choice, lang.general.excel_char)
-                userInput.fileType = '.xlsx';
-                file_mask = '*.xlsx';
+            
+            user_input = input(prompt, 's');
+            [isValid, error_msg, val] = HERA.ConfigValidator.validate_file_type(user_input, lang);
+            
+            if isValid
+                userInput.fileType = val;
+                file_mask = ['*' val];
                 break;
             else
-                fprintf('%s\n', sprintf(lang.errors.invalid_input_ce, lang.general.csv_char, lang.general.excel_char));
+                fprintf('%s\n', error_msg);
             end
         end
         % Loop until a valid folder containing the specified file type is selected.
         while true
             folder_prompt = sprintf(lang.prompts.select_folder, userInput.fileType);
             folderPath = uigetdir(pwd, folder_prompt); % Open folder selection dialog.
-            if isequal(folderPath, 0), fprintf('%s\n', lang.errors.selection_cancelled); return; end % Exit if cancelled.
             
-            files = dir(fullfile(folderPath, file_mask)); % Find files matching the mask.
-            if ~isempty(files)
+            [isValid, error_msg, files] = HERA.ConfigValidator.validate_folder_content(folderPath, userInput.fileType, lang);
+            
+            if isValid
                 userInput.folderPath = folderPath; % Store the valid path.
                 break; % Exit the loop.
             else
-                fprintf(lang.errors.no_files_found, userInput.fileType); % Inform user if no files are found.
+                fprintf('%s\n', error_msg);
+                if isequal(folderPath, 0), return; end % Exit if cancelled.
             end
         end
         % Extract metric names from the filenames.
@@ -477,13 +480,14 @@ while true
         
         % Get the number of metrics for the hierarchy. 
         while true
-            num_metrics_str = input(sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt), 's');
-            if isempty(num_metrics_str), num_metrics = 3; break; end
-            num_metrics = str2double(num_metrics_str);
-            if ~isnan(num_metrics) && isscalar(num_metrics) && any(num_metrics == [1, 2, 3])
+            user_input = input(sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt), 's');
+            [isValid, error_msg, val] = HERA.ConfigValidator.validate_metric_count(user_input, lang);
+            
+            if isValid
+                num_metrics = val;
                 break;
             else
-                fprintf('%s\n\n', lang.errors.invalid_metric_count);
+                fprintf('%s\n\n', error_msg);
             end
         end
         
@@ -493,14 +497,15 @@ while true
         % Loop to get a valid hierarchical order for the metrics.
         while true
             prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
-            order_choice_str = input(prompt_text, 's');
-            order_choice = str2num(order_choice_str);   % Convert string input to a numeric array.        
-            % Validate the input: must be N unique numbers within the available range.
-            if isempty(order_choice) || numel(order_choice) ~= num_metrics || max(order_choice) > numel(available_metrics) ...
-                || min(order_choice) < 1 || numel(unique(order_choice)) ~= num_metrics
-                fprintf('%s\n\n', sprintf(lang.errors.invalid_metric_order_dynamic, num_metrics));
+            user_input = input(prompt_text, 's');
+            
+            [isValid, error_msg, val] = HERA.ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
+            
+            if isValid
+                order_choice = val;
+                break;
             else
-                break; % Exit if valid.
+                fprintf('%s\n\n', error_msg);
             end
         end       
         % Store the selected metric hierarchy.
@@ -517,16 +522,14 @@ while true
             fprintf('  %s\n', lang.start_ranking.metric_logic_2_opt1);
             fprintf('  %s\n', lang.start_ranking.metric_logic_2_opt2);
             while true
-                logic_choice_str = input(sprintf('%s [1]: ', lang.start_ranking.metric_logic_2_prompt), 's');
-                if isempty(logic_choice_str), logic_choice_str = '1'; end
-                if strcmp(logic_choice_str, '1')
-                    userInput.ranking_mode = 'M1_M2';
-                    break;
-                elseif strcmp(logic_choice_str, '2')
-                    userInput.ranking_mode = 'M1_M3A';
+                user_input = input(sprintf('%s [1]: ', lang.start_ranking.metric_logic_2_prompt), 's');
+                [isValid, error_msg, val] = HERA.ConfigValidator.validate_ranking_mode_2_metrics(user_input, lang);
+                
+                if isValid
+                    userInput.ranking_mode = val;
                     break;
                 else
-                    fprintf('%s\n', lang.errors.invalid_metric_logic_2);
+                    fprintf('%s\n', error_msg);
                 end
             end
         else % num_metrics == 3
@@ -563,20 +566,19 @@ while true
                 % Loop to get a valid selection of permutations.
                 while true
                     prompt = sprintf(lang.prompts.permutation_choice, lang.general.all);
-                    choice_str = input(prompt, 's');
-                    if isempty(choice_str), choice_str = lang.general.all; 
-                    end % Default to 'all'.     
-                    if strcmpi(choice_str, lang.general.all)
-                        selected_indices = 1:size(all_perms, 1); % Select all permutations.
+                    user_input = input(prompt, 's');
+                    
+                    [isValid, error_msg, val] = HERA.ConfigValidator.validate_permutation_choice(user_input, size(all_perms, 1), lang);
+                    
+                    if isValid
+                        if strcmp(val, 'all')
+                            selected_indices = 1:size(all_perms, 1);
+                        else
+                            selected_indices = val;
+                        end
                         break;
                     else
-                        selected_indices = str2num(choice_str); % Convert string to numeric indices.
-                        % Validate the selected indices.
-                        if ~isempty(selected_indices) && all(selected_indices >= 1) && all(selected_indices <= size(all_perms, 1))
-                            break;
-                        else
-                            fprintf('%s\n', lang.errors.invalid_input);
-                        end
+                        fprintf('%s\n', error_msg);
                     end
                 end
                 % Store the primary hierarchy plus the selected alternative permutations.
@@ -638,17 +640,15 @@ while true
                     % Prompt for theme choice.
                     theme_prompt = sprintf('%s (%s/%s) [%s]: ', ...
                         lang.prompts.theme_choice, lang.general.dark_char, lang.general.light_char, lang.general.light_char);
-                    theme_choice = input(theme_prompt, 's');
-                    if isempty(theme_choice), theme_choice = lang.general.light_char; end           
-                    % Set theme based on valid input.
-                    if strcmpi(theme_choice, lang.general.dark_char)
-                        userInput.plot_theme = 'dark';
-                        break;
-                    elseif strcmpi(theme_choice, lang.general.light_char)
-                        userInput.plot_theme = 'light';
+                    user_input = input(theme_prompt, 's');
+                    
+                    [isValid, error_msg, val] = HERA.ConfigValidator.validate_theme_choice(user_input, lang);
+                    
+                    if isValid
+                        userInput.plot_theme = val;
                         break;
                     else
-                        fprintf('%s\n', sprintf(lang.errors.invalid_input_dl, lang.general.dark_char, lang.general.light_char));
+                        fprintf('%s\n', error_msg);
                     end
                 end
             end
@@ -686,10 +686,16 @@ while true
     if ~configLoadedFromFile
         while true
             save_prompt = sprintf('%s (%s/%s) [%s]: ', lang.prompts.save_config, lang.general.yes_char, lang.general.no_char, lang.general.no_char);
-            save_choice = input(save_prompt, 's');
-            if isempty(save_choice), save_choice = lang.general.no_char; end % Default to 'no'.
-            if any(strcmpi(save_choice, {lang.general.yes_char, lang.general.no_char})), break;
-            else, fprintf('%s\n', lang.errors.invalid_input); end
+            user_input = input(save_prompt, 's');
+            
+            [isValid, error_msg, val] = HERA.ConfigValidator.validate_save_choice(user_input, lang);
+            
+            if isValid
+                save_choice = val;
+                break;
+            else
+                fprintf('%s\n', error_msg);
+            end
         end
         if strcmpi(save_choice, lang.general.yes_char)
             % Open a file dialog to specify the save location for the .json file.
@@ -853,10 +859,22 @@ while true
     new_text = sprintf('[%s]%s', lang.general.new_char, lang.prompts.action_new(2:end));
     abort_text = sprintf('[%s]%s', lang.general.abort_char, lang.prompts.action_abort(2:end));
     % Prompt the user to start, restart, or abort.
-    final_prompt = sprintf('\n%s: %s, %s, %s [%s]: ', ...
-        lang.prompts.final_action, start_text, new_text, abort_text, lang.general.start_char);
-    final_choice = input(final_prompt, 's');
-    if isempty(final_choice), final_choice = lang.general.start_char; end % Default to 'start'.  
+    % Prompt the user to start, restart, or abort.
+    while true
+        final_prompt = sprintf('\n%s: %s, %s, %s [%s]: ', ...
+            lang.prompts.final_action, start_text, new_text, abort_text, lang.general.start_char);
+        user_input = input(final_prompt, 's');
+        
+        [isValid, error_msg, val] = HERA.ConfigValidator.validate_final_action(user_input, lang);
+        
+        if isValid
+            final_choice = val;
+            break;
+        else
+            fprintf('%s\n', error_msg);
+        end
+    end
+    
     switch lower(final_choice)
         case lang.general.start_char
             fprintf([lang.prompts.starting_analysis '\n\n']);
@@ -880,247 +898,4 @@ while true
     end
 end % End of "while true" loop
 
-%% Helper functions for user input
-% Function to configure a single bootstrap step (manual or automatic).
-function [manual_B, auto_config] = configure_bootstrap_step(default_auto_cfg, default_manual_B, name, lang)
-    manual_B = []; % Initialize manual B value.
-    auto_config = default_auto_cfg; % Start with default automatic settings.
-    while true
-        % Format the prompt for choosing the bootstrap method.
-        manual_text = sprintf('[%s]%s', lang.general.manual_char, lang.prompts.choice_manual(2:end));
-        robust_text = sprintf('[%s]%s', lang.general.robust_char, lang.prompts.choice_robust(2:end));
-        simple_text = sprintf('[%s]%s', lang.general.simple_char, lang.prompts.choice_simple(2:end));
 
-        prompt = sprintf('%s %s, %s, %s? [%s]: ', ...
-            lang.prompts.choose_for, manual_text, robust_text, simple_text, lang.general.robust_char);
-        choice = input(prompt, 's');
-        if isempty(choice), choice = lang.general.robust_char; end % Default to robust auto.
-        
-        if strcmpi(choice, lang.general.manual_char)
-            % Get a fixed number of bootstrap samples from the user.
-            manual_B = get_numeric_input(lang.prompts.manual_b_value, default_manual_B, true, lang);
-            auto_config = struct(); % Clear auto settings.
-            break;
-        elseif strcmpi(choice, lang.general.robust_char)
-            % Select robust automatic search.
-            fprintf([lang.prompts.robust_search_selected '\n'], name);
-            % Ask if user wants to adjust the advanced convergence parameters.
-            if get_yes_no_input(lang.prompts.adjust_convergence, false, lang)
-                auto_config = get_convergence_params(default_auto_cfg, lang);
-            end
-            break;
-        elseif strcmpi(choice, lang.general.simple_char)
-            % Select simple automatic search (no smoothing).
-            fprintf([lang.prompts.simple_search_selected '\n'], name);
-            auto_config.smoothing_window = [];
-            auto_config.convergence_streak_needed = [];
-            % Ask if user wants to adjust the advanced convergence parameters.
-            if get_yes_no_input(lang.prompts.adjust_convergence, false, lang)
-                auto_config = get_convergence_params(auto_config, lang);
-            end
-            break;
-        else
-            fprintf('%s\n', lang.errors.invalid_input);
-        end
-    end
-end
-
-% Function to get a validated Yes/No input from the user.
-function choice = get_yes_no_input(prompt, default_val, lang)
-    if default_val, default_str = lang.general.yes_char; else, default_str = lang.general.no_char; end
-    while true
-        user_input = input(sprintf('%s (%s/%s) [%s]: ', prompt, lang.general.yes_char, lang.general.no_char, default_str), 's');
-        if isempty(user_input), user_input = default_str; end % Apply default if empty.
-        % Check if the input is one of the valid choices.
-        if any(strcmpi(user_input, {lang.general.yes_char, lang.general.no_char}))
-            choice = strcmpi(user_input, lang.general.yes_char); % Return boolean true for 'yes'.
-            break;
-        else
-            fprintf('%s\n', sprintf(lang.errors.invalid_input_yn, lang.general.yes_char, lang.general.no_char));
-        end
-    end
-end
-
-% Function to get a validated numeric (integer or float) input.
-function val = get_numeric_input(prompt, default_val, is_integer, lang)
-    while true
-        val_str = input(sprintf('%s [%g]: ', prompt, default_val), 's');
-        if isempty(val_str), val = default_val; break; end % Apply default if empty.    
-        val = str2double(val_str); % Convert string to double.
-        % Check for validity (is a number, is scalar, is non-negative).
-        is_valid = ~isnan(val) && isscalar(val) && val >= 0;
-        if is_integer
-            is_valid = is_valid && (val == floor(val)); % Also check if it's a whole number.
-        end
-        
-        if is_valid, break;
-        else
-            if is_integer, fprintf('%s\n', lang.errors.positive_integer);
-            else, fprintf('%s\n', lang.errors.positive_number); end
-        end
-    end
-end
-
-% Function to get the number of parallel workers ('auto' or an integer).
-function num_workers = get_worker_input(prompt, default_val, lang)
-    while true
-        user_input = input(sprintf('%s [%s]: ', prompt, default_val), 's');
-        if isempty(user_input), user_input = default_val; end % Apply default if empty.        
-        % Check for the 'auto' keyword.
-        if strcmpi(user_input, lang.general.auto)
-            num_workers = lang.general.auto;
-            break;
-        end       
-        % Check for a valid positive integer.
-        num_val = str2double(user_input);
-        if ~isnan(num_val) && isscalar(num_val) && num_val > 0 && (num_val == floor(num_val))
-            num_workers = num_val;
-            break;
-        else
-            fprintf('%s\n', sprintf(lang.errors.integer_or_auto, lang.general.auto));
-        end
-    end
-end
-
-% Function to get detailed convergence parameters from the user.
-function cfg_custom = get_convergence_params(default_cfg, lang)
-    cfg_custom = default_cfg; % Start with default values.
-    % Prompt for each parameter individually.
-    cfg_custom.B_start = get_numeric_input(['    ' lang.params.b_start], default_cfg.B_start, true, lang);
-    while true
-        b_end = get_numeric_input(['    ' lang.params.b_end], default_cfg.B_end, true, lang);
-        if b_end > cfg_custom.B_start % B_end must be greater than B_start.
-            cfg_custom.B_end = b_end;
-            break;
-        else
-            fprintf([lang.errors.b_end_error '\n'], cfg_custom.B_start);
-        end
-    end
-    cfg_custom.B_step = get_numeric_input(['    ' lang.params.b_step], default_cfg.B_step, true, lang);
-    cfg_custom.n_trials = get_numeric_input(['    ' lang.params.n_trials], default_cfg.n_trials, true, lang);
-    cfg_custom.convergence_tolerance = get_numeric_input(['    ' lang.params.tolerance], default_cfg.convergence_tolerance, false, lang);
-    % Only ask for robust search parameters if they are applicable.
-    if ~isempty(cfg_custom.smoothing_window)
-        cfg_custom.smoothing_window = get_numeric_input(['    ' lang.params.smoothing], default_cfg.smoothing_window, true, lang);
-        cfg_custom.convergence_streak_needed = get_numeric_input(['    ' lang.params.streak], default_cfg.convergence_streak_needed, true, lang);
-    end
-end
-
-% Function to generate a formatted string summarizing the bootstrap settings.
-function summary_str = get_bootstrap_string(config, lang)
-    parts = {}; % Initialize a cell array to hold parts of the string.    
-    % Add a line for Percentile-Bootstrap (Thresholds).
-    if isfield(config, 'manual_B_thr') && ~isempty(config.manual_B_thr)
-        parts{end+1} = sprintf(['    ' lang.summary.percentile_manual], config.manual_B_thr);
-    elseif isfield(config, 'bootstrap_thresholds') && isstruct(config.bootstrap_thresholds)
-        if isempty(config.bootstrap_thresholds.smoothing_window)
-            parts{end+1} = ['    ' lang.summary.percentile_simple];
-        else
-            parts{end+1} = ['    ' lang.summary.percentile_robust];
-        end
-    end
-    % Add a line for BCa-Bootstrap (CI).
-    if isfield(config, 'manual_B_ci') && ~isempty(config.manual_B_ci)
-        parts{end+1} = sprintf(['    ' lang.summary.bca_manual], config.manual_B_ci);
-    elseif isfield(config, 'bootstrap_ci') && isstruct(config.bootstrap_ci)
-        if isempty(config.bootstrap_ci.smoothing_window)
-            parts{end+1} = ['    ' lang.summary.bca_simple];
-        else
-            parts{end+1} = ['    ' lang.summary.bca_robust];
-        end
-    end   
-    % Add a line for Cluster-Bootstrap (Ranks).
-    if isfield(config, 'manual_B_rank') && ~isempty(config.manual_B_rank)
-        parts{end+1} = sprintf(['    ' lang.summary.cluster_manual], config.manual_B_rank);
-    elseif isfield(config, 'bootstrap_ranks') && isstruct(config.bootstrap_ranks)
-        if isempty(config.bootstrap_ranks.smoothing_window)
-            parts{end+1} = ['    ' lang.summary.cluster_simple];
-        else
-            parts{end+1} = ['    ' lang.summary.cluster_robust];
-        end
-    end
-    % Join the parts with newlines to create the final summary string.
-    summary_str = strjoin(parts, '\n');
-end
-
-%% Function to merge a loaded configuration with the default settings.
-function loadedInput = fill_defaults(loadedInput, default)
-    % Ensures loadedInput is a struct even if the file is faulty.
-    if ~isstruct(loadedInput) || isempty(loadedInput), loadedInput = struct(); end 
-    
-    fields = fieldnames(default); % Get all field names from the defaults struct.
-    for j = 1:length(fields)
-        fieldName = fields{j};
-        defaultVal = default.(fieldName);
-        
-        % Case 1: If a field is missing in the loaded config, add it from defaults.
-        if ~isfield(loadedInput, fieldName)
-            loadedInput.(fieldName) = defaultVal;
-        
-        % Case 2: If a field is a struct in both, recurse to fill nested fields.
-        elseif isstruct(loadedInput.(fieldName)) && isstruct(defaultVal)
-            loadedInput.(fieldName) = fill_defaults(loadedInput.(fieldName), defaultVal);
-        
-        % Case 3: If a field exists but is empty, fill it with the default value.
-        elseif isempty(loadedInput.(fieldName))
-             % Exception: Do not overwrite critical, dynamic path fields if they are intentionally empty.
-             is_dynamic_path = any(strcmpi(fieldName, {'output_dir', 'folderPath', 'metric_names', 'fileType', 'selected_permutations', 'ranking_mode'})); 
-             
-             if ~is_dynamic_path
-                loadedInput.(fieldName) = defaultVal;
-             end
-        end
-    end
-end
-
-%% Function to load the language JSON file.
-function lang = language_code(language_code)
-    % Define potential paths for the language file
-    possible_paths = {};
-    
-    if isdeployed
-        % 1. Root of the CTF (common for AdditionalFiles)
-        possible_paths{end+1} = fullfile(ctfroot, 'language');
-        % 2. Inside +HERA package in CTF
-        possible_paths{end+1} = fullfile(ctfroot, '+HERA', 'language');
-        % 3. Relative to the compiled function location
-        possible_paths{end+1} = fullfile(fileparts(mfilename('fullpath')), 'language');
-    else
-        % Standard development path
-        possible_paths{end+1} = fullfile(fileparts(mfilename('fullpath')), 'language');
-    end
-    
-    file_path = '';
-    found = false;
-    
-    for i = 1:length(possible_paths)
-        candidate = fullfile(possible_paths{i}, [language_code, '.json']);
-        if exist(candidate, 'file')
-            file_path = candidate;
-            found = true;
-            break;
-        end
-    end
-    
-    if ~found
-        % Debugging output for deployed mode
-        if isdeployed
-            fprintf('DEBUG: ctfroot = %s\n', ctfroot);
-            fprintf('DEBUG: mfilename path = %s\n', fileparts(mfilename('fullpath')));
-            fprintf('DEBUG: Searched locations:\n');
-            for i = 1:length(possible_paths)
-                fprintf('  - %s\n', possible_paths{i});
-            end
-            % List contents of ctfroot to help debugging
-            fprintf('DEBUG: Contents of ctfroot:\n');
-            d = dir(ctfroot);
-            for k=1:length(d), fprintf('  %s\n', d(k).name); end
-        end
-        error('Language file for code "%s" not found.', language_code);
-    end
-    
-    % Read and decode the language file.
-    json_text = fileread(file_path); 
-    lang = jsondecode(json_text);
-end
-end
