@@ -21,10 +21,13 @@ classdef SystemTests < matlab.unittest.TestCase
         function setupDesc(testCase)
             testCase.tempDir = tempname;
             mkdir(testCase.tempDir);
-            testCase.cleanUp = onCleanup(@() testCase.safeCleanup(testCase.tempDir));
+            testCase.cleanUp = onCleanup(@() HERA.test.SystemTests.safeCleanup(testCase.tempDir));
         end
         
-        function safeCleanup(~, dirPath)
+    end
+    
+    methods (Static)
+        function safeCleanup(dirPath)
             % SAFECLEANUP - Robust deletion handling
             if exist(dirPath, 'dir')
                 try
