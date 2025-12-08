@@ -14,16 +14,19 @@ classdef SystemTests < matlab.unittest.TestCase
     
     properties
         tempDir
-        cleanUp
     end
     
     methods (TestMethodSetup)
         function setupDesc(testCase)
             testCase.tempDir = tempname;
             mkdir(testCase.tempDir);
-            testCase.cleanUp = onCleanup(@() HERA.test.SystemTests.safeCleanup(testCase.tempDir));
         end
-        
+    end
+    
+    methods (TestMethodTeardown)
+        function teardownDesc(testCase)
+             HERA.test.SystemTests.safeCleanup(testCase.tempDir);
+        end
     end
     
     methods (Static)
