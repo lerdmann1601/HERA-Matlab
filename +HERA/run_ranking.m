@@ -117,11 +117,16 @@ if ~isfield(userInput, 'folderPath') && ~isfield(userInput, 'custom_data')
     error('HERA:InvalidInput', 'Input structure must contain either "folderPath" (for file mode) or "custom_data" (for developer mode).');
 end
 
-% Load the specified language pack to localize all console and plot outputs.
-lang = language_code(userInput.language);
-
 % Load Central Defaults 
 defaults = HERA.default(); 
+
+% Ensure language is set immediately as it is needed for logging/error messages
+if ~isfield(userInput, 'language')
+    userInput.language = defaults.language;
+end
+
+% Load the specified language pack to localize all console and plot outputs.
+lang = language_code(userInput.language); 
 
 % Validate Metric Names (Critical: Cannot be defaulted)
 if ~isfield(userInput, 'metric_names')

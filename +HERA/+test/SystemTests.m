@@ -129,8 +129,13 @@ classdef SystemTests < matlab.unittest.TestCase
             
             if ~isempty(dirs)
                 resFolder = fullfile(outputDir, dirs(1).name, 'Output');
-                testCase.verifyTrue(exist(fullfile(resFolder, 'results.csv'), 'file') > 0, 'results.csv missing');
-                testCase.verifyTrue(exist(fullfile(resFolder, 'analysis_data.json'), 'file') > 0, 'analysis_data.json missing');
+                
+                % Check for timestamped result files
+                resFiles = dir(fullfile(resFolder, 'results_*.csv'));
+                dataFiles = dir(fullfile(resFolder, 'data_*.json'));
+                
+                testCase.verifyNotEmpty(resFiles, 'results_*.csv missing');
+                testCase.verifyNotEmpty(dataFiles, 'data_*.json missing');
             else
                 % If no folder, print the captured output for debugging
                 fprintf('\n[DEBUG] Captured Output from start_ranking:\n%s\n', T);
