@@ -59,51 +59,90 @@ function [is_converged, stats] = check_convergence(stability_history, config)
         
         % Only proceed if enough data points exist (Warmup + Window)
         if n >= warmup + window
-            % Apply moving average to the entire history to reduce noise
-            % Use a trailing window [window-1, 0] to ensure the filter is causal and 
-            % does not suffer from edge effects (reduced averaging) at the current step.
+            
+        
+            %% Robust Convergence Logic (Vectorized Trailing Window)
+            % Strategy:
+            % We use a specific Trailing Moving Average [window-1, 0].
+            % This ensures that the smoothed value at index 'i' acts purely on
+            % past data (i-(w-1) to i). This is crucial for:
+            % -> Kausal integrity (no influence from future data).
+            % -> Invariance (historical stability does not change with new data).
+            
+            % 1. Apply efficient vectorized smoothing to the entire history.
+            % 'omitnan' handles initial steps gracefully.
             smoothed_full = movmean(stability_history, [window-1, 0], 'omitnan');
             
-            curr_smooth = smoothed_full(end);
-            prev_smooth = smoothed_full(end-1);
+            % 2. Extract relevant smoothed values for improvement calculation
+            %    We need to check the streak ending at the current step 'n'.
+            %    We look back 'streak_needed' steps.
             
-            % Calculate relative improvement with safety checks
-            rel_imp = calculate_relative_improvement(prev_smooth, curr_smooth);
+            % Indices to check: From n down to (n - streak + 1)
+            % For each check at index k, we compare smooth(k) vs smooth(k-1).
             
-            % Update stats output
-            stats.improvement = rel_imp;
-            stats.smoothed_value = curr_smooth;
-
-            % Calculate the current "streak" of stability.
-            % Since this function is stateless, we look backwards from the current step 'n'
-            % to count how many consecutive steps (back down to the warmup period) 
-            % have satisfied the tolerance condition.
-            current_streak = 0;
+            % Create index vectors for the 'current' and 'previous' values in the streak
+            % We need at least 'streak_needed' comparisons.
+            % e.g. if streak=3, we need pairs: (n, n-1), (n-1, n-2), (n-2, n-3).
             
-            % Loop backwards from current step
-            for k = n:-1:(warmup + window)
-                s_curr = smoothed_full(k);
-                s_prev = smoothed_full(k-1);
-                
-                % Re-calculate improvement for past steps
-                imp = calculate_relative_improvement(s_prev, s_curr);
-                
-                % Check tolerance condition
-                if abs(imp) < cfg.convergence_tolerance
-                    current_streak = current_streak + 1;
-                else
-                    % Streak is broken
-                    break;
-                end
+            check_indices = n : -1 : max(warmup + window, n - streak_needed + 1);
+            
+            if isempty(check_indices)
+                stats.streak = 0;
+                return;
             end
-            stats.streak = current_streak;
             
-            % Check if the streak requirement is satisfied
+            % Vectorized extraction of smoothed values
+            curr_vals = smoothed_full(check_indices);
+            prev_vals = smoothed_full(check_indices - 1);
+            
+            % 3. Calculate Relative Improvements (Vectorized)
+            %    Handle zeros and infinities element-wise.
+            
+            % Pre-allocate
+            rel_imps = zeros(size(curr_vals));
+            
+            % Logic matches calculate_relative_improvement but vectorized
+            % Note: Since we are inside a heavily called function, inline vectorization is faster.
+            
+            mask_valid = ~isnan(curr_vals) & ~isnan(prev_vals) & ~isinf(curr_vals) & ~isinf(prev_vals) & (prev_vals ~= 0);
+            
+            % Standard case
+            rel_imps(mask_valid) = (prev_vals(mask_valid) - curr_vals(mask_valid)) ./ prev_vals(mask_valid);
+            
+            % Edge cases (simplified for speed, matching helper logic broadly)
+            % If prev=0 and curr=0 -> 0 change. If prev=0 and curr!=0 -> Infinite change (-1 or +1)
+            rel_imps(prev_vals == 0 & curr_vals == 0) = 0;
+            rel_imps(prev_vals == 0 & curr_vals ~= 0) = -1.0; % High change
+            rel_imps(isinf(curr_vals) | isinf(prev_vals)) = 1.0; % Infinite -> unstable
+            
+            % 4. Check Tolerance
+            is_stable = abs(rel_imps) < cfg.convergence_tolerance;
+            
+            % 5. Determine Streak
+            %    Count consecutive true values starting from the first element (which corresponds to step 'n')
+            %    find the first index where is_stable is false.
+            first_fail = find(~is_stable, 1, 'first');
+            
+            if isempty(first_fail)
+                % All checked values are stable
+                current_streak = numel(is_stable);
+            else
+                % Streak is up to the failure ( indices 1 to first_fail-1 )
+                current_streak = first_fail - 1;
+            end
+            
+            % 6. Update Output Stats
+            stats.streak = current_streak;
+            stats.smoothed_value = smoothed_full(n);
+            stats.improvement = rel_imps(1); % Improvement of the most recent step (n vs n-1)
+            
+            % 7. Final Decision
             if current_streak >= streak_needed
                 is_converged = true;
             end
         end
     else
+        %% Simple Convergence Logic 
         % Simple convergence check (No smoothing, immediate check)
         if n >= cfg.min_steps_for_convergence_check
             % Ensure scalar values for stability

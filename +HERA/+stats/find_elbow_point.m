@@ -1,112 +1,128 @@
 function [selected_B, elbow_indices] = find_elbow_point(x_values, y_values)
-% FIND_ELBOW_POINT - Uses the "Knee/Elbow Point" method to find the optimal B.
+% FIND_ELBOW_POINT - Vectorized "Knee/Elbow" detection using Max Distance method.
 %
 % Syntax:
-%   [selected_B, elbow_indices] = find_elbow_point(x_values, y_values)
+%   [selected_B, elbow_indices] = HERA.stats.find_elbow_point(x_values, y_values)
 %
 % Description:
-%   This function implements the "Maximum Distance to Line" method (often called the Elbow 
-%   or Knee method) to determine the optimal cutoff point in a curve.
-%   It calculates the perpendicular distance from each point on the curve to the line 
-%   connecting the first and last points. The point with the maximum distance is selected.
+%   Determines the optimal cutoff point (Elbow) for one or multiple stability curves.
+%   It calculates the point of maximum perpendicular distance to the line connecting
+%   the start and end of the curve.
 %
-%   This is useful for BCa bootstrapping to find a B where the stability gain diminishes.
-%   The function handles single curves (vector) or multiple curves (matrix/cell) simultaneously.
-%   If multiple curves are provided, it calculates the elbow for each and returns the 
-%   maximum B among them (conservative approach).
+%   Efficiency Note:
+%   This implementation is fully vectorized using matrix operations. It processes
+%   multiple curves (columns) simultaneously without 'for' loops, which is 
+%   significantly faster for high-dimensional stability checks.
 %
 % Inputs:
-%   x_values      - Vector of x-axis values (e.g., the tested B steps).
-%   y_values      - The dependent values (e.g., stability metrics). Can be:
-%                   * Single vector.
-%                   * Matrix (Rows = X-steps, Cols = Curves OR Cols = X-steps, Rows = Curves). 
-%                     (Function attempts to auto-detect orientation).
-%                   * Cell Array of vectors (each cell is a curve).
+%   x_values      - Vector of x-axis values (B-steps). [N x 1]
+%   y_values      - Stability metrics. Can be Vector [N x 1], Matrix [N x M], or Cell.
 %
 % Outputs:
-%   selected_B    - The single optimal x-value (B) selected. Max of all individual elbows.
-%   elbow_indices - Vector containing the index of the elbow point for each curve analyzed.
-%                   Useful for plotting/visualization.
-%
-% Robustness:
-%   - Handles NaNs by forcing normalized values to 0.
-%   - handles "Flat" or "No Variance" curves by selecting the first index.
-%   - Normalizes both X and Y axes to [0,1] to ensure geometric distance is scale-invariant.
+%   selected_B    - The single optimal B (Maximum of all individual elbows).
+%   elbow_indices - Indices of the elbow points for each curve [1 x M].
 %
 % Author: Lukas von Erdmannsdorff
 
-    x_values = x_values(:); % Ensure x is a column vector
+    %% 1. Input Standardization (Ensure Matrix Format)
+    x_values = x_values(:); % Ensure Column [N x 1]
+    n_points = length(x_values);
     
-    %% 1. Input Standardization
-    % Convert all valid input formats (Vector, Matrix, Cell) into a Cell Array of column vectors
+    % Handle different input types -> Convert to Matrix [N x NumCurves]
     if iscell(y_values)
-        curves = y_values;
+        % Convert cell array of vectors to matrix (assuming equal length)
+        try
+            Y = [y_values{:}];
+        catch
+            % Fallback if lengths differ (rare edge case in HERA) no lang error message jet..
+            error('HERA:Elbow:DimensionMismatch', 'Curve lengths in cell array must match X.');
+        end
     elseif ismatrix(y_values) && ~isvector(y_values)
-        % Matrix input: Determine orientation based on x_values length
-        nx = length(x_values);
+        % Matrix: Auto-detect orientation
         [r, c] = size(y_values);
-        
-        if r == nx
-            % Rows match X: Columns are curves
-            curves = num2cell(y_values, 1);
-        elseif c == nx
-             % Columns match X: Rows are curves -> Transpose
-             curves = num2cell(y_values', 1);
+        if r == n_points
+            Y = y_values;       % Already [N x M]
+        elseif c == n_points
+            Y = y_values';      % Transpose to [N x M]
         else
-             % Ambiguous or Mismatch: Treat as single flattened curve (Fallback)
-             % This mimics original behavior if dimension check failed somehow
-             curves = {y_values(:)}; 
+            Y = y_values(:);    % Fallback: Flatten
         end
     else
-        % Single vector input
-        curves = {y_values(:)};
+        % Single Vector
+        Y = y_values(:);
     end
     
-    num_curves = numel(curves);
-    elbow_indices = zeros(1, num_curves);
+    % Check for empty or too short data
+    if size(Y, 1) < 2
+        selected_B = max(x_values);
+        elbow_indices = ones(1, size(Y, 2));
+        return;
+    end
+
+    %% 2. Vectorized Normalization (Min-Max Scaling)
+    % We normalize columns independently to [0, 1] range to make distance geometric.
     
-    %% 2. Elbow Detection Loop
-    for k = 1:num_curves
-        y = curves{k};
-        
-        % Safety Check: Skip if curve has no valid data or no variation (flat line)
-        % If flat, practically 'stable' from the start -> index 1
-        if any(isnan(y)) || numel(unique(y)) < 2
-            elbow_indices(k) = 1;
-            continue;
-        end
-        
-        % Normalization to [0, 1] range
-        % This is crucial because X (e.g., 1000s) and Y (e.g., 0.01s) have vastly different scales.
-        x_norm = (x_values - min(x_values)) / (max(x_values) - min(x_values));
-        y_norm = (y - min(y)) / (max(y) - min(y));
-        
-        % Robust handling for NaN results from normalization (e.g., if max == min despite unique check)
-        if all(isnan(x_norm)), x_norm(:) = 0; end
-        if all(isnan(y_norm)), y_norm(:) = 0; end
-        
-        % Vector Geometry: Distance from point P to line AB (Start to End)
-        % Line Vector (Vector connecting first and last point)
-        line_vec = [x_norm(end) - x_norm(1); y_norm(end) - y_norm(1)];
-        
-        % Vector from First Point to every other point
-        vec_from_first = [x_norm - x_norm(1), y_norm - y_norm(1)];
-        
-        % 2D Cross Product (Determinant) represents the area of parallelogram.
-        % Area / Base_Length = Height (Perpendicular Distance)
-        cross_prod = vec_from_first(:, 1) * line_vec(2) - vec_from_first(:, 2) * line_vec(1);
-        
-        % Find index of maximum distance
-        [~, idx] = max(abs(cross_prod) / norm(line_vec));
-        
-        % Fallback: If calculation fails (e.g., empty), default to last index
-        if isempty(idx), idx = numel(x_values); end
-        
-        elbow_indices(k) = idx;
+    min_vals = min(Y, [], 1);
+    max_vals = max(Y, [], 1);
+    ranges   = max_vals - min_vals;
+    
+    % Handle Flat Lines (Range = 0)
+    % If a curve is perfectly flat, the "elbow" is conventionally the start (Index 1).
+    % We set range to 1 to avoid Div/0, result will be 0 everywhere.
+    is_flat = ranges == 0;
+    ranges(is_flat) = 1; 
+    
+    % Normalize Y matrix: [N x M]
+    Y_norm = (Y - min_vals) ./ ranges;
+    
+    % Normalize X vector: [N x 1] -> Replicate to [N x M] via implicit expansion later
+    x_min = min(x_values);
+    x_range = max(x_values) - x_min;
+    if x_range == 0, x_range = 1; end
+    X_norm = (x_values - x_min) / x_range;
+    
+    %% 3. Vectorized Geometric Distance Calculation
+    % Line P1 -> P_end
+    % Start Points (Normalized): (0, Y_norm(1,:))
+    % End Points   (Normalized): (1, Y_norm(end,:))
+    
+    % Vector connecting Start to End for each curve: [1 x M] (dX is always 1)
+    % vec_line = [dX; dY]
+    line_vec_x = 1; 
+    line_vec_y = Y_norm(end, :) - Y_norm(1, :); % [1 x M]
+    
+    % Norm of the line vector (Hypotenuse length): sqrt(1^2 + dy^2)
+    line_norm = sqrt(line_vec_x^2 + line_vec_y.^2); % [1 x M]
+    
+    % Vectors from Start Point to Every Point P_i
+    % P_i = (X_norm(i), Y_norm(i,:))
+    % Vec_P = [X_norm(i) - 0; Y_norm(i,:) - Y_norm(1,:)]
+    vec_p_x = X_norm;                     % [N x 1]
+    vec_p_y = Y_norm - Y_norm(1, :);      % [N x M]
+    
+    % 2D Cross Product (Determinant Area)
+    % |x1*y2 - x2*y1|
+    % Here: vec_p_x * line_vec_y - vec_p_y * line_vec_x
+    % Broadcasting: [N x 1] * [1 x M] - [N x M] * 1
+    cross_prod = abs(vec_p_x .* line_vec_y - vec_p_y .* line_vec_x); % [N x M]
+    
+    % Perpendicular Distance = Area / Base_Length
+    distances = cross_prod ./ line_norm; % [N x M] ./ [1 x M]
+    
+    %% 4. Selection
+    % Find index of max distance for each column
+    [~, elbow_indices] = max(distances, [], 1); % [1 x M]
+    
+    % Correction for flat lines: If curve was flat, force index 1
+    elbow_indices(is_flat) = 1;
+    
+    % Determine the conservative global B (Maximum of all elbows)
+    % We wait until the SLOWEST metric has stabilized.
+    if isempty(elbow_indices)
+        idx_final = 1;
+    else
+        idx_final = max(elbow_indices);
     end
     
-    %% 3. Result Selection
-    % We choose the MAXIMUM B among all curves.
-    % Conservative strategy: We wait until the SLOWEST metric has stabilized.
-    selected_B = max(x_values(elbow_indices));
+    selected_B = x_values(idx_final);
 end
