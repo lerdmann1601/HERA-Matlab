@@ -316,12 +316,21 @@ clc;
 
     % Run ranking on noise data
     % We are interested in 'all_alphas' output
-    [~, ~, ~, all_alphas, ~] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb);
+    [~, ~, ~, all_alphas, all_p_vals] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb);
     
-    % Validation: The strictest alpha should be Base / Num_Pairs
+    % Validation 1: The strictest alpha should be Base / Num_Pairs (Classical Check)
     min_alpha_observed = min(all_alphas{1}(:));
     expected_min_alpha = 0.05 / n_pairs_hb; % 0.005
     
+    % Validation 2: Verify Exact Correspondence with Centralized Function
+    % This ensures that calculate_ranking is consistently using the HERA.stats.holm_bonferroni logic.
+    p_vals_vec = all_p_vals{1}(:);
+    [~, expected_alphas_vec] = HERA.stats.holm_bonferroni(p_vals_vec, config_hb.alphas(1));
+    
+    % Calculate sorting match
+    % The helper returns alphas mapped to the input vector. calculation_ranking does the same.
+    alphas_match = max(abs(all_alphas{1}(:) - expected_alphas_vec)) < 1e-10;
+
     % Result Table 
     fprintf('\n[Result]\n');
     h_res = {'Metric', 'Value'}; 
@@ -331,15 +340,16 @@ clc;
     table_data = {
         'Expected Min Alpha', sprintf('%.6f', expected_min_alpha);
         'Observed Min Alpha', sprintf('%.6f', min_alpha_observed);
-        'Difference', sprintf('%.1e', abs(min_alpha_observed - expected_min_alpha))
+        'Difference', sprintf('%.1e', abs(min_alpha_observed - expected_min_alpha));
+        'Full Vector Match', string(alphas_match)
     };
     print_auto_table(h_res, table_data, d_align, h_align);
     
-    if abs(min_alpha_observed - expected_min_alpha) < 1e-6
-        fprintf('\n[Status] PASS: Correction correctly applied.\n');
+    if abs(min_alpha_observed - expected_min_alpha) < 1e-6 && alphas_match
+        fprintf('\n[Status] PASS: Correction correctly applied (Verified against HERA.stats.holm_bonferroni).\n');
         tests_passed = tests_passed + 1;
     else
-        fprintf('\n[Status] FAIL: Alpha correction mismatch.\n');
+        fprintf('\n[Status] FAIL: Alpha correction mismatch or helper function divergence.\n');
     end
 
     %% Test 3: Outlier Robustness & Threshold Logic (The "AND" Condition)
