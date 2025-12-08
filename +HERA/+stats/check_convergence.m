@@ -60,8 +60,9 @@ function [is_converged, stats] = check_convergence(stability_history, config)
         % Only proceed if enough data points exist (Warmup + Window)
         if n >= warmup + window
             % Apply moving average to the entire history to reduce noise
-            % 'omitnan' ensures single NaNs don't break the window
-            smoothed_full = movmean(stability_history, window, 'omitnan');
+            % Use a trailing window [window-1, 0] to ensure the filter is causal and 
+            % does not suffer from edge effects (reduced averaging) at the current step.
+            smoothed_full = movmean(stability_history, [window-1, 0], 'omitnan');
             
             curr_smooth = smoothed_full(end);
             prev_smooth = smoothed_full(end-1);
@@ -105,8 +106,12 @@ function [is_converged, stats] = check_convergence(stability_history, config)
     else
         % Simple convergence check (No smoothing, immediate check)
         if n >= cfg.min_steps_for_convergence_check
+            % Ensure scalar values for stability
             curr_stab = stability_history(end);
+            if numel(curr_stab) > 1, curr_stab = curr_stab(1); end
+            
             prev_stab = stability_history(end-1);
+            if numel(prev_stab) > 1, prev_stab = prev_stab(1); end
             
             % Calculate relative improvement on raw values
             rel_imp = calculate_relative_improvement(prev_stab, curr_stab);
@@ -127,7 +132,7 @@ function rel_imp = calculate_relative_improvement(prev, curr)
 % CALCULATE_RELATIVE_IMPROVEMENT - Helper to calculate improvement safely.
 % Handles NaN, Inf, and Zero cases to avoid runtime errors or misleading results.
 
-    if isnan(curr) || isnan(prev)
+    if any(isnan(curr), 'all') || any(isnan(prev), 'all')
         % If data is missing, assume unstable/high change (100%) to force continuation
         rel_imp = 1.0;
     elseif isinf(curr)

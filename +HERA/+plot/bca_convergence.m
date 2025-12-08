@@ -31,6 +31,9 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
 %
 % Author: Lukas von Erdmannsdorff
 
+    h_fig_global = gobjects(0);
+    h_fig_detailed = gobjects(0);
+
     if nargin < 10
         elbow_indices = [];
     end

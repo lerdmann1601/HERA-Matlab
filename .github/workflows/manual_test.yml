@@ -21,7 +21,7 @@ jobs:
       - name: Run Tests
         uses: matlab-actions/run-command@v2
         with:
-          command: run('tests/run_tests.m')
+          command: run('tests/run_HERA_tests.m')
 
       - name: Upload Test Results
         if: always()

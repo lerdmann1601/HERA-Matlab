@@ -1,9 +1,9 @@
-function run_tests()
+function run_HERA_tests()
 % RUN_TESTS - Wrapper script to execute HERA unit tests from outside the package.
 %
 % Syntax:
-%   run_tests()
-%   matlab -batch "run('tests/run_tests.m')"
+%   run_HERA_tests()
+%   matlab -batch "run('tests/run_HERA_tests.m')"
 %
 % Description:
 %   This function serves as an entry point for the Continuous Integration (CI) pipeline and manual testing. 
@@ -22,7 +22,7 @@ function run_tests()
 % Outputs:
 %   None (Console output and exit codes, Log file is generated via 'HERA.run_unit_test').
 %
-% Author:   Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
     %% 1. Path Configuration
     % Get the full path of this script to locate the project root relative to it.

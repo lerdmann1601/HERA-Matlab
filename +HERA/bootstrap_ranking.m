@@ -178,9 +178,6 @@ else
         % Calculate the stability metric for the current B-value. This is the median of the relative IQR of CI widths across all datasets.
         med_widths = median(ci_widths_b, 1);
         iqr_widths = iqr(ci_widths_b, 1);
-        relative_iqr = zeros(size(med_widths));
-        non_zero_median_idx = med_widths > 0; % Avoid division by zero.
-        relative_iqr(non_zero_median_idx) = iqr_widths(non_zero_median_idx) ./ med_widths(non_zero_median_idx);
         
         % The final stability value is the maximum of the IQR widths (absolute stability).
         stability_vector_b(b_idx) = max(iqr_widths, [], 'all', 'omitnan');
@@ -200,7 +197,7 @@ else
         end
 
         if converged
-            if isfield(cfg_rank, 'convergence_streak_needed') && cfg_rank.convergence_streak_needed > 0
+            if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
                 fprintf([lang.ranking.convergence_reached '\n'], results.improvement * 100);
                 fprintf([lang.ranking.stable_runs_info '\n'], cfg_rank.convergence_streak_needed);
             else
