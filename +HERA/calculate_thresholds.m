@@ -330,6 +330,8 @@ else
 [h_fig_thr_global, h_fig_thr_detailed] = HERA.plot.threshold_convergence(...
     B_tested_vector, stability_data_thr, selected_B, config, styles, lang, graphics_dir);
 
+end
+
 %% 5. Final calculation of thresholds with the optimal B
 % Initialization of the output variables.
 d_thresh = zeros(1, num_metrics); 

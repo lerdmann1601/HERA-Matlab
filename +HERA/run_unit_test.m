@@ -324,12 +324,19 @@ clc;
     
     % Validation 2: Verify Exact Correspondence with Centralized Function
     % This ensures that calculate_ranking is consistently using the HERA.stats.holm_bonferroni logic.
-    p_vals_vec = all_p_vals{1}(:);
+    % We must extract strictly the unique pairs (upper triangle) to match the M hypotheses hypothesis.
+    p_vals_vec = zeros(n_pairs_hb, 1);
+    observed_alphas_vec = zeros(n_pairs_hb, 1);
+    for k = 1:n_pairs_hb
+        p_vals_vec(k) = all_p_vals{1}(pairs_hb(k,1), pairs_hb(k,2));
+        observed_alphas_vec(k) = all_alphas{1}(pairs_hb(k,1), pairs_hb(k,2));
+    end
+    
     [~, expected_alphas_vec] = HERA.stats.holm_bonferroni(p_vals_vec, config_hb.alphas(1));
     
     % Calculate sorting match
-    % The helper returns alphas mapped to the input vector. calculation_ranking does the same.
-    alphas_match = max(abs(all_alphas{1}(:) - expected_alphas_vec)) < 1e-10;
+    % The helper returns alphas mapped to the input vector.
+    alphas_match = max(abs(observed_alphas_vec - expected_alphas_vec)) < 1e-10;
 
     % Result Table 
     fprintf('\n[Result]\n');
@@ -619,7 +626,7 @@ clc;
     % Define Base Configurations for the 3 algorithms
     bs_thr = struct('B_start', 100, 'B_step', 100, 'B_end', 5000, 'n_trials', 25, 'min_steps_for_convergence_check', 3, 'smoothing_window', 3, ...
         'convergence_streak_needed', 3, 'convergence_tolerance', 0.005);    
-    bs_bca = struct('B_start', 100, 'B_step', 200, 'B_end', 10000, 'n_trials', 25, 'min_steps_for_convergence_check', 3, 'smoothing_window', 4, ...
+    bs_bca = struct('B_start', 100, 'B_step', 200, 'B_end', 10000, 'n_trials', 30, 'min_steps_for_convergence_check', 3, 'smoothing_window', 4, ...
         'convergence_streak_needed', 3, 'convergence_tolerance', 0.01);     
     bs_rank = struct('B_start', 50, 'B_step', 10, 'B_end', 1000, 'n_trials', 15, 'min_steps_for_convergence_check', 3, 'smoothing_window', 3, ...
         'convergence_streak_needed', 3, 'convergence_tolerance', 0.005);    
