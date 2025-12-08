@@ -205,7 +205,7 @@ else
                     % Load defaults from central library
                     userInput_defaults = HERA.default();
                     % Merge the loaded settings with the defaults, filling in any missing fields.
-                    userInput = fill_defaults(loadedData.userInput, userInput_defaults);
+                    userInput = Utils.fill_defaults(loadedData.userInput, userInput_defaults);
                     
                     % Verify that essential paths and metric names are not empty.
                     % These cannot be determined non-interactively if missing.
@@ -356,25 +356,25 @@ while true
                 
                 % Guide the user through detailed settings using helper functions.
                 % Reproducibility and parallel processing settings.
-                userInput.reproducible = get_yes_no_input(lang.prompts.reproducible, defaults.reproducible, lang);
+                userInput.reproducible = UserInterface.get_yes_no_input(lang.prompts.reproducible, defaults.reproducible, lang);
                 if userInput.reproducible
-                    userInput.seed = get_numeric_input(lang.prompts.seed, defaults.seed, true, lang);
+                    userInput.seed = UserInterface.get_numeric_input(lang.prompts.seed, defaults.seed, true, lang);
                 else
                     userInput.seed = []; % Seed is not needed if not reproducible.
                 end
-                userInput.num_workers = get_worker_input(lang.prompts.workers, defaults.num_workers, lang);
+                userInput.num_workers = UserInterface.get_worker_input(lang.prompts.workers, defaults.num_workers, lang);
                 
                 % Individual bootstrap settings for each analysis step.
                 fprintf('\n%s:\n', lang.prompts.bootstrap_thresholds);
-                [config.manual_B_thr, config.bootstrap_thresholds] = configure_bootstrap_step(defaults.bootstrap_thresholds, ...
+                [config.manual_B_thr, config.bootstrap_thresholds] = UserInterface.configure_bootstrap_step(defaults.bootstrap_thresholds, ...
                     defaults.manual_B_thr, lang.prompts.bootstrap_thresholds, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_bca);
-                [config.manual_B_ci, config.bootstrap_ci] = configure_bootstrap_step(defaults.bootstrap_ci, ...
+                [config.manual_B_ci, config.bootstrap_ci] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ci, ...
                     defaults.manual_B_ci, lang.prompts.bootstrap_bca, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_ranking);
-                [config.manual_B_rank, config.bootstrap_ranks] = configure_bootstrap_step(defaults.bootstrap_ranks, ...
+                [config.manual_B_rank, config.bootstrap_ranks] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ranks, ...
                     defaults.manual_B_rank, lang.prompts.bootstrap_ranking, lang);
                 break; % Exit the choice loop.
             % Case 3: Load configuration from a file.
@@ -541,7 +541,7 @@ while true
         % If in manual mode, ask whether to run sensitivity analysis (only if num_metrics > 1).
         if num_metrics > 1
             if strcmpi(main_choice, lang.general.manual_char)
-                userInput.run_sensitivity_analysis = get_yes_no_input(lang.prompts.run_sensitivity, defaults.run_sensitivity_analysis, lang);
+                userInput.run_sensitivity_analysis = UserInterface.get_yes_no_input(lang.prompts.run_sensitivity, defaults.run_sensitivity_analysis, lang);
             end
             % Note: In 'standard' mode, run_sensitivity_analysis is already true by default.
         else
@@ -608,12 +608,12 @@ while true
             config.alphas = alphas; 
             
             % Configuration of Power Analysis.
-            userInput.run_power_analysis = get_yes_no_input(lang.prompts.run_power, defaults.run_power_analysis, lang);
+            userInput.run_power_analysis = UserInterface.get_yes_no_input(lang.prompts.run_power, defaults.run_power_analysis, lang);
             if userInput.run_power_analysis
                 fprintf('%s\n', lang.prompts.power_description);
                 pause(0.5);
                 % Get the number of simulations for the power analysis.
-                userInput.power_simulations = get_numeric_input(lang.prompts.power_sims, defaults.power_simulations, true, lang);
+                userInput.power_simulations = UserInterface.get_numeric_input(lang.prompts.power_sims, defaults.power_simulations, true, lang);
             else
                 userInput.power_simulations = []; % Set to empty if disabled.
             end
@@ -622,7 +622,7 @@ while true
             % For Batch usage detail plots and pdf reports can be skipped.  
             % Yes: Generates PDF reports and summary plots (time-consuming).
             % No: "Diagnostic Mode" - Skips PDFs and heavy plots, but keeps convergence plots (in Graphics/) and all CSV/JSON data.
-            userInput.create_reports = get_yes_no_input(lang.prompts.create_reports, defaults.create_reports, lang);
+            userInput.create_reports = UserInterface.get_yes_no_input(lang.prompts.create_reports, defaults.create_reports, lang);
             
             % Logic: Only ask for Theme if we are creating reports, OR if we are doing automatic convergence (which creates plots)
             % If create_reports is FALSE, we check if any Manual B value is EMPTY (meaning Auto mode is on).
@@ -753,7 +753,7 @@ while true
         pause(0.5);
         fprintf(' -> %s: %s\n', lang.summary.data_folder, userInput.folderPath);
         pause(0.5);
-        fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, get_bootstrap_string(userInput.config, lang)); 
+        fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, UserInterface.get_bootstrap_string(userInput.config, lang)); 
         pause(0.5);
         fprintf(' -> %s:\n', sprintf(lang.summary.metric_hierarchy, logic_mode_str)); 
         fprintf('       %s\n', strjoin(userInput.metric_names, ' -> '));
