@@ -110,6 +110,12 @@ function build_hera()
             copyfile(launcherSrc, launcherDst);
             % Ensure it is executable
             system(['chmod +x "' launcherDst '"']);
+
+            % Copy Readme from release/macos
+            fprintf('   > Copying Readme from release/macos...\n');
+            readmeSrc = fullfile(projectRoot, 'release', 'macos', 'readme.txt');
+            readmeDst = fullfile(outputDir, 'readme.txt');
+            copyfile(readmeSrc, readmeDst);
             
             % Apply Ad-Hoc Signature (Mitigate Gatekeeper) to avoid issues with MacOS due to not having a developer license...
             fprintf('   > Applying Ad-Hoc Signature to artifacts...\n');
@@ -154,6 +160,7 @@ function build_hera()
         if ismac
              filesToZip{end+1} = [installerName '.app'];
              filesToZip{end+1} = 'HERA_Launcher.command';
+             filesToZip{end+1} = 'readme.txt';
         elseif ispc
              filesToZip{end+1} = [installerName '.exe'];
         else

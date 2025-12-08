@@ -19,7 +19,7 @@ function version_str = get_version()
 % Author: Lukas von Erdmannsdorff
 
     % Default fallback version used if dynamic retrieval fails
-    fallback_version = 'v1.0.0'; 
+    fallback_version = 'v1.0.1'; 
 
     try
         % Attempt to run git describe.
