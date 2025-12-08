@@ -323,7 +323,7 @@ while true
             lang.general.standard_char);
         % Process the user's choice.
         user_input = input(main_prompt_str, 's'); 
-        [isValid, error_msg, main_choice] = HERA.ConfigValidator.validate_main_action(user_input, lang);
+        [isValid, error_msg, main_choice] = ConfigValidator.validate_main_action(user_input, lang);
         
         if ~isValid
             fprintf('%s\n', error_msg);
@@ -444,7 +444,7 @@ while true
                 lang.prompts.file_type, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char);
             
             user_input = input(prompt, 's');
-            [isValid, error_msg, val] = HERA.ConfigValidator.validate_file_type(user_input, lang);
+            [isValid, error_msg, val] = ConfigValidator.validate_file_type(user_input, lang);
             
             if isValid
                 userInput.fileType = val;
@@ -459,7 +459,7 @@ while true
             folder_prompt = sprintf(lang.prompts.select_folder, userInput.fileType);
             folderPath = uigetdir(pwd, folder_prompt); % Open folder selection dialog.
             
-            [isValid, error_msg, files] = HERA.ConfigValidator.validate_folder_content(folderPath, userInput.fileType, lang);
+            [isValid, error_msg, files] = ConfigValidator.validate_folder_content(folderPath, userInput.fileType, lang);
             
             if isValid
                 userInput.folderPath = folderPath; % Store the valid path.
@@ -481,7 +481,7 @@ while true
         % Get the number of metrics for the hierarchy. 
         while true
             user_input = input(sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt), 's');
-            [isValid, error_msg, val] = HERA.ConfigValidator.validate_metric_count(user_input, lang);
+            [isValid, error_msg, val] = ConfigValidator.validate_metric_count(user_input, lang);
             
             if isValid
                 num_metrics = val;
@@ -499,7 +499,7 @@ while true
             prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
             user_input = input(prompt_text, 's');
             
-            [isValid, error_msg, val] = HERA.ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
+            [isValid, error_msg, val] = ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
             
             if isValid
                 order_choice = val;
@@ -523,7 +523,7 @@ while true
             fprintf('  %s\n', lang.start_ranking.metric_logic_2_opt2);
             while true
                 user_input = input(sprintf('%s [1]: ', lang.start_ranking.metric_logic_2_prompt), 's');
-                [isValid, error_msg, val] = HERA.ConfigValidator.validate_ranking_mode_2_metrics(user_input, lang);
+                [isValid, error_msg, val] = ConfigValidator.validate_ranking_mode_2_metrics(user_input, lang);
                 
                 if isValid
                     userInput.ranking_mode = val;
@@ -568,7 +568,7 @@ while true
                     prompt = sprintf(lang.prompts.permutation_choice, lang.general.all);
                     user_input = input(prompt, 's');
                     
-                    [isValid, error_msg, val] = HERA.ConfigValidator.validate_permutation_choice(user_input, size(all_perms, 1), lang);
+                    [isValid, error_msg, val] = ConfigValidator.validate_permutation_choice(user_input, size(all_perms, 1), lang);
                     
                     if isValid
                         if strcmp(val, 'all')
@@ -642,7 +642,7 @@ while true
                         lang.prompts.theme_choice, lang.general.dark_char, lang.general.light_char, lang.general.light_char);
                     user_input = input(theme_prompt, 's');
                     
-                    [isValid, error_msg, val] = HERA.ConfigValidator.validate_theme_choice(user_input, lang);
+                    [isValid, error_msg, val] = ConfigValidator.validate_theme_choice(user_input, lang);
                     
                     if isValid
                         userInput.plot_theme = val;
@@ -688,7 +688,7 @@ while true
             save_prompt = sprintf('%s (%s/%s) [%s]: ', lang.prompts.save_config, lang.general.yes_char, lang.general.no_char, lang.general.no_char);
             user_input = input(save_prompt, 's');
             
-            [isValid, error_msg, val] = HERA.ConfigValidator.validate_save_choice(user_input, lang);
+            [isValid, error_msg, val] = ConfigValidator.validate_save_choice(user_input, lang);
             
             if isValid
                 save_choice = val;
