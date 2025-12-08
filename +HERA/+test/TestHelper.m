@@ -281,6 +281,7 @@ classdef TestHelper
         function [final_order, final_rank, eff, p_vals] = run_single_test_full(all_data, thresholds, config, names)
             % Wrapper to run 'calculate_ranking' and return full outputs including diagnostics.
             import HERA.test.TestHelper
+            import HERA.calculate_ranking
             
             % Check dimensions
             num_d = size(all_data{1}, 2);

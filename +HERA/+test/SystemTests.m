@@ -50,6 +50,7 @@ classdef SystemTests < matlab.unittest.TestCase
             userInput.reproducible = true;
             userInput.seed = 123;
             userInput.plot_theme = 'light';
+            userInput.language = 'en';
             
             % 3. Run Ranking
             results = HERA.run_ranking(userInput);
