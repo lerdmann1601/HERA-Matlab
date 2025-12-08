@@ -344,11 +344,11 @@ nested parameters to control the convergence algorithm:
 | Field | Type | Default (Thr/CI/Rank) | Description |
 | :--- | :--- | :--- | :--- |
 | `B_start` | int | `100` / `100` / `50` | Initial number of bootstrap iterations. |
-| `B_step` | int | `100` / `200` / `10` | Iterations to add in each step. |
+| `B_step` | int | `150` / `200` / `25` | Iterations to add in each step. |
 | `B_end` | int | `10000` / `20000` / `1500` | Maximum number of iterations. |
-| `n_trials` | int | `25` / `25` / `15` | Number of independent trials per step to check stability. |
-| `convergence_tolerance` | double | `0.005` / `0.01` / `0.005` | Max allowed variation (e.g., 0.005 = 0.5%). |
-| `smoothing_window` | int | `3` / `4` / `3` | Window size for moving average smoothing. |
+| `n_trials` | int | `25` / `30` / `20` | Number of independent trials per step to check stability. |
+| `convergence_tolerance` | double | `0.01` / `0.05` / `0.005` | Max allowed variation (e.g., 0.005 = 0.5%). |
+| `smoothing_window` | int | `3` / `3` / `3` | Window size for moving average smoothing. |
 | `convergence_streak_needed` | int | `3` / `3` / `3` | Consecutive steps required to pass tolerance. |
 | `min_steps_for_convergence_check` | int | `1` | Minimum steps before checking convergence. |
 <!-- markdownlint-enable MD013 MD060 -->
