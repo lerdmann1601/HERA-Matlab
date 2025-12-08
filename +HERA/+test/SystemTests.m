@@ -21,7 +21,23 @@ classdef SystemTests < matlab.unittest.TestCase
         function setupDesc(testCase)
             testCase.tempDir = tempname;
             mkdir(testCase.tempDir);
-            testCase.cleanUp = onCleanup(@() rmdir(testCase.tempDir, 's'));
+            testCase.cleanUp = onCleanup(@() testCase.safeCleanup(testCase.tempDir));
+        end
+        
+        function safeCleanup(~, dirPath)
+            % SAFECLEANUP - Robust deletion handling
+            if exist(dirPath, 'dir')
+                try
+                    rmdir(dirPath, 's');
+                catch
+                    pause(0.5); % Wait for locks to release
+                    try
+                        rmdir(dirPath, 's');
+                    catch
+                        fprintf('Warning: Could not delete temp dir: %s\n', dirPath);
+                    end
+                end
+            end
         end
     end
     
@@ -52,8 +68,8 @@ classdef SystemTests < matlab.unittest.TestCase
             userInput.plot_theme = 'light';
             userInput.language = 'en';
             
-            % 3. Run Ranking
-            results = HERA.run_ranking(userInput);
+            % 3. Run Ranking 
+            [~, results] = evalc('HERA.run_ranking(userInput);');
             
             % 4. Verify Output Structure
             testCase.verifyTrue(isfield(results, 'final_rank'), 'Results missing final_rank');
@@ -98,7 +114,7 @@ classdef SystemTests < matlab.unittest.TestCase
             
             % 3. Call start_ranking in Batch Mode
             % Note: This function has no return, so we check side effects (files created)
-            HERA.start_ranking('configFile', jsonPath);
+            [T] = evalc('HERA.start_ranking(''configFile'', jsonPath);');
             
             % 4. Verify Output Files
             % HERA creates a timestamped folder inside outputDir. Find it.
@@ -109,6 +125,9 @@ classdef SystemTests < matlab.unittest.TestCase
                 resFolder = fullfile(outputDir, dirs(1).name, 'Output');
                 testCase.verifyTrue(exist(fullfile(resFolder, 'results.csv'), 'file') > 0, 'results.csv missing');
                 testCase.verifyTrue(exist(fullfile(resFolder, 'analysis_data.json'), 'file') > 0, 'analysis_data.json missing');
+            else
+                % If no folder, print the captured output for debugging
+                fprintf('\n[DEBUG] Captured Output from start_ranking:\n%s\n', T);
             end
         end
         

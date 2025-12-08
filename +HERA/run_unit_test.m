@@ -129,12 +129,20 @@ function run_unit_test(varargin)
         %% 5. Summary
         fprintf('\nTest Results Summary:\n');
         disp(table(result));
+        
+        % Check for failures and propagate error to caller (critical for CI)
+        if any([result.Failed]) || any([result.Incomplete])
+             error('HERA:TestsFailed', 'One or more tests failed or were incomplete.');
+        end
+
     catch ME
         fprintf('\nCRITICAL ERROR during Test Execution:\n%s\n', ME.message);
         fprintf('Stack Trace:\n');
         for k = 1:length(ME.stack)
             fprintf('  File: %s, Line: %d, Name: %s\n', ME.stack(k).file, ME.stack(k).line, ME.stack(k).name);
         end
+        % Re-throw to ensure the wrapper script sees the failure
+        rethrow(ME);
     end
     
     diary off;

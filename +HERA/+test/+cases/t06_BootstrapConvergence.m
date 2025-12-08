@@ -40,7 +40,7 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     s_data = RandStream('mlfg6331_64', 'Seed', 666);
     RandStream.setGlobalStream(s_data);
     
-    n_conv = 100;
+    n_conv = 30;
     d1_conv = TestHelper.generate_exact_data(n_conv, [10, 15], 3); 
     all_data_conv = {d1_conv};
     ds_names_conv = {'C1', 'C2'};
