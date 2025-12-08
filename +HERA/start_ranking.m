@@ -799,7 +799,7 @@ while true
         pause(0.5);
         fprintf(' -> %s: %s\n', lang.summary.data_folder, userInput.folderPath);
         pause(0.5);
-        fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, get_bootstrap_string(userInput.config, lang)); 
+        fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, UserInterface.get_bootstrap_string(userInput.config, lang)); 
         pause(0.5);
         fprintf(' -> %s:\n', sprintf(lang.summary.metric_hierarchy, logic_mode_str)); 
         fprintf('       %s\n', strjoin(userInput.metric_names, ' -> '));
