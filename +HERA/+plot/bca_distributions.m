@@ -48,9 +48,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     set(0, 'DefaultTextFontName', 'Arial');
     effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
 
-    %% --------------------------------------------------------------------
     %% 1. Z0 Distribution (Bias Correction)
-    %% --------------------------------------------------------------------
     h_z0 = figure('Name', lang.plots.titles.bca_z0_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
     tcl_z0 = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     
@@ -85,10 +83,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     exportgraphics(h_z0, filename_z0, 'Resolution', 300, 'Padding', 30);
     fprintf([lang.bca.z0_histogram_saved '\n'], filename_z0);
 
-
-    %% --------------------------------------------------------------------
     %% 2. A Distribution (Acceleration/Skewness)
-    %% --------------------------------------------------------------------
     h_a = figure('Name', lang.plots.titles.bca_a_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
     tcl_a = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     
@@ -122,10 +117,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     exportgraphics(h_a, filename_a, 'Resolution', 300, 'Padding', 30);
     fprintf([lang.bca.a_histogram_saved '\n'], filename_a);
 
-
-    %% --------------------------------------------------------------------
     %% 3. CI Widths Distribution
-    %% --------------------------------------------------------------------
     ci_widths_d = ci_d_all(:, 2, :) - ci_d_all(:, 1, :);
     ci_widths_r = ci_r_all(:, 2, :) - ci_r_all(:, 1, :);
 
@@ -164,9 +156,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
 
 end
 
-%% ------------------------------------------------------------------------
 %% Helper Function: Robust Histogram + Density Plotting
-%% ------------------------------------------------------------------------
 function plot_distribution(ax, data, face_color, styles)
 % PLOT_DISTRIBUTION - Automatically handles data scaling, binning, and kernel density estimation.
 

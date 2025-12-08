@@ -55,11 +55,11 @@ function defaults = default()
     % Thresholds (Percentile Bootstrap)
     cfg_thr = struct();
     cfg_thr.B_start = 100;
-    cfg_thr.B_step = 100;
+    cfg_thr.B_step = 150;
     cfg_thr.B_end = 10000;
     cfg_thr.n_trials = 25;
     cfg_thr.min_steps_for_convergence_check = 1;
-    cfg_thr.convergence_tolerance = 0.005;
+    cfg_thr.convergence_tolerance = 0.01;
     cfg_thr.smoothing_window = 3;
     cfg_thr.convergence_streak_needed = 3;
     defaults.bootstrap_thresholds = cfg_thr;
@@ -72,14 +72,14 @@ function defaults = default()
     cfg_ci.n_trials = 30;
     cfg_ci.min_steps_for_convergence_check = 1;
     cfg_ci.convergence_tolerance = 0.05;
-    cfg_ci.smoothing_window = 4;
+    cfg_ci.smoothing_window = 3;
     cfg_ci.convergence_streak_needed = 3;
     defaults.bootstrap_ci = cfg_ci;
     
     % Rank Stability (Cluster Bootstrap) - Discrete distribution converges faster
     cfg_rank = struct();
     cfg_rank.B_start = 50;
-    cfg_rank.B_step = 10;
+    cfg_rank.B_step = 25;
     cfg_rank.B_end = 1500;
     cfg_rank.n_trials = 20;
     cfg_rank.min_steps_for_convergence_check = 1;

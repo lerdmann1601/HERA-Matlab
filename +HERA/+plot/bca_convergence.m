@@ -57,12 +57,11 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');
 
-    %% --------------------------------------------------------------------
+
     %% Plot 1: Global Convergence Curve
-    %% --------------------------------------------------------------------
     % This plot summarizes the entire process into one line (mean stability).
     
-    h_fig_bca_global = figure('Name', lang.plots.titles.bca_convergence_global, 'Color', styles.colors.background, 'Visible', 'off');
+    h_fig_global = figure('Name', lang.plots.titles.bca_convergence_global, 'Color', styles.colors.background, 'Visible', 'off');
     tcl_bca_global = tiledlayout(1, 1, 'Padding', 'compact');
     ax_global = nexttile;
 
@@ -122,13 +121,11 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
     % 5. Save Global Plot
     [~, fName, fExt] = fileparts(lang.files.convergence_bca_global);
     filename_global = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_bca_global, filename_global, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig_global, filename_global, 'Resolution', 300, 'Padding', 30);
     fprintf([lang.bca.convergence_plot_saved '\n'], filename_global);
 
 
-    %% --------------------------------------------------------------------
     %% Plot 2: Detailed Convergence (Grid)
-    %% --------------------------------------------------------------------
     h_fig_detailed = figure('Name', lang.plots.titles.bca_convergence_long, 'Color', styles.colors.background, 'Visible', 'off');
     
     num_metrics = numel(metric_names);
@@ -139,7 +136,7 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
 
     num_effect_types = 2;
     effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
-    color_local_elbow = [0.8500 0.3250 0.0980]; % Orange/Reddish
+    color_local_elbow = [0.8500 0.3250 0.0980];
 
     % Iterate: Effect Type (Rows) x Metric (Cols)
     for es_type = 1:num_effect_types

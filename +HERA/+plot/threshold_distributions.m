@@ -201,7 +201,6 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     exportgraphics(tcl_thr, filename, 'Resolution', 300, 'Padding', 30);
     fprintf([lang.thresholds.histogram_plot_saved '\n'], filename);
 
-
     %% Plot 2: Histogram Distribution of Raw Effect Sizes
     % Creates the figure.
     h_fig_hist_raw = figure('Name', lang.plots.titles.raw_effect_dist_name, 'Color', styles.colors.background, 'Visible', 'off');

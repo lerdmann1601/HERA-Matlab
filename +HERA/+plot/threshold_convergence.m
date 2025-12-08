@@ -113,7 +113,6 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     exportgraphics(tcl_thr_global, filename_global, 'Resolution', 300, 'Padding', 30);
     fprintf([lang.thresholds.convergence_plot_saved '\n'], filename_global);
 
-
     %% Plot 2: Detailed Convergence Curves (per Metric) 
     % This plot shows the individual stability curves for each metric (without smoothing).
     h_fig_detailed = figure('Name', lang.plots.titles.threshold_convergence, 'Color', styles.colors.background, 'Visible', 'off');

@@ -40,6 +40,7 @@ import shutil
 import json
 import subprocess
 import platform
+import glob
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
 
@@ -83,9 +84,9 @@ RANKING_MODE = "M1_M2_M3"
 
 # Manual Bootstrap Settings
 MANUAL_BOOTSTRAP = {
-    "manual_B_thr": 2000,
-    "manual_B_ci": 10000,
-    "manual_B_rank": 500
+    "manual_B_thr": 1500,
+    "manual_B_ci": 3000,
+    "manual_B_rank": 200
 }
 
 class HERAWorkflow:
@@ -191,6 +192,14 @@ class HERAWorkflow:
         if matlab_path:
              return "matlab"
 
+        # 5. Fallback: Check for local MATLAB installation (MacOS)
+        if current_os == "Darwin":
+             # Look for standard MATLAB installations
+             candidates = sorted(glob.glob("/Applications/MATLAB_*.app/bin/matlab"))
+             if candidates:
+                 # Use the latest version (last alphabetically usually works for R20xx)
+                 return candidates[-1]
+
         return None
 
     def run_hera(self, config_path: Path) -> bool:
@@ -221,8 +230,11 @@ class HERAWorkflow:
         print(f" -> Running HERA using: {hera_cmd}")
         print(f" -> Config: {config_path}")
         
+        # Check if we are using MATLAB (System path or local path)
+        is_matlab = str(hera_cmd).endswith("matlab") or str(hera_cmd) == "matlab"
+
         # Branch 1: Run via Compiled Executable
-        if hera_cmd != "matlab":
+        if not is_matlab:
             cmd = [str(hera_cmd), mcr_path, "configFile", str(config_path)]
             try:
                 result = subprocess.run(cmd, capture_output=True, text=True)
@@ -250,7 +262,8 @@ class HERAWorkflow:
             
             matlab_cmd_str = f"setup_HERA; HERA.start_ranking('configFile', '{config_path}');"
             
-            cmd = ["matlab", "-batch", matlab_cmd_str]
+            # Use the found hera_cmd (which might be a full path to matlab binary)
+            cmd = [str(hera_cmd), "-batch", matlab_cmd_str]
             
             print(f" -> Executing MATLAB: {matlab_cmd_str}")
             
