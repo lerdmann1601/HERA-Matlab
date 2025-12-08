@@ -124,8 +124,8 @@ classdef SystemTests < matlab.unittest.TestCase
             
             % 4. Verify Output Files
             % HERA creates a timestamped folder inside outputDir. Find it.
-            dirs = dir(fullfile(outputDir, 'HERA_Results_*'));
-            testCase.verifyNotEmpty(dirs, 'No results folder created');
+            dirs = dir(fullfile(outputDir, 'Ranking_*'));
+            testCase.verifyNotEmpty(dirs, 'No results folder created (Ranking_*)');
             
             if ~isempty(dirs)
                 resFolder = fullfile(outputDir, dirs(1).name, 'Output');
