@@ -119,6 +119,11 @@ function run_unit_test(varargin)
                  TestSuite.fromClass(?HERA.test.SystemTests)];
 
         runner = TestRunner.withTextOutput;
+        
+        % Add JUnit XML Plugin for CI integration
+        xmlFile = fullfile(log_folder, 'testResults.xml');
+        runner.addPlugin(matlab.unittest.plugins.XMLPlugin.producingJUnitFormat(xmlFile));
+        
         result = runner.run(suite);
 
         %% 5. Summary

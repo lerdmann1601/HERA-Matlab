@@ -23,9 +23,19 @@ jobs:
         with:
           command: run('tests/run_HERA_tests.m')
 
-      - name: Upload Test Results
+      - name: Publish Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: MATLAB Test Results
+          path: tests/logs/testResults.xml
+          reporter: java-junit
+
+      - name: Upload Test Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: tests/logs/*.txt
+          name: test-logs-and-results
+          path: |
+            tests/logs/*.txt
+            tests/logs/*.xml
