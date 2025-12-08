@@ -2029,12 +2029,8 @@ function effect_sizes = calculate_real_effects(all_data, num_metrics)
             x = x(valid); y = y(valid);
             n = numel(x);
             if n > 0
-                gt = sum(x > y', 'all'); 
-                lt = sum(x < y', 'all');
-                d_vals(k, m) = (gt - lt) / (n^2);
-                mx = mean(x); my = mean(y);
-                if (mx+my)==0, rel_vals(k, m) = 0; 
-                else, rel_vals(k, m) = abs(mx - my) / abs(mean([mx, my])); end
+                d_vals(k, m) = HERA.stats.cliffs_delta(x, y);
+                rel_vals(k, m) = HERA.stats.relative_difference(x, y);
             end
         end
     end

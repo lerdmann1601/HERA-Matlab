@@ -95,20 +95,10 @@ for metric_idx = 1:num_metrics
     
     % Performs the Holm-Bonferroni correction to control the family-wise error rate.
     [sorted_p, sort_idx] = sort(p_values); % Sort p-values in ascending order.
-    % Checks for each p-value if it meets the Holm condition.
-    % Step-Down Procedure
-    % If a hypothesis k is not rejected, all subsequent hypotheses (k+1...m) must also be retained, regardless of their p-values.
-    holm_hypothesis = false(m, 1);
-    for k = 1:m
-        alpha_k = alpha / (m - k + 1);
-        if sorted_p(k) <= alpha_k
-            holm_hypothesis(k) = true;
-        else
-            % Stop rule: The first non-significant p-value stops the procedure.
-            % All remaining hypotheses are also non-significant.
-            break; 
-        end
-    end
+    % Checks for each p-value if it meets the Holm condition using centralized logic.
+    [is_sig_orig, ~] = HERA.stats.holm_bonferroni(p_values, alpha);
+    % Map to sorted order for the subsequent loop structure which iterates by rank k
+    holm_hypothesis = is_sig_orig(sort_idx);
     
     % Initialization of the result matrices for the current metric.
     sig_matrix = false(num_datasets);      % Stores significant "wins" (directional: sig_matrix(i,j)=true -> i beats j).

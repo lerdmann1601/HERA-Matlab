@@ -147,19 +147,10 @@ else
         
                         if n_valid > 0
                             % Calculate Cliff's Delta using the dynamic sample size (n_valid).
-                            gt = sum(x > y', 'all');
-                            lt = sum(x < y', 'all');
-                            bootstrap_d_vals_all(p_idx, metric_idx) = (gt - lt) / (n_valid^2);
+                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y);
                             
                             % Calculate the Relative Mean Difference.
-                            mx = mean(x);
-                            my = mean(y);
-                            if (mx + my) == 0
-                                rel_diff = 0; % Avoid division by zero.
-                            else
-                                rel_diff = abs(mx - my) / abs(mean([mx, my]));
-                            end
-                            bootstrap_rel_vals_all(p_idx, metric_idx) = rel_diff;
+                            bootstrap_rel_vals_all(p_idx, metric_idx) = HERA.stats.relative_difference(x, y);
                         else
                             % If no valid data pairs exist, store NaN.
                             bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
@@ -302,18 +293,11 @@ parfor bb_b = 1:selected_B_final
 
             if n_valid > 0
                 % Calculate Cliff's Delta with the dynamic sample size.
-                gt = sum(x > y', 'all');
-                lt = sum(x < y', 'all');
-                bootstrap_d_vals_all(p_idx, metric_idx) = (gt - lt) / (n_valid^2);
+                bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y);
+                
                 % Calculate the Relative Mean Difference.
-                mx = mean(x);
-                my = mean(y);
-                if (mx + my) == 0
-                    rel_diff = 0;
-                else
-                    rel_diff = abs(mx - my) / abs(mean([mx, my]));
-                end
-                bootstrap_rel_vals_all(p_idx, metric_idx) = (isnan(rel_diff)) * 0 + (~isnan(rel_diff)) * rel_diff;
+                raw_rel_diff = HERA.stats.relative_difference(x, y);
+                bootstrap_rel_vals_all(p_idx, metric_idx) = (isnan(raw_rel_diff)) * 0 + (~isnan(raw_rel_diff)) * raw_rel_diff;
             else
                 bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
                 bootstrap_rel_vals_all(p_idx, metric_idx) = NaN;

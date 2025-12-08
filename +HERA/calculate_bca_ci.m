@@ -175,12 +175,9 @@ else
                         
                         if n_valid_boot > 0
                             if is_delta
-                                gt = sum(boot_x > boot_y', 'all'); lt = sum(boot_x < boot_y', 'all');
-                                boot_stats(b) = (gt - lt) / (n_valid_boot^2);
+                                boot_stats(b) = HERA.stats.cliffs_delta(boot_x, boot_y);
                             else
-                                mx = mean(boot_x); my = mean(boot_y);
-                                if(mx + my) == 0, boot_stats(b) = 0;
-                                else, boot_stats(b) = abs(mx - my) / abs(mean([mx, my])); end
+                                boot_stats(b) = HERA.stats.relative_difference(boot_x, boot_y);
                             end
                         else
                             boot_stats(b) = NaN;
@@ -204,12 +201,9 @@ else
         
                         if n_valid_jack > 0
                             if is_delta
-                                gt = sum(jack_x > jack_y', 'all'); lt = sum(jack_x < jack_y', 'all');
-                                jack_stats(n) = (gt - lt) / (n_valid_jack^2);
+                                jack_stats(n) = HERA.stats.cliffs_delta(jack_x, jack_y);
                             else
-                                mx = mean(jack_x); my = mean(jack_y);
-                                if(mx + my) == 0, jack_stats(n) = 0;
-                                else, jack_stats(n) = abs(mx - my) / abs(mean([mx, my])); end
+                                jack_stats(n) = HERA.stats.relative_difference(jack_x, jack_y);
                             end
                         else
                             jack_stats(n) = NaN;
@@ -387,11 +381,8 @@ for metric_idx = 1:num_metrics
             n_valid_boot = numel(boot_x);
             
             if n_valid_boot > 0
-                gt = sum(boot_x > boot_y', 'all'); lt = sum(boot_x < boot_y', 'all');
-                boot_d(b) = (gt - lt) / (n_valid_boot^2);
-                mx = mean(boot_x); my = mean(boot_y);
-                if (mx + my) == 0, boot_r(b) = 0;
-                else, boot_r(b) = abs(mx - my) / mean([mx, my]); end
+                boot_d(b) = HERA.stats.cliffs_delta(boot_x, boot_y);
+                boot_r(b) = HERA.stats.relative_difference(boot_x, boot_y);
             else
                 boot_d(b) = NaN;
                 boot_r(b) = NaN;
@@ -415,11 +406,8 @@ for metric_idx = 1:num_metrics
             n_valid_jack = numel(jack_x);
     
             if n_valid_jack > 0
-                gt = sum(jack_x > jack_y', 'all'); lt = sum(jack_x < jack_y', 'all');
-                jack_d(n) = (gt - lt) / (n_valid_jack^2);
-                mx = mean(jack_x); my = mean(jack_y);
-                if (mx + my) == 0, jack_r(n) = 0;
-                else, jack_r(n) = abs(mx - my) / abs(mean([mx, my])); end
+                jack_d(n) = HERA.stats.cliffs_delta(jack_x, jack_y);
+                jack_r(n) = HERA.stats.relative_difference(jack_x, jack_y);
             else
                 jack_d(n) = NaN;
                 jack_r(n) = NaN;

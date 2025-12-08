@@ -85,15 +85,8 @@ function power_results = power_analysis(all_data, config, thresholds, num_proban
                     current_p_values(k) = signrank(boot_x, boot_y);
                     
                     % Effect Sizes
-                    gt = sum(boot_x > boot_y', 'all');
-                    lt = sum(boot_x < boot_y', 'all');
-                    current_d_vals(k) = (gt - lt) / (n_valid^2);
-                    
-                    mx = mean(boot_x);
-                    my = mean(boot_y);
-                    r_val = abs(mx - my) / abs(mean([mx, my]));
-                    if isnan(r_val), r_val = 0; end
-                    current_r_vals(k) = r_val;
+                    current_d_vals(k) = HERA.stats.cliffs_delta(boot_x, boot_y);
+                    current_r_vals(k) = HERA.stats.relative_difference(boot_x, boot_y);
                 else
                     current_p_values(k) = 1.0; % No significance if no data
                     valid_comparison(k) = false;

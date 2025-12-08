@@ -94,18 +94,10 @@ for i = 1:(num_datasets - 1)
             
             if n_valid > 0
                 % Calculation of Cliff's Delta with the valid sample size.
-                gt = sum(x > y', 'all'); % Number of cases where x > y.
-                lt = sum(x < y', 'all'); % Number of cases where x < y.
-                d_vals_all(idx_pair, metric_idx) = (gt - lt) / (n_valid^2);
+                d_vals_all(idx_pair, metric_idx) = HERA.stats.cliffs_delta(x, y);
                 
                 % Calculation of the relative mean difference.
-                mean_i = mean(x);
-                mean_j = mean(y);
-                if (mean_i + mean_j) == 0
-                    rel_vals_all(idx_pair, metric_idx) = 0;
-                else
-                    rel_vals_all(idx_pair, metric_idx) = abs(mean_i - mean_j) / abs(mean([mean_i, mean_j]));
-                end
+                rel_vals_all(idx_pair, metric_idx) = HERA.stats.relative_difference(x, y);
             else
                 % If no valid pairs exist, store NaN.
                 d_vals_all(idx_pair, metric_idx) = NaN;
