@@ -865,7 +865,7 @@ while true
             lang.prompts.final_action, start_text, new_text, abort_text, lang.general.start_char);
         user_input = input(final_prompt, 's');
         
-        [isValid, error_msg, val] = HERA.ConfigValidator.validate_final_action(user_input, lang);
+        [isValid, error_msg, val] = ConfigValidator.validate_final_action(user_input, lang);
         
         if isValid
             final_choice = val;
