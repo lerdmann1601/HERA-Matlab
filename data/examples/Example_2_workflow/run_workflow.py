@@ -140,10 +140,7 @@ class HERAWorkflow:
                 
                 # --- Optional ---
                 "fileType": ".csv",
-                "ranking_mode": RANKING_MODE,
-                "reproducible": True,
                 "create_reports": False,  # Disabled for speed
-                "ci_level": 0.95,
                 
                 # --- Manual Bootstrap ---
                 "manual_B_thr": MANUAL_BOOTSTRAP["manual_B_thr"],
