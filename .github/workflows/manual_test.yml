@@ -3,6 +3,11 @@ name: Testing HERA
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  checks: write
+  actions: read
+
 jobs:
   run-tests:
     name: Testing HERA
