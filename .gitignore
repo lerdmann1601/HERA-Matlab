@@ -4,6 +4,7 @@
 slprj/
 *.autosave
 
+
 # LaTeX
 *.aux
 *.log
@@ -28,3 +29,6 @@ Ranking_*/
 deploy/output/
 release/
 data/examples/Example_2_workflow/results/Alpha_*
+
+# Analysis
++HERA/+analysis/
