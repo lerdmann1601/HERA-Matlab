@@ -113,7 +113,7 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
             all_data = {[d1, d2]};
             ds_names = {'C1', 'C2'};
             p_idx = [1 2];
-            eff = HERA.calculate_real_effects(all_data, 1);
+            eff = HERA.test.TestHelper.calculate_real_effects(all_data, 1);
             
             % B) Compute Gold Standard (Reference) for THIS data
             % Thresholds Ref
