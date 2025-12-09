@@ -92,13 +92,23 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
     
     global_idx = 1;
     
-    ppm = ParforProgressMonitor('Study Progress', total_sims, 1); 
+    hWait = waitbar(0, 'Running Robustness Study...');
+    cleanupWait = onCleanup(@() delete(hWait));
     
     for sc_idx = 1:length(scenarios)
         sc = scenarios(sc_idx);
         fprintf('   Scenario %d/%d: %s...', sc_idx, length(scenarios), sc.name);
         
         for s = 1:n_sims_per_cond
+            % Check for Cancel
+             if ~isempty(hWait) && isvalid(hWait)
+                if getappdata(hWait, 'canceling')
+                    error('User Cancelled');
+                end
+                waitbar(global_idx / total_sims, hWait, ...
+                    sprintf('Scenario %d/%d (Sim %d/%d)', sc_idx, length(scenarios), s, n_sims_per_cond));
+            end
+
             % Unique Seed per sim/scenario
             simStream = RandStream('mlfg6331_64', 'Seed', 10000*sc_idx + s);
             RandStream.setGlobalStream(simStream);
