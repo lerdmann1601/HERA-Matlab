@@ -8,6 +8,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %
 % Description:
 %   This function evaluates the stability of the dataset ranking using a cluster bootstrap approach.
+%   It employs a memory-optimized implementation (virtual indexing) to avoid data duplication during resampling.
 %   Subjects (as clusters) are drawn with replacement, and for each sample, the complete ranking process (including effect size calculation) is repeated. 
 %   This process generates a distribution of possible ranks for each dataset, which is then used to assess the robustness of the primary ranking result.
 %   This function dynamically handles 1, 2, or 3 metrics and respects the 'ranking_mode' from the 'config' struct when calling 'calculate_ranking'.
@@ -119,12 +120,7 @@ else
                 % The indices represent the rows (subjects) to be included in the bootstrap sample.
                 boot_indices = randi(s_worker, n_subj_b, [n_subj_b, 1]);
                 
-                % 2. A new, bootstrapped dataset is created by sampling rows from the original data based on the drawn indices.
-                % Dynamically create bootstrap_all_data cell array
-                bootstrap_all_data = cell(1, num_metrics);
-                for m_idx = 1:num_metrics
-                    bootstrap_all_data{m_idx} = all_data{m_idx}(boot_indices, :);
-                end
+                % 2. A new, bootstrapped dataset is created strictly by reference (indices) to save memory.
                 
                 % 3. Effect sizes (Cliff's Delta, Relative Difference) are completely recalculated for the new bootstrap sample.
                 num_pairs = size(pair_idx_all, 1);
@@ -138,11 +134,14 @@ else
                     i = pair_idx_all(p_idx, 1); % Index of the first dataset in the pair.
                     j = pair_idx_all(p_idx, 2); % Index of the second dataset in the pair.
                     for metric_idx = 1:num_metrics
-                        boot_data_metric = bootstrap_all_data{metric_idx};
+                        % Optimize: Access original data directly via indices
+                        boot_col_i = all_data{metric_idx}(boot_indices, i);
+                        boot_col_j = all_data{metric_idx}(boot_indices, j);
+
                         % Find valid (non-NaN) rows within the bootstrap sample for this specific pair.
-                        valid_boot_rows = ~isnan(boot_data_metric(:, i)) & ~isnan(boot_data_metric(:, j));
-                        x = boot_data_metric(valid_boot_rows, i);
-                        y = boot_data_metric(valid_boot_rows, j);
+                        valid_boot_rows = ~isnan(boot_col_i) & ~isnan(boot_col_j);
+                        x = boot_col_i(valid_boot_rows);
+                        y = boot_col_j(valid_boot_rows);
                         n_valid = size(x, 1);
         
                         if n_valid > 0
@@ -161,10 +160,9 @@ else
                 bootstrap_effect_sizes = struct('d_vals_all', bootstrap_d_vals_all, 'rel_vals_all', bootstrap_rel_vals_all);
                 
                 % 4. The complete ranking algorithm is run on the bootstrapped effect sizes.
-                % The 'config' struct, which contains the 'ranking_mode', is passed here.
-                % 'calculate_ranking' will use this to apply the correct logic (e.g., M1, M1_M2, M1_M3A, etc.)
+                % We pass the ORIGINAL all_data + boot_indices to avoid copying the matrix.
                 [~, bootstrap_rank] = HERA.calculate_ranking(...
-                    bootstrap_all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all);
+                    all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all, boot_indices);
                 
                 % 5. The resulting rank vector for this single bootstrap iteration is saved.
                 rank_tmp_b(:, bb_b) = bootstrap_rank;
@@ -263,12 +261,7 @@ parfor bb_b = 1:selected_B_final
     % 1. Perform a cluster bootstrap: Draw subjects with replacement.
     boot_indices = randi(s_worker, n_subj_b, [n_subj_b, 1]);
     
-    % 2. Create the bootstrapped dataset from the sampled subjects.
-    % Dynamically create bootstrap_all_data cell array
-    bootstrap_all_data = cell(1, num_metrics);
-    for m_idx = 1:num_metrics
-        bootstrap_all_data{m_idx} = all_data{m_idx}(boot_indices, :);
-    end
+    % 2. Create the bootstrapped dataset - SKIPPED to save memory (virtual access)
     
     % 3. Recalculate the effect sizes for the new bootstrapped dataset.
     num_pairs = size(pair_idx_all, 1);
@@ -281,11 +274,14 @@ parfor bb_b = 1:selected_B_final
         i = pair_idx_all(p_idx, 1);
         j = pair_idx_all(p_idx, 2);
         for metric_idx = 1:num_metrics
-            boot_data_metric = bootstrap_all_data{metric_idx};   
+            % Access original data directly via indices
+            boot_col_i = all_data{metric_idx}(boot_indices, i);
+            boot_col_j = all_data{metric_idx}(boot_indices, j); 
+            
             % Find valid (non-NaN) rows within the bootstrap sample for this pair.
-            valid_boot_rows = ~isnan(boot_data_metric(:, i)) & ~isnan(boot_data_metric(:, j));
-            x = boot_data_metric(valid_boot_rows, i);
-            y = boot_data_metric(valid_boot_rows, j);
+            valid_boot_rows = ~isnan(boot_col_i) & ~isnan(boot_col_j);
+            x = boot_col_i(valid_boot_rows);
+            y = boot_col_j(valid_boot_rows);
             n_valid = size(x, 1);
 
             if n_valid > 0
@@ -304,9 +300,9 @@ parfor bb_b = 1:selected_B_final
     bootstrap_effect_sizes = struct('d_vals_all', bootstrap_d_vals_all, 'rel_vals_all', bootstrap_rel_vals_all);
     
     % 4. Call the ranking algorithm with the bootstrapped data.
-    % The 'config' struct (containing 'ranking_mode') is passed.
+    % We pass the ORIGINAL all_data + boot_indices to avoid copying the matrix.
     [~, bootstrap_rank] = HERA.calculate_ranking(...
-        bootstrap_all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all);
+        all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all, boot_indices);
     
     % 5. Save the final rank vector of this single bootstrap iteration.
     final_bootstrap_ranks(:, bb_b) = bootstrap_rank;

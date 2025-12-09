@@ -1,10 +1,10 @@
 function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all)
+            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices)
 % CALCULATE_RANKING - Calculates the ranking of datasets based on a hierarchical metric system.
 %
 % Syntax:
 %   [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all)
+%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices)
 %
 % Description:
 %   This function implements a multi-stage ranking algorithm to determine the order of datasets.
@@ -36,6 +36,7 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 %   config               - Struct with general configurations (must include 'ranking_mode').
 %   dataset_names        - Cell array with the names of the datasets.
 %   pair_idx_all         - Indices of all pairwise comparisons.
+%   subset_indices       - (Optional) Vector of row indices to use from all_data (virtual view).
 %
 % Outputs:
 %   final_order          - Vector with the final order of dataset indices.
@@ -46,7 +47,7 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 %   swap_details         - Struct with detailed log information about the swap operations.
 %   intermediate_orders  - Struct with the rankings after each stage.
 % 
-%Author: Lukas von Erdmannsdorff
+% Author: Lukas von Erdmannsdorff
 
 %% 1. Pre-calculation: Significance for all pairs and metrics
 % Initialization of basic parameters.
@@ -79,11 +80,21 @@ for metric_idx = 1:num_metrics
     for k = 1:m
         i = pair_idx_all(k, 1);
         j = pair_idx_all(k, 2);
+        if isempty(subset_indices)
+            % Standard mode: use full columns
+            col_i = data(:, i);
+            col_j = data(:, j);
+        else
+            % Optimized mode: use virtual subset
+            col_i = data(subset_indices, i);
+            col_j = data(subset_indices, j);
+        end
+        
         % Find valid rows for this pair only (pairwise exclusion)
-        valid_rows = ~isnan(data(:, i)) & ~isnan(data(:, j));
+        valid_rows = ~isnan(col_i) & ~isnan(col_j);
         % Performs the test for paired samples if enough valid pairs are present.
         if sum(valid_rows) >= 2 % signrank needs at least 2 valid pairs
-            p = signrank(data(valid_rows, i), data(valid_rows, j));
+            p = signrank(col_i(valid_rows), col_j(valid_rows));
         else
             p = NaN; % Indicates that the test could not be performed
         end
@@ -160,7 +171,12 @@ end
 %% 2. Initial Ranking based on Metric 1
 % Extracts the results for the first (primary) metric.
 sig_metric1_matrix = all_sig_matrices{1};
-mean_metric1 = mean(all_data{1}, 1)';
+
+if isempty(subset_indices)
+    mean_metric1 = mean(all_data{1}, 1)';
+else
+    mean_metric1 = mean(all_data{1}(subset_indices, :), 1)';
+end
 
 % Counts the number of "wins" (significant comparisons won) for each dataset.
 metric1_wins = sum(sig_metric1_matrix, 2); 
