@@ -80,6 +80,7 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
     
     cfg_base = HERA.default();
     cfg_base.metric_names = {'SimMetric'};
+    cfg_base.timestamp = 'RobustnessStudy';
 
     %% 3. Execution Loop (Scenarios -> Simulations)
     
