@@ -112,8 +112,8 @@ function build_hera()
             system(['chmod +x "' launcherDst '"']);
 
             % Copy Readme from release/macos
-            fprintf('   > Copying Readme from release/macos...\n');
-            readmeSrc = fullfile(projectRoot, 'release', 'macos', 'readme.txt');
+            fprintf('   > Copying Readme from deploy...\n');
+            readmeSrc = fullfile(projectRoot, 'deploy', 'readme.txt');
             readmeDst = fullfile(outputDir, 'readme.txt');
             copyfile(readmeSrc, readmeDst);
             
