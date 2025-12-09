@@ -31,34 +31,41 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
 %
 % Author: Lukas von Erdmannsdorff
 
-    if nargin < 1 || isempty(n_sims_per_cond), n_sims_per_cond = 15; end
+    if nargin < 1 || isempty(n_sims_per_cond), n_sims_per_cond = 10; end
 
     fprintf('\n=======================================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
     fprintf('=======================================================================\n');
 
     %% 1. Study Configuration
-    modes = {'Loose', 'Default', 'Strict'};
+    modes = {'Weak Stability', 'Default', 'High Stability'};
     
     % Define Scenarios
     scenarios = struct();
     scenarios(1).name = 'N=15 (Normal)';   scenarios(1).N = 15; scenarios(1).Dist = 'Normal';
     scenarios(2).name = 'N=50 (Normal)';   scenarios(2).N = 50; scenarios(2).Dist = 'Normal';
-    scenarios(3).name = 'N=100 (Normal)';   scenarios(3).N = 100; scenarios(3).Dist = 'Normal';
+    scenarios(3).name = 'N=100 (Normal)';   scenarios(3).N = 100; scenarios(2).Dist = 'Normal';
     scenarios(4).name = 'N=30 (Skewed)';   scenarios(4).N = 30; scenarios(4).Dist = 'LogNormal';
     
-    % Parameter Sets (Same as before)
-    p_thr{1} = struct('n', 5,  'sm', 2, 'st', 2, 'tol', 0.05,  'start', 50,  'step', 50,  'end', 5000); 
-    p_thr{2} = struct('n', 25, 'sm', 3, 'st', 3, 'tol', 0.01,  'start', 100, 'step', 150, 'end', 10000); % Default
-    p_thr{3} = struct('n', 50, 'sm', 4, 'st', 4, 'tol', 0.001, 'start', 100, 'step', 100, 'end', 10000);
+    % Parameter Sets (Scientific: Fixed Tolerance, Varying Stability)
+    % Weak:    sm=1, st=1 (Fast, less robust)
+    % Default: sm=3, st=3 (Balanced)
+    % High:    sm=5, st=5 (Very robust, slower)
     
-    p_bca{1} = struct('n', 25, 'sm', 3, 'st', 2, 'tol', 0.1,  'start', 50,  'step', 50, 'end', 10000); 
+    % 1. Thresholds (Fixed Tol = 0.01)
+    p_thr{1} = struct('n', 25, 'sm', 1, 'st', 1, 'tol', 0.01, 'start', 100, 'step', 150, 'end', 10000); 
+    p_thr{2} = struct('n', 25, 'sm', 3, 'st', 3, 'tol', 0.01, 'start', 100, 'step', 150, 'end', 10000); % Default
+    p_thr{3} = struct('n', 25, 'sm', 5, 'st', 5, 'tol', 0.01, 'start', 100, 'step', 150, 'end', 10000);
+    
+    % 2. BCa (Fixed Tol = 0.05)
+    p_bca{1} = struct('n', 30, 'sm', 1, 'st', 1, 'tol', 0.05, 'start', 100, 'step', 200, 'end', 20000); 
     p_bca{2} = struct('n', 30, 'sm', 3, 'st', 3, 'tol', 0.05, 'start', 100, 'step', 200, 'end', 20000); % Default
-    p_bca{3} = struct('n', 75, 'sm', 7, 'st', 4, 'tol', 0.005, 'start', 100, 'step', 200, 'end', 20000); 
+    p_bca{3} = struct('n', 30, 'sm', 5, 'st', 5, 'tol', 0.05, 'start', 100, 'step', 200, 'end', 20000); 
     
-    p_rank{1} = struct('n', 5,  'sm', 2, 'st', 2, 'tol', 0.05,  'start', 25, 'step', 5,   'end', 1000); 
-    p_rank{2} = struct('n', 20, 'sm', 3, 'st', 3, 'tol', 0.005, 'start', 50, 'step', 25,  'end', 1500); % Default
-    p_rank{3} = struct('n', 50, 'sm', 4, 'st', 4, 'tol', 0.001, 'start', 50, 'step', 10,  'end', 1500); 
+    % 3. Ranking (Fixed Tol = 0.005)
+    p_rank{1} = struct('n', 20, 'sm', 1, 'st', 1, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 1500); 
+    p_rank{2} = struct('n', 20, 'sm', 3, 'st', 3, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 1500); % Default
+    p_rank{3} = struct('n', 20, 'sm', 5, 'st', 5, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 1500); 
 
     % Reference Settings (The "Truth")
     ref_B_thr = 15000;
@@ -79,6 +86,7 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
     end
     
     cfg_base = HERA.default();
+    cfg_base.create_reports = false; % Disable reports for efficiency
     cfg_base.metric_names = {'SimMetric'};
     cfg_base.timestamp = 'RobustnessStudy';
 
@@ -113,17 +121,19 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
             simStream = RandStream('mlfg6331_64', 'Seed', 10000*sc_idx + s);
             RandStream.setGlobalStream(simStream);
             
-            % A) Generate Data
+            % A) Generate Data (3 Datasets for better pair coverage)
             if strcmp(sc.Dist, 'Normal')
                 d1 = 11 + 2.0 * randn(sc.N, 1);
                 d2 = 12 + 2.0 * randn(sc.N, 1);
+                d3 = 11.5 + 2.0 * randn(sc.N, 1); % Overlapping middle ground
             else % LogNormal (Skewed)
                 d1 = exp(2 + 0.4 * randn(sc.N, 1)); % Mean ~8
-                d2 = exp(2.2 + 0.4 * randn(sc.N, 1)); % Mean ~10, higher skew
+                d2 = exp(2.2 + 0.4 * randn(sc.N, 1)); % Mean ~10
+                d3 = exp(2.1 + 0.4 * randn(sc.N, 1)); % Intermediate
             end
-            all_data = {[d1, d2]};
-            ds_names = {'C1', 'C2'};
-            p_idx = [1 2];
+            all_data = {[d1, d2, d3]};
+            ds_names = {'C1', 'C2', 'C3'};
+            p_idx = [1 2 3];
             eff = HERA.test.TestHelper.calculate_real_effects(all_data, 1);
             
             % B) Compute Gold Standard (Reference) for THIS data
