@@ -344,6 +344,8 @@ else
     stability_data_ci.B_vector = B_tested_vector_ci;
     stability_data_ci.global_stability = overall_stability_ci_plotted;
     stability_data_ci.detailed_stability = stability_matrix_ci(:, :, 1:final_i_ci);
+    stability_data_ci.converged = converged_ci;
+    stability_data_ci.elbow_indices = elbow_indices;
     B_ci = selected_B_ci; 
 
     %% 2. Generate graphics to visualize the convergence analysis via Helper

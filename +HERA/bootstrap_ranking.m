@@ -247,6 +247,8 @@ else
     stability_data_rank = struct();
     stability_data_rank.B_vector = B_tested_vector_b;
     stability_data_rank.global_stability = stability_vector_b_plotted;
+    stability_data_rank.converged = converged;
+    stability_data_rank.elbow_indices = elbow_idx_rank;
     % Rank stability only has one (global) curve, so detailed_stability is empty.
     stability_data_rank.detailed_stability = [];
     
