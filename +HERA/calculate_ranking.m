@@ -88,8 +88,10 @@ for metric_idx = 1:num_metrics
             p = NaN; % Indicates that the test could not be performed
         end
         p_values(k) = p;
-        % Stores the raw results of the comparison for later logging.
-        temp_m(k, :) = {dataset_names{i}, dataset_names{j}, p, d_vals(k), rel_vals(k), i, j};
+        if nargout >= 6
+            % Stores the raw results of the comparison for later logging.
+            temp_m(k, :) = {dataset_names{i}, dataset_names{j}, p, d_vals(k), rel_vals(k), i, j};
+        end
     end
     all_temp_results{metric_idx} = temp_m;
     
@@ -133,12 +135,16 @@ for metric_idx = 1:num_metrics
             % Fix: Added epsilon (1e-9) to handle floating point issues where d_val == d_thr
             if abs(d_val) >= (d_thr - 1e-9) && r_val >= (r_thr - 1e-9)
                 swap_count = swap_count + 1;
-                if d_val > 0 % d_val > 0 means i is better than j (x > y in calculation).
+        if d_val > 0 % d_val > 0 means i is better than j (x > y in calculation).
                     sig_matrix(i, j) = true;
-                    pairwise_swaps(swap_count, :) = [i, j, sorted_p(k), d_val, r_val];
+                    if nargout >= 6
+                        pairwise_swaps(swap_count, :) = [i, j, sorted_p(k), d_val, r_val];
+                    end
                 else % d_val < 0 means j is better than i.
                     sig_matrix(j, i) = true;
-                    pairwise_swaps(swap_count, :) = [j, i, sorted_p(k), d_val, r_val];
+                    if nargout >= 6
+                        pairwise_swaps(swap_count, :) = [j, i, sorted_p(k), d_val, r_val];
+                    end
                 end
             end
         end
@@ -372,33 +378,37 @@ for r = 1:num_datasets
 end
 
 % Collects all detail information for output and logging in a struct.
-swap_details = struct();
-swap_details.metric1_wins = metric1_wins;
-swap_details.pairwise_swaps_metric1 = all_pairwise_swaps{1};
-swap_details.results_metric1 = all_temp_results{1};
-
-% Dynamically add details for M2 and M3 if they exist
-if num_metrics >= 2
-    swap_details.pairwise_swaps_metric2 = all_pairwise_swaps{2};
-    swap_details.results_metric2 = all_temp_results{2};
-    swap_details.metric2_global_swaps = metric2_global_swaps;
+if nargout >= 6
+    swap_details = struct();
+    swap_details.metric1_wins = metric1_wins;
+    swap_details.pairwise_swaps_metric1 = all_pairwise_swaps{1};
+    swap_details.results_metric1 = all_temp_results{1};
+    
+    % Dynamically add details for M2 and M3 if they exist
+    if num_metrics >= 2
+        swap_details.pairwise_swaps_metric2 = all_pairwise_swaps{2};
+        swap_details.results_metric2 = all_temp_results{2};
+        swap_details.metric2_global_swaps = metric2_global_swaps;
+    else
+        % Add empty placeholders if M2 was not run
+        swap_details.pairwise_swaps_metric2 = zeros(0, 5);
+        swap_details.results_metric2 = cell(m, 7);
+        swap_details.metric2_global_swaps = zeros(0, 2);
+    end
+    
+    if num_metrics == 3
+        swap_details.pairwise_swaps_metric3 = all_pairwise_swaps{3};
+        swap_details.results_metric3 = all_temp_results{3};
+    else
+        % Add empty placeholders if M3 was not run
+        swap_details.pairwise_swaps_metric3 = zeros(0, 5);
+        swap_details.results_metric3 = cell(m, 7);
+    end
+    
+    % These are always added, even if empty (for M1 or M1_M2 modes)
+    swap_details.metric3_swaps_a = metric3_swaps_a;
+    swap_details.metric3_swaps_b = metric3_swaps_b;
 else
-    % Add empty placeholders if M2 was not run
-    swap_details.pairwise_swaps_metric2 = zeros(0, 5);
-    swap_details.results_metric2 = cell(m, 7);
-    swap_details.metric2_global_swaps = zeros(0, 2);
+    swap_details = struct(); % Return empty if not requested
 end
-
-if num_metrics == 3
-    swap_details.pairwise_swaps_metric3 = all_pairwise_swaps{3};
-    swap_details.results_metric3 = all_temp_results{3};
-else
-    % Add empty placeholders if M3 was not run
-    swap_details.pairwise_swaps_metric3 = zeros(0, 5);
-    swap_details.results_metric3 = cell(m, 7);
-end
-
-% These are always added, even if empty (for M1 or M1_M2 modes)
-swap_details.metric3_swaps_a = metric3_swaps_a;
-swap_details.metric3_swaps_b = metric3_swaps_b;
 end
