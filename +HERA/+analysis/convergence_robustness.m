@@ -1,8 +1,8 @@
-function results = analyze_bootstrap_robustness(n_sims_per_cond)
+function results = convergence_robustness(n_sims_per_cond)
 % ANALYZE_BOOTSTRAP_ROBUSTNESS - Scientific validation of bootstrap parameters.
 %
 % Syntax:
-%   results = HERA.analysis.analyze_bootstrap_robustness(n_sims_per_cond)
+%   results = HERA.analysis.convergence_robustness(n_sims_per_cond)
 %
 % Description:
 %   Performs a comprehensive Monte Carlo study across multiple data conditions
@@ -31,7 +31,7 @@ function results = analyze_bootstrap_robustness(n_sims_per_cond)
 %
 % Author: Lukas von Erdmannsdorff
 
-    if nargin < 1 || isempty(n_sims_per_cond), n_sims_per_cond = 10; end
+    if nargin < 1 || isempty(n_sims_per_cond), n_sims_per_cond = 2; end
 
     fprintf('\n=======================================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
