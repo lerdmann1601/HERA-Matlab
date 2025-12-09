@@ -215,6 +215,7 @@ function results = convergence_robustness(n_sims_per_cond)
     end
     
     %% 4. Visualization
+    fprintf('All simulations completed.\nGenerating scientific report and saving plots...\n');
     create_scientific_plot(agg_res, modes, styles, total_sims, length(scenarios));
     results = agg_res;
 end
@@ -239,48 +240,70 @@ function so = map_params(pi)
 end
 
 function create_scientific_plot(res, modes, styles, total_N, n_scenarios)
-    f = figure('Name', 'Bootstrap Robustness Study', 'Color', 'w', 'Position', [100, 100, 1400, 800]);
+    f = figure('Name', 'Bootstrap Robustness Study', 'Color', 'w', 'Position', [100, 100, 1400, 800], 'Visible', 'on');
     cols = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4];
     
     t = tiledlayout(3, 3, 'TileSpacing', 'compact', 'Padding', 'compact');
     
     % Row 1: Thresholds
-    plot_row(t, res.thr, 'Thresholds (Delta)', 'Error (%)', cols, modes, styles);
+    plot_row(t, res.thr, 'Thresholds (Delta)', 'Error (%)', cols, modes);
     % Row 2: BCa
-    plot_row(t, res.bca, 'BCa CI (Width)', 'Width Dev (%)', cols, modes, styles);
+    plot_row(t, res.bca, 'BCa CI (Width)', 'Width Dev (%)', cols, modes);
     % Row 3: Ranking
-    plot_row(t, res.rnk, 'Ranking (Mean)', 'Rank Dev (%)', cols, modes, styles);
+    plot_row(t, res.rnk, 'Ranking (Mean)', 'Rank Dev (%)', cols, modes);
     
-    title_str = sprintf('Robustness Study: Aggregated across %d Scenarios (N=15-50, Norm/Skew)', n_scenarios);
-    title(t, title_str, 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Arial');
-end
+    title_str = sprintf('Robustness Study: Aggregated across %d Scenarios', n_scenarios);
+    title(t, title_str, 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Arial', 'Interpreter', 'none');
 
-function plot_row(t, data, name, y_lab, cols, modes, styles)
-    % 1. Accuracy (Outliers clipped for readability)
-    nexttile; hold on;
-    % Clip extreme outliers for plotting range
-    d_plot = data.err;
-    d_plot(d_plot > 25) = 25; d_plot(d_plot < -25) = -25;
+    % Save Result Interactively
+    [file, path] = uiputfile({'*.png', 'PNG Image (*.png)'; '*.pdf', 'PDF File (*.pdf)'}, ...
+                             'Save Robustness Report', 'HERA_Robustness_Report.png');
     
-    boxplot(d_plot, 'Labels', modes, 'Colors', 'k', 'Symbol', 'k.');
-    h = findobj(gca,'Tag','Box');
-    for j=1:length(h)
-        idx = length(h)-j+1; 
-        if idx <= size(cols,1)
-            patch(get(h(j),'XData'), get(h(j),'YData'), cols(idx,:), 'FaceAlpha', 0.5);
+    if isequal(file, 0)
+        fprintf('Report saving cancelled by user.\n');
+    else
+        out_file = fullfile(path, file);
+        fprintf('Saving plot to: %s\n', out_file);
+        try
+            exportgraphics(f, out_file, 'Resolution', 300);
+        catch
+            saveas(f, out_file);
         end
     end
-    yline(0, '--k', 'Alpha', 0.5);
-    ylabel(y_lab);
-    ylim([-25 25]); % Fixed visual range
-    title([name ' - Accuracy (Clipped \pm25%)']);
+    fprintf('Analysis Complete.\n');
+end
+
+function plot_row(t, data, name, y_lab, cols, modes)
+    % 1. Accuracy
+    nexttile; hold on;
+    d_plot = data.err;
+    % Clip extreme outliers for plotting range
+    d_plot(d_plot > 25) = 25; d_plot(d_plot < -25) = -25;
+    
+    % Use boxchart for better stability and aesthetic
+    for i = 1:size(d_plot, 2)
+       boxchart(i * ones(size(d_plot,1),1), d_plot(:,i), 'BoxFaceColor', cols(i,:), ...
+           'MarkerStyle', '.', 'MarkerColor', 'k', 'BoxFaceAlpha', 0.6);
+    end
+    
+    yline(0, '--k', 'Alpha', 0.5, 'LineWidth', 1.5);
+    ylabel(y_lab, 'FontSize', 10, 'FontWeight', 'bold');
+    ylim([-26 26]); 
+    xticks(1:3); xticklabels(modes);
+    title([name ' - Accuracy'], 'FontSize', 11);
+    set(gca, 'FontSize', 10, 'LineWidth', 1.2, 'Box', 'on', 'Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
     grid on;
     
     % 2. Efficiency
-    nexttile;
-    boxplot(data.cost, 'Labels', modes, 'Colors', 'k', 'Symbol', '+');
-    ylabel('Steps (B)');
-    title([name ' - Cost']);
+    nexttile; hold on;
+    for i = 1:size(data.cost, 2)
+       boxchart(i * ones(size(data.cost,1),1), data.cost(:,i), 'BoxFaceColor', cols(i,:), ...
+           'MarkerStyle', '+', 'MarkerColor', 'k', 'BoxFaceAlpha', 0.6);
+    end
+    ylabel('Steps (B)', 'FontSize', 10, 'FontWeight', 'bold');
+    xticks(1:3); xticklabels(modes);
+    title([name ' - Cost'], 'FontSize', 11);
+    set(gca, 'FontSize', 10, 'LineWidth', 1.2, 'Box', 'on', 'Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
     grid on;
     
     % 3. Reliability
@@ -289,13 +312,14 @@ function plot_row(t, data, name, y_lab, cols, modes, styles)
     b = bar(fail_rate, 'FaceColor', 'flat');
     b.CData = cols;
     xticklabels(modes);
-    ylabel('Limit Hit (%)');
-    ylim([0 100]);
-    title([name ' - Elbow Usage']);
+    ylabel('Limit Hit (%)', 'FontSize', 10, 'FontWeight', 'bold');
+    ylim([0 105]);
+    title([name ' - Elbow Usage'], 'FontSize', 11);
+    set(gca, 'FontSize', 10, 'LineWidth', 1.2, 'Box', 'on', 'Color', 'w', 'XColor', 'k', 'YColor', 'k', 'GridColor', 'k', 'GridAlpha', 0.15);
     grid on;
     
     labels = string(round(fail_rate, 1)) + "%";
-    text(b.XEndPoints, b.YEndPoints, labels, 'HorizontalAlignment','center', 'VerticalAlignment','bottom');
+    text(b.XEndPoints, b.YEndPoints, labels, 'HorizontalAlignment','center', 'VerticalAlignment','bottom', 'FontSize', 9);
 end
 
 function ppm = ParforProgressMonitor(title, n, ~)
