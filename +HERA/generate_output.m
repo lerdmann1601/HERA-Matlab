@@ -34,6 +34,13 @@ function generate_output(results, thresholds, config, shared_info)
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    results (1,1) struct
+    thresholds (1,1) struct
+    config (1,1) struct
+    shared_info (1,1) struct
+end
+
 %% 1. Initialization and Data Extraction
 % Unpack the passed structures into local variables for easier access.
 lang = shared_info.lang;

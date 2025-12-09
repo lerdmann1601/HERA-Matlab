@@ -37,6 +37,11 @@ function [is_valid, all_data, dataset_names, num_probanden, num_datasets, pair_i
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    userInput (1,1) struct
+    lang (1,1) struct
+end
+
     % Initialize return values for the error case
     is_valid = false;
     all_data = {};

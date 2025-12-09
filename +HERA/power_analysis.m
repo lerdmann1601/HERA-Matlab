@@ -34,6 +34,17 @@ function power_results = power_analysis(all_data, config, thresholds, num_proban
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    all_data (1,:) cell
+    config (1,1) struct
+    thresholds (1,1) struct
+    num_probanden (1,1) double
+    num_simulations (1,1) double
+    pair_idx_all (:,2) double
+    s
+    lang (1,1) struct
+end
+
     num_metrics = numel(all_data);
     num_pairs = size(pair_idx_all, 1);
     power_matrices = cell(1, num_metrics);

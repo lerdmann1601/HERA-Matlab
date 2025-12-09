@@ -50,6 +50,17 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    all_data (1,:) cell
+    num_probanden (1,1) double
+    config (1,1) struct
+    graphics_dir (1,1) string
+    manual_B
+    s
+    styles (1,1) struct
+    lang (1,1) struct
+end
+
 %% 1. Initialization and Calculation of Initial Statistics
 % Create a dedicated subfolder for the threshold analysis plots.
 subfolder_thresholds = fullfile(graphics_dir, 'Threshold_Analysis');

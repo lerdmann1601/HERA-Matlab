@@ -64,6 +64,23 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    all_data (1,:) cell
+    thresholds (1,1) struct
+    config (1,1) struct
+    dataset_names (1,:) cell
+    final_rank
+    pair_idx_all
+    num_probanden (1,1) double
+    graphics_dir (1,1) string
+    csv_dir (1,1) string
+    manual_B
+    s
+    styles (1,1) struct
+    lang (1,1) struct
+    base_name (1,1) string
+end
+
 %% 1. Initialization and Convergence Check for Optimal B
 % Initialization of local variables from input parameters.
 ts = config.timestamp;

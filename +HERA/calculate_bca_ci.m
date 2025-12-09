@@ -67,6 +67,23 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    all_data (1,:) cell
+    d_vals_all
+    rel_vals_all
+    pair_idx_all
+    num_probanden (1,1) double
+    config (1,1) struct
+    metric_names (1,:) cell
+    graphics_dir (1,1) string
+    csv_dir (1,1) string
+    manual_B
+    s
+    styles (1,1) struct
+    lang (1,1) struct
+    base_name (1,1) string
+end
+
 %% 1. Dynamic determination of the optimal bootstrap count (B)
 % Initialization of parameters from the configuration structure.
 alpha_level = 1 - config.ci_level;

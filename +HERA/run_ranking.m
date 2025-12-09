@@ -99,6 +99,8 @@ function results = run_ranking(userInput)
 %
 % Author: Lukas von Erdmannsdorff
 
+% To do: refactor in the same style as start_ranking (e.g. log_config_summary).. However fow knnow I keep it as it is.
+
 %% 1. Initialization and Setup
 
 % Input Validation & Default Injection (Developer Support)
@@ -106,11 +108,12 @@ function results = run_ranking(userInput)
 % 1. start_ranking calls (defaults already set -> ignored here)
 % 2. Direct developer calls (defaults missing -> injected here)
 
+arguments
+    userInput (1,1) struct
+end
+
 % Import the HERA namespace to find internal functions
 import HERA.*
-
-% Ensure the input is a structure as expected.
-validateattributes(userInput, {'struct'}, {'nonempty', 'scalar'}, 'run_ranking', 'userInput');
 
 % Check if at least one data source is provided (File or Memory).
 if ~isfield(userInput, 'folderPath') && ~isfield(userInput, 'custom_data')

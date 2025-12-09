@@ -1,4 +1,4 @@
-function run_unit_test(varargin)
+function run_unit_test(log_path_or_mode)
 % RUN_UNIT_TEST - Comprehensive Scientific Validation Suite for the HERA Ranking.
 %
 % Syntax:
@@ -26,9 +26,13 @@ function run_unit_test(varargin)
 %   5. Summary Reporting
 %
 % Inputs:
-%   varargin - Optional arguments for log path handling.
+%   log_path_or_mode - (Optional) "interactive" or path to custom log folder.
 %
 % Author: Lukas von Erdmannsdorff
+
+arguments
+    log_path_or_mode (1,1) string = ""
+end
 
     import HERA.test.TestHelper
     import matlab.unittest.TestSuite
@@ -74,15 +78,16 @@ function run_unit_test(varargin)
 
     %% 2. Setup Logging
     [log_folder, path_source] = TestHelper.get_writable_log_path();
-    
+   % Inputs:
+%   log_path_or_mode - (Optional) "interactive" or path to custom log folder.
     % Handle arguments for custom path
-    if nargin > 0 && ischar(varargin{1})
-        if strcmpi(varargin{1}, 'interactive')
+    if log_path_or_mode ~= ""
+        if strcmpi(log_path_or_mode, 'interactive')
             selected_dir = uigetdir(pwd, 'Select Log Folder');
             if ~isequal(selected_dir, 0), log_folder = selected_dir; end
         else
-            if ~exist(varargin{1}, 'dir'), mkdir(varargin{1}); end
-            log_folder = varargin{1};
+            if ~exist(log_path_or_mode, 'dir'), mkdir(log_path_or_mode); end
+            log_folder = log_path_or_mode;
         end
     end
 

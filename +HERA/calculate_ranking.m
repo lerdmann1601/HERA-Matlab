@@ -50,16 +50,21 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 % Author: Lukas von Erdmannsdorff
 
 %% 1. Pre-calculation: Significance for all pairs and metrics
-% Initialization of basic parameters.
-num_datasets = size(all_data{1}, 2);
-num_metrics = numel(all_data); %D ynamic number of metrics (1, 2, or 3)
-m = size(pair_idx_all, 1); % Number of unique pairwise comparisons.
-ranking_mode = config.ranking_mode; % Get ranking mode
-
-% Handling of optional arguments.
-if nargin < 7
-    subset_indices = []; % Default: Use full data matrices (no subsetting).
+arguments
+    all_data (1,:) cell
+    effect_sizes (1,1) struct
+    thresholds (1,1) struct
+    config (1,1) struct
+    dataset_names (1,:) cell
+    pair_idx_all
+    subset_indices = []
 end
+
+% Initialization of basic parameters.
+num_metrics = numel(all_data);
+m = size(pair_idx_all, 1);
+num_datasets = size(all_data{1}, 2);
+ranking_mode = config.ranking_mode;
 
 % Initialization of cell arrays to store the results for each metric.
 all_temp_results = cell(1, num_metrics);

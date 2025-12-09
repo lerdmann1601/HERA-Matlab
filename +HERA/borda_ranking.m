@@ -23,6 +23,11 @@ function borda_results = borda_ranking(all_permutation_ranks, dataset_names)
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    all_permutation_ranks (:,:) double
+    dataset_names (1,:) cell
+end
+
     [num_datasets, num_perms] = size(all_permutation_ranks);
     
     % Point assignment (Borda Count). Rank 1 -> N-1 points, ..., Rank N -> 0 points.

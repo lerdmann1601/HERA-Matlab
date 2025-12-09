@@ -37,6 +37,13 @@ function generate_plots(results, thresholds, shared_info, styles)
 %
 % Author: Lukas von Erdmannsdorff
 
+arguments
+    results (1,1) struct
+    thresholds (1,1) struct
+    shared_info (1,1) struct
+    styles (1,1) struct
+end
+
 %% 1. Initialization and Style Definition
 % Unpack the passed structures into local variables for easier access.
 metric_names = shared_info.metric_names;
