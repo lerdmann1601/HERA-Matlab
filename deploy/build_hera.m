@@ -25,6 +25,7 @@ function build_hera()
 %
 % Author: Lukas von Erdmannsdorff
 
+clc
     %% 1. Initialization and Path Detection
     % Determine the project root directory relative to this script.
     % This script is located in <ProjectRoot>/deploy/build_hera.m

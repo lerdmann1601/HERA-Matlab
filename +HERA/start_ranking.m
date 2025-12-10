@@ -297,112 +297,122 @@ while true
     config = defaults; % A temporary structure for settings that might be nested later.
     configLoadedFromFile = false; % Flag to track if the configuration was loaded from a file.
     
-    %% 1. Main Configuration (Standard vs Manual vs Config)
-    [userInput, config, configLoadedFromFile, main_choice] = MainConfig(defaults, lang);
+    try
+        %% 1. Main Configuration (Standard vs Manual vs Config)
+        [userInput, config, configLoadedFromFile, main_choice] = MainConfig(defaults, lang);
+        
+        %% 2. Data Selection (if not loaded from file)
+        userInput = DataSelection(userInput, configLoadedFromFile, main_choice, defaults, lang);
+        % Check if selection was successful
+        if ~configLoadedFromFile && isempty(userInput.folderPath)
+            return; 
+        end
     
-    %% 2. Data Selection (if not loaded from file)
-    userInput = DataSelection(userInput, configLoadedFromFile, main_choice, defaults, lang);
-    % Check if selection was successful (must have output_dir selected if logic reaches here? No, DataSelection only does inputs)
-    % Actually DataSelection sets folderPath. If folderPath is empty and not loaded from file, user aborted.
-    if ~configLoadedFromFile && isempty(userInput.folderPath)
-        return; 
-    end
-
-    %% 3. Statistics & Output Configuration
-    [userInput, config] = Statistics(userInput, config, configLoadedFromFile, main_choice, defaults, lang);
-    if ~configLoadedFromFile && isempty(userInput.output_dir)
-        return; 
-    end
+        %% 3. Statistics & Output Configuration
+        [userInput, config] = Statistics(userInput, config, configLoadedFromFile, main_choice, defaults, lang);
+        if ~configLoadedFromFile && isempty(userInput.output_dir)
+            return; 
+        end
+        
+        %% Finalize Configuration, Optionally Save, and Start Analysis
+        % Nest the detailed 'config' structure inside the main 'userInput' structure.
+        userInput.config = config;
+        % If the configuration was not loaded, ask the user if they want to save it.
+        if ~configLoadedFromFile
+            while true
+                save_prompt = sprintf('%s (%s/%s) [%s]: ', lang.prompts.save_config, lang.general.yes_char, lang.general.no_char, lang.general.no_char);
+                user_input = input(save_prompt, 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
+                
+                [isValid, error_msg, val] = ConfigValidator.validate_save_choice(user_input, lang);
+                
+                if isValid
+                    save_choice = val;
+                    break;
+                else
+                    fprintf('%s\n', error_msg);
+                end
+            end
+            if strcmpi(save_choice, lang.general.yes_char)
+                % Open a file dialog to specify the save location for the .json file.
+                [file, path] = uiputfile('ranking_config.json', lang.prompts.save_config_title);
+                if ischar(file) % Check if a valid file name was provided (not cancelled).
+                    try
+                        % Wrap the userInput struct in another struct to match the loading format.
+                        data_to_save = struct('userInput', userInput);
+                        % Encode the MATLAB struct into a nicely formatted JSON string.
+                        json_text = jsonencode(data_to_save, 'PrettyPrint', true);                
+                        % Write the JSON string to the selected file.
+                        fid = fopen(fullfile(path, file), 'w');
+                        fprintf(fid, '%s', json_text);
+                        fclose(fid);
+                        fprintf([lang.prompts.save_success '\n'], fullfile(path, file));
+                    catch ME
+                        % Handle any errors during file writing.
+                        if exist('fid', 'var') && fid ~= -1, fclose(fid); end 
+                        fprintf([lang.errors.save_error '\n'], ME.message);
+                    end
+                else
+                    % Inform the user if the save operation was cancelled.
+                    fprintf('%s\n', lang.prompts.save_cancelled);
+                end
+            end
+        end
+        
+        %% 4. Configuration Summary
+        Summary(userInput, configLoadedFromFile, lang);
     
-    %% Finalize Configuration, Optionally Save, and Start Analysis
-    % Nest the detailed 'config' structure inside the main 'userInput' structure.
-    userInput.config = config;
-    % If the configuration was not loaded, ask the user if they want to save it.
-    if ~configLoadedFromFile
+        %% Final Action
+        % Format the final action prompt strings.
+        start_text = sprintf('[%s]%s', lang.general.start_char, lang.prompts.action_start(2:end));
+        new_text = sprintf('[%s]%s', lang.general.new_char, lang.prompts.action_new(2:end));
+        abort_text = sprintf('[%s]%s', lang.general.abort_char, lang.prompts.action_abort(2:end));
+        % Prompt the user to start, restart, or abort.
         while true
-            save_prompt = sprintf('%s (%s/%s) [%s]: ', lang.prompts.save_config, lang.general.yes_char, lang.general.no_char, lang.general.no_char);
-            user_input = input(save_prompt, 's');
+            final_prompt = sprintf('\n%s: %s, %s, %s [%s]: ', ...
+                lang.prompts.final_action, start_text, new_text, abort_text, lang.general.start_char);
+            user_input = input(final_prompt, 's');
+            HERA.start.UserInterface.check_exit_command(user_input, lang);
             
-            [isValid, error_msg, val] = ConfigValidator.validate_save_choice(user_input, lang);
+            [isValid, error_msg, val] = ConfigValidator.validate_final_action(user_input, lang);
             
             if isValid
-                save_choice = val;
+                final_choice = val;
                 break;
             else
                 fprintf('%s\n', error_msg);
             end
         end
-        if strcmpi(save_choice, lang.general.yes_char)
-            % Open a file dialog to specify the save location for the .json file.
-            [file, path] = uiputfile('ranking_config.json', lang.prompts.save_config_title);
-            if ischar(file) % Check if a valid file name was provided (not cancelled).
+        
+        switch lower(final_choice)
+            case lang.general.start_char
+                fprintf([lang.prompts.starting_analysis '\n\n']);
                 try
-                    % Wrap the userInput struct in another struct to match the loading format.
-                    data_to_save = struct('userInput', userInput);
-                    % Encode the MATLAB struct into a nicely formatted JSON string.
-                    json_text = jsonencode(data_to_save, 'PrettyPrint', true);                
-                    % Write the JSON string to the selected file.
-                    fid = fopen(fullfile(path, file), 'w');
-                    fprintf(fid, '%s', json_text);
-                    fclose(fid);
-                    fprintf([lang.prompts.save_success '\n'], fullfile(path, file));
+                    % Call the main analysis function.
+                    run_ranking(userInput);
                 catch ME
-                    % Handle any errors during file writing.
-                    if exist('fid', 'var') && fid ~= -1, fclose(fid); end 
-                    fprintf([lang.errors.save_error '\n'], ME.message);
+                    % Catch and display any errors that occur during the analysis.
+                    fprintf('%s\n', lang.errors.analysis_aborted);
+                    fprintf('%s: %s\n', lang.errors.error_message, ME.message);
+                    fprintf('%s: %s, %s: %d\n', lang.errors.in_file, ME.stack(1).file, lang.errors.at_line, ME.stack(1).line);
                 end
-            else
-                % Inform the user if the save operation was cancelled.
-                fprintf('%s\n', lang.prompts.save_cancelled);
-            end
+                break; % Exit the main configuration loop.
+            case lang.general.new_char
+                % Restart the main while loop for a new configuration.
+                fprintf('%s\n', lang.prompts.restarting_config);
+            case lang.general.abort_char
+                % Abort the process and exit the script.
+                fprintf('%s\n', lang.prompts.ranking_aborted);
+                return; 
         end
-    end
-    
-    %% 4. Configuration Summary
-    Summary(userInput, configLoadedFromFile, lang);
-
-    %% Final Action
-    % Format the final action prompt strings.
-    start_text = sprintf('[%s]%s', lang.general.start_char, lang.prompts.action_start(2:end));
-    new_text = sprintf('[%s]%s', lang.general.new_char, lang.prompts.action_new(2:end));
-    abort_text = sprintf('[%s]%s', lang.general.abort_char, lang.prompts.action_abort(2:end));
-    % Prompt the user to start, restart, or abort.
-    % Prompt the user to start, restart, or abort.
-    while true
-        final_prompt = sprintf('\n%s: %s, %s, %s [%s]: ', ...
-            lang.prompts.final_action, start_text, new_text, abort_text, lang.general.start_char);
-        user_input = input(final_prompt, 's');
-        
-        [isValid, error_msg, val] = ConfigValidator.validate_final_action(user_input, lang);
-        
-        if isValid
-            final_choice = val;
-            break;
+    catch ME
+        % Graceful exit catch block
+        if strcmp(ME.identifier, 'HERA:UserExit')
+            fprintf('\n%s\n', ME.message);
+            return;
         else
-            fprintf('%s\n', error_msg);
+            rethrow(ME);
         end
-    end
-    
-    switch lower(final_choice)
-        case lang.general.start_char
-            fprintf([lang.prompts.starting_analysis '\n\n']);
-            try
-                % Call the main analysis function.
-                run_ranking(userInput);
-            catch ME
-                % Catch and display any errors that occur during the analysis.
-                fprintf('%s\n', lang.errors.analysis_aborted);
-                fprintf('%s: %s\n', lang.errors.error_message, ME.message);
-                fprintf('%s: %s, %s: %d\n', lang.errors.in_file, ME.stack(1).file, lang.errors.at_line, ME.stack(1).line);
-            end
-            break; % Exit the main configuration loop.
-        case lang.general.new_char
-            % Restart the main while loop for a new configuration.
-            fprintf('%s\n', lang.prompts.restarting_config);
-        case lang.general.abort_char
-            % Abort the process and exit the script.
-            fprintf('%s\n', lang.prompts.ranking_aborted);
-            return; 
     end
 end % End of "while true" loop
 end % End of start_ranking function

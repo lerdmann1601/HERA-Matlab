@@ -174,8 +174,10 @@ The workflow performs the following steps:
 
 ### 1. Interactive Mode (Recommended for Beginners)
 
-The interactive wizard guides you through every step of the configuration, from
-data selection to statistical parameters.
+The interactive command-line interface guides you through every step of the configuration,
+from data selection to statistical parameters.
+If you are new to HERA, this is the recommended mode.
+At any point, you can exit the interface by typing `exit` or `quit` or `q`.
 
 ```matlab
 import HERA.start_ranking

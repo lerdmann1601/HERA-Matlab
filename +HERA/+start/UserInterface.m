@@ -31,6 +31,7 @@ classdef UserInterface
             while true
                 % Display prompt with current default.
                 user_input = input(sprintf('%s (%s/%s) [%s]: ', prompt, lang.general.yes_char, lang.general.no_char, default_str), 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
                 
                 % Delegate validation to ConfigValidator.
                 [isValid, error_msg, val] = HERA.start.ConfigValidator.validate_yes_no(user_input, default_val, lang);
@@ -61,6 +62,7 @@ classdef UserInterface
             
             while true
                 val_str = input(sprintf('%s [%g]: ', prompt, default_val), 's');
+                HERA.start.UserInterface.check_exit_command(val_str, lang);
                 
                 % Delegate validation.
                 [isValid, error_msg, value] = HERA.start.ConfigValidator.validate_numeric(val_str, default_val, is_integer, lang);
@@ -82,6 +84,7 @@ classdef UserInterface
             
             while true
                 user_input = input(sprintf('%s [%s]: ', prompt, default_val), 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
                 
                 [isValid, error_msg, value] = HERA.start.ConfigValidator.validate_worker_count(user_input, default_val, lang);
                 
@@ -123,6 +126,7 @@ classdef UserInterface
                 prompt = sprintf('%s %s, %s, %s? [%s]: ', ...
                     lang.prompts.choose_for, manual_text, robust_text, simple_text, lang.general.robust_char);
                 user_input = input(prompt, 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
                 
                 % Validate the method choice first.
                 [isValid, error_msg, choice] = HERA.start.ConfigValidator.validate_bootstrap_method(user_input, lang);
@@ -238,6 +242,16 @@ classdef UserInterface
             
             % Combine all parts.
             summary_str = strjoin(parts, '\n');
+        end
+
+        function check_exit_command(user_input, lang)
+            % check_exit_command - Checks if the user wants to abort the process.
+            % Throws a specific error 'HERA:UserExit' if detected.
+            
+            if any(strcmpi(user_input, {'exit', 'quit', 'q'}))
+                 % Use a custom error ID to catch it cleanly in the main script.
+                 error('HERA:UserExit', 'User aborted the configuration.');
+            end
         end
 
     end

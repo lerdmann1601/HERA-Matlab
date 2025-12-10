@@ -125,5 +125,23 @@ classdef UnitTests < matlab.unittest.TestCase
              testCase.verifyFalse(isValid);
         end
         
+        function validate_exit_mechanism(testCase)
+            import HERA.start.UserInterface
+            
+            % Should throw error for exit commands
+            testCase.verifyError(@() UserInterface.check_exit_command('q', testCase.lang), 'HERA:UserExit');
+            testCase.verifyError(@() UserInterface.check_exit_command('exit', testCase.lang), 'HERA:UserExit');
+            testCase.verifyError(@() UserInterface.check_exit_command('QUIT', testCase.lang), 'HERA:UserExit');
+            
+            % Should NOT throw error for normal input
+            try
+                UserInterface.check_exit_command('y', testCase.lang);
+                UserInterface.check_exit_command('123', testCase.lang);
+                UserInterface.check_exit_command('', testCase.lang);
+            catch
+                testCase.verifyFail('Check exit command threw error for valid input.');
+            end
+        end
+        
     end
 end
