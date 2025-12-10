@@ -244,6 +244,7 @@ classdef UserInterface
             summary_str = strjoin(parts, '\n');
         end
 
+        % --- Exit Command Section ---
         function check_exit_command(user_input, lang)
             % check_exit_command - Checks if the user wants to abort the process.
             % Throws a specific error 'HERA:UserExit' if detected.
