@@ -217,6 +217,40 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 
 ## Documentation
 
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Repository Structure</strong></summary>
+
+The codebase is organized as a MATLAB package (`+HERA`) to ensure namespace isolation.
+
+```text
+HERA-Matlab/
+├── +HERA/                  % Main Package Namespace
+│   ├── +output/            % Report Generation (PDF, JSON, CSV)
+│   ├── +plot/              % Visualization (Sankey, Heatmaps)
+│   ├── +run/               % Execution Logic
+│   ├── +start/             % CLI & Configuration Logic
+│   ├── +stats/             % Statistical Core (Cliff's Delta, Convergence Check)
+│   ├── +test/              % Unit Test Suite
+│   ├── language/           % Localization Files
+│   ├── run_ranking.m       % Core Function (Developer API)
+│   ├── start_ranking.m     % Main Entry Point (User API)
+│   └── run_unit_test.m     % Test Runner
+├── assets/                 % Images & Logos
+├── data/                   % Data Directory
+│   ├── examples/           % Synthetic Example Datasets
+│   └── README.md           % Data Documentation
+├── deploy/                 % Build Scripts (Standalone App)
+├── paper/                  % Paper Resources
+├── setup_HERA.m            % Path Setup Script
+├── CITATION.cff            % Citation Metadata
+├── CONTRIBUTING.md         % Contribution Guidelines
+└── README.md               % Global Documentation
+```
+
+</details>
+<!-- markdownlint-enable MD033 -->
+
 <!-- markdownlint-disable MD033 MD013 MD060 -->
 <details>
 <summary><strong>Ranking Modes Explained</strong></summary>
