@@ -74,8 +74,17 @@ classdef SystemTests < matlab.unittest.TestCase
             userInput.plot_theme = 'light';
             userInput.language = 'en';
             
-            % 3. Run Ranking 
+            % 3. Run Ranking
+            % Save global diary state allowing to restore it
+            originalLog = get(0, 'DiaryFile');
+            originalState = get(0, 'Diary');
+            
             [~, results] = evalc('HERA.run_ranking(userInput);');
+            
+            % Restore global diary state if it was active
+            if strcmp(originalState, 'on')
+                diary(originalLog);
+            end
             
             % 4. Verify Output Structure
             testCase.verifyTrue(isfield(results, 'final_rank'), 'Results missing final_rank');
@@ -120,7 +129,17 @@ classdef SystemTests < matlab.unittest.TestCase
             
             % 3. Call start_ranking in Batch Mode
             % Note: This function has no return, so we check side effects (files created)
+            
+            % Save global diary state allowing to restore it
+            originalLog = get(0, 'DiaryFile');
+            originalState = get(0, 'Diary');
+            
             [T] = evalc('HERA.start_ranking(''configFile'', jsonPath);');
+            
+            % Restore global diary state if it was active
+            if strcmp(originalState, 'on')
+                diary(originalLog);
+            end
             
             % 4. Verify Output Files
             % HERA creates a timestamped folder inside outputDir. Find it.
@@ -141,8 +160,5 @@ classdef SystemTests < matlab.unittest.TestCase
                 fprintf('\n[DEBUG] Captured Output from start_ranking:\n%s\n', T);
             end
         end
-        
-
-        
     end
 end
