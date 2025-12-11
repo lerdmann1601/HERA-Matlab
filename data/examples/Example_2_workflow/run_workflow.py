@@ -84,9 +84,9 @@ RANKING_MODE = "M1_M2_M3"
 
 # Manual Bootstrap Settings
 MANUAL_BOOTSTRAP = {
-    "manual_B_thr": 1500,
-    "manual_B_ci": 3000,
-    "manual_B_rank": 200
+    "manual_B_thr": 2000,
+    "manual_B_ci": 3500,
+    "manual_B_rank": 1000
 }
 
 class HERAWorkflow:

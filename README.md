@@ -389,7 +389,8 @@ nested parameters to control the convergence algorithm:
 | `min_steps_for_convergence_check` | int | `1` | Minimum steps before checking convergence. |
 <!-- markdownlint-enable MD013 MD060 -->
 
-**Convergence Modes:**
+<details>
+<summary><strong>Convergence Modes</strong></summary>
 
 * **Simple Convergence**: Used when `smoothing_window` is empty. Checks if the
     value changes less than `convergence_tolerance` between steps.
@@ -408,7 +409,10 @@ nested parameters to control the convergence algorithm:
 > in robust mode, convergence starts to be evaluated within the lower range of
 > iterations consistent with literature recommendations.
 
-### Troubleshooting Convergence
+</details>
+
+<details>
+<summary><strong>Troubleshooting Convergence</strong></summary>
 
 While the automated check should work for most datasets, "difficult" data with high
 variance or flat likelihood landscapes may fail to converge within
@@ -433,6 +437,8 @@ variance or flat likelihood landscapes may fail to converge within
 > **Reproducibility Note:** Visual inspection of convergence plots is strongly recommended
 > for final reporting! All procedures should use the same fixed random seed for full
 > reproducibility.
+
+</details>
 
 </details>
 <!-- markdownlint-enable MD033 -->

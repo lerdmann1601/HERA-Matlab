@@ -1,8 +1,8 @@
-"Borda Rank";"Borda Score (%)";"Dataset";"OC -> CNR -> SNR";"SNR -> CNR -> OC";"SNR -> OC -> CNR";"CNR -> SNR -> OC";"CNR -> OC -> SNR";"OC -> SNR -> CNR"
-1;"77.8%";"Method D";1;1;1;4;1;6
-2;"61.1%";"Method G";2;2;3;5;5;3
-3;"52.8%";"Method A";4;5;6;1;6;1
-4;"52.8%";"Method F";5;3;4;3;3;5
-5;"44.4%";"Method B";3;4;5;6;4;4
-6;"33.3%";"Method E";6;6;7;2;7;2
+"Borda Rank";"Borda Score (%)";"Dataset";"OC -> CNR -> SNR";"OC -> SNR -> CNR";"CNR -> OC -> SNR";"CNR -> SNR -> OC";"SNR -> OC -> CNR";"SNR -> CNR -> OC"
+1;"77.8%";"Method D";1;6;1;4;1;1
+2;"61.1%";"Method G";2;3;5;5;3;2
+3;"52.8%";"Method A";4;1;6;1;6;5
+4;"52.8%";"Method F";5;5;3;3;4;3
+5;"44.4%";"Method B";3;4;4;6;5;4
+6;"33.3%";"Method E";6;2;7;2;7;6
 7;"27.8%";"Method C";7;7;2;7;2;7

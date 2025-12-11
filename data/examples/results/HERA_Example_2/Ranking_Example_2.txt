@@ -1,6 +1,7 @@
 =======================
 Ranking is starting...
 =======================
+Version: v1.0.0
 
 Configuration loaded.
 --------------------------------------------------
@@ -8,13 +9,31 @@ CPU cores for ranking: auto
 Reproducibility: true (Seed: 123)
 
 -> Percentile-Bootstrap for Thresholds
-   Method: Manual (B = 2000)
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:150:10000
+   Trials per B:   25
+   Tolerance:      1.00%
 
 -> BCa-Bootstrap for Confidence Intervals
-   Method: Manual (B = 10000)
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:200:20000
+   Trials per B:   30
+   Tolerance:      5.00%
 
 -> Cluster-Bootstrap for Ranking
-   Method: Manual (B = 500)
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        50:25:1500
+   Trials per B:   20
+   Tolerance:      0.50%
 --------------------------------------------------
 
 RNG stream set to reproducible seed 123.
@@ -54,13 +73,70 @@ All data validated for analysis.
 
 Calculating statistical thresholds
 
-Manual Percentile-Bootstrap count B = 2000 is used for thresholds.
-Histogram plot for threshold distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_20251205_111006.png
-Histogram plot for effect sizes saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_20251205_111006.png
+Searching for optimal Percentile-Bootstrap count (B) for thresholds
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 1.0% change, starting after 1 runs up to B max 10000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 25 Trials
+ -> Checking stability with B = 250 and 25 Trials
+ -> Checking stability with B = 400 and 25 Trials
+ -> Checking stability with B = 550 and 25 Trials
+    Relative stability change: 36.38%
+ -> Checking stability with B = 700 and 25 Trials
+    Relative stability change: 92.85%
+ -> Checking stability with B = 850 and 25 Trials
+    Relative stability change: 100.00%
+ -> Checking stability with B = 1000 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 1150 and 25 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 1300 and 25 Trials
+    Convergence at 0.00% in run 3/3
+Convergence at 0.00% reached
+Stability in 3 consecutive runs
+B-value after convergence: 1300
+Convergence plot for thresholds saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Threshold_Analysis/Convergence_Thresholds_Global_Example_2.png
+Convergence plot for thresholds saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Threshold_Analysis/Convergence_Thresholds_Detailed_Example_2.png
+Histogram plot for threshold distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_Example_2.png
+Histogram plot for effect sizes saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_Example_2.png
 
 Calculating BCa confidence intervals
 
-Manual BCa-Bootstrap count B = 10000 is used for effect size CIs.
+Searching for optimal Bias-corrected and accelerated Bootstrap count (B) for effect size CIs
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 5.0% change, starting after 1 runs up to B max 20000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 30 trials
+ -> Checking stability with B = 300 and 30 trials
+ -> Checking stability with B = 500 and 30 trials
+ -> Checking stability with B = 700 and 30 trials
+    Relative stability change: 33.45%
+ -> Checking stability with B = 900 and 30 trials
+    Relative stability change: 17.48%
+ -> Checking stability with B = 1100 and 30 trials
+    Relative stability change: 14.33%
+ -> Checking stability with B = 1300 and 30 trials
+    Relative stability change: 8.90%
+ -> Checking stability with B = 1500 and 30 trials
+    Relative stability change: 9.80%
+ -> Checking stability with B = 1700 and 30 trials
+    Relative stability change: 5.63%
+ -> Checking stability with B = 1900 and 30 trials
+    Relative stability change: 8.04%
+ -> Checking stability with B = 2100 and 30 trials
+    Relative stability change: 5.33%
+ -> Checking stability with B = 2300 and 30 trials
+    Convergence at 4.60% in run 1/3
+ -> Checking stability with B = 2500 and 30 trials
+    Convergence at 3.45% in run 2/3
+ -> Checking stability with B = 2700 and 30 trials
+    Convergence at 2.73% in run 3/3
+Convergence reached at 2.73%.
+Stability in 3 consecutive runs
+B-value after convergence: 2700
+Convergence plot for BCa-CI saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/CI_Histograms/Convergence_BCa_CI_Global_Example_2.png
+Convergence plot for BCa-CI saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/CI_Histograms/Convergence_BCa_CI_Detailed_Example_2.png
+
 Calculating CI and correction factors for: OC
 Calculating CI and correction factors for: CNR
 Calculating CI and correction factors for: SNR
@@ -70,72 +146,85 @@ Calculating CI and correction factors for: SNR
 OC:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.000 | +0.015 | -0.125 | +0.116 
+Bias (z0) Delta       | +0.000 | +0.015 | -0.148 | +0.114 
 Skewness (a) Delta    | +0.000 | +0.012 | -0.063 | +0.101 
-Bias (z0) RelDiff     | -0.024 | -0.082 | -1.383 | +0.032 
+Bias (z0) RelDiff     | -0.032 | -0.094 | -1.355 | +0.050 
 Skewness (a) RelDiff  | -0.012 | -0.015 | -0.059 | +0.012 
 ----------------------------------------------------------
 
 CNR:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.036 | +0.100 | -2.878 | +2.536 
+Bias (z0) Delta       | +0.036 | +0.097 | -2.845 | +2.495 
 Skewness (a) Delta    | +0.009 | +0.006 | -0.045 | +0.064 
-Bias (z0) RelDiff     | +0.007 | +0.007 | -0.027 | +0.050 
+Bias (z0) RelDiff     | +0.010 | +0.010 | -0.044 | +0.060 
 Skewness (a) RelDiff  | +0.000 | +0.007 | -0.005 | +0.033 
 ----------------------------------------------------------
 
 SNR:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.000 | -0.002 | -0.235 | +0.242 
+Bias (z0) Delta       | +0.000 | -0.001 | -0.259 | +0.250 
 Skewness (a) Delta    | +0.000 | -0.001 | -0.117 | +0.106 
-Bias (z0) RelDiff     | +0.000 | +0.003 | -0.034 | +0.041 
+Bias (z0) RelDiff     | -0.012 | -0.008 | -0.058 | +0.039 
 Skewness (a) RelDiff  | -0.004 | -0.001 | -0.017 | +0.009 
 ----------------------------------------------------------
 
 Saving BCa correction factors as CSV file
-CSV file successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/BCa_Correction_Factors_20251205_111006.csv
-Histogram plot for z0 distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_20251205_111006.png
-Histogram plot for a distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_20251205_111006.png
-Histogram plot for CI width distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/CI_Histograms/Distribution_CI_Widths_20251205_111006.png
+CSV file successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Output/BCa_Correction_Factors_Example_2.csv
+Histogram plot for z0 distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_Example_2.png
+Histogram plot for a distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_Example_2.png
+Histogram plot for CI width distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/CI_Histograms/Distribution_CI_Widths_Example_2.png
 
 Calculating ranking for 6 hierarchy permutation(s)
  -> Permutation 1/6: OC -> CNR -> SNR
- -> Permutation 2/6: SNR -> CNR -> OC
- -> Permutation 3/6: SNR -> OC -> CNR
+ -> Permutation 2/6: OC -> SNR -> CNR
+ -> Permutation 3/6: CNR -> OC -> SNR
  -> Permutation 4/6: CNR -> SNR -> OC
- -> Permutation 5/6: CNR -> OC -> SNR
- -> Permutation 6/6: OC -> SNR -> CNR
+ -> Permutation 5/6: SNR -> OC -> CNR
+ -> Permutation 6/6: SNR -> CNR -> OC
 
 Calculating Borda ranking from permutations
 
 Performing bootstrap analysis of rank stability for primary metric hierarchy
 
-Manual Cluster-Bootstrap count B = 500 is used for rank CIs.
+Searching for optimal Cluster-Bootstrap count (B) for rank CIs
+ -> Checking stability with B = 50 and 20 Trials
+ -> Checking stability with B = 75 and 20 Trials
+ -> Checking stability with B = 100 and 20 Trials
+ -> Checking stability with B = 125 and 20 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 150 and 20 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 175 and 20 Trials
+    Convergence at 0.00% in run 3/3
+Convergence reached at 0.00%.
+Stability in 3 consecutive runs
+B-value after convergence: 175
+Convergence graphic for rank stability saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Ranking/Convergence_Rank_Stability_Example_2.png
 
-=== Bootstrap Rank Distribution (B = 500) ===
+=== Bootstrap Rank Distribution (B = 175) ===
 
 | Final Rank |Dataset   |Bootstrap Rank (%)                               
 --------------------------------------------------------------------------
 |     1      |Method D  |1: 100.0%                                        
 --------------------------------------------------------------------------
-|     2      |Method G  |2: 97.8%, 3: 2.2%                                
+|     2      |Method G  |2: 97.7%, 3: 2.3%                                
 --------------------------------------------------------------------------
-|     3      |Method B  |2: 2.2%, 3: 66.4%, 4: 4.8%, 5: 26.6%             
+|     3      |Method B  |2: 2.3%, 3: 64.6%, 4: 3.4%, 5: 29.7%             
 --------------------------------------------------------------------------
-|     4      |Method A  |3: 4.6%, 4: 20.8%, 5: 14.4%, 6: 47.0%, 7: 13.2%  
+|     4      |Method A  |3: 4.6%, 4: 18.9%, 5: 14.9%, 6: 50.3%, 7: 11.4%  
 --------------------------------------------------------------------------
-|     5      |Method F  |3: 26.8%, 4: 46.8%, 5: 24.2%, 6: 2.2%            
+|     5      |Method F  |3: 28.6%, 4: 48.0%, 5: 21.7%, 6: 1.7%            
 --------------------------------------------------------------------------
-|     6      |Method E  |4: 17.8%, 5: 31.2%, 6: 45.0%, 7: 6.0%            
+|     6      |Method E  |4: 20.6%, 5: 31.4%, 6: 43.4%, 7: 4.6%            
 --------------------------------------------------------------------------
-|     7      |Method C  |4: 9.8%, 5: 3.6%, 6: 5.8%, 7: 80.8%              
+|     7      |Method C  |4: 9.1%, 5: 2.3%, 6: 4.6%, 7: 84.0%              
 --------------------------------------------------------------------------
 
 Saving BCa correction factors as CSV file
-Bootstrap rank distribution CSV saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/bootstrap_rank_20251205_111006.csv
-Histogram graphic for rank distribution saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Distribution_Bootstrap_Ranks_20251205_111006.png
+Bootstrap rank distribution CSV saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Output/bootstrap_rank_Example_2.csv
+Histogram graphic for rank distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_2.png
 
 Calculating post-hoc power analysis to estimate the probability of finding a significant and relevant comparison
   Bootstrap Power Analysis with 10000 simulations per comparison.
@@ -176,9 +265,9 @@ Criteria for a significant and relevant comparison between two datasets:
  2. Cliff's Delta is above the threshold
  3. Relative difference is above the threshold
 
-A Percentile-Bootstrap with B = 2000 was used to calculate the thresholds.
-A BCa-Bootstrap with B = 10000 was performed to calculate the 95% CI of the dataset comparisons.
-To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 500.
+A Percentile-Bootstrap with B = 1300 was used to calculate the thresholds.
+A BCa-Bootstrap with B = 2700 was performed to calculate the 95% CI of the dataset comparisons.
+To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 175.
 
 === OC Comparison: Analysis and Initial Ranking ===
 
@@ -192,23 +281,23 @@ Significant and relevant OC comparisons (-> Swap by logic 1 and 2 marked. See lo
 -----------------------------------------------------------------------------------------------------------
   (1)  |   Method B| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.192    | [1.190, 1.193] 
   (1)  |   Method B| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.919    | [0.909, 0.929] 
-  (1)  |   Method C| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.762    | [1.737, 1.783] 
-  (1)  |   Method C| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.202    | [1.134, 1.260] 
-  (1)  |   Method C| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.662    | [1.630, 1.689] 
-  (1)  |   Method C| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.464    | [1.415, 1.506] 
-  (1)  |   Method C| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.198    | [1.150, 1.247] 
-  (1)  |   Method D| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.571    | [1.546, 1.591] 
-  (1)  |   Method D| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.713    | [0.659, 0.760] 
-  (1)  |   Method D| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.402    | [1.374, 1.426] 
-  (1)  |   Method D| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.090    | [1.049, 1.125] 
-  (1)  |   Method D| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.708    | [0.659, 0.766] 
-  (1)  |   Method G| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.195    | [1.118, 1.256] 
-  (1)  |   Method G| > |Method E   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.923    | [0.836, 0.992] 
-  (2)  |   Method C| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.622    | [0.565, 0.674] 
-  (2)  |   Method E| > |Method A   | 0.0000  |  -0.787   | [-0.900, -0.633] |    0.376    | [0.362, 0.389] 
+  (1)  |   Method C| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.762    | [1.736, 1.782] 
+  (1)  |   Method C| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.202    | [1.133, 1.259] 
+  (1)  |   Method C| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.662    | [1.630, 1.688] 
+  (1)  |   Method C| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.464    | [1.413, 1.506] 
+  (1)  |   Method C| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.198    | [1.148, 1.245] 
+  (1)  |   Method D| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.571    | [1.545, 1.591] 
+  (1)  |   Method D| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.713    | [0.660, 0.760] 
+  (1)  |   Method D| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.402    | [1.376, 1.427] 
+  (1)  |   Method D| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.090    | [1.048, 1.125] 
+  (1)  |   Method D| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.708    | [0.657, 0.763] 
+  (1)  |   Method G| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.195    | [1.121, 1.256] 
+  (1)  |   Method G| > |Method E   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.923    | [0.839, 0.992] 
+  (2)  |   Method C| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.622    | [0.564, 0.675] 
+  (2)  |   Method E| > |Method A   | 0.0000  |  -0.787   | [-0.898, -0.638] |    0.376    | [0.361, 0.388] 
   (2)  |   Method F| > |Method A   | 0.0000  |  -0.996   | [-1.000, -0.967] |    0.841    | [0.834, 0.848] 
-  (2)  |   Method F| > |Method E   | 0.0000  |  -0.913   | [-0.973, -0.802] |    0.505    | [0.500, 0.510] 
-  (2)  |   Method G| > |Method B   | 0.5577  |  -0.073   | [-0.378, +0.260] |    0.006    | [0.000, 0.014] 
+  (2)  |   Method F| > |Method E   | 0.0000  |  -0.913   | [-0.973, -0.811] |    0.505    | [0.500, 0.510] 
+  (2)  |   Method G| > |Method B   | 0.5577  |  -0.073   | [-0.380, +0.247] |    0.006    | [0.000, 0.015] 
 -----------------------------------------------------------------------------------------------------------
 
 Ranking after OC comparison:
@@ -230,21 +319,21 @@ Significant and relevant CNR comparisons (-> See log file for more details on ra
 
  Dataset 1 | > | Dataset 2 | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
 ---------------------------------------------------------------------------------------------------
-   Method D| > |Method A   | 0.0000  |  -0.764   | [-0.871, -0.622] |    0.336    | [0.322, 0.351] 
-   Method D| > |Method B   | 0.0000  |  -0.824   | [-0.916, -0.689] |    0.378    | [0.365, 0.391] 
-   Method D| > |Method C   | 0.0000  |  -0.958   | [-0.991, -0.871] |    0.494    | [0.431, 0.571] 
-   Method D| > |Method E   | 0.0000  |  +0.780   | [+0.642, +0.882] |    0.349    | [0.334, 0.365] 
-   Method D| > |Method F   | 0.0000  |  +0.744   | [+0.596, +0.849] |    0.327    | [0.312, 0.342] 
-   Method G| > |Method C   | 0.0000  |  -0.776   | [-0.909, -0.556] |    0.308    | [0.224, 0.388] 
-   Method D| > |Method G   | 0.0003  |  +0.513   | [+0.251, +0.689] |    0.193    | [0.112, 0.273] 
-   Method G| > |Method B   | 0.0005  |  -0.511   | [-0.704, -0.276] |    0.188    | [0.103, 0.270] 
-   Method F| > |Method C   | 0.0006  |  -0.464   | [-0.678, -0.220] |    0.174    | [0.100, 0.267] 
-   Method A| > |Method C   | 0.0010  |  +0.438   | [+0.178, +0.642] |    0.165    | [0.091, 0.258] 
-   Method E| > |Method C   | 0.0020  |  -0.396   | [-0.622, -0.142] |    0.151    | [0.077, 0.247] 
-   Method G| > |Method E   | 0.0021  |  -0.447   | [-0.653, -0.204] |    0.159    | [0.071, 0.244] 
-   Method G| > |Method A   | 0.0030  |  -0.429   | [-0.638, -0.191] |    0.145    | [0.061, 0.230] 
-   Method G| > |Method F   | 0.0044  |  -0.416   | [-0.633, -0.171] |    0.136    | [0.049, 0.222] 
-   Method B| > |Method C   | 0.0132  |  +0.311   | [+0.049, +0.551] |    0.121    | [0.051, 0.218] 
+   Method D| > |Method A   | 0.0000  |  -0.764   | [-0.880, -0.629] |    0.336    | [0.322, 0.351] 
+   Method D| > |Method B   | 0.0000  |  -0.824   | [-0.916, -0.687] |    0.378    | [0.365, 0.392] 
+   Method D| > |Method C   | 0.0000  |  -0.958   | [-0.991, -0.871] |    0.494    | [0.430, 0.569] 
+   Method D| > |Method E   | 0.0000  |  +0.780   | [+0.649, +0.884] |    0.349    | [0.334, 0.364] 
+   Method D| > |Method F   | 0.0000  |  +0.744   | [+0.589, +0.847] |    0.327    | [0.312, 0.342] 
+   Method G| > |Method C   | 0.0000  |  -0.776   | [-0.909, -0.558] |    0.308    | [0.227, 0.390] 
+   Method D| > |Method G   | 0.0003  |  +0.513   | [+0.262, +0.693] |    0.193    | [0.113, 0.274] 
+   Method G| > |Method B   | 0.0005  |  -0.511   | [-0.707, -0.278] |    0.188    | [0.106, 0.272] 
+   Method F| > |Method C   | 0.0006  |  -0.464   | [-0.682, -0.222] |    0.174    | [0.102, 0.270] 
+   Method A| > |Method C   | 0.0010  |  +0.438   | [+0.171, +0.631] |    0.165    | [0.087, 0.256] 
+   Method E| > |Method C   | 0.0020  |  -0.396   | [-0.611, -0.133] |    0.151    | [0.076, 0.240] 
+   Method G| > |Method E   | 0.0021  |  -0.447   | [-0.651, -0.211] |    0.159    | [0.074, 0.244] 
+   Method G| > |Method A   | 0.0030  |  -0.429   | [-0.636, -0.191] |    0.145    | [0.059, 0.229] 
+   Method G| > |Method F   | 0.0044  |  -0.416   | [-0.631, -0.162] |    0.136    | [0.045, 0.217] 
+   Method B| > |Method C   | 0.0132  |  +0.311   | [+0.049, +0.549] |    0.121    | [0.050, 0.219] 
 ---------------------------------------------------------------------------------------------------
 
 Ranking after CNR correction:
@@ -271,17 +360,17 @@ Significant and relevant SNR comparisons (-> Swap by logic 1 and 2 marked. See l
   (2)  |   Method A| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.954    | [0.945, 0.962] 
        |   Method A| > |Method B   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.198    | [1.198, 1.198] 
        |   Method A| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.670    | [1.660, 1.681] 
-       |   Method A| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.355    | [1.336, 1.374] 
-       |   Method A| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.142    | [1.114, 1.172] 
+       |   Method A| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.355    | [1.334, 1.373] 
+       |   Method A| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.142    | [1.113, 1.171] 
        |   Method B| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.943    | [0.917, 0.972] 
        |   Method E| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.747    | [0.733, 0.763] 
-       |   Method D| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.725    | [0.704, 0.748] 
-       |   Method E| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.437    | [1.412, 1.463] 
-       |   Method F| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.190    | [1.161, 1.220] 
-       |   Method G| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.009    | [0.956, 1.056] 
-       |   Method E| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.963    | [0.925, 0.999] 
-       |   Method F| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.592    | [0.552, 0.631] 
-       |   Method E| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.672    | [0.637, 0.706] 
+       |   Method D| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.725    | [0.704, 0.747] 
+       |   Method E| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.437    | [1.412, 1.462] 
+       |   Method F| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.190    | [1.160, 1.219] 
+       |   Method G| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.009    | [0.956, 1.053] 
+       |   Method E| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.963    | [0.924, 0.999] 
+       |   Method F| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.592    | [0.553, 0.631] 
+       |   Method E| > |Method G   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.672    | [0.638, 0.706] 
 -----------------------------------------------------------------------------------------------------------
 
 Final ranking after SNR comparison:
@@ -299,120 +388,121 @@ Final ranking after SNR comparison:
  Rank | Dataset  | Rank CI (95%) | Mean OC (± SD) | Mean CNR (± SD) | Mean SNR (± SD) 
 --------------------------------------------------------------------------------------
   1   | Method D | [1.00, 1.00]  | 0.815 ± 0.056  | 11.415 ± 2.231  | 15.937 ± 2.212  
-  2   | Method G | [2.00, 2.00]  | 0.389 ± 0.055  |  9.403 ± 1.618  | 22.628 ± 1.949  
-  3   | Method B | [3.00, 5.00]  | 0.387 ± 0.089  |  7.784 ± 1.647  | 20.772 ± 1.617  
+  2   | Method G | [2.00, 2.12]  | 0.389 ± 0.055  |  9.403 ± 1.618  | 22.628 ± 1.949  
+  3   | Method B | [2.88, 5.00]  | 0.387 ± 0.089  |  7.784 ± 1.647  | 20.772 ± 1.617  
   4   | Method A | [3.00, 7.00]  | 0.098 ± 0.023  |  8.131 ± 1.748  | 82.866 ± 6.479  
   5   | Method F | [3.00, 5.00]  | 0.240 ± 0.053  |  8.208 ± 1.755  | 29.342 ± 2.145  
   6   | Method E | [4.00, 7.00]  | 0.143 ± 0.030  |  8.019 ± 1.750  | 45.544 ± 3.426  
   7   | Method C | [4.00, 7.00]  | 1.550 ± 0.247  |  6.895 ± 1.130  |  7.456 ± 1.102  
 --------------------------------------------------------------------------------------
 
-Final results table saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/results_20251205_111006.csv
+Final results table saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Output/results_Example_2.csv
 
 ==== Results of the Sensitivity Analysis ====
 
- Borda Rank  |  Borda Score (%)  |  Dataset   |  OC -> CNR -> SNR  |  SNR -> CNR -> OC  |  SNR -> OC -> CNR  |  CNR -> SNR -> OC  |  CNR -> OC -> SNR  |  OC -> SNR -> CNR 
+ Borda Rank  |  Borda Score (%)  |  Dataset   |  OC -> CNR -> SNR  |  OC -> SNR -> CNR  |  CNR -> OC -> SNR  |  CNR -> SNR -> OC  |  SNR -> OC -> CNR  |  SNR -> CNR -> OC 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     1       |       77.8%       | Method D   |         1          |         1          |         1          |         4          |         1          |         6         
-     2       |       61.1%       | Method G   |         2          |         2          |         3          |         5          |         5          |         3         
-     3       |       52.8%       | Method A   |         4          |         5          |         6          |         1          |         6          |         1         
-     4       |       52.8%       | Method F   |         5          |         3          |         4          |         3          |         3          |         5         
-     5       |       44.4%       | Method B   |         3          |         4          |         5          |         6          |         4          |         4         
-     6       |       33.3%       | Method E   |         6          |         6          |         7          |         2          |         7          |         2         
+     1       |       77.8%       | Method D   |         1          |         6          |         1          |         4          |         1          |         1         
+     2       |       61.1%       | Method G   |         2          |         3          |         5          |         5          |         3          |         2         
+     3       |       52.8%       | Method A   |         4          |         1          |         6          |         1          |         6          |         5         
+     4       |       52.8%       | Method F   |         5          |         5          |         3          |         3          |         4          |         3         
+     5       |       44.4%       | Method B   |         3          |         4          |         4          |         6          |         5          |         4         
+     6       |       33.3%       | Method E   |         6          |         2          |         7          |         2          |         7          |         6         
      7       |       27.8%       | Method C   |         7          |         7          |         2          |         7          |         2          |         7         
 
-Sensitivity analysis results saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/sensitivity_details_20251205_111006.csv
+Sensitivity analysis results saved: /Users/lukasvonerdmannsdorff/Desktop/Ranking_Example_2/Output/sensitivity_details_Example_2.csv
 
 === Log of all Dataset Comparisons ===
 
  Dataset 1 | vs | Dataset 2 | Test | p-value | p-Thr  | Delta  |     d 95% CI     | Delta-Thr | RelDiff |    r 95% CI    | Rel-Thr | Win | Power (%) | Swap |Reason                                
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Method A  | vs | Method B  |  OC  | 0.0000  | 0.0024 | -1.000 | [-1.000, -1.000] |   1.000   |  1.192  | [1.190, 1.193] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method C  |  OC  | 0.0000  | 0.0025 | -1.000 | [-1.000, -1.000] |   1.000   |  1.762  | [1.737, 1.783] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method D  |  OC  | 0.0000  | 0.0026 | -1.000 | [-1.000, -1.000] |   1.000   |  1.571  | [1.546, 1.591] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method G  |  OC  | 0.0000  | 0.0031 | -1.000 | [-1.000, -1.000] |   1.000   |  1.195  | [1.118, 1.256] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method C  |  OC  | 0.0000  | 0.0033 | -1.000 | [-1.000, -1.000] |   1.000   |  1.202  | [1.134, 1.260] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method D  |  OC  | 0.0000  | 0.0036 | -1.000 | [-1.000, -1.000] |   1.000   |  0.713  | [0.659, 0.760] |  0.708  |  1  |   58.2    |      |(1) Decision by number of wins        
+ Method A  | vs | Method C  |  OC  | 0.0000  | 0.0025 | -1.000 | [-1.000, -1.000] |   1.000   |  1.762  | [1.736, 1.782] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method A  | vs | Method D  |  OC  | 0.0000  | 0.0026 | -1.000 | [-1.000, -1.000] |   1.000   |  1.571  | [1.545, 1.591] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method A  | vs | Method G  |  OC  | 0.0000  | 0.0031 | -1.000 | [-1.000, -1.000] |   1.000   |  1.195  | [1.121, 1.256] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method C  |  OC  | 0.0000  | 0.0033 | -1.000 | [-1.000, -1.000] |   1.000   |  1.202  | [1.133, 1.259] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method D  |  OC  | 0.0000  | 0.0036 | -1.000 | [-1.000, -1.000] |   1.000   |  0.713  | [0.660, 0.760] |  0.708  |  1  |   58.2    |      |(1) Decision by number of wins        
  Method B  | vs | Method E  |  OC  | 0.0000  | 0.0038 | +1.000 | [+1.000, +1.000] |   1.000   |  0.919  | [0.909, 0.929] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method F  |  OC  | 0.0000  | 0.0042 | +0.873 | [+0.740, +0.951] |   1.000   |  0.468  | [0.460, 0.474] |  0.708  |  0  |    0.0    |      |(1) Decision by number of wins        
- Method C  | vs | Method E  |  OC  | 0.0000  | 0.0050 | +1.000 | [+1.000, +1.000] |   1.000   |  1.662  | [1.630, 1.689] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method C  | vs | Method F  |  OC  | 0.0000  | 0.0056 | +1.000 | [+1.000, +1.000] |   1.000   |  1.464  | [1.415, 1.506] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method C  | vs | Method G  |  OC  | 0.0000  | 0.0063 | +1.000 | [+1.000, +1.000] |   1.000   |  1.198  | [1.150, 1.247] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method D  | vs | Method E  |  OC  | 0.0000  | 0.0071 | +1.000 | [+1.000, +1.000] |   1.000   |  1.402  | [1.374, 1.426] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method D  | vs | Method F  |  OC  | 0.0000  | 0.0083 | +1.000 | [+1.000, +1.000] |   1.000   |  1.090  | [1.049, 1.125] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method D  | vs | Method G  |  OC  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  0.708  | [0.659, 0.766] |  0.708  |  1  |   50.8    |      |(1) Decision by number of wins        
- Method E  | vs | Method G  |  OC  | 0.0000  | 0.0167 | -1.000 | [-1.000, -1.000] |   1.000   |  0.923  | [0.836, 0.992] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method F  | vs | Method G  |  OC  | 0.0000  | 0.0250 | -0.942 | [-0.996, -0.767] |   1.000   |  0.473  | [0.360, 0.558] |  0.708  |  0  |    0.0    |      |(1) Decision by number of wins        
- Method A  | vs | Method E  |  OC  | 0.0000  | 0.0028 | -0.787 | [-0.900, -0.633] |   1.000   |  0.376  | [0.362, 0.389] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
+ Method B  | vs | Method F  |  OC  | 0.0000  | 0.0042 | +0.873 | [+0.724, +0.951] |   1.000   |  0.468  | [0.460, 0.474] |  0.708  |  0  |    0.0    |      |(1) Decision by number of wins        
+ Method C  | vs | Method E  |  OC  | 0.0000  | 0.0050 | +1.000 | [+1.000, +1.000] |   1.000   |  1.662  | [1.630, 1.688] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method C  | vs | Method F  |  OC  | 0.0000  | 0.0056 | +1.000 | [+1.000, +1.000] |   1.000   |  1.464  | [1.413, 1.506] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method C  | vs | Method G  |  OC  | 0.0000  | 0.0063 | +1.000 | [+1.000, +1.000] |   1.000   |  1.198  | [1.148, 1.245] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method D  | vs | Method E  |  OC  | 0.0000  | 0.0071 | +1.000 | [+1.000, +1.000] |   1.000   |  1.402  | [1.376, 1.427] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method D  | vs | Method F  |  OC  | 0.0000  | 0.0083 | +1.000 | [+1.000, +1.000] |   1.000   |  1.090  | [1.048, 1.125] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method D  | vs | Method G  |  OC  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  0.708  | [0.657, 0.763] |  0.708  |  1  |   50.8    |      |(1) Decision by number of wins        
+ Method E  | vs | Method G  |  OC  | 0.0000  | 0.0167 | -1.000 | [-1.000, -1.000] |   1.000   |  0.923  | [0.839, 0.992] |  0.708  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method F  | vs | Method G  |  OC  | 0.0000  | 0.0250 | -0.942 | [-0.996, -0.771] |   1.000   |  0.473  | [0.362, 0.561] |  0.708  |  0  |    0.0    |      |(1) Decision by number of wins        
+ Method A  | vs | Method E  |  OC  | 0.0000  | 0.0028 | -0.787 | [-0.898, -0.638] |   1.000   |  0.376  | [0.361, 0.388] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
  Method A  | vs | Method F  |  OC  | 0.0000  | 0.0029 | -0.996 | [-1.000, -0.967] |   1.000   |  0.841  | [0.834, 0.848] |  0.708  |  0  |   44.1    |      |(2) Decision by Cliff's d             
- Method B  | vs | Method G  |  OC  | 0.5577  | 0.0500 | -0.073 | [-0.378, +0.260] |   1.000   |  0.006  | [0.000, 0.014] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
- Method C  | vs | Method D  |  OC  | 0.0000  | 0.0045 | +1.000 | [+1.000, +1.000] |   1.000   |  0.622  | [0.565, 0.674] |  0.708  |  0  |    0.1    |      |(2) Decision by Cliff's d             
- Method E  | vs | Method F  |  OC  | 0.0000  | 0.0125 | -0.913 | [-0.973, -0.802] |   1.000   |  0.505  | [0.500, 0.510] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
- Method A  | vs | Method C  | CNR  | 0.0010  | 0.0083 | +0.438 | [+0.178, +0.642] |   0.311   |  0.165  | [0.091, 0.258] |  0.121  |  1  |   79.4    |  1   |                                      
- Method B  | vs | Method C  | CNR  | 0.0132  | 0.0500 | +0.311 | [+0.049, +0.551] |   0.311   |  0.121  | [0.051, 0.218] |  0.121  |  1  |   40.8    |  1   |                                      
- Method C  | vs | Method D  | CNR  | 0.0000  | 0.0036 | -0.958 | [-0.991, -0.871] |   0.311   |  0.494  | [0.431, 0.571] |  0.121  |  1  |   100.0   |  1   |                                      
- Method C  | vs | Method E  | CNR  | 0.0020  | 0.0100 | -0.396 | [-0.622, -0.142] |   0.311   |  0.151  | [0.077, 0.247] |  0.121  |  1  |   68.7    |  1   |                                      
- Method C  | vs | Method F  | CNR  | 0.0006  | 0.0071 | -0.464 | [-0.678, -0.220] |   0.311   |  0.174  | [0.100, 0.267] |  0.121  |  1  |   84.9    |  1   |                                      
- Method C  | vs | Method G  | CNR  | 0.0000  | 0.0050 | -0.776 | [-0.909, -0.556] |   0.311   |  0.308  | [0.224, 0.388] |  0.121  |  1  |   100.0   |  1   |                                      
- Method A  | vs | Method D  | CNR  | 0.0000  | 0.0025 | -0.764 | [-0.871, -0.622] |   0.311   |  0.336  | [0.322, 0.351] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
- Method A  | vs | Method G  | CNR  | 0.0030  | 0.0167 | -0.429 | [-0.638, -0.191] |   0.311   |  0.145  | [0.061, 0.230] |  0.121  |  1  |   67.8    |  0   |Ranking already correct               
- Method B  | vs | Method D  | CNR  | 0.0000  | 0.0029 | -0.824 | [-0.916, -0.689] |   0.311   |  0.378  | [0.365, 0.391] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
- Method B  | vs | Method G  | CNR  | 0.0005  | 0.0063 | -0.511 | [-0.704, -0.276] |   0.311   |  0.188  | [0.103, 0.270] |  0.121  |  1  |   90.5    |  0   |Ranking already correct               
- Method D  | vs | Method E  | CNR  | 0.0000  | 0.0038 | +0.780 | [+0.642, +0.882] |   0.311   |  0.349  | [0.334, 0.365] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
- Method D  | vs | Method F  | CNR  | 0.0000  | 0.0042 | +0.744 | [+0.596, +0.849] |   0.311   |  0.327  | [0.312, 0.342] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
- Method D  | vs | Method G  | CNR  | 0.0003  | 0.0056 | +0.513 | [+0.251, +0.689] |   0.311   |  0.193  | [0.112, 0.273] |  0.121  |  1  |   94.5    |  0   |Ranking already correct               
- Method E  | vs | Method G  | CNR  | 0.0021  | 0.0125 | -0.447 | [-0.653, -0.204] |   0.311   |  0.159  | [0.071, 0.244] |  0.121  |  1  |   75.0    |  0   |Ranking already correct               
- Method F  | vs | Method G  | CNR  | 0.0044  | 0.0250 | -0.416 | [-0.633, -0.171] |   0.311   |  0.136  | [0.049, 0.222] |  0.121  |  1  |   61.0    |  0   |Ranking already correct               
- Method A  | vs | Method B  | CNR  | 0.0000  | 0.0024 | +0.162 | [+0.102, +0.202] |   0.311   |  0.044  | [0.041, 0.047] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method B  | vs | Method G  |  OC  | 0.5577  | 0.0500 | -0.073 | [-0.380, +0.247] |   1.000   |  0.006  | [0.000, 0.015] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
+ Method C  | vs | Method D  |  OC  | 0.0000  | 0.0045 | +1.000 | [+1.000, +1.000] |   1.000   |  0.622  | [0.564, 0.675] |  0.708  |  0  |    0.1    |      |(2) Decision by Cliff's d             
+ Method E  | vs | Method F  |  OC  | 0.0000  | 0.0125 | -0.913 | [-0.973, -0.811] |   1.000   |  0.505  | [0.500, 0.510] |  0.708  |  0  |    0.0    |      |(2) Decision by Cliff's d             
+ Method A  | vs | Method C  | CNR  | 0.0010  | 0.0083 | +0.438 | [+0.171, +0.631] |   0.311   |  0.165  | [0.087, 0.256] |  0.121  |  1  |   79.4    |  1   |                                      
+ Method B  | vs | Method C  | CNR  | 0.0132  | 0.0500 | +0.311 | [+0.049, +0.549] |   0.311   |  0.121  | [0.050, 0.219] |  0.121  |  1  |   40.8    |  1   |                                      
+ Method C  | vs | Method D  | CNR  | 0.0000  | 0.0036 | -0.958 | [-0.991, -0.871] |   0.311   |  0.494  | [0.430, 0.569] |  0.121  |  1  |   100.0   |  1   |                                      
+ Method C  | vs | Method E  | CNR  | 0.0020  | 0.0100 | -0.396 | [-0.611, -0.133] |   0.311   |  0.151  | [0.076, 0.240] |  0.121  |  1  |   68.7    |  1   |                                      
+ Method C  | vs | Method F  | CNR  | 0.0006  | 0.0071 | -0.464 | [-0.682, -0.222] |   0.311   |  0.174  | [0.102, 0.270] |  0.121  |  1  |   84.9    |  1   |                                      
+ Method C  | vs | Method G  | CNR  | 0.0000  | 0.0050 | -0.776 | [-0.909, -0.558] |   0.311   |  0.308  | [0.227, 0.390] |  0.121  |  1  |   100.0   |  1   |                                      
+ Method A  | vs | Method D  | CNR  | 0.0000  | 0.0025 | -0.764 | [-0.880, -0.629] |   0.311   |  0.336  | [0.322, 0.351] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
+ Method A  | vs | Method G  | CNR  | 0.0030  | 0.0167 | -0.429 | [-0.636, -0.191] |   0.311   |  0.145  | [0.059, 0.229] |  0.121  |  1  |   67.8    |  0   |Ranking already correct               
+ Method B  | vs | Method D  | CNR  | 0.0000  | 0.0029 | -0.824 | [-0.916, -0.687] |   0.311   |  0.378  | [0.365, 0.392] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
+ Method B  | vs | Method G  | CNR  | 0.0005  | 0.0063 | -0.511 | [-0.707, -0.278] |   0.311   |  0.188  | [0.106, 0.272] |  0.121  |  1  |   90.5    |  0   |Ranking already correct               
+ Method D  | vs | Method E  | CNR  | 0.0000  | 0.0038 | +0.780 | [+0.649, +0.884] |   0.311   |  0.349  | [0.334, 0.364] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
+ Method D  | vs | Method F  | CNR  | 0.0000  | 0.0042 | +0.744 | [+0.589, +0.847] |   0.311   |  0.327  | [0.312, 0.342] |  0.121  |  1  |   100.0   |  0   |Ranking already correct               
+ Method D  | vs | Method G  | CNR  | 0.0003  | 0.0056 | +0.513 | [+0.262, +0.693] |   0.311   |  0.193  | [0.113, 0.274] |  0.121  |  1  |   94.5    |  0   |Ranking already correct               
+ Method E  | vs | Method G  | CNR  | 0.0021  | 0.0125 | -0.447 | [-0.651, -0.211] |   0.311   |  0.159  | [0.074, 0.244] |  0.121  |  1  |   75.0    |  0   |Ranking already correct               
+ Method F  | vs | Method G  | CNR  | 0.0044  | 0.0250 | -0.416 | [-0.631, -0.162] |   0.311   |  0.136  | [0.045, 0.217] |  0.121  |  1  |   61.0    |  0   |Ranking already correct               
+ Method A  | vs | Method B  | CNR  | 0.0000  | 0.0024 | +0.162 | [+0.102, +0.202] |   0.311   |  0.044  | [0.041, 0.046] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
  Method A  | vs | Method E  | CNR  | 0.0000  | 0.0026 | +0.064 | [+0.058, +0.058] |   0.311   |  0.014  | [0.012, 0.016] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method A  | vs | Method F  | CNR  | 0.0000  | 0.0028 | -0.064 | [-0.062, -0.056] |   0.311   |  0.009  | [0.008, 0.011] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method B  | vs | Method E  | CNR  | 0.0000  | 0.0031 | -0.109 | [-0.129, -0.076] |   0.311   |  0.030  | [0.027, 0.032] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method B  | vs | Method F  | CNR  | 0.0000  | 0.0033 | -0.182 | [-0.233, -0.124] |   0.311   |  0.053  | [0.049, 0.057] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method A  | vs | Method F  | CNR  | 0.0000  | 0.0028 | -0.064 | [-0.062, -0.056] |   0.311   |  0.009  | [0.008, 0.010] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method B  | vs | Method E  | CNR  | 0.0000  | 0.0031 | -0.109 | [-0.127, -0.078] |   0.311   |  0.030  | [0.027, 0.032] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method B  | vs | Method F  | CNR  | 0.0000  | 0.0033 | -0.182 | [-0.233, -0.127] |   0.311   |  0.053  | [0.049, 0.057] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
  Method E  | vs | Method F  | CNR  | 0.0000  | 0.0045 | -0.100 | [-0.113, -0.071] |   0.311   |  0.023  | [0.020, 0.027] |  0.121  |  0  |    0.0    |  0   |Criteria for CNR win not met          
  Method A  | vs | Method E  | SNR  | 0.0000  | 0.0028 | +1.000 | [+1.000, +1.000] |   1.000   |  0.581  | [0.564, 0.596] |  0.581  |  1  |   50.4    |  1   |(1) CNR neutral                       
  Method A  | vs | Method F  | SNR  | 0.0000  | 0.0029 | +1.000 | [+1.000, +1.000] |   1.000   |  0.954  | [0.945, 0.962] |  0.581  |  1  |   100.0   |  1   |(2) OC/CNR neutral                    
  Method A  | vs | Method C  | SNR  | 0.0000  | 0.0025 | +1.000 | [+1.000, +1.000] |   1.000   |  1.670  | [1.660, 1.681] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method A  | vs | Method D  | SNR  | 0.0000  | 0.0026 | +1.000 | [+1.000, +1.000] |   1.000   |  1.355  | [1.336, 1.374] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method A  | vs | Method G  | SNR  | 0.0000  | 0.0031 | +1.000 | [+1.000, +1.000] |   1.000   |  1.142  | [1.114, 1.172] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method A  | vs | Method D  | SNR  | 0.0000  | 0.0026 | +1.000 | [+1.000, +1.000] |   1.000   |  1.355  | [1.334, 1.373] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method A  | vs | Method G  | SNR  | 0.0000  | 0.0031 | +1.000 | [+1.000, +1.000] |   1.000   |  1.142  | [1.113, 1.171] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
  Method B  | vs | Method C  | SNR  | 0.0000  | 0.0033 | +1.000 | [+1.000, +1.000] |   1.000   |  0.943  | [0.917, 0.972] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method D  | SNR  | 0.0000  | 0.0045 | -1.000 | [-1.000, -1.000] |   1.000   |  0.725  | [0.704, 0.748] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method E  | SNR  | 0.0000  | 0.0050 | -1.000 | [-1.000, -1.000] |   1.000   |  1.437  | [1.412, 1.463] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method F  | SNR  | 0.0000  | 0.0056 | -1.000 | [-1.000, -1.000] |   1.000   |  1.190  | [1.161, 1.220] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method G  | SNR  | 0.0000  | 0.0063 | -1.000 | [-1.000, -1.000] |   1.000   |  1.009  | [0.956, 1.056] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method D  | vs | Method E  | SNR  | 0.0000  | 0.0071 | -1.000 | [-1.000, -1.000] |   1.000   |  0.963  | [0.925, 0.999] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method D  | vs | Method F  | SNR  | 0.0000  | 0.0083 | -1.000 | [-1.000, -1.000] |   1.000   |  0.592  | [0.552, 0.631] |  0.581  |  1  |   70.6    |  0   |(1/2) No comparison -> CNR win        
- Method E  | vs | Method G  | SNR  | 0.0000  | 0.0125 | +1.000 | [+1.000, +1.000] |   1.000   |  0.672  | [0.637, 0.706] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method D  | SNR  | 0.0000  | 0.0045 | -1.000 | [-1.000, -1.000] |   1.000   |  0.725  | [0.704, 0.747] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method E  | SNR  | 0.0000  | 0.0050 | -1.000 | [-1.000, -1.000] |   1.000   |  1.437  | [1.412, 1.462] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method F  | SNR  | 0.0000  | 0.0056 | -1.000 | [-1.000, -1.000] |   1.000   |  1.190  | [1.160, 1.219] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method G  | SNR  | 0.0000  | 0.0063 | -1.000 | [-1.000, -1.000] |   1.000   |  1.009  | [0.956, 1.053] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method D  | vs | Method E  | SNR  | 0.0000  | 0.0071 | -1.000 | [-1.000, -1.000] |   1.000   |  0.963  | [0.924, 0.999] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method D  | vs | Method F  | SNR  | 0.0000  | 0.0083 | -1.000 | [-1.000, -1.000] |   1.000   |  0.592  | [0.553, 0.631] |  0.581  |  1  |   70.6    |  0   |(1/2) No comparison -> CNR win        
+ Method E  | vs | Method G  | SNR  | 0.0000  | 0.0125 | +1.000 | [+1.000, +1.000] |   1.000   |  0.672  | [0.638, 0.706] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
  Method A  | vs | Method B  | SNR  | 0.0000  | 0.0024 | +1.000 | [+1.000, +1.000] |   1.000   |  1.198  | [1.198, 1.198] |  0.581  |  1  |   100.0   |  0   |(2) No comparison -> OC win           
  Method B  | vs | Method E  | SNR  | 0.0000  | 0.0038 | -1.000 | [-1.000, -1.000] |   1.000   |  0.747  | [0.733, 0.763] |  0.581  |  1  |   100.0   |  0   |(2) No comparison -> OC win           
  Method B  | vs | Method F  | SNR  | 0.0000  | 0.0042 | -0.998 | [-1.000, -0.973] |   1.000   |  0.342  | [0.332, 0.353] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
  Method E  | vs | Method F  | SNR  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  0.433  | [0.427, 0.439] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Detailed comparison log saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/log_20251205_111006.csv
+Detailed comparison log saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Output/log_Example_2.csv
 
 Starting creation of LIGHT graphics...
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Ranking_Metric1_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_OC_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric2_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_CNR_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Correction_Metric3_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Detail_Comparison/Detailplot_SNR_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Win_Loss_Matrix_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Sankey_Rank_Shifts_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Final_Ranking_20251205_111006.png
-  Graphic successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Graphics/Ranking/Borda_Plot_20251205_111006.png
-  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Bootstrap_Report_20251205_111006.pdf
-  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/PDF/Ranking_Report_20251205_111006.pdf
-  PDF report successfully saved: /HERA-Matlab/data/results/Ranking_20251205_111006/Final_Report_20251205_111006.pdf
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Ranking_Metric1_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Detailplot_OC_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Correction_Metric2_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Detailplot_CNR_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Correction_Metric3_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Detail_Comparison/Detailplot_SNR_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Ranking/Win_Loss_Matrix_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Ranking/Sankey_Rank_Shifts_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Final_Ranking_Example_2.png
+  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Graphics/Ranking/Borda_Plot_Example_2.png
+  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/PDF/Convergence_Report_Example_2.pdf
+  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/PDF/Bootstrap_Report_Example_2.pdf
+  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/PDF/Ranking_Report_Example_2.pdf
+  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Final_Report_Example_2.pdf
 All graphics successfully created.
 
 Saving ranking data to JSON
-Machine-readable JSON saved to: /HERA-Matlab/data/results/Ranking_20251205_111006/Output/data_20251205_111006.json
+Machine-readable JSON saved to: /HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2/Output/data_Example_2.json
 
 Ranking finished.
-All outputs successfully saved in: "/HERA-Matlab/data/results/Ranking_20251205_111006"
+All outputs successfully saved in: "/HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2"
 
-Total execution time: 3 minutes and 0.27 seconds.
+Total execution time: 4 minutes and 47.50 seconds.
 
 Closing parallel pool.
 Parallel pool using the 'Processes' profile is shutting down.

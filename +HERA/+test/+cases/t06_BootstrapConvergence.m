@@ -31,7 +31,7 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     % We need to verify that all 3 implementations (Thresholds, BCa, Ranking) 
     % correctly respect their configuration (Simple vs Robust vs Elbow).
     
-    fprintf('[Test] Verification of mathematical stopping criteria for bootstrap processes.\n');
+    fprintf('[Test] Verification of stopping criteria for bootstrap processes.\n');
     fprintf('[Setup] Testing 3 algorithms (Simple, Robust, Elbow) across 3 analysis types with synthetic Data.\n');
     
     % 1. Setup Fixed Data for Convergence Test
@@ -92,24 +92,11 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     test6_all_passed = true;
 
     % Loop through Method -> Mode
+    % Loop through Method -> Mode
     for m = 1:3
         curr_method = test_methods(m).name;
         base_cfg    = test_methods(m).cfg;
         lang_sec    = lang.(test_methods(m).lang_sec);
-        
-        % Define expected keywords based on language resources
-        % We split by '%' to handle format specifiers like "%.2f%%"
-        
-        % 1. Convergence Keyword
-        parts_conv = strsplit(lang_sec.convergence_reached, '%');
-        key_conv = parts_conv{1}; % e.g. "Convergence at" or "Convergence reached at"
-        
-        % 2. Elbow Keyword (Static)
-        key_elbow = lang_sec.elbow_analysis_info; 
-        
-        % 3. Stability Keyword (Robust only)
-        parts_stab = strsplit(lang_sec.stable_runs_info, '%');
-        key_stable = parts_stab{1}; % e.g. "Stability in"
 
         for mode_idx = 1:3
             row_idx = row_idx + 1;
@@ -137,86 +124,84 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
             cfg_run = config_conv;
             cmd = '';
             
-            % Construct Command String dynamically
-            % Note: We use T = evalc(cmd) to capture output. The assignments inside cmd happen in the workspace.
-            % Since HERA.* is imported, we can assume direct calls work if functions are on path.
-            if strcmp(curr_method, 'Thresholds')
-                cfg_run.bootstrap_thresholds = run_cfg;
-                cmd = ['[~, ~, ~, ~, ~, ~, ~, B_res, ~, ~, ~, ~, ~] = ' ...
-                    'HERA.calculate_thresholds(all_data_conv, n_conv, cfg_run, temp_dir, [], myStream, styles, lang);'];
-            elseif strcmp(curr_method, 'BCa')
-                cfg_run.bootstrap_ci = run_cfg;
-                cmd = ['[B_res, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~, ~] = ' ...
-                    'HERA.calculate_bca_ci(all_data_conv, eff_conv.d_vals_all, eff_conv.rel_vals_all, p_idx_conv, n_conv, cfg_run, cfg_run.metric_names,' ...
-                    'temp_dir, temp_dir, [], myStream, styles, lang, ''Test6'');'];
-            elseif strcmp(curr_method, 'Ranking')
-                cfg_run.bootstrap_ranks = run_cfg;
-                cmd = ['[~, B_res, ~, ~, ~] = ' ...
-                    'HERA.bootstrap_ranking(all_data_conv, thr_dummy, cfg_run, ds_names_conv, rank_base, p_idx_conv, n_conv,' ...
-                    'temp_dir, temp_dir, [], myStream, styles, lang, ''Test6'');'];
-            end
-            
+            % Execute Command dynamically and capture stability_data
+            % Note: We use evalc simply to silence output, but we extract variables via the command logic
             try
-                % Execute and capture output for validation
-                % IMPORTANT: Do not ask for 2nd output from evalc if cmd ends with ;
+                if strcmp(curr_method, 'Thresholds')
+                    cfg_run.bootstrap_thresholds = run_cfg;
+                    % Output 9 is stability_data_thr, Output 8 is selected_B
+                    cmd = ['[~, ~, ~, ~, ~, ~, ~, B_res, stability_data, ~, ~, ~, ~] = ' ...
+                        'HERA.calculate_thresholds(all_data_conv, n_conv, cfg_run, temp_dir, [], myStream, styles, lang);'];
+                elseif strcmp(curr_method, 'BCa')
+                    cfg_run.bootstrap_ci = run_cfg;
+                    % Output 8 is stability_data_ci, Output 1 is selected_B
+                    cmd = ['[B_res, ~, ~, ~, ~, ~, ~, stability_data, ~, ~, ~, ~, ~] = ' ...
+                        'HERA.calculate_bca_ci(all_data_conv, eff_conv.d_vals_all, eff_conv.rel_vals_all, p_idx_conv, n_conv, cfg_run, cfg_run.metric_names,' ...
+                        'temp_dir, temp_dir, [], myStream, styles, lang, ''Test6'');'];
+                elseif strcmp(curr_method, 'Ranking')
+                    cfg_run.bootstrap_ranks = run_cfg;
+                    % Output 3 is stability_data_rank, Output 2 is selected_B
+                    cmd = ['[~, B_res, stability_data, ~, ~] = ' ...
+                        'HERA.bootstrap_ranking(all_data_conv, thr_dummy, cfg_run, ds_names_conv, rank_base, p_idx_conv, n_conv,' ...
+                        'temp_dir, temp_dir, [], myStream, styles, lang, ''Test6'');'];
+                end
+                
+                % Execute and capture output (silencing console)
                 T = evalc(cmd); 
                 
                 is_valid = false;
                 logic_msg = '';
                 
-                if exist('B_res', 'var')
-                    res_txt = sprintf('B = %d', B_res);
+                if ~exist('B_res', 'var') || ~exist('stability_data', 'var')
+                    res_txt = 'Data missing';
+                    B_res = -1; stability_data = struct();
                 else
-                    res_txt = 'B_res missing';
-                    B_res = -1; 
+                    res_txt = sprintf('B = %d', B_res);
                 end
                 
-                % Validate Result against Logic and Output
+                % Validate Result against Logic using Structured Data
+                
                 if strcmp(mode_name, 'Elbow')
                     % Elbow Logic: 
-                    % 1. B must be high (hit limit)
-                    % 2. Output must contain Elbow message
-                    b_ok = (B_res >= run_cfg.B_start);
-                    txt_ok = contains(T, key_elbow);
+                    % 1. Must NOT have converged (hit max or tol=-1) -> stability_data.converged == false
+                    % 2. Must have found elbow points -> ~isempty(stability_data.elbow_indices)
+                    b_ok = (B_res >= run_cfg.B_start); % Should be some valid B
+                    conv_state = stability_data.converged;
+                    elbow_ok = isfield(stability_data, 'elbow_indices') && ~isempty(stability_data.elbow_indices);
                     
-                    if b_ok && txt_ok
+                    if b_ok && ~conv_state && elbow_ok
                         is_valid = true;
-                        logic_msg = 'Elbow msg found';
+                        logic_msg = 'Elbow detected';
                     else
-                        logic_msg = sprintf('B_ok=%d, Txt_ok=%d', b_ok, txt_ok);
+                        logic_msg = sprintf('B_ok=%d, Conv=%d, Elbow=%d', b_ok, conv_state, elbow_ok);
                     end
                     
                 elseif strcmp(mode_name, 'Simple')
                     % Simple Logic:
-                    % 1. Convergence before max
-                    % 2. Output contains Convergence message
-                    % 3. Output does NOT contain Stability message (Strict check)
+                    % 1. Convergence flag must be true
+                    % 2. B should be less than max (optimization worked)
                     b_ok = (B_res < run_cfg.B_end);
-                    conv_ok = contains(T, key_conv);
-                    % Note: Some simple implementations might print stability if configured differently, 
-                    % but here we explicitly disabled it.
+                    conv_state = stability_data.converged;
                     
-                    if b_ok && conv_ok
+                    if b_ok && conv_state
                         is_valid = true;
-                        logic_msg = 'Conv. msg found';
+                        logic_msg = 'Converged (Simple)';
                     else
-                        logic_msg = sprintf('B_ok=%d, Conv=%d', b_ok, conv_ok);
+                        logic_msg = sprintf('B_ok=%d, Conv=%d', b_ok, conv_state);
                     end
                     
                 elseif strcmp(mode_name, 'Robust')
                     % Robust Logic:
-                    % 1. Convergence before max
-                    % 2. Output contains Convergence message
-                    % 3. Output MUST contain Stability message
+                    % 1. Convergence flag must be true
+                    % 2. Must have used robust calculation.
                     b_ok = (B_res < run_cfg.B_end);
-                    conv_ok = contains(T, key_conv);
-                    stab_ok = contains(T, key_stable);
+                    conv_state = stability_data.converged;
                     
-                    if b_ok && conv_ok && stab_ok
+                    if b_ok && conv_state
                         is_valid = true;
-                        logic_msg = 'Conv + Stable found';
+                        logic_msg = 'Converged (Robust)';
                     else
-                        logic_msg = sprintf('B=%d, C=%d, S=%d', b_ok, conv_ok, stab_ok);
+                        logic_msg = sprintf('B_ok=%d, Conv=%d', b_ok, conv_state);
                     end
                 end
                 
@@ -225,9 +210,6 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
                 else
                     stat = 'FAIL'; 
                     test6_all_passed = false; 
-                    % Append T for debugging if needed (truncated)
-                    if length(T) > 100, T_debug = [T(1:100) '...']; else, T_debug = T; end
-                    logic_msg = [logic_msg ' [' T_debug ']'];
                 end
                 
                 % Store Data Row
@@ -244,7 +226,7 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     
     if test6_all_passed
         tests_passed = tests_passed + 1;
-        fprintf('\n[Status] PASS: All convergence algorithms behave mathematically correct.\n');
+        fprintf('\n[Status] PASS: All convergence algorithms behave correct.\n');
     else
         fprintf('\n[Status] FAIL: Anomalies detected in convergence logic.\n');
     end

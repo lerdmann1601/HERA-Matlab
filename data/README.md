@@ -23,7 +23,9 @@ You can use the datasets in `examples/` to run HERA. Please use enough CPU cores
 
 This directory contains synthetic datasets used for testing and validating the HERA toolbox. These datasets are synthetic but based on characteristics of real MRI Images. The original datasets are not included in this repository and results with these will be published in a future paper. As an example for quality metrics to objectively evaluate image quality, we use Optical Contrast (OC), Signal-to-Noise Ratio (SNR) and Contrast-to-Noise Ratio (CNR). These metrics and the way they were calculated and prioritized for the HERA analysis are based on the concept and results of Noeth et al., NMR Biomed. 2015; 28: 818-830.
 
-### Example use case 1
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Example use case 1</strong></summary>
 
 For this example, we introduce a new imaging technique, Method D, designed to enhance the visualization of a specific Region of Interest (ROI) of up to 100 percent. We retrospectively compare Method D against five established imaging methods. Image quality metrics were automatically extracted and stored in CSV files. Our goal is to identify the optimal imaging methods for visual quantification in a subsequent study. Manually evaluating all 6 methods across 30 patients would be prohibitively time-consuming. Furthermore, if Method D is not identified as the superior method, we would need to adjust its parameters and repeat the analysis for all methods. Therefore, we employ HERA to select the top three imaging methods for the final study.
 
@@ -31,7 +33,7 @@ We prioritize Optical Contrast (OC) as the primary metric, given its strong corr
 
 ### Interpreting the results 1
 
-The final report PDF provides guidance on interpreting the results. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
+The hole analysis took about 5 Minitues to complete on my base model M1 MBP. The final report PDF provides guidance on interpreting the results. Detailed Statistics are provided in the Ranking Report PDF. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
 
 The Sankey Diagram reveals that Method F's ranking is largely driven by its high SNR. The rank distribution under resampling conditions indicates that Method F frequently achieves a higher rank than Method A. Analysis of the Win-Loss Matrix and the CSV log file suggests that Method A outranks Method F partly due to a win in SNR against Method E, albeit with only 50% power.
 
@@ -65,11 +67,16 @@ This matrix visualizes the pairwise comparisons between methods. Green indicates
 
 ![Win-Loss Matrix](examples/results/HERA_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
 
-### Example use case 2
+</details>
+<!-- markdownlint-enable MD033 -->
+
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Example use case 2</strong></summary>
 
 We began evaluating the initial images from Method D, Method F, and Method B. Although Method D appears to offer the best overall image quality, we observed that its contrast enhancement occasionally leads to an over-representation of the Region of Interest (ROI). Conversely, the Contrast and Image Quality of Method B seem to depict the ROI size more accurately. Consequently, we sought to determine the optimal setting where Method D remains superior to Method B without excessive contrast enhancement that could compromise SNR as well.
 
-To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 10 minutes to 3 minutes on our machine.
+To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 5 minutes to 2 minutes on my M1 MBP.
 
 ### Interpreting the results 2
 
@@ -110,3 +117,6 @@ This diagram shows how the ranking of methods changes across different metrics a
 This matrix visualizes the pairwise comparisons between methods. Green indicates a win, red a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
 ![Win-Loss Matrix](examples/results/HERA_Example_2/Graphics/Ranking/Win_Loss_Matrix_Example_2.png)
+
+</details>
+<!-- markdownlint-enable MD033 -->
