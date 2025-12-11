@@ -1,11 +1,11 @@
-Log File:   /Documents/HERA_Ranking_Logs/HERA_Validation_20251208_181151.txt (Documents (Persistent))
+Log File: /HERA_Ranking_Logs/HERA_Validation_Example.txt
 [System] Starting Parallel Pool...
 Starting parallel pool (parpool) using the 'Processes' profile ...
 Connected to parallel pool with 8 workers.
 
 Running Test Suites...
 Running HERA.test.UnitTests
-.....
+......
 Done HERA.test.UnitTests
 __________
 
@@ -111,7 +111,7 @@ Test 5: Stability Check (Identical Data / Zero Variance)
 .
 Test 6: Bootstrap Convergence Algorithms (Global Verification)
 --------------------------------------------------------------
-[Test] Verification of mathematical stopping criteria for bootstrap processes.
+[Test] Verification of stopping criteria for bootstrap processes.
 [Setup] Testing 3 algorithms (Simple, Robust, Elbow) across 3 analysis types with synthetic Data.
 [Input]
    |    Parameter    |  Value   |
@@ -121,19 +121,19 @@ Test 6: Bootstrap Convergence Algorithms (Global Verification)
    |SD               |3         |
 
 [Result]
-   |   Method   |  Mode  |           Configuration            |  Result  | Status |     Logic Check     |
-   ------------------------------------------------------------------------------------------------------
-   |Thresholds  |Simple  |Tol=1.0%, (No Smooth/Streak)        |B = 400   |  PASS  |Conv. msg found      |
-   |Thresholds  |Robust  |Tol=1.0%, Sm=3, St=3                |B = 1150  |  PASS  |Conv + Stable found  |
-   |Thresholds  |Elbow   |Tol=-1.0, B_max=5000 (Force Fail)   |B = 100   |  PASS  |Elbow msg found      |
-   |BCa         |Simple  |Tol=5.0%, (No Smooth/Streak)        |B = 1700  |  PASS  |Conv. msg found      |
-   |BCa         |Robust  |Tol=5.0%, Sm=3, St=3                |B = 3500  |  PASS  |Conv + Stable found  |
-   |BCa         |Elbow   |Tol=-1.0, B_max=15000 (Force Fail)  |B = 1300  |  PASS  |Elbow msg found      |
-   |Ranking     |Simple  |Tol=0.5%, (No Smooth/Streak)        |B = 100   |  PASS  |Conv. msg found      |
-   |Ranking     |Robust  |Tol=0.5%, Sm=3, St=3                |B = 225   |  PASS  |Conv + Stable found  |
-   |Ranking     |Elbow   |Tol=-1.0, B_max=1000 (Force Fail)   |B = 50    |  PASS  |Elbow msg found      |
+   |   Method   |  Mode  |           Configuration            |  Result  | Status |    Logic Check     |
+   -----------------------------------------------------------------------------------------------------
+   |Thresholds  |Simple  |Tol=1.0%, (No Smooth/Streak)        |B = 400   |  PASS  |Converged (Simple)  |
+   |Thresholds  |Robust  |Tol=1.0%, Sm=3, St=3                |B = 1150  |  PASS  |Converged (Robust)  |
+   |Thresholds  |Elbow   |Tol=-1.0, B_max=5000 (Force Fail)   |B = 100   |  PASS  |Elbow detected      |
+   |BCa         |Simple  |Tol=5.0%, (No Smooth/Streak)        |B = 1700  |  PASS  |Converged (Simple)  |
+   |BCa         |Robust  |Tol=5.0%, Sm=3, St=3                |B = 3500  |  PASS  |Converged (Robust)  |
+   |BCa         |Elbow   |Tol=-1.0, B_max=15000 (Force Fail)  |B = 1300  |  PASS  |Elbow detected      |
+   |Ranking     |Simple  |Tol=0.5%, (No Smooth/Streak)        |B = 100   |  PASS  |Converged (Simple)  |
+   |Ranking     |Robust  |Tol=0.5%, Sm=3, St=3                |B = 225   |  PASS  |Converged (Robust)  |
+   |Ranking     |Elbow   |Tol=-1.0, B_max=1000 (Force Fail)   |B = 50    |  PASS  |Elbow detected      |
 
-[Status] PASS: All convergence algorithms behave mathematically correct.
+[Status] PASS: All convergence algorithms behave correct.
 .
 Test 7: Initial Sorting Logic (Dominance, Delta, Mean)
 ------------------------------------------------------
@@ -447,3 +447,42 @@ __________
 Running HERA.test.SystemTests
 
 [SystemTest] Developer Mode (Direct API)...
+.
+[SystemTest] Batch Mode (JSON Config)...
+.
+Done HERA.test.SystemTests
+__________
+
+
+Test Results Summary:
+                             <strong>Name</strong>                             <strong>Passed</strong>    <strong>Failed</strong>    <strong>Incomplete</strong>    <strong>Duration</strong>       <strong>Details</strong>   
+    <strong>______________________________________________________</strong>    <strong>______</strong>    <strong>______</strong>    <strong>__________</strong>    <strong>_________</strong>    <strong>____________</strong>
+
+    {'HERA.test.UnitTests/validate_main_action'          }    true      false       false        0.024004    {1×1 struct}
+    {'HERA.test.UnitTests/validate_yes_no'               }    true      false       false       0.0043425    {1×1 struct}
+    {'HERA.test.UnitTests/validate_numeric'              }    true      false       false       0.0081583    {1×1 struct}
+    {'HERA.test.UnitTests/validate_metric_count'         }    true      false       false       0.0026816    {1×1 struct}
+    {'HERA.test.UnitTests/validate_ranking_mode'         }    true      false       false       0.0054367    {1×1 struct}
+    {'HERA.test.UnitTests/validate_exit_mechanism'       }    true      false       false        0.030104    {1×1 struct}
+    {'HERA.test.ScientificSuite/t01_SmallSample'         }    true      false       false        0.035078    {1×1 struct}
+    {'HERA.test.ScientificSuite/t02_HolmBonferroni'      }    true      false       false        0.040437    {1×1 struct}
+    {'HERA.test.ScientificSuite/t03_OutlierRobustness'   }    true      false       false        0.038256    {1×1 struct}
+    {'HERA.test.ScientificSuite/t04_MathValidation'      }    true      false       false          8.2426    {1×1 struct}
+    {'HERA.test.ScientificSuite/t05_Stability'           }    true      false       false        0.013856    {1×1 struct}
+    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'}    true      false       false          165.39    {1×1 struct}
+    {'HERA.test.ScientificSuite/t07_InitialSorting'      }    true      false       false        0.034616    {1×1 struct}
+    {'HERA.test.ScientificSuite/t08_ModeM1M2'            }    true      false       false         0.02862    {1×1 struct}
+    {'HERA.test.ScientificSuite/t09_ModeM1M3A'           }    true      false       false        0.019752    {1×1 struct}
+    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'          }    true      false       false        0.020673    {1×1 struct}
+    {'HERA.test.ScientificSuite/t11_MissingData'         }    true      false       false         0.06447    {1×1 struct}
+    {'HERA.test.ScientificSuite/t12_CycleDetection'      }    true      false       false         0.01647    {1×1 struct}
+    {'HERA.test.ScientificSuite/t13_PathologicalData'    }    true      false       false        0.012048    {1×1 struct}
+    {'HERA.test.ScientificSuite/t14_DynamicCycle'        }    true      false       false          4.1432    {1×1 struct}
+    {'HERA.test.ScientificSuite/t15_SystemTest'          }    true      false       false        0.039966    {1×1 struct}
+    {'HERA.test.ScientificSuite/t16_FullIntegration'     }    true      false       false          4.3566    {1×1 struct}
+    {'HERA.test.ScientificSuite/t17_BootstrapStability'  }    true      false       false           7.908    {1×1 struct}
+    {'HERA.test.ScientificSuite/t18_BordaCount'          }    true      false       false       0.0060862    {1×1 struct}
+    {'HERA.test.ScientificSuite/t19_PowerAnalysis'       }    true      false       false         0.11878    {1×1 struct}
+    {'HERA.test.SystemTests/test_DeveloperMode'          }    true      false       false          20.541    {1×1 struct}
+    {'HERA.test.SystemTests/test_BatchMode'              }    true      false       false          23.663    {1×1 struct}
+
