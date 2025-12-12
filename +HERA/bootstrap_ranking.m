@@ -320,25 +320,19 @@ else
     num_workers = pool.NumWorkers;
 end
 
-% "Sweet Spot" from benchmark was 100, but we shouldn't exceed (B / Workers).
-% We also enforce a minimum batch size (e.g., 10) to avoid loop overhead dominance.
-MIN_BATCH = 10;
-OPTIMAL_BATCH_LIMIT = 100; % Don't go larger than this even if B is huge
+% "Sweet Spot" from benchmark was 100 (OPTIMAL_BATCH_LIMIT).
+% However, Parallelism (using all cores) is the #1 priority.
+% We must ensure BatchSize is small enough so that Comp.Workers are not idle.
+% Constraint: NumBatches >= NumWorkers  =>  BatchSize <= B / NumWorkers
 
-% Calculate split for parallelism
-calc_batch = ceil(selected_B_final / num_workers);
+OPTIMAL_BATCH_LIMIT = 100; 
 
-% Apply constraints: 
-% 1. Must be at least MIN_BATCH (unless B < MIN_BATCH)
-% 2. Should ideally be around calc_batch to use all cores.
-% 3. Capped at OPTIMAL_BATCH_LIMIT because larger batches hurt cache.
+% Max possible batch size that keeps all workers busy (at least one wave)
+parallel_limit_batch = floor(selected_B_final / num_workers);
 
-BATCH_SIZE = max(MIN_BATCH, min(calc_batch, OPTIMAL_BATCH_LIMIT));
-
-% Edge case: if B is very small, minimal batch is total B
-if selected_B_final < BATCH_SIZE
-    BATCH_SIZE = selected_B_final;
-end
+% Final decision: Use the optimal 100, unless it breaks parallelism. 
+% If B is small, we shrink the batch (down to 1 if needed) to spread load.
+BATCH_SIZE = max(1, min(OPTIMAL_BATCH_LIMIT, parallel_limit_batch));
 
 num_batches = ceil(selected_B_final / BATCH_SIZE);
 
