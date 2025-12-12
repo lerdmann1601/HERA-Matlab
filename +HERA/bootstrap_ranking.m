@@ -98,6 +98,8 @@ h_figs_rank = gobjects(0);
 h_fig_hist_rank = gobjects(0); 
 
 % Check if a manual B-value was provided by the user.
+cfg_rank = config.bootstrap_ranks; % Always load config for n_trials reference
+
 if ~isempty(manual_B)
     % If so, use the provided value and skip the dynamic search.
     selected_B_final = manual_B;
@@ -106,7 +108,6 @@ if ~isempty(manual_B)
     % Skip directly to the final calculation in Section 3.
 else
     % If no manual B is given, perform the dynamic search for the optimal B.
-    cfg_rank = config.bootstrap_ranks;
     
     % Inform the user about the start of the search and the criteria being used.
     fprintf(['\n' lang.ranking.searching_optimal_b '\n']);
@@ -320,19 +321,15 @@ else
     num_workers = pool.NumWorkers;
 end
 
-% "Sweet Spot" from benchmark was 100 (OPTIMAL_BATCH_LIMIT).
-% However, Parallelism (using all cores) is the #1 priority.
-% We must ensure BatchSize is small enough so that Comp.Workers are not idle.
-% Constraint: NumBatches >= NumWorkers  =>  BatchSize <= B / NumWorkers
-
-OPTIMAL_BATCH_LIMIT = 100; 
+% This balances vectorization speed (larger is better) vs. memory & load balancing (smaller is better).
+OPTIMAL_BATCH_SIZE = 64; 
 
 % Max possible batch size that keeps all workers busy (at least one wave)
+% Constraint: NumBatches >= NumWorkers  =>  BatchSize <= B / NumWorkers
 parallel_limit_batch = floor(selected_B_final / num_workers);
 
-% Final decision: Use the optimal 100, unless it breaks parallelism. 
-% If B is small, we shrink the batch (down to 1 if needed) to spread load.
-BATCH_SIZE = max(1, min(OPTIMAL_BATCH_LIMIT, parallel_limit_batch));
+% Final decision: Use the optimal sweet spot, unless it breaks parallelism. 
+BATCH_SIZE = max(1, min(OPTIMAL_BATCH_SIZE, parallel_limit_batch));
 
 num_batches = ceil(selected_B_final / BATCH_SIZE);
 
@@ -343,9 +340,14 @@ num_batches = ceil(selected_B_final / BATCH_SIZE);
 
 rank_batches = cell(1, num_batches);
 
+% Define a safe substream offset to avoid overlap with the Stability Analysis (Phase 1).
+% Stability Analysis used substreams 1 to n_trials. 
+% We ensure the new stream starts well after that.
+OFFSET_BOOTSTRAP = cfg_rank.n_trials + 1000;
+
 parfor b_idx = 1:num_batches
     s_worker = s;
-    s_worker.Substream = b_idx + 1000; % Offset to avoid overlap with stability check
+    s_worker.Substream = OFFSET_BOOTSTRAP + b_idx; % Offset to avoid overlap with stability check
     
     % Determine range for this batch
     start_idx = (b_idx - 1) * BATCH_SIZE + 1;

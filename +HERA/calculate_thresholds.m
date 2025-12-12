@@ -364,8 +364,19 @@ rel_thresh = zeros(1, num_metrics);
 all_bootstat_d = cell(1, num_metrics); 
 all_bootstat_rel = cell(1, num_metrics);
 
+% Setup for Batched Parallel Execution
+% We use "Batched Processing" to enable parallelization while managing memory usage.
+% "Sweet Spot" determined by benchmark: ~5000 gives best balance of overhead vs vectorization speed.
+% Adjusted to 4096 (Power of 2).
+BATCH_SIZE = 4096; 
+
 % Calculates the final thresholds with the optimally determined B value.
+% Calculate dynamic stride to ensure no substream overlap regardless of B size.
+num_batches_total = ceil(selected_B / BATCH_SIZE);
+stride = num_batches_total + 10; % Safety margin
+
 for metric_idx = 1:num_metrics
+    % --- Cliff's Delta ---
     % Threshold for Cliff's Delta (cleaned of NaNs).
     d_vals_metric_raw = d_vals_all(:, metric_idx);
     
@@ -373,8 +384,36 @@ for metric_idx = 1:num_metrics
     d_vals_metric_abs = abs(d_vals_metric_raw(~isnan(d_vals_metric_raw)));
     
     if ~isempty(d_vals_metric_abs)
-        % Resample the absolute values with replacement, calculate median, and repeat 'selected_B' times.
-        bootstat_d = median(d_vals_metric_abs(randi(numel(d_vals_metric_abs), [numel(d_vals_metric_abs), selected_B])), 1);
+        % Resample the absolute values with replacement using batched parallel processing.
+        % This approach avoids creating a single massive [N x B] matrix, which would exhaust RAM.
+        % Assign unique substream offset dynamically to avoid overlap.
+        % Formula: Base 1000 + (MetricIndex * 2 * Stride)
+        offset_d = 1000 + (metric_idx - 1) * 2 * stride;
+        
+        n_data_d = numel(d_vals_metric_abs);
+        num_batches = num_batches_total;
+        results_cell_d = cell(1, num_batches);
+        
+        % Iterate over batches in parallel
+        parfor b = 1:num_batches
+            % 1. Reproducible RNG setup
+            % Create a local stream copy and assign a unique substream for this batch.
+            s_worker = s;
+            s_worker.Substream = offset_d + b;
+            
+            % Determine the range of indices for the current batch
+            start_idx = (b - 1) * BATCH_SIZE + 1;
+            end_idx = min(b * BATCH_SIZE, selected_B);
+            current_n = end_idx - start_idx + 1;
+            
+            % 2. Generate indices and calculate median
+            % Generate [n_data x batch_size] random indices
+            indices = randi(s_worker, n_data_d, [n_data_d, current_n]);
+            % Calculate median for each column in the batch
+            results_cell_d{b} = median(d_vals_metric_abs(indices), 1);
+        end
+
+        bootstat_d = [results_cell_d{:}];
         
         % The threshold is the lower quantile (e.g., 2.5th percentile) of this distribution of medians. 
         d_thresh(metric_idx) = quantile(bootstat_d, alpha_level / 2);
@@ -384,12 +423,40 @@ for metric_idx = 1:num_metrics
         all_bootstat_d{metric_idx} = [];
     end
 
+    % --- Relative Difference ---
     % Threshold for the relative difference (cleaned of NaNs).
     rel_vals_metric_raw = rel_vals_all(:, metric_idx);
     rel_vals_metric = rel_vals_metric_raw(~isnan(rel_vals_metric_raw));
 
     if ~isempty(rel_vals_metric)
-        bootstat_rel = median(rel_vals_metric(randi(numel(rel_vals_metric), [numel(rel_vals_metric), selected_B])), 1);
+        % Assign unique substream offset: Base + Stride (Shifted from D)
+        offset_rel = offset_d + stride;
+        
+        n_data_rel = numel(rel_vals_metric);
+        num_batches = num_batches_total;
+        results_cell_rel = cell(1, num_batches);
+        
+        % Iterate over batches in parallel
+        parfor b = 1:num_batches
+             % 1. Reproducible RNG setup
+            % Create a local stream copy and assign a unique substream for this batch.
+            s_worker = s;
+            s_worker.Substream = offset_rel + b;
+            
+            % Determine the range of indices for the current batch
+            start_idx = (b - 1) * BATCH_SIZE + 1;
+            end_idx = min(b * BATCH_SIZE, selected_B);
+            current_n = end_idx - start_idx + 1;
+            
+            % 2. Generate indices and calculate median
+            % Generate [n_data x batch_size] random indices
+            indices = randi(s_worker, n_data_rel, [n_data_rel, current_n]);
+            % Calculate median for each column in the batch
+            results_cell_rel{b} = median(rel_vals_metric(indices), 1);
+        end
+
+        bootstat_rel = [results_cell_rel{:}];
+        
         rel_thresh(metric_idx) = quantile(bootstat_rel, alpha_level / 2);
         all_bootstat_rel{metric_idx} = bootstat_rel;
     else
@@ -407,3 +474,5 @@ rel_thresh = max(rel_thresh, min_rel_thresh);
 [h_fig_hist_thr, h_fig_hist_raw] = HERA.plot.threshold_distributions(...
     all_bootstat_d, all_bootstat_rel, d_vals_all, rel_vals_all, d_thresh, rel_thresh, rel_thresh_b, ...
     selected_B, metric_names, styles, lang, graphics_dir, config);
+
+end
