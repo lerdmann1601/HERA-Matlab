@@ -17,7 +17,7 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   
 %   Refactored to follow the "Strict Controller Pattern":
 %   - Core logic and orchestration remain here.
-%   - Statistical checks are delegated to `+HERA/+stats`.
+%   - Statistical checks (incl. adaptive NaN handling) are delegated to `+HERA/+stats`.
 %   - Plotting and visualization are delegated to `+HERA/+plot`.
 %
 % Workflow:
@@ -174,14 +174,12 @@ else
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
                 ci_widths_trial = zeros(cfg_ci.n_trials, 1);
-                
+
                 % --- Jackknife Statistics ---
                 % Pre-calculate Jackknife metrics once per pair. 
-                % These are deterministic and independent of the bootstrap trials, 
-                % allowing significant computational savings compared to re-evaluating them inside the loop.
+                % These are deterministic and independent of the bootstrap trials.
                 
                 jack_d = []; jack_r = [];
-                % We only need to compute Jackknife for the relevant metric (d or r)
                 if is_delta
                    jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
                    mean_jack = mean(jack_d);
@@ -201,48 +199,15 @@ else
                 for t = 1:cfg_ci.n_trials
                     
                     % --- Vectorized Bootstrap Sampling ---
-                    % Generate all bootstrap indices and sampled data in a single operation [N x B].
-                    % This avoids the overhead of repeated function calls in a loop.
                     boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
-                    
-                    % Direct indexing is significantly faster than generating intermediate matrices.
                     boot_x = data_x_orig(boot_indices);
                     boot_y = data_y_orig(boot_indices);
-                    
-                    % --- Robust Handling of Missing Data (NaN) ---
-                    % Standard vectorized operations assume consistent sample sizes. 
-                    % If the original data contains NaNs, pairwise exclusion results in varying 
-                    % valid sample sizes per bootstrap iteration, preventing simple 3D vectorization.
-                    %
-                    % Strategy:
-                    % 1. Check for NaNs in the source data.
-                    % 2. Fast Path: If clean, use highly efficient vectorized calculations.
-                    % 3. Robust Path: If NaNs exist, fall back to a loop to correctly handle varying N.
-                    
-                    has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
-                    
-                    if ~has_nans
-                         % FAST PATH: No NaNs present.
-                         % Calculate statistics for all B iterations simultaneously using 3D expansion.
-                         if is_delta
-                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
-                         else
-                             boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
-                         end
+                    % --- Statistical Calculation ---
+                    % Delegates to stats functions which handle vectorization and NaNs internally.
+                    if is_delta
+                         boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
                     else
-                         % ROBUST PATH: NaNs present.
-                         % Iterate through each bootstrap sample and perform pairwise exclusion.
-                         boot_stats = zeros(B_ci_current, 1);
-                         for b = 1:B_ci_current
-                             bx = boot_x(:, b); 
-                             by = boot_y(:, b);
-                             valid = ~isnan(bx) & ~isnan(by);
-                             if is_delta
-                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
-                             else
-                                 boot_stats(b) = HERA.stats.relative_difference(bx(valid), by(valid));
-                             end
-                         end
+                         boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
                     end
                     
                     % Ensure row vector
@@ -408,32 +373,17 @@ for metric_idx = 1:num_metrics
         boot_x = data_x_orig(boot_indices);
         boot_y = data_y_orig(boot_indices);
 
-        % --- Robust Handling of Missing Data (NaN) ---
-        has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+        % --- Statistical Calculation ---
+        % Delegates to stats functions which handle vectorization and NaNs internally.
+        boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
+        boot_r = HERA.stats.relative_difference(boot_x, boot_y);
         
-        if ~has_nans
-            % FAST PATH: No NaNs present.
-            % Calculate statistics for all B iterations simultaneously using 3D expansion.
-            boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
-            boot_r = HERA.stats.relative_difference(boot_x, boot_y);
-        else
-            % ROBUST PATH: NaNs present.
-            % Iterate through each bootstrap sample and perform pairwise exclusion.
-            boot_d = zeros(B_ci, 1); boot_r = zeros(B_ci, 1);
-            for b = 1:B_ci
-                bx = boot_x(:,b); by = boot_y(:,b);
-                valid = ~isnan(bx) & ~isnan(by);
-                boot_d(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
-                boot_r(b) = HERA.stats.relative_difference(bx(valid), by(valid));
-            end
-        end
         boot_d = boot_d(:)'; boot_r = boot_r(:)'; % Ensure row vectors
         
         if isempty(boot_d), boot_d=0; end 
         if isempty(boot_r), boot_r=0; end
         
         % Generate Jackknife distribution (One-time calculation)
-        % Delegated to the dedicated statistics module
         jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
         jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
         

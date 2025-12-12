@@ -34,6 +34,7 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
                 lang.prompts.file_type, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char, lang.general.excel_char, lang.general.csv_char);
             
             user_input = input(prompt, 's');
+            HERA.start.UserInterface.check_exit_command(user_input, lang);
             [isValid, error_msg, val] = ConfigValidator.validate_file_type(user_input, lang);
             
             if isValid
@@ -71,6 +72,7 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
         % Get the number of metrics for the hierarchy. 
         while true
             user_input = input(sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt), 's');
+            HERA.start.UserInterface.check_exit_command(user_input, lang);
             [isValid, error_msg, val] = ConfigValidator.validate_metric_count(user_input, lang);
             
             if isValid
@@ -88,6 +90,7 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
         while true
             prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
             user_input = input(prompt_text, 's');
+            HERA.start.UserInterface.check_exit_command(user_input, lang);
             
             [isValid, error_msg, val] = ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
             
@@ -113,6 +116,7 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
             fprintf('  %s\n', lang.start_ranking.metric_logic_2_opt2);
             while true
                 user_input = input(sprintf('%s [1]: ', lang.start_ranking.metric_logic_2_prompt), 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
                 [isValid, error_msg, val] = ConfigValidator.validate_ranking_mode_2_metrics(user_input, lang);
                 
                 if isValid
@@ -157,6 +161,7 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
                 while true
                     prompt = sprintf(lang.prompts.permutation_choice, lang.general.all);
                     user_input = input(prompt, 's');
+                    HERA.start.UserInterface.check_exit_command(user_input, lang);
                     
                     [isValid, error_msg, val] = ConfigValidator.validate_permutation_choice(user_input, size(all_perms, 1), lang);
                     

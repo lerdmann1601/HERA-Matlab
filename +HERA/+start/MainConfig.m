@@ -50,6 +50,7 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
             lang.general.standard_char);
         % Process the user's choice.
         user_input = input(main_prompt_str, 's'); 
+        UserInterface.check_exit_command(user_input, lang); 
         [isValid, error_msg, main_choice] = ConfigValidator.validate_main_action(user_input, lang);
         
         if ~isValid

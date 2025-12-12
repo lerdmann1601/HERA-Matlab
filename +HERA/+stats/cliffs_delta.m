@@ -8,6 +8,10 @@ function d = cliffs_delta(x, y)
 %   Computes the non-parametric effect size Cliff's Delta.
 %   It measures the degree of overlap ("stochastic dominance") between two distributions.
 %
+%   Features:
+%   - Supports Vectorized Matrix Inputs (N x B).
+%   - Adaptive Strategy for Efficient NaN Handling (Matrix Masking vs Loop).
+%
 %   Note on Independence:
 %   Standard Cliff's Delta assumes independent samples. In HERA, data is typically
 %   paired (same subjects). We use this standard formulation intentionally as a
@@ -81,15 +85,14 @@ function d = cliffs_delta(x, y)
         end
     end
     
-    % Heuristic threshold for switching algorithms
-    % Benchmark on M1 Mac (2025) showed crossover around N=175 (nx*ny ~ 30000)
-    % For smaller samples, the vectorization overhead of sort/unique/accumarray 
-    % outweighs the O(N^2) cost of simple matrix comparison.
+    % Heuristic threshold for switching algorithms.
+    % Empirical testing shows crossover point around N*M = 30,000.
+    % Bejond this point, rank-based logic is generally faster.
     IS_SMALL_SAMPLE = (nx * ny) < 30000;
     
     if IS_SMALL_SAMPLE
-        %% Method A: Naive Matrix Comparison (O(Nx * Ny))
-        % Faster for small sample sizes due to low overhead.
+        %% Method A: Matrix Comparison (O(N*M))
+        % efficient for small sample sizes due to low overhead.
         
         if ~IS_VECTORIZED
             % Standard Vector inputs
@@ -99,7 +102,62 @@ function d = cliffs_delta(x, y)
             
             d = (gt - lt) / (nx * ny);
         else
-            % Vectorized Matrix inputs (Column-wise)
+            % Checks for NaNs to trigger Adaptive Strategy
+            has_nans = any(isnan(x), 'all') || any(isnan(y), 'all');
+            
+            if has_nans
+                 % --- Adaptive Strategy for NaN Handling ---
+                 % For small N: Use Matrix Masking (Fast, Memory Intensive).
+                 % For large N: Use Loop (Safe, Memory Efficient).
+                 
+                 THRESHOLD_N = 300;
+                 
+                 if nx < THRESHOLD_N
+                     % FAST PATH: Matrix Masking
+                     % Expand to 3D for vectorized comparison: [N x 1 x B] vs [1 x N x B]
+                     
+                     % Enforce Pairwise Exclusion:
+                     % If a value is NaN in either vector of a pair, it is excluded.
+                     % We zero out the corresponding NaNs to ensure the mask works symmetrically.
+                     nan_mask = isnan(x) | isnan(y); 
+                     x(nan_mask) = NaN;
+                     y(nan_mask) = NaN;
+                     
+                     % Re-create 3D with synchronized NaNs
+                     X_3D = reshape(x, nx, 1, B);
+                     Y_3D = reshape(y, 1, ny, B);
+                     
+                     % Comparison (NaNs yield false, automatically excluded)
+                     gt_sum = sum(sum(X_3D > Y_3D, 1), 2);
+                     lt_sum = sum(sum(X_3D < Y_3D, 1), 2);
+                     
+                     % Denominator: Squared count of valid pairs (due to pairwise exclusion)
+                     
+                     n_valid_vec = sum(~isnan(x), 1); % [1 x B]
+                     denom = reshape(n_valid_vec .^ 2, 1, 1, B);
+                     
+                     d_mat = (gt_sum - lt_sum) ./ denom;
+                     d = squeeze(d_mat)'; % [1 x B]
+                     
+                     % Handle all-NaN case
+                     d(denom == 0) = 0;
+                     
+                 else
+                     % FALLBACK PATH: Loop
+                     % More efficient for large N to avoid memory exhaustion (O(N^2) space).
+                     d = zeros(1, B);
+                     for b = 1:B
+                         bx = x(:, b); 
+                         by = y(:, b);
+                         valid = ~isnan(bx) & ~isnan(by);
+                         % Recursive call to scalar mode (fast rank-based)
+                         d(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                     end
+                 end
+                 return;
+            end
+
+            % Vectorized Matrix inputs (Column-wise, Clean Data)
             % Use 3D expansion: 
             % X: nx x 1 x B
             % Y: 1 x ny x B

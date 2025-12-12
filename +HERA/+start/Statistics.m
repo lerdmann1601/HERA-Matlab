@@ -30,17 +30,15 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
     if ~strcmpi(main_choice, lang.general.standard_char) && ~configLoadedFromFile
         fprintf('%s\n', lang.prompts.stat_params_header);
         % Get the confidence level for CIs.
-        ci_val = input(sprintf('%s [%.2f]: ', lang.prompts.ci_level, defaults.ci_level));
-        if ~isempty(ci_val), config.ci_level = ci_val; end
+        % Get the confidence level for CIs.
+        config.ci_level = UserInterface.get_numeric_input(lang.prompts.ci_level, defaults.ci_level, false, lang);
     
         % Get the alpha level for each metric in the hierarchy.
         num_metrics = numel(userInput.metric_names);
         alphas = [];
         for i = 1:num_metrics
             alpha_prompt = sprintf(lang.prompts.alpha_level, i, userInput.metric_names{i});
-            alpha_val = input(sprintf('%s [%.2f]: ', alpha_prompt, defaults.alphas(1)));
-            if isempty(alpha_val), alpha_val = defaults.alphas(1); end % Use default if empty.
-            alphas(i) = alpha_val;
+            alphas(i) = UserInterface.get_numeric_input(alpha_prompt, defaults.alphas(1), false, lang);
         end
         config.alphas = alphas; 
         
@@ -74,6 +72,7 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
                 theme_prompt = sprintf('%s (%s/%s) [%s]: ', ...
                     lang.prompts.theme_choice, lang.general.dark_char, lang.general.light_char, lang.general.light_char);
                 user_input = input(theme_prompt, 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
                 
                 [isValid, error_msg, val] = ConfigValidator.validate_theme_choice(user_input, lang);
                 
