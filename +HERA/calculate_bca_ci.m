@@ -98,6 +98,9 @@ p_all_data = all_data;
 p_d_vals_all = d_vals_all; 
 p_rel_vals_all = rel_vals_all;
 
+% Parfor warmup 
+evalc('parfor i_warmup = 1:1; end');
+
 if ~isempty(manual_B)
     B_ci = manual_B;
     % Assign empty handles for the plot outputs that are skipped
@@ -150,117 +153,194 @@ else
         % Reset temp vector for each B value
         temp_stability_ci_vector(:) = 0; 
     
-        % Parallel loop to calculate stability for all metrics and effect sizes.
-        % Loop count is dynamic (num_metrics * 2)
-        % Optimized Loop Structure with Pre-Generated RNG
-        % We serialize Metric and Pair loops to allow exact RNG sequence reconstruction,
-        % then parallelize the critical inner loop (trials). This uses ~25 workers per pair.
+        % --- Stability Check Loop (Adaptive Parallelization) ---
+        n_effect_types = num_metrics * 2;
+        n_mp = n_effect_types * num_pairs;
         
-        for metric_idx = 1:(num_metrics * 2)
-            % Each iteration gets its own reproducible substream.
-            s_worker = s; 
-            s_worker.Substream = metric_idx;
-
-            % Logic to determine effect type and metric index
-            is_delta = metric_idx <= num_metrics;
-            actual_metric_idx = mod(metric_idx-1, num_metrics) + 1;
-            stability_all_pairs = zeros(num_pairs, 1);
-
-            % Loop over all dataset pairs.
-            for k = 1:num_pairs
-                idx1=p_pair_idx_all(k,1); idx2=p_pair_idx_all(k,2);
-                % Access data using dynamic index
-                data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
-                data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
-                
-                % --- Pairwise Exclusion ---
-                % NaN handling: If subject is missing in x or y, exclude from both.
-                valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-                data_x_orig = data_x_orig(valid_mask);
-                data_y_orig = data_y_orig(valid_mask);
-                n_valid = numel(data_x_orig);
-                
-                if n_valid < 2
-                     % Not enough data for meaningful statistics
-                     stability_all_pairs(k) = 0; % Treat as stable (no variance)
-                     continue; 
-                end
-
-                % --- Jackknife Statistics ---
-                % Pre-calculate Jackknife metrics once per pair. 
-                % These are deterministic and independent of the bootstrap trials.
-                
-                jack_d = []; jack_r = [];
-                if is_delta
-                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
-                   mean_jack = mean(jack_d);
-                   jack_vals = jack_d;
-                else
-                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
-                   mean_jack = mean(jack_r);
-                   jack_vals = jack_r;
-                end
-                
-                a_num = sum((mean_jack - jack_vals).^3);
-                a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
-                if a_den == 0, a = 0; else, a = a_num / a_den; end
-                if ~isfinite(a), a = 0; end
-                
-                % --- Pre-Calculation (RNG) ---
-                % Generate indices for all trials upfront to preserve the original serial RNG sequence.
-                boot_indices_all = randi(s_worker, n_valid, [n_valid, B_ci_current, cfg_ci.n_trials]);
-
-                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
+        if num_metrics <= 2
+            % --- Path A: Flatten over (metric × pair) ---
+            % For 1-2 metrics -> 56-112 tasks, max ~1.3 GB RAM
             
-                % --- Parallel Execution ---
-                parfor t = 1:cfg_ci.n_trials
+            % Phase 1: Serial Pre-Generation (Preserves RNG Sequence)
+            boot_indices_cell = cell(1, n_mp);
+            data_x_cell = cell(1, n_mp);
+            data_y_cell = cell(1, n_mp);
+            a_values = zeros(1, n_mp);
+            theta_hat_values = zeros(1, n_mp);
+            n_valid_vec = zeros(1, n_mp);
+            is_delta_vec = false(1, n_mp);
+            
+            mp_idx = 0;
+            for m = 1:n_effect_types
+                s_worker = s; s_worker.Substream = m;
+                is_delta = m <= num_metrics;
+                actual_metric_idx = mod(m - 1, num_metrics) + 1;
+                
+                for k = 1:num_pairs
+                    mp_idx = mp_idx + 1;
+                    is_delta_vec(mp_idx) = is_delta;
                     
-                    boot_indices = boot_indices_all(:, :, t); 
-                    boot_x = data_x_orig(boot_indices);
-                    boot_y = data_y_orig(boot_indices);
+                    idx1 = p_pair_idx_all(k, 1);
+                    idx2 = p_pair_idx_all(k, 2);
+                    data_x_orig = p_all_data{actual_metric_idx}(:, idx1);
+                    data_y_orig = p_all_data{actual_metric_idx}(:, idx2);
+                    
+                    valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                    data_x_orig = data_x_orig(valid_mask);
+                    data_y_orig = data_y_orig(valid_mask);
+                    n_valid = numel(data_x_orig);
+                    n_valid_vec(mp_idx) = n_valid;
+                    
+                    if n_valid < 2, boot_indices_cell{mp_idx} = []; continue; end
+                    
+                    data_x_cell{mp_idx} = data_x_orig;
+                    data_y_cell{mp_idx} = data_y_orig;
                     
                     if is_delta
-                         boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                        jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                        theta_hat_values(mp_idx) = p_d_vals_all(k, actual_metric_idx);
                     else
-                         boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
+                        jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                        theta_hat_values(mp_idx) = p_rel_vals_all(k, actual_metric_idx);
                     end
-                    boot_stats = boot_stats(:)'; 
-
-                    % Calculate BCa correction factors (z0 for bias).
-                    if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
-                    else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
+                    mean_jack = mean(jack_vals);
+                    a_num = sum((mean_jack - jack_vals).^3);
+                    a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
+                    if a_den == 0, a_values(mp_idx) = 0; else, a_values(mp_idx) = a_num / a_den; end
+                    if ~isfinite(a_values(mp_idx)), a_values(mp_idx) = 0; end
+                    
+                    boot_indices_cell{mp_idx} = randi(s_worker, n_valid, [n_valid, B_ci_current, cfg_ci.n_trials]);
+                end
+            end
+            
+            % Phase 2: Parallel Execution over (metric × pair)
+            stability_flat = zeros(n_mp, 1);
+            
+            parfor mp_idx = 1:n_mp
+                if n_valid_vec(mp_idx) < 2 || isempty(boot_indices_cell{mp_idx})
+                    stability_flat(mp_idx) = 0;
+                    continue;
+                end
+                
+                data_x = data_x_cell{mp_idx};
+                data_y = data_y_cell{mp_idx};
+                boot_all = boot_indices_cell{mp_idx};
+                theta_hat = theta_hat_values(mp_idx);
+                a = a_values(mp_idx);
+                is_delta = is_delta_vec(mp_idx);
+                
+                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
+                for t = 1:cfg_ci.n_trials
+                    boot_x = data_x(boot_all(:, :, t));
+                    boot_y = data_y(boot_all(:, :, t));
+                    
+                    if is_delta, boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                    else, boot_stats = HERA.stats.relative_difference(boot_x, boot_y); end
+                    boot_stats = boot_stats(:)';
                     
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
-                    if ~isfinite(z0), z0 = 0; end 
-    
-                    % Calculate BCa interval limits as percentiles.
+                    if ~isfinite(z0), z0 = 0; end
                     z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
                     a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
                     a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
-                    if isnan(a1), a1 = alpha_level / 2; end 
+                    if isnan(a1), a1 = alpha_level / 2; end
                     if isnan(a2), a2 = 1 - alpha_level / 2; end
                     
-                    % Read confidence interval from the sorted bootstrap distribution and save the width.
                     sorted_boots = sort(boot_stats);
                     ci_lower = sorted_boots(max(1, floor(B_ci_current * a1)));
                     ci_upper = sorted_boots(min(B_ci_current, ceil(B_ci_current * a2)));
                     ci_widths_trial(t) = ci_upper - ci_lower;
                 end
                 
-                % Calculate stability as a relative dispersion measure (IQR / Median) of the CI widths.
                 med_w = median(ci_widths_trial); iqr_w = iqr(ci_widths_trial);
                 if med_w == 0
-                    if iqr_w == 0 
-                        stability_all_pairs(k) = 0; 
-                    else
-                        stability_all_pairs(k) = Inf; 
-                    end
-                else
-                    stability_all_pairs(k) = iqr_w / abs(med_w); 
-                end
+                    if iqr_w == 0, stability_flat(mp_idx) = 0;
+                    else, stability_flat(mp_idx) = Inf; end
+                else, stability_flat(mp_idx) = iqr_w / abs(med_w); end
             end
-            % Median of the stability values over all pairs as a measure for the current metric.
-            temp_stability_ci_vector(metric_idx) = median(stability_all_pairs, 'omitnan');
+            
+            % Phase 3: Aggregate Results
+            for m = 1:n_effect_types
+                start_idx = (m - 1) * num_pairs + 1;
+                end_idx = m * num_pairs;
+                temp_stability_ci_vector(m) = median(stability_flat(start_idx:end_idx), 'omitnan');
+            end
+            
+        else
+            % --- Path B: Parfor over metrics ---
+            % For 2+ metrics -> 4-6 tasks, minimal RAM (~12 MB/pair)
+            
+            parfor m = 1:n_effect_types
+                s_worker = s;
+                s_worker.Substream = m;
+                
+                is_delta = m <= num_metrics;
+                actual_metric_idx = mod(m - 1, num_metrics) + 1;
+                stability_all_pairs_local = zeros(num_pairs, 1);
+                
+                for k = 1:num_pairs
+                    idx1 = p_pair_idx_all(k, 1);
+                    idx2 = p_pair_idx_all(k, 2);
+                    data_x_orig = p_all_data{actual_metric_idx}(:, idx1);
+                    data_y_orig = p_all_data{actual_metric_idx}(:, idx2);
+                    
+                    valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                    data_x_orig = data_x_orig(valid_mask);
+                    data_y_orig = data_y_orig(valid_mask);
+                    n_valid = numel(data_x_orig);
+                    
+                    if n_valid < 2
+                        stability_all_pairs_local(k) = 0;
+                        continue;
+                    end
+                    
+                    if is_delta
+                        jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                        theta_hat = p_d_vals_all(k, actual_metric_idx);
+                    else
+                        jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                        theta_hat = p_rel_vals_all(k, actual_metric_idx);
+                    end
+                    mean_jack = mean(jack_vals);
+                    a_num = sum((mean_jack - jack_vals).^3);
+                    a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
+                    if a_den == 0, a = 0; else, a = a_num / a_den; end
+                    if ~isfinite(a), a = 0; end
+                    
+                    boot_indices_all = randi(s_worker, n_valid, [n_valid, B_ci_current, cfg_ci.n_trials]);
+                    ci_widths_trial = zeros(cfg_ci.n_trials, 1);
+                    
+                    for t = 1:cfg_ci.n_trials
+                        boot_x = data_x_orig(boot_indices_all(:, :, t));
+                        boot_y = data_y_orig(boot_indices_all(:, :, t));
+                        
+                        if is_delta, boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                        else, boot_stats = HERA.stats.relative_difference(boot_x, boot_y); end
+                        boot_stats = boot_stats(:)';
+                        
+                        z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
+                        if ~isfinite(z0), z0 = 0; end
+                        z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
+                        a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
+                        a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
+                        if isnan(a1), a1 = alpha_level / 2; end
+                        if isnan(a2), a2 = 1 - alpha_level / 2; end
+                        
+                        sorted_boots = sort(boot_stats);
+                        ci_lower = sorted_boots(max(1, floor(B_ci_current * a1)));
+                        ci_upper = sorted_boots(min(B_ci_current, ceil(B_ci_current * a2)));
+                        ci_widths_trial(t) = ci_upper - ci_lower;
+                    end
+                    
+                    med_w = median(ci_widths_trial); iqr_w = iqr(ci_widths_trial);
+                    if med_w == 0
+                        if iqr_w == 0, stability_all_pairs_local(k) = 0;
+                        else, stability_all_pairs_local(k) = Inf; end
+                    else, stability_all_pairs_local(k) = iqr_w / abs(med_w); end
+                end
+                
+                temp_stability_ci_vector(m) = median(stability_all_pairs_local, 'omitnan');
+            end
         end
         % Save the stability values for each metric and effect size.
         stability_matrix_ci(1, :, i) = temp_stability_ci_vector(1:num_metrics);

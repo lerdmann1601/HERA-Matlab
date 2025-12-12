@@ -198,69 +198,76 @@ else
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
-        % Parallel loop refactored for maximum utilization with Pre-Generated RNG.
-        % We serialize the metric loop to pre-generate RNG indices (preserving the sequence),
-        % then parallelize the trials.
+        % --- Phase 1: Serial Pre-Generation (Preserves RNG Sequence) ---
+        % Generate ALL indices for all metrics and trials in original order.
+        % This ensures bit-perfect reproducibility.
         
-        for metric_loop_idx = 1:(num_metrics * 2)
-            
-            % Each iteration gets its own reproducible substream.
+        n_effect_types = num_metrics * 2;
+        total_tasks = n_effect_types * cfg_thr.n_trials;
+        
+        % Storage: {metric_idx} -> [n_vals, B_current, n_trials]
+        all_indices_cell = cell(1, n_effect_types);
+        vals_cell = cell(1, n_effect_types);
+        
+        for m = 1:n_effect_types
             s_worker = s;
-            s_worker.Substream = metric_loop_idx;
-            % Dynamic logic to determine effect type and metric index
-            is_delta = metric_loop_idx <= num_metrics;
-            actual_metric_idx = mod(metric_loop_idx - 1, num_metrics) + 1;
-        
-            % Removes NaN values from the effect size vector before bootstrapping.
+            s_worker.Substream = m;
+            
+            is_delta = m <= num_metrics;
+            actual_metric_idx = mod(m - 1, num_metrics) + 1;
+            
             if is_delta
                 all_vals = abs(d_vals_all(:, actual_metric_idx));
             else
                 all_vals = rel_vals_all(:, actual_metric_idx);
             end
-            vals = all_vals(~isnan(all_vals)); % Keep only the valid values.
-        
-            % Protects against errors if an entire vector consisted only of NaNs.
-            if isempty(vals)
-                temp_stability_vector(metric_loop_idx) = 0; % No variance, so stable.
-                continue; % Skip to the next iteration.
+            vals = all_vals(~isnan(all_vals));
+            vals_cell{m} = vals;
+            
+            if ~isempty(vals)
+                n_vals = numel(vals);
+                all_indices_cell{m} = randi(s_worker, n_vals, [n_vals, B_current, cfg_thr.n_trials]);
+            else
+                all_indices_cell{m} = [];
             end
+        end
+        
+        % --- Phase 2: Flattened Parallel Execution (1x Parfor Overhead) ---
+        flat_results = zeros(total_tasks, 1);
+        
+        parfor task_idx = 1:total_tasks
+            % Decode task index: task = (m-1) * n_trials + t
+            m = floor((task_idx - 1) / cfg_thr.n_trials) + 1;
+            t = mod(task_idx - 1, cfg_thr.n_trials) + 1;
             
-            % --- Pre-Calculation (RNG) ---
-            % Generate indices for all trials upfront to preserve the original serial RNG sequence.
-            n_vals = numel(vals);
-            all_indices = randi(s_worker, n_vals, [n_vals, B_current, cfg_thr.n_trials]);
-            
-            % --- Parallel Execution ---
-            thr_trials = zeros(cfg_thr.n_trials, 1);
-            
-            parfor t = 1:cfg_thr.n_trials
-                idx_chunk = all_indices(:, :, t);
-                
+            vals = vals_cell{m};
+            if isempty(vals)
+                flat_results(task_idx) = 0;
+            else
+                idx_chunk = all_indices_cell{m}(:, :, t);
                 bootstat = median(vals(idx_chunk), 1);
                 ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
-                thr_trials(t) = ci_tmp(1);
+                flat_results(task_idx) = ci_tmp(1);
             end
+        end
+        
+        % --- Phase 3: Aggregate Results ---
+        for m = 1:n_effect_types
+            start_idx = (m - 1) * cfg_thr.n_trials + 1;
+            end_idx = m * cfg_thr.n_trials;
+            thr_trials = flat_results(start_idx:end_idx);
             
-            % Calculates stability as a relative measure of dispersion (IQR / Median).
             med_thr = median(thr_trials);
             iqr_thr = iqr(thr_trials);
             
-            % Calculate stability as a relative measure of dispersion (coefficient of quartile variation: IQR / Median).
-            % This metric is robust against outliers. A lower value indicates higher stability.
             if med_thr == 0
-                % Handle the special case where the median of the threshold trials is zero.
                 if iqr_thr == 0
-                    % If IQR is also zero, all trials resulted in the exact same threshold of 0.
-                    % This represents perfect stability.
-                    temp_stability_vector(metric_loop_idx) = 0;
+                    temp_stability_vector(m) = 0;
                 else
-                    % If the median is zero but there is some spread (IQR > 0), the relative
-                    % stability is undefined. We set it to infinity to signal extreme instability.
-                    temp_stability_vector(metric_loop_idx) = Inf; 
+                    temp_stability_vector(m) = Inf;
                 end
             else
-                % Standard case: Calculate stability as the Interquartile Range divided by the absolute median value.
-                temp_stability_vector(metric_loop_idx) = iqr_thr / abs(med_thr);
+                temp_stability_vector(m) = iqr_thr / abs(med_thr);
             end
         end
         
