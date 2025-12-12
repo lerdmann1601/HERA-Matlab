@@ -174,73 +174,87 @@ else
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
                 ci_widths_trial = zeros(cfg_ci.n_trials, 1);
+                
+                % --- Jackknife Statistics ---
+                % Pre-calculate Jackknife metrics once per pair. 
+                % These are deterministic and independent of the bootstrap trials, 
+                % allowing significant computational savings compared to re-evaluating them inside the loop.
+                
+                jack_d = []; jack_r = [];
+                % We only need to compute Jackknife for the relevant metric (d or r)
+                if is_delta
+                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                   mean_jack = mean(jack_d);
+                   jack_vals = jack_d;
+                else
+                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                   mean_jack = mean(jack_r);
+                   jack_vals = jack_r;
+                end
+                
+                a_num = sum((mean_jack - jack_vals).^3);
+                a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
+                if a_den == 0, a = 0; else, a = a_num / a_den; end
+                if ~isfinite(a), a = 0; end
             
                 % Repeats the BCa calculation 'n_trials' times to assess the stability of the CI width.
                 for t = 1:cfg_ci.n_trials
-                    % Complete BCa calculation for one trial
-                    % Calculate bootstrap distribution of the effect size.
-                    boot_stats = zeros(B_ci_current, 1);
-                    for b = 1:B_ci_current
-                        boot_indices = randi(s_worker, num_probanden, [num_probanden, 1]);
-                        boot_x_raw = data_x_orig(boot_indices); 
-                        boot_y_raw = data_y_orig(boot_indices);
-                        % Pairwise exclusion within the bootstrap sample
-                        valid_boot_rows = ~isnan(boot_x_raw) & ~isnan(boot_y_raw);
-                        boot_x = boot_x_raw(valid_boot_rows);
-                        boot_y = boot_y_raw(valid_boot_rows);
-                        n_valid_boot = numel(boot_x);
-                        
-                        if n_valid_boot > 0
-                            if is_delta
-                                boot_stats(b) = HERA.stats.cliffs_delta(boot_x, boot_y);
-                            else
-                                boot_stats(b) = HERA.stats.relative_difference(boot_x, boot_y);
-                            end
-                        else
-                            boot_stats(b) = NaN;
-                        end
+                    
+                    % --- Vectorized Bootstrap Sampling ---
+                    % Generate all bootstrap indices and sampled data in a single operation [N x B].
+                    % This avoids the overhead of repeated function calls in a loop.
+                    boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
+                    
+                    % Direct indexing is significantly faster than generating intermediate matrices.
+                    boot_x = data_x_orig(boot_indices);
+                    boot_y = data_y_orig(boot_indices);
+                    
+                    % --- Robust Handling of Missing Data (NaN) ---
+                    % Standard vectorized operations assume consistent sample sizes. 
+                    % If the original data contains NaNs, pairwise exclusion results in varying 
+                    % valid sample sizes per bootstrap iteration, preventing simple 3D vectorization.
+                    %
+                    % Strategy:
+                    % 1. Check for NaNs in the source data.
+                    % 2. Fast Path: If clean, use highly efficient vectorized calculations.
+                    % 3. Robust Path: If NaNs exist, fall back to a loop to correctly handle varying N.
+                    
+                    has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+                    
+                    if ~has_nans
+                         % FAST PATH: No NaNs present.
+                         % Calculate statistics for all B iterations simultaneously using 3D expansion.
+                         if is_delta
+                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                         else
+                             boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
+                         end
+                    else
+                         % ROBUST PATH: NaNs present.
+                         % Iterate through each bootstrap sample and perform pairwise exclusion.
+                         boot_stats = zeros(B_ci_current, 1);
+                         for b = 1:B_ci_current
+                             bx = boot_x(:, b); 
+                             by = boot_y(:, b);
+                             valid = ~isnan(bx) & ~isnan(by);
+                             if is_delta
+                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                             else
+                                 boot_stats(b) = HERA.stats.relative_difference(bx(valid), by(valid));
+                             end
+                         end
                     end
-                    boot_stats = boot_stats(~isnan(boot_stats)); % Remove NaN results
-                    if isempty(boot_stats), boot_stats = 0; end % Fallback
-    
-                    % Calculate Jackknife statistics for the acceleration factor 'a'.
-                    jack_stats = zeros(num_probanden, 1);
-                    for n = 1:num_probanden
-                        jack_indices = 1:num_probanden; jack_indices(n) = [];
-                        jack_x_raw = data_x_orig(jack_indices); 
-                        jack_y_raw = data_y_orig(jack_indices);
-        
-                        % Pairwise exclusion within the Jackknife sample
-                        valid_jack_rows = ~isnan(jack_x_raw) & ~isnan(jack_y_raw);
-                        jack_x = jack_x_raw(valid_jack_rows);
-                        jack_y = jack_y_raw(valid_jack_rows);
-                        n_valid_jack = numel(jack_x);
-        
-                        if n_valid_jack > 0
-                            if is_delta
-                                jack_stats(n) = HERA.stats.cliffs_delta(jack_x, jack_y);
-                            else
-                                jack_stats(n) = HERA.stats.relative_difference(jack_x, jack_y);
-                            end
-                        else
-                            jack_stats(n) = NaN;
-                        end
-                    end
-                    jack_stats = jack_stats(~isnan(jack_stats)); % Remove NaN results
-                    if isempty(jack_stats), jack_stats = 0; end % Fallback
-    
-                    % Calculate BCa correction factors (z0 for bias, a for acceleration/skewness).
+                    
+                    % Ensure row vector
+                    boot_stats = boot_stats(:)'; 
+
+                    % Calculate BCa correction factors (z0 for bias).
                     % Access effect size using dynamic index
                     if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
                     else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
+                    
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
-                    mean_jack = mean(jack_stats);
-                    a_num = sum((mean_jack - jack_stats).^3);
-                    a_den = 6 * (sum((mean_jack - jack_stats).^2)).^(3/2);
-                    if a_den == 0, a = 0; 
-                    else, a = a_num / a_den; end
                     if ~isfinite(z0), z0 = 0; end 
-                    if ~isfinite(a), a = 0; end
     
                     % Calculate BCa interval limits as percentiles.
                     z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
@@ -255,13 +269,14 @@ else
                     ci_upper = sorted_boots(min(B_ci_current, ceil(B_ci_current * a2)));
                     ci_widths_trial(t) = ci_upper - ci_lower;
                 end
+                
                 % Calculate stability as a relative dispersion measure (IQR / Median) of the CI widths.
                 med_w = median(ci_widths_trial); iqr_w = iqr(ci_widths_trial);
                 if med_w == 0
                     if iqr_w == 0 
-                        stability_all_pairs(k) = 0; % Perfect stability if all widths are zero.
+                        stability_all_pairs(k) = 0; 
                     else
-                        stability_all_pairs(k) = Inf; % Infinite instability if median is zero but there is spread.
+                        stability_all_pairs(k) = Inf; 
                     end
                 else
                     stability_all_pairs(k) = iqr_w / abs(med_w); 
@@ -386,55 +401,41 @@ for metric_idx = 1:num_metrics
         data_x_orig = p_all_data{metric_idx}(:, i);
         data_y_orig = p_all_data{metric_idx}(:, j);
         
-        % Generate bootstrap distribution for Delta and Relative Difference.
-        boot_d = zeros(B_ci, 1);
-        boot_r = zeros(B_ci, 1);
-        for b = 1:B_ci
-            boot_indices = randi(s_worker, num_probanden, [num_probanden, 1]);
-            boot_x_raw = data_x_orig(boot_indices); 
-            boot_y_raw = data_y_orig(boot_indices);
-            % Pairwise exclusion for Bootstrap sample.
-            valid_boot_rows = ~isnan(boot_x_raw) & ~isnan(boot_y_raw);
-            boot_x = boot_x_raw(valid_boot_rows);
-            boot_y = boot_y_raw(valid_boot_rows);
-            n_valid_boot = numel(boot_x);
-            
-            if n_valid_boot > 0
-                boot_d(b) = HERA.stats.cliffs_delta(boot_x, boot_y);
-                boot_r(b) = HERA.stats.relative_difference(boot_x, boot_y);
-            else
-                boot_d(b) = NaN;
-                boot_r(b) = NaN;
+        % --- Vectorized Bootstrap Sampling ---
+        % Generate all bootstrap indices and sampled data in a single operation [N x B].
+        boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci]);
+        
+        boot_x = data_x_orig(boot_indices);
+        boot_y = data_y_orig(boot_indices);
+
+        % --- Robust Handling of Missing Data (NaN) ---
+        has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+        
+        if ~has_nans
+            % FAST PATH: No NaNs present.
+            % Calculate statistics for all B iterations simultaneously using 3D expansion.
+            boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
+            boot_r = HERA.stats.relative_difference(boot_x, boot_y);
+        else
+            % ROBUST PATH: NaNs present.
+            % Iterate through each bootstrap sample and perform pairwise exclusion.
+            boot_d = zeros(B_ci, 1); boot_r = zeros(B_ci, 1);
+            for b = 1:B_ci
+                bx = boot_x(:,b); by = boot_y(:,b);
+                valid = ~isnan(bx) & ~isnan(by);
+                boot_d(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                boot_r(b) = HERA.stats.relative_difference(bx(valid), by(valid));
             end
         end
-        boot_d = boot_d(~isnan(boot_d)); boot_r = boot_r(~isnan(boot_r));
+        boot_d = boot_d(:)'; boot_r = boot_r(:)'; % Ensure row vectors
+        
         if isempty(boot_d), boot_d=0; end 
         if isempty(boot_r), boot_r=0; end
         
-        % Generate Jackknife distribution for Delta and Relative Difference.
-        jack_d = zeros(num_probanden, 1);
-        jack_r = zeros(num_probanden, 1);
-        for n = 1:num_probanden
-            jack_indices = 1:num_probanden; jack_indices(n) = [];
-            jack_x_raw = data_x_orig(jack_indices);
-            jack_y_raw = data_y_orig(jack_indices);
-            % Pairwise exclusion for Jackknife sample.
-            valid_jack_rows = ~isnan(jack_x_raw) & ~isnan(jack_y_raw);
-            jack_x = jack_x_raw(valid_jack_rows);
-            jack_y = jack_y_raw(valid_jack_rows);
-            n_valid_jack = numel(jack_x);
-    
-            if n_valid_jack > 0
-                jack_d(n) = HERA.stats.cliffs_delta(jack_x, jack_y);
-                jack_r(n) = HERA.stats.relative_difference(jack_x, jack_y);
-            else
-                jack_d(n) = NaN;
-                jack_r(n) = NaN;
-            end
-        end
-        jack_d = jack_d(~isnan(jack_d)); jack_r = jack_r(~isnan(jack_r));
-        if isempty(jack_d), jack_d=0; end 
-        if isempty(jack_r), jack_r=0; end
+        % Generate Jackknife distribution (One-time calculation)
+        % Delegated to the dedicated statistics module
+        jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+        jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
         
         z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
         
@@ -609,3 +610,4 @@ function output = format_text(text, width, alignment)
             output = [repmat(' ', 1, padding_left), text, repmat(' ', 1, padding_right)];
     end
 end
+

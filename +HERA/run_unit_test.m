@@ -78,8 +78,8 @@ end
 
     %% 2. Setup Logging
     [log_folder, path_source] = TestHelper.get_writable_log_path();
-   % Inputs:
-%   log_path_or_mode - (Optional) "interactive" or path to custom log folder.
+    % Inputs:
+    % log_path_or_mode - (Optional) "interactive" or path to custom log folder.
     % Handle arguments for custom path
     if log_path_or_mode ~= ""
         if strcmpi(log_path_or_mode, 'interactive')

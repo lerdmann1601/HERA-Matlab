@@ -19,16 +19,32 @@ function rel_diff = relative_difference(x, y)
 %
 % Author: Lukas von Erdmannsdorff
 
-    % Calculate means
-    mx = mean(x);
-    my = mean(y);
+    % Calculate means (column-wise if matrices)
+    mx = mean(x, 1);
+    my = mean(y, 1);
     
     % Robustly handle the case where the denominator might be zero
-    if (mx + my) == 0
-        rel_diff = 0;
-    else
-        % Calculate relative difference
-        % Uses the absolute difference relative to the absolute mean of the pair
-        rel_diff = abs(mx - my) / abs(mean([mx, my]));
+    sum_means = mx + my;
+    
+    % Initialize result
+    rel_diff = zeros(size(mx));
+    
+    % Mask for non-zero denominators
+    valid_mask = sum_means ~= 0;
+    
+    if any(valid_mask)
+         % Calculate relative difference for valid columns
+         % Uses the absolute difference relative to the absolute mean of the pair
+         mean_pair = abs((mx(valid_mask) + my(valid_mask)) / 2); %Equivalent to mean([mx, my])
+         diff_val = abs(mx(valid_mask) - my(valid_mask));
+         
+         % Check for 0 in mean_pair (double safety, though coverage by sum_means!=0 usually sufficient for pos numbers)
+         safe_mask = mean_pair ~= 0;
+         
+         % We need to map back to the original full vector indices
+         valid_indices = find(valid_mask);
+         final_indices = valid_indices(safe_mask);
+         
+         rel_diff(final_indices) = diff_val(safe_mask) ./ mean_pair(safe_mask);
     end
 end

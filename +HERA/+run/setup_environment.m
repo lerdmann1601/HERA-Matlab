@@ -84,6 +84,11 @@ function [userInput, setupData] = setup_environment(userInput)
     
     % Ensure metric_names are synced to config (critical for interactive mode)
     userInput.config.metric_names = userInput.metric_names;
+    
+    % Ensure ranking_mode is synced to config (critical for calculate_ranking logic)
+    if isfield(userInput, 'ranking_mode')
+        userInput.config.ranking_mode = userInput.ranking_mode;
+    end
 
     % Create a unique output folder name using the current timestamp.
     timestamp_folder = string(datetime('now'), 'yyyyMMdd_HHmmss');

@@ -34,17 +34,51 @@ function d = cliffs_delta(x, y)
 %
 % Author: Lukas von Erdmannsdorff
 
-    % Ensure column vectors
-    x = x(:);
-    y = y(:);
+    % Check for Matrix (Vectorized) Mode
+    % If both inputs are matrices with same number of columns > 1, treat as B independent pairs
+    [rx, cx] = size(x);
+    [ry, cy] = size(y);
     
-    nx = numel(x);
-    ny = numel(y);
+    IS_VECTORIZED = (cx > 1) || (cy > 1);
     
-    % Handle empty inputs
-    if nx == 0 || ny == 0
-        d = NaN;
-        return;
+    if ~IS_VECTORIZED
+        %% STANDARD MODE (Vectors)
+        x = x(:);
+        y = y(:);
+        nx = numel(x);
+        ny = numel(y);
+        
+        if nx == 0 || ny == 0
+            d = NaN;
+            return;
+        end
+        B = 1;
+    else
+        %% VECTORIZED MODE (Matrices)
+        % Expecting x and y to support column-wise operations
+        % Case 1: x is Nx1, y is NxB (One sample vs Many) -> Expand x
+        % Case 2: x is NxB, y is NxB (Many pairwise) -> Column-by-Column
+        
+        if cx == 1 && cy > 1
+            x = repmat(x, 1, cy);
+            cx = cy;
+        elseif cy == 1 && cx > 1
+            y = repmat(y, 1, cx);
+            cy = cx;
+        end
+        
+        if cx ~= cy
+            error('Dimension mismatch: x and y must have same number of columns for vectorized mode.');
+        end
+        
+        nx = rx; % Rows in x
+        ny = ry; % Rows in y
+        B = cx;  % Number of batches/bootstraps
+        
+        if nx == 0 || ny == 0
+            d = NaN(1, B);
+            return;
+        end
     end
     
     % Heuristic threshold for switching algorithms
@@ -57,17 +91,48 @@ function d = cliffs_delta(x, y)
         %% Method A: Naive Matrix Comparison (O(Nx * Ny))
         % Faster for small sample sizes due to low overhead.
         
-        % Vectorized calculation of dominance statistics
-        % x (col) > y' (row) creates an (nx x ny) logical matrix
-        gt = sum(x > y', 'all'); % Number of cases where x_i > y_j
-        lt = sum(x < y', 'all'); % Number of cases where x_i < y_j
-        
-        d = (gt - lt) / (nx * ny);
+        if ~IS_VECTORIZED
+            % Standard Vector inputs
+            % x (col) > y' (row) creates an (nx x ny) logical matrix
+            gt = sum(x > y', 'all'); % Number of cases where x_i > y_j
+            lt = sum(x < y', 'all'); % Number of cases where x_i < y_j
+            
+            d = (gt - lt) / (nx * ny);
+        else
+            % Vectorized Matrix inputs (Column-wise)
+            % Use 3D expansion: 
+            % X: nx x 1 x B
+            % Y: 1 x ny x B
+            
+            X_3D = reshape(x, nx, 1, B);
+            Y_3D = reshape(y, 1, ny, B);
+            
+            % Comparisons (nx x ny x B)
+            gt_3D = X_3D > Y_3D;
+            lt_3D = X_3D < Y_3D;
+            
+            % Sum over pages (dim 1 and 2)
+            gt = reshape(sum(sum(gt_3D, 1), 2), 1, B);
+            lt = reshape(sum(sum(lt_3D, 1), 2), 1, B);
+            
+            d = (gt - lt) / (nx * ny);
+        end
         
     else
         %% Method B: Efficient Rank-Based Calculation (O(N log N))
         % efficient for large sample sizes.
         
+        if IS_VECTORIZED
+             % Fallback for vectorized large samples (rare in this context)
+             % Because 'unique' and 'accumarray' are hard to vectorize across columns without loop.
+             % Given B is large, a simple loop over B is acceptable here if N is large.
+             d = zeros(1, B);
+             for b = 1:B
+                 d(b) = HERA.stats.cliffs_delta(x(:,b), y(:,b));
+             end
+             return;
+        end
+
         all_data = [x; y];
         
         % 1. Find unique values and their indices
