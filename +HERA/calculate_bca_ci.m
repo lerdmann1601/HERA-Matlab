@@ -14,11 +14,6 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   This function acts as the main controller for the BCa (Bias-Corrected and Accelerated) 
 %   Bootstrap confidence interval calculation. It dynamically determines the optimal 
 %   number of bootstrap samples (B) by analyzing the stability of the CI widths.
-%   
-%   Refactored to follow the "Strict Controller Pattern":
-%   - Core logic and orchestration remain here.
-%   - Statistical checks (incl. adaptive NaN handling) are delegated to `+HERA/+stats`.
-%   - Plotting and visualization are delegated to `+HERA/+plot`.
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
@@ -173,6 +168,20 @@ else
                 % Access data using dynamic index
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
+                
+                % --- Robust NaN Handling (Pairwise Exclusion) ---
+                % Filter invalid pairs upfront to ensure consistent local sample size (n_valid)
+                valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                data_x_orig = data_x_orig(valid_mask);
+                data_y_orig = data_y_orig(valid_mask);
+                n_valid = numel(data_x_orig);
+                
+                if n_valid < 2
+                     % Not enough data for meaningful statistics
+                     stability_all_pairs(k) = 0; % Treat as stable (no variance)
+                     continue; 
+                end
+
                 ci_widths_trial = zeros(cfg_ci.n_trials, 1);
 
                 % --- Jackknife Statistics ---
@@ -199,7 +208,8 @@ else
                 for t = 1:cfg_ci.n_trials
                     
                     % --- Vectorized Bootstrap Sampling ---
-                    boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
+                    % Strictly resample only from valid pairs (n_valid)
+                    boot_indices = randi(s_worker, n_valid, [n_valid, B_ci_current]);
                     boot_x = data_x_orig(boot_indices);
                     boot_y = data_y_orig(boot_indices);
                     % --- Statistical Calculation ---
@@ -366,9 +376,20 @@ for metric_idx = 1:num_metrics
         data_x_orig = p_all_data{metric_idx}(:, i);
         data_y_orig = p_all_data{metric_idx}(:, j);
         
+        % --- Robust NaN Handling (Pairwise Exclusion) ---
+        valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+        data_x_orig = data_x_orig(valid_mask);
+        data_y_orig = data_y_orig(valid_mask);
+        n_valid = numel(data_x_orig);
+        
+        if n_valid < 2
+             % Return NaNs if insufficient data (temp variables are initialized to NaN)
+             continue; 
+        end
+        
         % --- Vectorized Bootstrap Sampling ---
         % Generate all bootstrap indices and sampled data in a single operation [N x B].
-        boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci]);
+        boot_indices = randi(s_worker, n_valid, [n_valid, B_ci]);
         
         boot_x = data_x_orig(boot_indices);
         boot_y = data_y_orig(boot_indices);
