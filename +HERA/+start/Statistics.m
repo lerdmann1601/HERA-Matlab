@@ -26,8 +26,8 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
     import HERA.start.UserInterface
 
     %% Statistical Parameters and Power Analysis
-    % This section is skipped in 'standard' mode.
-    if ~strcmpi(main_choice, lang.general.standard_char)
+    % This section is skipped in 'standard' mode OR if a config was loaded.
+    if ~strcmpi(main_choice, lang.general.standard_char) && ~configLoadedFromFile
         fprintf('%s\n', lang.prompts.stat_params_header);
         % Get the confidence level for CIs.
         ci_val = input(sprintf('%s [%.2f]: ', lang.prompts.ci_level, defaults.ci_level));

@@ -81,6 +81,9 @@ function [userInput, setupData] = setup_environment(userInput)
     if ~isfield(userInput, 'config')
         userInput.config = userInput;
     end
+    
+    % Ensure metric_names are synced to config (critical for interactive mode)
+    userInput.config.metric_names = userInput.metric_names;
 
     % Create a unique output folder name using the current timestamp.
     timestamp_folder = string(datetime('now'), 'yyyyMMdd_HHmmss');
