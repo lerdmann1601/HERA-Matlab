@@ -128,7 +128,7 @@ for page = 1:num_pages
     current_pos = [default_pos(1), default_pos(2) + (default_pos(4) - new_height), default_pos(3), new_height];
     
     h_fig = figure('Name', sprintf(lang.plots.figure_names.comparison_by_metric, metric_names{metric_idx}, page), ...
-                   'Color', styles.colors.background, 'Visible', 'off', 'Position', current_pos);
+                   'Color', styles.colors.background, 'Visible', 'off', 'Units', 'pixels', 'Position', current_pos);
     % Add the figure handle to the list for PDF export.
     handles_list(end+1) = h_fig;
     
@@ -237,8 +237,12 @@ for page = 1:num_pages
 
     % Force MATLAB to compute the final layout before saving.
     % This is a workaround for potential rendering issues with dynamic layouts.
+    set(h_fig, 'Units', 'pixels'); % Enforce units to prevent DPI scaling collapse
+    set(h_fig, 'Position', current_pos); % Re-assert position
     drawnow;
     pause(0.1);
+    drawnow; % Double refresh to ensure tiledlayout expands correctly
+
     set(h_fig, 'Visible', 'off');
     
     % Save the final graphic.
