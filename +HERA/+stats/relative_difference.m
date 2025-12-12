@@ -6,10 +6,7 @@ function rel_diff = relative_difference(x, y)
 %
 % Description:
 %   Computes the relative difference between the means of two samples.
-%   Includes a safety check for division by zero if the sum of means is zero.
-%
-%   Features:
-%   - Supports Vectorized NaN Handling (using omitnan and pairwise exclusion).
+%   Assumes clean data (NaN handling via pairwise exclusion is caller's responsibility).
 %
 %   Formula: val = abs(mx - my) / abs(mean([mx, my]))
 %
@@ -22,21 +19,9 @@ function rel_diff = relative_difference(x, y)
 %
 % Author: Lukas von Erdmannsdorff
 
-    % Check for NaNs and enforce pairwise exclusion.
-    % If a subject is missing in x, it is also ignored in y (and vice versa).
-    if any(isnan(x), 'all') || any(isnan(y), 'all')
-        nan_mask = isnan(x) | isnan(y);
-        x(nan_mask) = NaN;
-        y(nan_mask) = NaN;
-        
-        % Use omitnan to ignore the masked values
-        mx = mean(x, 1, 'omitnan');
-        my = mean(y, 1, 'omitnan');
-    else
-        % Calculate means (Standard path)
-        mx = mean(x, 1);
-        my = mean(y, 1);
-    end
+    % Calculate means (assumes data is clean, NaN handling is caller's responsibility)
+    mx = mean(x, 1);
+    my = mean(y, 1);
     
     % Check for zero-sum to avoid division by zero.
     sum_means = mx + my;

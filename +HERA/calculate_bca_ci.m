@@ -152,7 +152,11 @@ else
     
         % Parallel loop to calculate stability for all metrics and effect sizes.
         % Loop count is dynamic (num_metrics * 2)
-        parfor metric_idx = 1:(num_metrics * 2)
+        % Optimized Loop Structure with Pre-Generated RNG
+        % We serialize Metric and Pair loops to allow exact RNG sequence reconstruction,
+        % then parallelize the critical inner loop (trials). This uses ~25 workers per pair.
+        
+        for metric_idx = 1:(num_metrics * 2)
             % Each iteration gets its own reproducible substream.
             s_worker = s; 
             s_worker.Substream = metric_idx;
@@ -169,8 +173,8 @@ else
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
                 
-                % --- Robust NaN Handling (Pairwise Exclusion) ---
-                % Filter invalid pairs upfront to ensure consistent local sample size (n_valid)
+                % --- Pairwise Exclusion ---
+                % NaN handling: If subject is missing in x or y, exclude from both.
                 valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
                 data_x_orig = data_x_orig(valid_mask);
                 data_y_orig = data_y_orig(valid_mask);
@@ -181,8 +185,6 @@ else
                      stability_all_pairs(k) = 0; % Treat as stable (no variance)
                      continue; 
                 end
-
-                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
 
                 % --- Jackknife Statistics ---
                 % Pre-calculate Jackknife metrics once per pair. 
@@ -203,28 +205,28 @@ else
                 a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
                 if a_den == 0, a = 0; else, a = a_num / a_den; end
                 if ~isfinite(a), a = 0; end
+                
+                % --- Pre-Calculation (RNG) ---
+                % Generate indices for all trials upfront to preserve the original serial RNG sequence.
+                boot_indices_all = randi(s_worker, n_valid, [n_valid, B_ci_current, cfg_ci.n_trials]);
+
+                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
             
-                % Repeats the BCa calculation 'n_trials' times to assess the stability of the CI width.
-                for t = 1:cfg_ci.n_trials
+                % --- Parallel Execution ---
+                parfor t = 1:cfg_ci.n_trials
                     
-                    % --- Vectorized Bootstrap Sampling ---
-                    % Strictly resample only from valid pairs (n_valid)
-                    boot_indices = randi(s_worker, n_valid, [n_valid, B_ci_current]);
+                    boot_indices = boot_indices_all(:, :, t); 
                     boot_x = data_x_orig(boot_indices);
                     boot_y = data_y_orig(boot_indices);
-                    % --- Statistical Calculation ---
-                    % Delegates to stats functions which handle vectorization and NaNs internally.
+                    
                     if is_delta
                          boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
                     else
                          boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
                     end
-                    
-                    % Ensure row vector
                     boot_stats = boot_stats(:)'; 
 
                     % Calculate BCa correction factors (z0 for bias).
-                    % Access effect size using dynamic index
                     if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
                     else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
                     

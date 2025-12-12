@@ -198,9 +198,11 @@ else
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
-        % Parallel loop to calculate stability for all metrics and effect sizes.
-        % Loop from 1 to num_metrics * 2
-        parfor metric_loop_idx = 1:(num_metrics * 2)
+        % Parallel loop refactored for maximum utilization with Pre-Generated RNG.
+        % We serialize the metric loop to pre-generate RNG indices (preserving the sequence),
+        % then parallelize the trials.
+        
+        for metric_loop_idx = 1:(num_metrics * 2)
             
             % Each iteration gets its own reproducible substream.
             s_worker = s;
@@ -222,14 +224,19 @@ else
                 temp_stability_vector(metric_loop_idx) = 0; % No variance, so stable.
                 continue; % Skip to the next iteration.
             end
-                    
-            % Repeats the threshold calculation n_trials times to capture variability.
+            
+            % --- Pre-Calculation (RNG) ---
+            % Generate indices for all trials upfront to preserve the original serial RNG sequence.
+            n_vals = numel(vals);
+            all_indices = randi(s_worker, n_vals, [n_vals, B_current, cfg_thr.n_trials]);
+            
+            % --- Parallel Execution ---
             thr_trials = zeros(cfg_thr.n_trials, 1);
-            for t = 1:cfg_thr.n_trials
-                % Performs a percentile bootstrap: resamples the effect sizes. 
-                % Calculates the median and repeats this B_current times to get a distribution of medians.
-                bootstat = median(vals(randi(s_worker, numel(vals), [numel(vals), B_current])), 1);
-                % The lower confidence interval of this distribution is an estimate of the threshold.
+            
+            parfor t = 1:cfg_thr.n_trials
+                idx_chunk = all_indices(:, :, t);
+                
+                bootstat = median(vals(idx_chunk), 1);
                 ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
                 thr_trials(t) = ci_tmp(1);
             end
