@@ -228,29 +228,39 @@ function [userInput, setupData] = setup_environment(userInput)
     RandStream.setGlobalStream(s); % Set the configured stream as the global default.
 
     %% 3. Initialize Parallel Processing
-    % Check if a pool is already running to avoid expensive restarts in batch mode.
+    
+    % Determine intended number of workers
+    if ischar(userInput.num_workers) && strcmp(userInput.num_workers, 'auto')
+        target_workers = max(1, parcluster('local').NumWorkers);
+        is_auto = true;
+    else
+        target_workers = userInput.num_workers;
+        is_auto = false;
+    end
+
+    % Check if a pool is already running 
     currentPool = gcp('nocreate');
 
-    if isempty(currentPool)
-        % No pool exists -> Start one according to user config.
-        if ischar(userInput.num_workers) && strcmp(userInput.num_workers, 'auto')
-            % Automatically determine optimal core count.
-            n_cores = max(1, parcluster('local').NumWorkers);
-            fprintf([lang.run_ranking.parallel_start_auto '\n'], n_cores);
-            currentPool = parpool(n_cores); % Capture the pool object!
+    if ~isempty(currentPool)
+        if currentPool.NumWorkers ~= target_workers
+            % Mismatch -> Restart
+            fprintf([lang.run_ranking.pool_restart_mismatch '\n'], currentPool.NumWorkers, target_workers);
+            delete(currentPool);
+            currentPool = []; % Ensure it enters the creation block below
         else
-            % Use user-specified number.
-            n_cores = userInput.num_workers;
-            fprintf([lang.run_ranking.parallel_start_manual '\n'], n_cores);
-            currentPool = parpool(n_cores); % Capture the pool object!
+            % Match -> Reuse
+            fprintf([lang.run_ranking.pool_active_skip '\n'], currentPool.NumWorkers);
         end
-    else
-        % Pool exists -> Reuse it for performance.
-        fprintf([lang.run_ranking.pool_active_skip '\n'], currentPool.NumWorkers);
-        % Optional: Check if worker count matches request (warn only, don't kill).
-        if isnumeric(userInput.num_workers) && currentPool.NumWorkers ~= userInput.num_workers
-            fprintf([lang.run_ranking.pool_size_mismatch '\n'], currentPool.NumWorkers, userInput.num_workers);
+    end
+
+    if isempty(currentPool)
+        % No pool exists (or was just deleted) -> Start one
+        if is_auto
+            fprintf([lang.run_ranking.parallel_start_auto '\n'], target_workers);
+        else
+            fprintf([lang.run_ranking.parallel_start_manual '\n'], target_workers);
         end
+        currentPool = parpool(target_workers);
     end
     
     % Explicitly tell the parallel workers where the +HERA package is located.

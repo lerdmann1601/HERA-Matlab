@@ -406,7 +406,7 @@ fprintf('%s\n', external_separator_line); % Print continuous bottom border
 % This section calculates the frequency of each rank for each dataset from bootstrap analysis and saves it to a CSV file, sorted by the final rank.
 
 % Inform the user about the CSV saving process.
-fprintf(['\n' lang.bca.saving_csv '\n']);
+fprintf(['\n' lang.ranking.saving_csv '\n']);
 % Define the output filename.
 [~, fName, fExt] = fileparts(lang.files.bootstrap_rank_csv);
 fName = strrep(fName, '%s_', '');

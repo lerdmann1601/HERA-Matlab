@@ -502,7 +502,5 @@ Machine-readable JSON saved to: /HERA-Matlab/data/examples/results/HERA_Example_
 Ranking finished.
 All outputs successfully saved in: "/HERA-Matlab/data/examples/results/HERA_Example_2/Ranking_Example_2"
 
-Total execution time: 4 minutes and 47.50 seconds.
+Total execution time: 2 minutes and 32.79 seconds.
 
-Closing parallel pool.
-Parallel pool using the 'Processes' profile is shutting down.

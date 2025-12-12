@@ -45,7 +45,7 @@ function results = run_ranking(userInput)
 %   12. JSON Export: 
 %       Saves all configurations, statistical calculations, and final results into a JSON file for machine readability and meta-analysis.
 %   13. Finalization: 
-%       Closes the parallel pool and stops the log.
+%       Stops the log (Parallel pool remains active for subsequent runs).
 %
 % Inputs:
 %   userInput - (struct) Configuration structure. Must contain ONE of the following data sources:
