@@ -198,14 +198,11 @@ else
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
-        % --- Phase 1: Serial Pre-Generation (Preserves RNG Sequence) ---
-        % Generate ALL indices for all metrics and trials in original order.
-        % This ensures bit-perfect reproducibility.
-        
+        % Pre-generate all random indices for reproducibility.
         n_effect_types = num_metrics * 2;
         total_tasks = n_effect_types * cfg_thr.n_trials;
         
-        % Storage: {metric_idx} -> [n_vals, B_current, n_trials]
+        % Storage for indices and values.
         all_indices_cell = cell(1, n_effect_types);
         vals_cell = cell(1, n_effect_types);
         
@@ -232,11 +229,11 @@ else
             end
         end
         
-        % --- Phase 2: Flattened Parallel Execution (1x Parfor Overhead) ---
+        % Parallel computation of all tasks (minimizes parfor overhead).
         flat_results = zeros(total_tasks, 1);
         
         parfor task_idx = 1:total_tasks
-            % Decode task index: task = (m-1) * n_trials + t
+            % Decode task index into metric (m) and trial (t).
             m = floor((task_idx - 1) / cfg_thr.n_trials) + 1;
             t = mod(task_idx - 1, cfg_thr.n_trials) + 1;
             
@@ -251,7 +248,7 @@ else
             end
         end
         
-        % --- Phase 3: Aggregate Results ---
+        % Aggregate results per effect type.
         for m = 1:n_effect_types
             start_idx = (m - 1) * cfg_thr.n_trials + 1;
             end_idx = m * cfg_thr.n_trials;
@@ -364,103 +361,94 @@ rel_thresh = zeros(1, num_metrics);
 all_bootstat_d = cell(1, num_metrics); 
 all_bootstat_rel = cell(1, num_metrics);
 
-% Setup for Batched Parallel Execution
-% We use "Batched Processing" to enable parallelization while managing memory usage.
-% "Sweet Spot" determined by benchmark: ~5000 gives best balance of overhead vs vectorization speed.
-% Adjusted to 4096 (Power of 2).
-BATCH_SIZE = 4096; 
-
-% Calculates the final thresholds with the optimally determined B value.
-% Calculate dynamic stride to ensure no substream overlap regardless of B size.
-num_batches_total = ceil(selected_B / BATCH_SIZE);
-stride = num_batches_total + 10; % Safety margin
+% Calculate final thresholds with the optimal B value.
+% Dynamic batch sizing based on memory configuration.
+if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
+     TARGET_BATCH_MEMORY_MB = config.system.target_chunk_memory_mb;
+else
+     TARGET_BATCH_MEMORY_MB = 200;
+end
 
 for metric_idx = 1:num_metrics
     % --- Cliff's Delta ---
-    % Threshold for Cliff's Delta (cleaned of NaNs).
     d_vals_metric_raw = d_vals_all(:, metric_idx);
-    
-    % Use the absolute values before bootstrapping to find the lower confidence bound of median cliffs d.
     d_vals_metric_abs = abs(d_vals_metric_raw(~isnan(d_vals_metric_raw)));
     
     if ~isempty(d_vals_metric_abs)
-        % Resample the absolute values with replacement using batched parallel processing.
-        % This approach avoids creating a single massive [N x B] matrix, which would exhaust RAM.
-        % Assign unique substream offset dynamically to avoid overlap.
-        % Formula: Base 1000 + (MetricIndex * 2 * Stride)
-        offset_d = 1000 + (metric_idx - 1) * 2 * stride;
-        
         n_data_d = numel(d_vals_metric_abs);
-        num_batches = num_batches_total;
-        results_cell_d = cell(1, num_batches);
         
-        % Iterate over batches in parallel
-        parfor b = 1:num_batches
-            % 1. Reproducible RNG setup
-            % Create a local stream copy and assign a unique substream for this batch.
+        % Calculate batch size based on memory.
+        bytes_per_sample = n_data_d * 8;
+        BATCH_SIZE = max(100, min(floor((TARGET_BATCH_MEMORY_MB * 1024^2) / bytes_per_sample), 20000));
+        num_batches = ceil(selected_B / BATCH_SIZE);
+        
+        % Substream offset for this metric.
+        offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);
+        
+        % Serial pre-generation of indices ensures bit-perfect reproducibility.
+        all_indices_d = cell(1, num_batches);
+        for b = 1:num_batches
             s_worker = s;
             s_worker.Substream = offset_d + b;
-            
-            % Determine the range of indices for the current batch
             start_idx = (b - 1) * BATCH_SIZE + 1;
             end_idx = min(b * BATCH_SIZE, selected_B);
             current_n = end_idx - start_idx + 1;
-            
-            % 2. Generate indices and calculate median
-            % Generate [n_data x batch_size] random indices
-            indices = randi(s_worker, n_data_d, [n_data_d, current_n]);
-            % Calculate median for each column in the batch
+            all_indices_d{b} = randi(s_worker, n_data_d, [n_data_d, current_n]);
+        end
+        
+        % Parallel bootstrap computation.
+        results_cell_d = cell(1, num_batches);
+        parfor b = 1:num_batches
+            indices = all_indices_d{b};
             results_cell_d{b} = median(d_vals_metric_abs(indices), 1);
         end
-
-        bootstat_d = [results_cell_d{:}];
         
-        % The threshold is the lower quantile (e.g., 2.5th percentile) of this distribution of medians. 
+        bootstat_d = [results_cell_d{:}];
         d_thresh(metric_idx) = quantile(bootstat_d, alpha_level / 2);
         all_bootstat_d{metric_idx} = bootstat_d; 
     else
-        d_thresh(metric_idx) = 0; % Fallback if no valid values.
+        d_thresh(metric_idx) = 0;
         all_bootstat_d{metric_idx} = [];
     end
 
     % --- Relative Difference ---
-    % Threshold for the relative difference (cleaned of NaNs).
     rel_vals_metric_raw = rel_vals_all(:, metric_idx);
     rel_vals_metric = rel_vals_metric_raw(~isnan(rel_vals_metric_raw));
 
     if ~isempty(rel_vals_metric)
-        % Assign unique substream offset: Base + Stride (Shifted from D)
-        offset_rel = offset_d + stride;
-        
         n_data_rel = numel(rel_vals_metric);
-        num_batches = num_batches_total;
-        results_cell_rel = cell(1, num_batches);
         
-        % Iterate over batches in parallel
-        parfor b = 1:num_batches
-             % 1. Reproducible RNG setup
-            % Create a local stream copy and assign a unique substream for this batch.
+        % Calculate batch size based on memory.
+        bytes_per_sample = n_data_rel * 8;
+        BATCH_SIZE = max(100, min(floor((TARGET_BATCH_MEMORY_MB * 1024^2) / bytes_per_sample), 20000));
+        num_batches = ceil(selected_B / BATCH_SIZE);
+        
+        % Substream offset (shifted from Delta).
+        offset_rel = offset_d + (num_batches + 10);
+        
+        % Serial pre-generation of indices ensures bit-perfect reproducibility.
+        all_indices_rel = cell(1, num_batches);
+        for b = 1:num_batches
             s_worker = s;
             s_worker.Substream = offset_rel + b;
-            
-            % Determine the range of indices for the current batch
             start_idx = (b - 1) * BATCH_SIZE + 1;
             end_idx = min(b * BATCH_SIZE, selected_B);
             current_n = end_idx - start_idx + 1;
-            
-            % 2. Generate indices and calculate median
-            % Generate [n_data x batch_size] random indices
-            indices = randi(s_worker, n_data_rel, [n_data_rel, current_n]);
-            % Calculate median for each column in the batch
+            all_indices_rel{b} = randi(s_worker, n_data_rel, [n_data_rel, current_n]);
+        end
+        
+        % Parallel bootstrap computation.
+        results_cell_rel = cell(1, num_batches);
+        parfor b = 1:num_batches
+            indices = all_indices_rel{b};
             results_cell_rel{b} = median(rel_vals_metric(indices), 1);
         end
-
-        bootstat_rel = [results_cell_rel{:}];
         
+        bootstat_rel = [results_cell_rel{:}];
         rel_thresh(metric_idx) = quantile(bootstat_rel, alpha_level / 2);
         all_bootstat_rel{metric_idx} = bootstat_rel;
     else
-        rel_thresh(metric_idx) = 0; % Fallback if no valid values.
+        rel_thresh(metric_idx) = 0;
         all_bootstat_rel{metric_idx} = [];
     end
 end

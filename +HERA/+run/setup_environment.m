@@ -263,6 +263,9 @@ function [userInput, setupData] = setup_environment(userInput)
         currentPool = parpool(target_workers);
     end
     
+    % Store actual worker count in config for use by all bootstrap functions.
+    config.num_workers = currentPool.NumWorkers;
+    
     % Explicitly tell the parallel workers where the +HERA package is located.
     if ~isempty(currentPool)
         try
@@ -298,6 +301,7 @@ function [userInput, setupData] = setup_environment(userInput)
     setupData.config = config;
     setupData.s = s;
     setupData.timestamp = timestamp_folder;
+    setupData.num_workers = currentPool.NumWorkers; % Store actual worker count for bootstrap functions
 
 end
 

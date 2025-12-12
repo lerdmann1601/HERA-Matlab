@@ -1,3 +1,4 @@
+
 function start_ranking(varargin)
 % START_RANKING - Interactive script to configure and start the ranking.
 %

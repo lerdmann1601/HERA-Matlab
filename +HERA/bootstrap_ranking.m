@@ -125,24 +125,25 @@ else
         fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
         ci_widths_b = zeros(cfg_rank.n_trials, num_datasets_b);
         
-        % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
-        parfor t_b = 1:cfg_rank.n_trials
-            % Each parallel worker gets its own reproducible substream of the random number generator.
-            s_worker = s; % Workaround for passing the stream object to parfor.
+        % Check stability of rank confidence intervals for the current B-value.
+        
+        % Serial pre-generation of bootstrap indices ensures bit-perfect reproducibility.
+        all_boot_indices = cell(1, cfg_rank.n_trials);
+        for t_b = 1:cfg_rank.n_trials
+            s_worker = s;
             s_worker.Substream = t_b;
+            all_boot_indices{t_b} = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
+        end
+        
+        % Parallel computation using pre-generated indices.
+        parfor t_b = 1:cfg_rank.n_trials
+            boot_indices_block = all_boot_indices{t_b};
             rank_tmp_b = zeros(num_datasets_b, Br_b);
             
-            % 1. Perform a cluster bootstrap: Subjects (clusters) are drawn with replacement.
-            % Vectorized generation of indices for all Br_b iterations in this trial [N x Br_b]
-            boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
-
-            % 2. Calculate Effect Sizes (Vectorized or Loop-based)
-            % We need to fill: bootstrap_d_vals_all [num_pairs, num_metrics, Br_b]
+            % Calculate effect sizes for each bootstrap sample.
             num_pairs = size(pair_idx_all, 1);
             
-            % Check for NaNs globally to decide on strategy
-            % If any used data has NaNs, we must use the robust loop.
-            % Optimization: Check once per dataset column used.
+            % Check for NaNs to decide on calculation strategy.
             has_nans = false;
             for col = 1:num_datasets_b
                for mid = 1:num_metrics
@@ -158,34 +159,31 @@ else
             rel_vals_3d = zeros(num_pairs, num_metrics, Br_b);
             
             if ~has_nans
-                 % --- FAST PATH: Vectorized Calculation ---
-                 % Process all Br_b bootstrap samples simultaneously per pair.
-                 % This is significantly faster as cliffs_delta processes [N x Br_b] matrices.
+                 % Fast path: Vectorized calculation (no NaNs present).
                  for p_idx = 1:num_pairs
                     i = pair_idx_all(p_idx, 1);
                     j = pair_idx_all(p_idx, 2);
                     for metric_idx = 1:num_metrics
-                         % Extract matrices [N x Br_b]
+                         % Extract data matrices [N x Br_b].
                          data_i = all_data{metric_idx}(:, i);
                          data_j = all_data{metric_idx}(:, j);
                          x_mat = data_i(boot_indices_block);
                          y_mat = data_j(boot_indices_block);
                          
-                         % Vectorized calls
+                         % Vectorized effect size calculation.
                          d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat);
                          rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
                     end
                  end
             else
-                 % --- ROBUST PATH: Loop Calculation ---
-                 % Fallback for data with NaNs to ensure correct pairwise exclusion.
+                 % Robust path: Loop-based calculation for data with NaNs.
                  for bb = 1:Br_b
                      current_indices = boot_indices_block(:, bb);
                      for p_idx = 1:num_pairs
                         i = pair_idx_all(p_idx, 1);
                         j = pair_idx_all(p_idx, 2);
                         for metric_idx = 1:num_metrics
-                            % Standard single-vector extraction
+                            % Extract data with pairwise NaN exclusion.
                             col_i = all_data{metric_idx}(current_indices, i);
                             col_j = all_data{metric_idx}(current_indices, j);
                             
@@ -204,14 +202,13 @@ else
                  end
             end
 
-            % 3. & 4. Ranking (Iterative)
-            % Now run the lightweight ranking logic on the pre-calculated effect sizes
+            % Calculate ranking for each bootstrap iteration.
             for bb = 1:Br_b
-                % Slice 2D effect sizes for this specific iteration
+                % Slice effect sizes for this iteration.
                 es_struct = struct('d_vals_all', d_vals_3d(:, :, bb), ...
                                    'rel_vals_all', rel_vals_3d(:, :, bb));
                 
-                % Ranking call (using original data view + current indices for M1 means calc)
+                % Calculate ranking using current bootstrap sample.
                 [~, bootstrap_rank] = HERA.calculate_ranking(...
                      all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb));
                 
@@ -300,68 +297,57 @@ else
         h_figs_rank(end+1) = h_fig_rank;
     end
 end
+%% 3. Final Bootstrap Analysis for Rank Distributions
+% Generate the final rank distribution using the optimally determined B value.
 
-%% 3. Final Bootstrap Analysis with the Optimal Number of Repetitions
-% This section performs the main bootstrap process with the final, optimally determined B-value.
-% We use Batched Processing to enable Vectorized Effect Size calculation (Fast Path).
-% Instead of 1:B, we iterate over batches to balance memory usage and vectorization speed.
-
-weights = ones(1, selected_B_final); % Used just for counting
-% Dynamic Batch Sizing
-% We prioritize saturating the parallel workers over maximizing per-core vectorization.
-% If B is small (e.g. 200) and we have 10 cores, a fixed batch of 100 leaves 8 cores idle.
-% We divide the work to ensure all workers are busy.
-
-pool = gcp('nocreate');
-if isempty(pool)
-    % If no pool is running, estimate based on physical cores
-    % (Matlab will likely start one with this many workers)
-    num_workers = feature('numcores');
+% Get worker count from config (set during setup_environment).
+if isfield(config, 'num_workers')
+    num_workers = config.num_workers;
 else
-    num_workers = pool.NumWorkers;
+    num_workers = feature('numcores'); % Fallback for direct function calls
 end
 
-% This balances vectorization speed (larger is better) vs. memory & load balancing (smaller is better).
-OPTIMAL_BATCH_SIZE = 64; 
+% Dynamic batch sizing based on memory configuration.
+if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
+     TARGET_BATCH_MEMORY_MB = config.system.target_chunk_memory_mb;
+else
+     TARGET_BATCH_MEMORY_MB = 200;
+end
 
-% Max possible batch size that keeps all workers busy (at least one wave)
-% Constraint: NumBatches >= NumWorkers  =>  BatchSize <= B / NumWorkers
+bytes_per_double = 8;
+bytes_per_int = 4;
+
+% Estimate memory per iteration (indices + effect sizes).
+mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
+
+% Calculate batch size based on memory and parallelism constraints.
+OPTIMAL_BATCH_SIZE = floor((TARGET_BATCH_MEMORY_MB * 1024^2) / mem_per_iter_bytes);
+OPTIMAL_BATCH_SIZE = max(1, min(OPTIMAL_BATCH_SIZE, 5000));
 parallel_limit_batch = floor(selected_B_final / num_workers);
-
-% Final decision: Use the optimal sweet spot, unless it breaks parallelism. 
 BATCH_SIZE = max(1, min(OPTIMAL_BATCH_SIZE, parallel_limit_batch));
-
 num_batches = ceil(selected_B_final / BATCH_SIZE);
-
-% Pre-allocate results [NumDatasets x TotalB]
-% Note: Parfor cannot write to sliced indices of a variable easily if indices are procedural.
-% We collect results in a cell array of batches or linear index strategy.
-% Strategy: Parfor over batches, return a matrix block, then combine.
 
 rank_batches = cell(1, num_batches);
 
-% Define a safe substream offset to avoid overlap with the Stability Analysis (Phase 1).
-% Stability Analysis used substreams 1 to n_trials. 
-% We ensure the new stream starts well after that.
+% Use substream offset to avoid overlap with stability analysis phase.
 OFFSET_BOOTSTRAP = cfg_rank.n_trials + 1000;
 
 parfor b_idx = 1:num_batches
     s_worker = s;
     s_worker.Substream = OFFSET_BOOTSTRAP + b_idx; % Offset to avoid overlap with stability check
     
-    % Determine range for this batch
+    % Determine batch range.
     start_idx = (b_idx - 1) * BATCH_SIZE + 1;
     end_idx = min(b_idx * BATCH_SIZE, selected_B_final);
     current_batch_size = end_idx - start_idx + 1;
     
-    % --- 1. Generate Indices [N x BatchSize] ---
+    % Generate bootstrap indices [N x BatchSize].
     boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, current_batch_size]);
     
-    % --- 2. Calculate Effect Sizes (Hybrid Vectorized/Loop) ---
+    % Calculate effect sizes for this batch.
     num_pairs = size(pair_idx_all, 1);
     
-    % Check for NaNs globally (Optimization: Check first column of first metric as proxy or check all)
-    % A complete check is safer.
+    % Check for NaNs to decide on calculation strategy.
     has_nans = false;
     for col = 1:num_datasets_b
        for mid = 1:num_metrics
@@ -376,7 +362,7 @@ parfor b_idx = 1:num_batches
     rel_vals_3d = zeros(num_pairs, num_metrics, current_batch_size);
     
     if ~has_nans
-        % FAST PATH
+        % Fast path: Vectorized calculation.
         for p_idx = 1:num_pairs
             i = pair_idx_all(p_idx, 1);
             j = pair_idx_all(p_idx, 2);
@@ -391,7 +377,7 @@ parfor b_idx = 1:num_batches
             end
         end
     else
-        % ROBUST PATH
+        % Robust path: Loop-based calculation for data with NaNs.
         for k = 1:current_batch_size
              current_indices = boot_indices_block(:, k);
              for p_idx = 1:num_pairs
@@ -415,7 +401,7 @@ parfor b_idx = 1:num_batches
         end
     end
     
-    % --- 3. Ranking Loop ---
+    % Calculate ranking for each bootstrap iteration.
     batch_ranks = zeros(num_datasets_b, current_batch_size);
     for k = 1:current_batch_size
         es_struct = struct('d_vals_all', d_vals_3d(:, :, k), ...

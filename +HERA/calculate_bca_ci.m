@@ -146,151 +146,205 @@ else
     % temp vector is now sized
     temp_stability_ci_vector = zeros(1, num_metrics * 2);
     
+    % --- Phase 1: Serial Pre-computation of Jackknife values ---
+    % Jackknife depends only on original data, not on B. Compute once outside loop.
+    n_effect_types = num_metrics * 2;
+    
+    % Pre-compute data pairs and Jackknife acceleration factors for all pairs/metrics.
+    data_x_all = cell(num_pairs, num_metrics);
+    data_y_all = cell(num_pairs, num_metrics);
+    n_valid_all = zeros(num_pairs, num_metrics);
+    theta_hat_all = zeros(num_pairs, n_effect_types);  % [d1..dM, r1..rM]
+    a_all = zeros(num_pairs, n_effect_types);          % acceleration factors
+    
+    for k = 1:num_pairs
+        idx1 = p_pair_idx_all(k, 1);
+        idx2 = p_pair_idx_all(k, 2);
+        
+        for metric_idx = 1:num_metrics
+            data_x_orig = p_all_data{metric_idx}(:, idx1);
+            data_y_orig = p_all_data{metric_idx}(:, idx2);
+            
+            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+            data_x_orig = data_x_orig(valid_mask);
+            data_y_orig = data_y_orig(valid_mask);
+            n_valid = numel(data_x_orig);
+            
+            data_x_all{k, metric_idx} = data_x_orig;
+            data_y_all{k, metric_idx} = data_y_orig;
+            n_valid_all(k, metric_idx) = n_valid;
+            
+            if n_valid >= 2
+                % Cliff's Delta (effect type index: metric_idx)
+                jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                theta_hat_all(k, metric_idx) = p_d_vals_all(k, metric_idx);
+                mean_jack_d = mean(jack_d);
+                a_num_d = sum((mean_jack_d - jack_d).^3);
+                a_den_d = 6 * (sum((mean_jack_d - jack_d).^2)).^(3/2);
+                if a_den_d == 0, a_all(k, metric_idx) = 0;
+                else, a_all(k, metric_idx) = a_num_d / a_den_d; end
+                if ~isfinite(a_all(k, metric_idx)), a_all(k, metric_idx) = 0; end
+                
+                % Relative Difference (effect type index: num_metrics + metric_idx)
+                jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                theta_hat_all(k, num_metrics + metric_idx) = p_rel_vals_all(k, metric_idx);
+                mean_jack_r = mean(jack_r);
+                a_num_r = sum((mean_jack_r - jack_r).^3);
+                a_den_r = 6 * (sum((mean_jack_r - jack_r).^2)).^(3/2);
+                if a_den_r == 0, a_all(k, num_metrics + metric_idx) = 0;
+                else, a_all(k, num_metrics + metric_idx) = a_num_r / a_den_r; end
+                if ~isfinite(a_all(k, num_metrics + metric_idx)), a_all(k, num_metrics + metric_idx) = 0; end
+            end
+        end
+    end
+    
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector_ci)
         B_ci_current = B_vector_ci(i);
         fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
-        % Reset temp vector for each B value
-        temp_stability_ci_vector(:) = 0; 
-    
-        % --- Stability Check Loop (Adaptive Parallelization) ---
-        n_effect_types = num_metrics * 2;
         
-        % Dynamic Chunk Sizing (inspired by bootstrap_ranking.m)
-        pool = gcp('nocreate');
-        if isempty(pool)
-             num_workers = feature('numcores');
+        % Total tasks: all effect types × all pairs × n_trials
+        total_tasks = n_effect_types * num_pairs * cfg_ci.n_trials;
+        
+        % Dynamic chunk sizing to limit RAM usage.
+        if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
+             TARGET_CHUNK_MEMORY_MB = config.system.target_chunk_memory_mb;
         else
-             num_workers = pool.NumWorkers;
+             TARGET_CHUNK_MEMORY_MB = 200;
         end
         
-        % Optimal chunk size for parallel processing (Empirically determined).
-        % Balances memory usage (Index Matrices) against parallelization overhead.
-        % BCA requires smaller chunks than Ranking due to higher memory footprint per task.
-        OPTIMAL_CHUNK_SIZE = 6;
+        % Estimate memory per task based on average valid data points.
+        avg_n_valid = mean(n_valid_all(:), 'omitnan');
+        if isnan(avg_n_valid) || avg_n_valid < 2, avg_n_valid = 20; end
+        bytes_per_task = avg_n_valid * B_ci_current * 8;
         
-        % Ensure we have enough tasks per chunk to saturate workers
-        % Tasks per chunk = chunk_size * n_trials
-        % We want at least num_workers tasks.
-        min_chunk_parallel = ceil(num_workers / cfg_ci.n_trials);
+        max_tasks_per_chunk = max(1, floor((TARGET_CHUNK_MEMORY_MB * 1024^2) / bytes_per_task));
+        CHUNK_SIZE = max(cfg_ci.n_trials, min(max_tasks_per_chunk, total_tasks));
+        num_chunks = ceil(total_tasks / CHUNK_SIZE);
         
-        chunk_size = max(min_chunk_parallel, OPTIMAL_CHUNK_SIZE);
-
-        % --- Universal Chunked Flattening ---
-        % Processes pairs in optimal chunks to balance RAM usage and Parallelism.
+        task_results = zeros(total_tasks, 1);
         
-        for m = 1:n_effect_types
-            s_worker = s; s_worker.Substream = m;
-            is_delta = m <= num_metrics;
-            actual_metric_idx = mod(m - 1, num_metrics) + 1;
-            stability_all_pairs_local = zeros(num_pairs, 1);
+        % Process tasks in memory-efficient chunks.
+        for chunk_idx = 1:num_chunks
+            chunk_start = (chunk_idx - 1) * CHUNK_SIZE + 1;
+            chunk_end = min(chunk_idx * CHUNK_SIZE, total_tasks);
+            chunk_task_indices = chunk_start:chunk_end;
+            n_chunk_tasks = numel(chunk_task_indices);
             
-            % Process pairs in chunks
-            for chunk_start = 1:chunk_size:num_pairs
-                chunk_end = min(chunk_start + chunk_size - 1, num_pairs);
-                curr_chunk_indices = chunk_start:chunk_end;
-                n_chunk = numel(curr_chunk_indices);
+            % Serial pre-generation of bootstrap indices for this chunk.
+            chunk_boot_indices = cell(1, n_chunk_tasks);
+            chunk_data_x = cell(1, n_chunk_tasks);
+            chunk_data_y = cell(1, n_chunk_tasks);
+            chunk_theta_hat = zeros(1, n_chunk_tasks);
+            chunk_a = zeros(1, n_chunk_tasks);
+            chunk_is_delta = false(1, n_chunk_tasks);
+            chunk_valid = false(1, n_chunk_tasks);
+            chunk_B = B_ci_current;
+            
+            for local_idx = 1:n_chunk_tasks
+                task_idx = chunk_task_indices(local_idx);
                 
-                % 1. Pre-Generate RNG & Jackknife for this chunk (Serial)
-                boot_indices_cell = cell(1, n_chunk);
-                data_x_cell = cell(1, n_chunk);
-                data_y_cell = cell(1, n_chunk);
-                theta_hat_vec = zeros(1, n_chunk);
-                a_vec = zeros(1, n_chunk);
-                valid_vec = false(1, n_chunk);
+                % Decode task index
+                temp_idx = task_idx - 1;
+                m = floor(temp_idx / (num_pairs * cfg_ci.n_trials)) + 1;
+                temp_idx = mod(temp_idx, num_pairs * cfg_ci.n_trials);
+                k = floor(temp_idx / cfg_ci.n_trials) + 1;
                 
-                for idx_chunk = 1:n_chunk
-                    k = curr_chunk_indices(idx_chunk);
-                    idx1 = p_pair_idx_all(k, 1);
-                    idx2 = p_pair_idx_all(k, 2);
-                    data_x_orig = p_all_data{actual_metric_idx}(:, idx1);
-                    data_y_orig = p_all_data{actual_metric_idx}(:, idx2);
-                    
-                    valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-                    data_x_orig = data_x_orig(valid_mask);
-                    data_y_orig = data_y_orig(valid_mask);
-                    n_valid = numel(data_x_orig);
-                    
-                    if n_valid >= 2
-                        valid_vec(idx_chunk) = true;
-                        data_x_cell{idx_chunk} = data_x_orig;
-                        data_y_cell{idx_chunk} = data_y_orig;
-                        
-                        if is_delta
-                            jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
-                            theta_hat_vec(idx_chunk) = p_d_vals_all(k, actual_metric_idx);
-                        else
-                            jack_vals = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
-                            theta_hat_vec(idx_chunk) = p_rel_vals_all(k, actual_metric_idx);
-                        end
-                        mean_jack = mean(jack_vals);
-                        a_num = sum((mean_jack - jack_vals).^3);
-                        a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
-                        if a_den == 0, a_vec(idx_chunk) = 0; else, a_vec(idx_chunk) = a_num / a_den; end
-                        if ~isfinite(a_vec(idx_chunk)), a_vec(idx_chunk) = 0; end
-                        
-                        % Pre-gen RNG (advances s_worker correctly)
-                        boot_indices_cell{idx_chunk} = randi(s_worker, n_valid, [n_valid, B_ci_current, cfg_ci.n_trials]);
-                    end
-                end
+                metric_idx = mod(m - 1, num_metrics) + 1;
+                n_valid = n_valid_all(k, metric_idx);
                 
-                % 2. Flattened Parfor for this chunk
-                total_chunk_tasks = n_chunk * cfg_ci.n_trials;
-                chunk_results = zeros(total_chunk_tasks, 1);
-                
-                parfor task_idx = 1:total_chunk_tasks
-                    c_idx = floor((task_idx - 1) / cfg_ci.n_trials) + 1;
-                    t = mod(task_idx - 1, cfg_ci.n_trials) + 1;
+                if n_valid >= 2
+                    chunk_valid(local_idx) = true;
+                    chunk_is_delta(local_idx) = (m <= num_metrics);
+                    chunk_data_x{local_idx} = data_x_all{k, metric_idx};
+                    chunk_data_y{local_idx} = data_y_all{k, metric_idx};
+                    chunk_theta_hat(local_idx) = theta_hat_all(k, m);
+                    chunk_a(local_idx) = a_all(k, m);
                     
-                    if ~valid_vec(c_idx)
-                        chunk_results(task_idx) = 0;
-                        continue;
-                    end
-                    
-                    indices = boot_indices_cell{c_idx}(:, :, t);
-                    boot_x = data_x_cell{c_idx}(indices);
-                    boot_y = data_y_cell{c_idx}(indices);
-                    
-                    if is_delta, b_stat = HERA.stats.cliffs_delta(boot_x, boot_y);
-                    else, b_stat = HERA.stats.relative_difference(boot_x, boot_y); end
-                    b_stat = b_stat(:)';
-                    
-                    z0 = norminv(sum(b_stat < theta_hat_vec(c_idx)) / B_ci_current);
-                    if ~isfinite(z0), z0 = 0; end
-                    z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
-                    a1 = normcdf(z0 + (z0 + z1) / (1 - a_vec(c_idx) * (z0 + z1)));
-                    a2 = normcdf(z0 + (z0 + z2) / (1 - a_vec(c_idx) * (z0 + z2)));
-                    if isnan(a1), a1 = alpha_level / 2; end
-                    if isnan(a2), a2 = 1 - alpha_level / 2; end
-                    
-                    sorted_boots = sort(b_stat);
-                    ci_lower = sorted_boots(max(1, floor(B_ci_current * a1)));
-                    ci_upper = sorted_boots(min(B_ci_current, ceil(B_ci_current * a2)));
-                    chunk_results(task_idx) = ci_upper - ci_lower;
-                end
-                
-                % 3. Aggregate Chunk Results
-                for idx_chunk = 1:n_chunk
-                    k = curr_chunk_indices(idx_chunk);
-                    start_idx = (idx_chunk - 1) * cfg_ci.n_trials + 1;
-                    end_idx = idx_chunk * cfg_ci.n_trials;
-                    
-                    if ~valid_vec(idx_chunk)
-                         stability_all_pairs_local(k) = 0;
-                    else
-                         ci_widths = chunk_results(start_idx:end_idx);
-                         med_w = median(ci_widths); iqr_w = iqr(ci_widths);
-                         if med_w == 0
-                             if iqr_w == 0, stability_all_pairs_local(k) = 0;
-                             else, stability_all_pairs_local(k) = Inf; end
-                         else
-                             stability_all_pairs_local(k) = iqr_w / abs(med_w);
-                         end
-                    end
+                    % Generate indices with unique substream
+                    s_worker = s;
+                    s_worker.Substream = task_idx;
+                    chunk_boot_indices{local_idx} = randi(s_worker, n_valid, [n_valid, B_ci_current]);
                 end
             end
             
-            temp_stability_ci_vector(m) = median(stability_all_pairs_local, 'omitnan');
+            % Parallel bootstrap computation for this chunk.
+            chunk_results = zeros(n_chunk_tasks, 1);
+            
+            parfor local_idx = 1:n_chunk_tasks
+                if ~chunk_valid(local_idx)
+                    chunk_results(local_idx) = 0;
+                    continue;
+                end
+                
+                data_x = chunk_data_x{local_idx};
+                data_y = chunk_data_y{local_idx};
+                boot_indices = chunk_boot_indices{local_idx};
+                
+                boot_x = data_x(boot_indices);
+                boot_y = data_y(boot_indices);
+                
+                if chunk_is_delta(local_idx)
+                    b_stat = HERA.stats.cliffs_delta(boot_x, boot_y);
+                else
+                    b_stat = HERA.stats.relative_difference(boot_x, boot_y);
+                end
+                b_stat = b_stat(:)';
+                
+                theta_hat = chunk_theta_hat(local_idx);
+                a = chunk_a(local_idx);
+                
+                z0 = norminv(sum(b_stat < theta_hat) / chunk_B);
+                if ~isfinite(z0), z0 = 0; end
+                z1 = norminv(alpha_level / 2);
+                z2 = norminv(1 - alpha_level / 2);
+                a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
+                a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
+                if isnan(a1), a1 = alpha_level / 2; end
+                if isnan(a2), a2 = 1 - alpha_level / 2; end
+                
+                sorted_boots = sort(b_stat);
+                ci_lower = sorted_boots(max(1, floor(chunk_B * a1)));
+                ci_upper = sorted_boots(min(chunk_B, ceil(chunk_B * a2)));
+                chunk_results(local_idx) = ci_upper - ci_lower;
+            end
+            
+            % Store chunk results
+            task_results(chunk_task_indices) = chunk_results;
+        end
+        
+        % Aggregate results per effect type.
+        temp_stability_ci_vector = zeros(1, n_effect_types);
+        
+        for m = 1:n_effect_types
+            stability_all_pairs = zeros(num_pairs, 1);
+            
+            for k = 1:num_pairs
+                metric_idx = mod(m - 1, num_metrics) + 1;
+                
+                if n_valid_all(k, metric_idx) < 2
+                    stability_all_pairs(k) = 0;
+                    continue;
+                end
+                
+                % Gather all trials for this (m, k) combination.
+                ci_widths = zeros(cfg_ci.n_trials, 1);
+                for t = 1:cfg_ci.n_trials
+                    task_idx = (m - 1) * num_pairs * cfg_ci.n_trials + (k - 1) * cfg_ci.n_trials + t;
+                    ci_widths(t) = task_results(task_idx);
+                end
+                
+                med_w = median(ci_widths);
+                iqr_w = iqr(ci_widths);
+                if med_w == 0
+                    if iqr_w == 0, stability_all_pairs(k) = 0;
+                    else, stability_all_pairs(k) = Inf; end
+                else
+                    stability_all_pairs(k) = iqr_w / abs(med_w);
+                end
+            end
+            
+            temp_stability_ci_vector(m) = median(stability_all_pairs, 'omitnan');
         end
         % Save the stability values for each metric and effect size.
         stability_matrix_ci(1, :, i) = temp_stability_ci_vector(1:num_metrics);
@@ -389,7 +443,7 @@ a_r_all = NaN(num_pairs, num_metrics);
 % Loop over the metrics for the final calculation.
 OFFSET_BASE_CI = 1000; % Start final phase well after stability phase (which uses 1..2*M)
 
-% Dynamic stride to ensure no overlap between metrics, regardless of pair count
+% Stride to prevent substream overlap between metrics.
 pair_stride = num_pairs + 100;
 
 for metric_idx = 1:num_metrics
@@ -416,7 +470,7 @@ for metric_idx = 1:num_metrics
         data_x_orig = p_all_data{metric_idx}(:, i);
         data_y_orig = p_all_data{metric_idx}(:, j);
         
-        % --- Robust NaN Handling (Pairwise Exclusion) ---
+        % Pairwise NaN exclusion.
         valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
         data_x_orig = data_x_orig(valid_mask);
         data_y_orig = data_y_orig(valid_mask);
@@ -427,15 +481,13 @@ for metric_idx = 1:num_metrics
              continue; 
         end
         
-        % --- Vectorized Bootstrap Sampling ---
-        % Generate all bootstrap indices and sampled data in a single operation [N x B].
+        % Generate all bootstrap indices [N x B].
         boot_indices = randi(s_worker, n_valid, [n_valid, B_ci]);
         
         boot_x = data_x_orig(boot_indices);
         boot_y = data_y_orig(boot_indices);
 
-        % --- Statistical Calculation ---
-        % Delegates to stats functions which handle vectorization and NaNs internally.
+        % Calculate bootstrap effect sizes.
         boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
         boot_r = HERA.stats.relative_difference(boot_x, boot_y);
         

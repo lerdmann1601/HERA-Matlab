@@ -44,12 +44,16 @@ function defaults = default()
     % Data quality settings
     % Warning threshold for missing data (0.80 = 80% valid pairs required)
     defaults.min_data_completeness = 0.80;
+    
+    %% System Configuration
+    % Target memory per chunk/batch. Increase for systems with more RAM.
+    defaults.system.target_chunk_memory_mb = 200;
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)
-    defaults.manual_B_thr = 1000;
-    defaults.manual_B_ci = 5000;
-    defaults.manual_B_rank = 250;
+    defaults.manual_B_thr = 2000;
+    defaults.manual_B_ci = 10000;
+    defaults.manual_B_rank = 500;
 
     
     % Thresholds (Percentile Bootstrap)
@@ -71,7 +75,7 @@ function defaults = default()
     cfg_ci.B_end = 20000;
     cfg_ci.n_trials = 30;
     cfg_ci.min_steps_for_convergence_check = 1;
-    cfg_ci.convergence_tolerance = 0.05;
+    cfg_ci.convergence_tolerance = 0.03;
     cfg_ci.smoothing_window = 3;
     cfg_ci.convergence_streak_needed = 3;
     defaults.bootstrap_ci = cfg_ci;
