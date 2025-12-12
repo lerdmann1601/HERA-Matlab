@@ -313,10 +313,40 @@ end
 % Instead of 1:B, we iterate over batches to balance memory usage and vectorization speed.
 
 weights = ones(1, selected_B_final); % Used just for counting
-% Heuristic batch size: 100
-% Benchmark on M1 Mac (2025) showed optimal performance at B=100.
-% This balances vectorization speed gain (SIMD) against memory/cache overhead.
-BATCH_SIZE = 100;
+% Dynamic Batch Sizing
+% We prioritize saturating the parallel workers over maximizing per-core vectorization.
+% If B is small (e.g. 200) and we have 10 cores, a fixed batch of 100 leaves 8 cores idle.
+% We divide the work to ensure all workers are busy.
+
+pool = gcp('nocreate');
+if isempty(pool)
+    % If no pool is running, estimate based on physical cores
+    % (Matlab will likely start one with this many workers)
+    num_workers = feature('numcores');
+else
+    num_workers = pool.NumWorkers;
+end
+
+% "Sweet Spot" from benchmark was 100, but we shouldn't exceed (B / Workers).
+% We also enforce a minimum batch size (e.g., 10) to avoid loop overhead dominance.
+MIN_BATCH = 10;
+OPTIMAL_BATCH_LIMIT = 100; % Don't go larger than this even if B is huge
+
+% Calculate split for parallelism
+calc_batch = ceil(selected_B_final / num_workers);
+
+% Apply constraints: 
+% 1. Must be at least MIN_BATCH (unless B < MIN_BATCH)
+% 2. Should ideally be around calc_batch to use all cores.
+% 3. Capped at OPTIMAL_BATCH_LIMIT because larger batches hurt cache.
+
+BATCH_SIZE = max(MIN_BATCH, min(calc_batch, OPTIMAL_BATCH_LIMIT));
+
+% Edge case: if B is very small, minimal batch is total B
+if selected_B_final < BATCH_SIZE
+    BATCH_SIZE = selected_B_final;
+end
+
 num_batches = ceil(selected_B_final / BATCH_SIZE);
 
 % Pre-allocate results [NumDatasets x TotalB]
