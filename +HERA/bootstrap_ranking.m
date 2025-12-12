@@ -131,97 +131,90 @@ else
             s_worker.Substream = t_b;
             rank_tmp_b = zeros(num_datasets_b, Br_b);
             
-            % Inner loop: Performs the bootstrap process Br_b times to generate one rank distribution for one trial.
-            for bb_b = 1:Br_b
-                % 1. Perform a cluster bootstrap: Subjects (clusters) are drawn with replacement.
-                % The indices represent the rows (subjects) to be included in the bootstrap sample.
-                boot_indices = randi(s_worker, n_subj_b, [n_subj_b, 1]);
-                
-                % 2. A new, bootstrapped dataset is created strictly by reference (indices) to save memory.
-                % Vectorized generation of indices for all Br_b iterations in this trial [N x Br_b]
-                boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
+            % 1. Perform a cluster bootstrap: Subjects (clusters) are drawn with replacement.
+            % Vectorized generation of indices for all Br_b iterations in this trial [N x Br_b]
+            boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
 
-                % 3. Calculate Effect Sizes (Vectorized or Loop-based)
-                % We need to fill: bootstrap_d_vals_all [num_pairs, num_metrics, Br_b]
-                num_pairs = size(pair_idx_all, 1);
-                
-                % Check for NaNs globally to decide on strategy
-                % If any used data has NaNs, we must use the robust loop.
-                % Optimization: Check once per dataset column used.
-                has_nans = false;
-                for col = 1:num_datasets_b
-                   for mid = 1:num_metrics
-                       if any(isnan(all_data{mid}(:, col)))
-                           has_nans = true; break;
-                       end
+            % 2. Calculate Effect Sizes (Vectorized or Loop-based)
+            % We need to fill: bootstrap_d_vals_all [num_pairs, num_metrics, Br_b]
+            num_pairs = size(pair_idx_all, 1);
+            
+            % Check for NaNs globally to decide on strategy
+            % If any used data has NaNs, we must use the robust loop.
+            % Optimization: Check once per dataset column used.
+            has_nans = false;
+            for col = 1:num_datasets_b
+               for mid = 1:num_metrics
+                   if any(isnan(all_data{mid}(:, col)))
+                       has_nans = true; break;
                    end
-                   if has_nans, break; end
-                end
+               end
+               if has_nans, break; end
+            end
 
-                % Pre-allocate 3D arrays for this trial block
-                d_vals_3d = zeros(num_pairs, num_metrics, Br_b);
-                rel_vals_3d = zeros(num_pairs, num_metrics, Br_b);
-                
-                if ~has_nans
-                     % --- FAST PATH: Vectorized Calculation ---
-                     % Process all Br_b bootstrap samples simultaneously per pair.
-                     % This is significantly faster as cliffs_delta processes [N x Br_b] matrices.
+            % Pre-allocate 3D arrays for this trial block
+            d_vals_3d = zeros(num_pairs, num_metrics, Br_b);
+            rel_vals_3d = zeros(num_pairs, num_metrics, Br_b);
+            
+            if ~has_nans
+                 % --- FAST PATH: Vectorized Calculation ---
+                 % Process all Br_b bootstrap samples simultaneously per pair.
+                 % This is significantly faster as cliffs_delta processes [N x Br_b] matrices.
+                 for p_idx = 1:num_pairs
+                    i = pair_idx_all(p_idx, 1);
+                    j = pair_idx_all(p_idx, 2);
+                    for metric_idx = 1:num_metrics
+                         % Extract matrices [N x Br_b]
+                         data_i = all_data{metric_idx}(:, i);
+                         data_j = all_data{metric_idx}(:, j);
+                         x_mat = data_i(boot_indices_block);
+                         y_mat = data_j(boot_indices_block);
+                         
+                         % Vectorized calls
+                         d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat);
+                         rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
+                    end
+                 end
+            else
+                 % --- ROBUST PATH: Loop Calculation ---
+                 % Fallback for data with NaNs to ensure correct pairwise exclusion.
+                 for bb = 1:Br_b
+                     current_indices = boot_indices_block(:, bb);
                      for p_idx = 1:num_pairs
                         i = pair_idx_all(p_idx, 1);
                         j = pair_idx_all(p_idx, 2);
                         for metric_idx = 1:num_metrics
-                             % Extract matrices [N x Br_b]
-                             data_i = all_data{metric_idx}(:, i);
-                             data_j = all_data{metric_idx}(:, j);
-                             x_mat = data_i(boot_indices_block);
-                             y_mat = data_j(boot_indices_block);
-                             
-                             % Vectorized calls
-                             d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat);
-                             rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
+                            % Standard single-vector extraction
+                            col_i = all_data{metric_idx}(current_indices, i);
+                            col_j = all_data{metric_idx}(current_indices, j);
+                            
+                            valid = ~isnan(col_i) & ~isnan(col_j);
+                            x = col_i(valid); y = col_j(valid);
+                            
+                            if ~isempty(x)
+                                d_vals_3d(p_idx, metric_idx, bb) = HERA.stats.cliffs_delta(x, y);
+                                rel_vals_3d(p_idx, metric_idx, bb) = HERA.stats.relative_difference(x, y);
+                            else
+                                d_vals_3d(p_idx, metric_idx, bb) = NaN;
+                                rel_vals_3d(p_idx, metric_idx, bb) = NaN;
+                            end
                         end
                      end
-                else
-                     % --- ROBUST PATH: Loop Calculation ---
-                     % Fallback for data with NaNs to ensure correct pairwise exclusion.
-                     for bb = 1:Br_b
-                         current_indices = boot_indices_block(:, bb);
-                         for p_idx = 1:num_pairs
-                            i = pair_idx_all(p_idx, 1);
-                            j = pair_idx_all(p_idx, 2);
-                            for metric_idx = 1:num_metrics
-                                % Standard single-vector extraction
-                                col_i = all_data{metric_idx}(current_indices, i);
-                                col_j = all_data{metric_idx}(current_indices, j);
-                                
-                                valid = ~isnan(col_i) & ~isnan(col_j);
-                                x = col_i(valid); y = col_j(valid);
-                                
-                                if ~isempty(x)
-                                    d_vals_3d(p_idx, metric_idx, bb) = HERA.stats.cliffs_delta(x, y);
-                                    rel_vals_3d(p_idx, metric_idx, bb) = HERA.stats.relative_difference(x, y);
-                                else
-                                    d_vals_3d(p_idx, metric_idx, bb) = NaN;
-                                    rel_vals_3d(p_idx, metric_idx, bb) = NaN;
-                                end
-                            end
-                         end
-                     end
-                end
+                 end
+            end
 
-                % 4. & 5. Ranking (Iterative)
-                % Now run the lightweight ranking logic on the pre-calculated effect sizes
-                for bb = 1:Br_b
-                    % Slice 2D effect sizes for this specific iteration
-                    es_struct = struct('d_vals_all', d_vals_3d(:, :, bb), ...
-                                       'rel_vals_all', rel_vals_3d(:, :, bb));
-                    
-                    % Ranking call (using original data view + current indices for M1 means calc)
-                    [~, bootstrap_rank] = HERA.calculate_ranking(...
-                         all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb));
-                    
-                    rank_tmp_b(:, bb) = bootstrap_rank;
-                end
+            % 3. & 4. Ranking (Iterative)
+            % Now run the lightweight ranking logic on the pre-calculated effect sizes
+            for bb = 1:Br_b
+                % Slice 2D effect sizes for this specific iteration
+                es_struct = struct('d_vals_all', d_vals_3d(:, :, bb), ...
+                                   'rel_vals_all', rel_vals_3d(:, :, bb));
+                
+                % Ranking call (using original data view + current indices for M1 means calc)
+                [~, bootstrap_rank] = HERA.calculate_ranking(...
+                     all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb));
+                
+                rank_tmp_b(:, bb) = bootstrap_rank;
             end
             
             % After Br_b iterations, calculate the width of the 95% confidence interval of the ranks for this one trial.
