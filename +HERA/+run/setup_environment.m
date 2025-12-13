@@ -260,7 +260,9 @@ function [userInput, setupData] = setup_environment(userInput)
         else
             fprintf([lang.run_ranking.parallel_start_manual '\n'], target_workers);
         end
-        currentPool = parpool(target_workers);
+        % SpmdEnabled=false reduces overhead since HERA only uses parfor, not SPMD features.
+        % This optimization is recommended for pure parfor workloads.
+        currentPool = parpool(target_workers, 'SpmdEnabled', false);
     end
     
     % Store actual worker count in config for use by all bootstrap functions.

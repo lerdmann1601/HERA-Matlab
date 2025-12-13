@@ -105,7 +105,8 @@ end
     if isempty(pool)
         try
             fprintf('[System] Starting Parallel Pool...\n');
-            parpool('local');
+            % SpmdEnabled=false reduces overhead since HERA only uses parfor.
+            parpool('local', 'SpmdEnabled', false);
         catch
             fprintf('WARNING: Parallel Pool failed to start. Running serially.\n');
         end
