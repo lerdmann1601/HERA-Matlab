@@ -142,10 +142,6 @@ else
         % Allows external control of worker count for nested parallelism scenarios.
         % When config.num_workers is set, limits the parfor to that many workers.
         % Default: Uses all available pool workers.
-        % --- Parallel Worker Limit ---
-        % Allows external control of worker count for nested parallelism scenarios.
-        % When config.num_workers is set, limits the parfor to that many workers.
-        % Default: Uses all available pool workers.
         pool = gcp('nocreate');
         current_pool_size = Inf;
         if ~isempty(pool)

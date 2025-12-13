@@ -17,9 +17,9 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
-%      Iterates over B-values in a parfor loop. Convergence is strictly checked using
-%      `HERA.stats.check_convergence`. If no convergence is found, the optimal B is 
-%      determined via elbow method using `HERA.stats.find_elbow_point`.
+%      Iterates over B-values sequentially. For each B, stability trials are 
+%      executed in parallel (`parfor`) to efficiently determine convergence using
+%      `HERA.stats.check_convergence` or `HERA.stats.find_elbow_point`.
 %   2. Creation of the convergence plot: 
 %      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
@@ -85,16 +85,16 @@ end
 % Iteratively tests increasing B-values until the CI widths stabilize.
 %
 % Architecture:
-%   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
-%   b) Parallel stability check: For each B, parallelizes over (num_metrics * 2) effect types.
-%   c) Inner loop: Each effect type runs n_trials to assess CI width variability.
+%   a) Iterate sequentially over B-values (B_start:B_step:B_end).
+%   b) Iterate sequentially over each effect type (Metric x [Delta, RelDiff]).
+%   c) Parallelize stability trials: Execute n_trials in parallel using `parfor`.
+%      This ensures maximum CPU utilization even with few metrics.
 %   d) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
 %   e) Fallback: If no convergence, uses HERA.stats.find_elbow_point.
 %
 % RNG Strategy:
-%   - Each effect type (metric_idx) gets a unique substream: 1..(num_metrics * 2)
-%   - Trade-off: With 1 metric (2 effect types), only 2 cores are utilized.
-%     This is accepted to maintain RNG consistency with the validated convergence behavior.
+%   - Deterministic substream assignment: (metric_idx - 1) * 1000 + trial_idx
+%   - Ensures reproducibility at the trial level independent of parallel execution order.
 %
 % Initialization of parameters from the configuration structure.
 alpha_level = 1 - config.ci_level;
@@ -165,61 +165,36 @@ else
         fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
         % Reset temp vector for each B value
         temp_stability_ci_vector(:) = 0; 
-    
+
         % --- Parallel Worker Limit ---
-        % Allows external control of worker count for nested parallelism scenarios.
-        % When config.num_workers is set, limits the parfor to that many workers.
-        % Default: Uses all available pool workers.
-        % --- Parallel Worker Limit ---
-        % Allows external control of worker count for nested parallelism scenarios.
-        % When config.num_workers is set, limits the parfor to that many workers.
-        % Default: Uses all available pool workers.
+        % Limits the number of workers if config.num_workers is set, otherwise utilizes the full pool.
         pool = gcp('nocreate');
         current_pool_size = Inf;
-        if ~isempty(pool)
-            try
-                current_pool_size = pool.NumWorkers;
-            catch
-                % Accessing pool properties (like NumWorkers) is not allowed on workers
-                % We default to Inf so that config.num_workers (if set) is respected,
-                % or parfor uses all available resources.
-            end
-        end
+        if ~isempty(pool), try, current_pool_size = pool.NumWorkers; catch, end; end
 
         if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
             parfor_limit = min(current_pool_size, config.num_workers);
         else
-            if isfinite(current_pool_size)
-                parfor_limit = current_pool_size;
-            else
-                parfor_limit = Inf;
-            end
+            parfor_limit = isfinite(current_pool_size) * current_pool_size + ~isfinite(current_pool_size) * Inf;
         end
 
-        % Parallel loop to calculate stability for all metrics and effect sizes.
-        % Loop count is dynamic (num_metrics * 2)
-        parfor (metric_idx = 1:(num_metrics * 2), parfor_limit)
-            % Each iteration gets its own reproducible substream.
-            s_worker = s; 
-            s_worker.Substream = metric_idx;
-
+        % Loop over metrics and effect types
+        for metric_idx = 1:(num_metrics * 2)
+            
             % Logic to determine effect type and metric index
             is_delta = metric_idx <= num_metrics;
             actual_metric_idx = mod(metric_idx-1, num_metrics) + 1;
             stability_all_pairs = zeros(num_pairs, 1);
 
-            % Loop over all dataset pairs.
+            % Loop over all dataset pairs (Sequential)
             for k = 1:num_pairs
                 idx1=p_pair_idx_all(k,1); idx2=p_pair_idx_all(k,2);
                 % Access data using dynamic index
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
-                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
                 
-                % --- Jackknife Statistics ---
-                % Pre-calculate Jackknife metrics once per pair. 
-                % These are deterministic and independent of the bootstrap trials, 
-                % allowing significant computational savings compared to re-evaluating them inside the loop.
+                % --- Jackknife Statistics (Sequential) ---
+                % Must be calculated HERE, outside the parfor, to avoid redundancy.
                 
                 jack_d = []; jack_r = [];
                 % We only need to compute Jackknife for the relevant metric (d or r)
@@ -238,12 +213,22 @@ else
                 if a_den == 0, a = 0; else, a = a_num / a_den; end
                 if ~isfinite(a), a = 0; end
             
-                % Repeats the BCa calculation 'n_trials' times to assess the stability of the CI width.
-                for t = 1:cfg_ci.n_trials
+                % Pre-calculate values needed for inner loop to avoid overhead
+                % Access effect size using dynamic index
+                if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
+                else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
+                
+                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
+                
+                % --- Inner Parallel Loop (Trials) ---
+                % Parallelizes the bootstrap trials to ensure maximum core utilization.
+                parfor (t = 1:cfg_ci.n_trials, parfor_limit)
+                    % RNG: Deterministic substream based on EffectType and Trial index.
+                    s_worker = s;
+                    s_worker.Substream = (metric_idx - 1) * 1000 + t;
                     
                     % --- Vectorized Bootstrap Sampling ---
-                    % Generate all bootstrap indices and sampled data in a single operation [N x B].
-                    % This avoids the overhead of repeated function calls in a loop.
+                    % Generate all bootstrap indices and sampled data simultaneously [N x B].
                     boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
                     
                     % Direct indexing is significantly faster than generating intermediate matrices.
@@ -251,15 +236,6 @@ else
                     boot_y = data_y_orig(boot_indices);
                     
                     % --- Robust Handling of Missing Data (NaN) ---
-                    % Standard vectorized operations assume consistent sample sizes. 
-                    % If the original data contains NaNs, pairwise exclusion results in varying 
-                    % valid sample sizes per bootstrap iteration, preventing simple 3D vectorization.
-                    %
-                    % Strategy:
-                    % 1. Check for NaNs in the source data.
-                    % 2. Fast Path: If clean, use highly efficient vectorized calculations.
-                    % 3. Robust Path: If NaNs exist, fall back to a loop to correctly handle varying N.
-                    
                     has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
                     
                     if ~has_nans
@@ -290,10 +266,6 @@ else
                     boot_stats = boot_stats(:)'; 
 
                     % Calculate BCa correction factors (z0 for bias).
-                    % Access effect size using dynamic index
-                    if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
-                    else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
-                    
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
                     if ~isfinite(z0), z0 = 0; end 
     

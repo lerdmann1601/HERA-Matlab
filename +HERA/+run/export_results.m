@@ -136,6 +136,20 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     % Generate comprehensive graphical reports only if requested.
     if userInput.create_reports
         generate_plots(results, analysis_results.thresholds, shared_info, styles);
+    else
+        %If reports are disabled, generate_plots is not called (which closes figures).
+        % We must close them manually here to prevent RAM leaks in batch mode.
+        handles = analysis_results.handles;
+        all_handles = [handles.h_fig_thr_global, handles.h_fig_thr_detailed, ...
+                       handles.h_fig_bca_global, handles.h_fig_bca_detailed, ...
+                       handles.h_fig_hist_thr, handles.h_fig_hist_raw, ...
+                       handles.h_fig_hist_z0, handles.h_fig_hist_a, ...
+                       handles.h_fig_hist_widths, handles.h_figs_rank, ...
+                       handles.h_fig_hist_rank];
+                   
+        % Filter specifically for valid graphics objects to avoid errors with empty/structs
+        valid_handles = all_handles(isgraphics(all_handles));
+        close(valid_handles);
     end
     
     %% 12. JSON Export for Machine Readability and AI Training

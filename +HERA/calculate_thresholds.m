@@ -153,16 +153,16 @@ min_rel_thresh = min_rel_dynamic; % Assigns the result to the output variable.
 % Iteratively tests increasing B-values until the threshold estimates stabilize.
 %
 % Architecture:
-%   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
-%   b) Parallel stability check: For each B, parallelizes over (num_metrics * 2) effect types.
-%   c) Inner loop: Each effect type runs n_trials to assess threshold variability.
-%   d) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
-%   e) Fallback: If no convergence, uses HERA.stats.find_elbow_point.
+%   a) Iterate sequentially over B-values (B_start:B_step:B_end).
+%   b) Iterate sequentially over each effect type / metric.
+%   c) Parallelize stability trials: Execute n_trials in parallel using `parfor`.
+%      This ensures maximum CPU utilization even with few metrics.
+%   d) Convergence detection: Uses HERA.stats.check_convergence.
+%   e) Fallback: Uses HERA.stats.find_elbow_point.
 %
 % RNG Strategy:
-%   - Each effect type (m) gets a unique substream: 1..(num_metrics * 2)
-%   - Trade-off: With 1 metric (2 effect types), only 2 cores are utilized.
-%     This is accepted to maintain RNG consistency with the validated convergence behavior.
+%   - Deterministic substream assignment: (m - 1) * 1000 + trial_idx
+%   - Ensures reproducibility at the trial level independent of parallel execution order.
 %
 % Checks if a manual B value was passed.
 if ~isempty(manual_B)
@@ -231,61 +231,47 @@ else
             n_vals_vec(m) = numel(vals_cell{m});
         end
         
-        
         % --- Parallel Worker Limit ---
-        % Allows external control of worker count for nested parallelism scenarios.
-        % When config.num_workers is set, limits the parfor to that many workers.
-        % Default: Uses all available pool workers.
-        % --- Parallel Worker Limit ---
-        % Allows external control of worker count for nested parallelism scenarios.
-        % When config.num_workers is set, limits the parfor to that many workers.
-        % Default: Uses all available pool workers.
+        % Limits the number of workers if config.num_workers is set, otherwise utilizes the full pool.
         pool = gcp('nocreate');
         current_pool_size = Inf;
-        if ~isempty(pool)
-            try
-                current_pool_size = pool.NumWorkers;
-            catch
-                % Accessing pool properties (like NumWorkers) is not allowed on workers
-                % We default to Inf so that config.num_workers (if set) is respected,
-                % or parfor uses all available resources.
-            end
-        end
+        if ~isempty(pool), try, current_pool_size = pool.NumWorkers; catch, end; end
 
         if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
             parfor_limit = min(current_pool_size, config.num_workers);
         else
-            if isfinite(current_pool_size)
-                parfor_limit = current_pool_size;
-            else
-                parfor_limit = Inf;
-            end
+            parfor_limit = isfinite(current_pool_size) * current_pool_size + ~isfinite(current_pool_size) * Inf;
         end
         
-        % Parallel loop to calculate stability for all metrics and effect sizes.
-        parfor (m = 1:n_effect_types, parfor_limit)
-            
-            % Each iteration gets its own reproducible substream.
-            s_worker = s;
-            s_worker.Substream = m;
+        % Data Preparation for all effect types (minimizing broadcast overhead)
+        % vals_cell and n_vals_vec are already prepared above.
+        
+        % Loop over effect types SEQUENTIALLY
+        for m = 1:n_effect_types
             
             vals = vals_cell{m};
             n_vals = n_vals_vec(m);
             
-            % Protects against errors if an entire vector consisted only of NaNs.
+            % Skip calculation if no valid data
             if isempty(vals) || n_vals < 2
-                temp_stability_vector(m) = 0;
+                temp_stability_vector(m) = 0; % Or handle as needed
                 continue;
             end
             
-            % Repeats the threshold calculation n_trials times to capture variability.
+            % --- Inner Parallel Loop (Trials) ---
+            % Parallelizes the bootstrap trials to ensure maximum core utilization.
             thr_trials = zeros(cfg_thr.n_trials, 1);
-            for t = 1:cfg_thr.n_trials
-                % Performs a percentile bootstrap: resamples the effect sizes.
+            
+            parfor (t = 1:cfg_thr.n_trials, parfor_limit)
+                % RNG: Deterministic substream based on EffectType and Trial index.
+                s_worker = s;
+                s_worker.Substream = (m - 1) * 1000 + t;
+                
+                % Percentile bootstrap
                 boot_indices = randi(s_worker, n_vals, [n_vals, B_current]);
                 bootstat = median(vals(boot_indices), 1);
                 
-                % The lower confidence interval of this distribution is an estimate of the threshold.
+                % Estimate threshold (Lower CI bound)
                 ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
                 thr_trials(t) = ci_tmp(1);
             end
