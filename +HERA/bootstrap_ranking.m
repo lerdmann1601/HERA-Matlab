@@ -135,7 +135,7 @@ else
     % Loop over the different B-values to check for stability.
     for b_idx = 1:numel(B_vector_b)
         Br_b = B_vector_b(b_idx);
-        fprintf([' -\u003e ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
+        fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
         ci_widths_b = zeros(cfg_rank.n_trials, num_datasets_b);
         
         % --- Parallel Worker Limit ---
