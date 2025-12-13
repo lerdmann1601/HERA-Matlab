@@ -24,7 +24,8 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
 %      Calculates the final CIs for Cliff's Delta and the relative difference using the 
-%      determined optimal B-value. This calculation is parallelized.
+%      determined optimal B-value. This step is parallelized and uses 'config.system.target_memory'
+%      for memory-aware batching.
 %   4. Calculation and output of correction factors: 
 %      Summarizes the bias correction (z0) and skewness correction (a) and exports 
 %      them to a CSV file.
@@ -37,7 +38,8 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   rel_vals_all  - Matrix of the original relative differences.
 %   pair_idx_all  - Matrix of the indices for all pairwise comparisons.
 %   num_probanden - Number of subjects.
-%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci).
+%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci 
+%                   and config.system.target_memory for RAM optimization).
 %   metric_names  - Cell array with the names of the metrics (1, 2, or 3 names).
 %   graphics_dir  - Path to the output folder for graphics.
 %   csv_dir       - Path to the output folder for CSV files.
@@ -374,10 +376,154 @@ z0_r_all = NaN(num_pairs, num_metrics);
 a_r_all = NaN(num_pairs, num_metrics);
 
 
+% Dynamic batch sizing based on memory configuration.
+if isfield(config, 'system') && isfield(config.system, 'target_memory')
+     TARGET_MEMORY = config.system.target_memory;
+else
+     TARGET_MEMORY = 200;
+end
+
+% Get worker count for memory estimation (parfor broadcasts data to all workers).
+if isfield(config, 'num_workers') && isnumeric(config.num_workers)
+    num_workers = config.num_workers;
+else
+    num_workers = feature('numcores');
+end
+
+% Effective memory per batch accounts for parfor broadcast overhead.
+effective_memory = TARGET_MEMORY / max(1, num_workers);
+
+% Use substream offset to avoid overlap with stability analysis phase.
+OFFSET_BASE_CI = 1000;
+
 % Loop over the metrics for the final calculation.
 for metric_idx = 1:num_metrics
     fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
-    % Temporary variables for the results of the parfor loop.
+    
+    % --- Pre-compute data and Jackknife for all pairs (serial, deterministic) ---
+    pair_data_x = cell(num_pairs, 1);
+    pair_data_y = cell(num_pairs, 1);
+    pair_n_valid = zeros(num_pairs, 1);
+    pair_jack_d = cell(num_pairs, 1);
+    pair_jack_r = cell(num_pairs, 1);
+    pair_theta_hat_d = zeros(num_pairs, 1);
+    pair_theta_hat_r = zeros(num_pairs, 1);
+    pair_a_d = zeros(num_pairs, 1);
+    pair_a_r = zeros(num_pairs, 1);
+    
+    for k = 1:num_pairs
+        i = p_pair_idx_all(k, 1);
+        j = p_pair_idx_all(k, 2);
+        data_x_orig = p_all_data{metric_idx}(:, i);
+        data_y_orig = p_all_data{metric_idx}(:, j);
+        
+        % Pairwise NaN exclusion.
+        valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+        pair_data_x{k} = data_x_orig(valid_mask);
+        pair_data_y{k} = data_y_orig(valid_mask);
+        pair_n_valid(k) = sum(valid_mask);
+        
+        if pair_n_valid(k) >= 2
+            % Pre-compute Jackknife (deterministic, only depends on original data).
+            pair_jack_d{k} = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
+            pair_jack_r{k} = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+            
+            % Calculate acceleration factors from Jackknife.
+            mean_jack_d = mean(pair_jack_d{k});
+            a_num_d = sum((mean_jack_d - pair_jack_d{k}).^3);
+            a_den_d = 6 * (sum((mean_jack_d - pair_jack_d{k}).^2)).^(3/2);
+            if a_den_d == 0, pair_a_d(k) = 0; else, pair_a_d(k) = a_num_d / a_den_d; end
+            if ~isfinite(pair_a_d(k)), pair_a_d(k) = 0; end
+            
+            mean_jack_r = mean(pair_jack_r{k});
+            a_num_r = sum((mean_jack_r - pair_jack_r{k}).^3);
+            a_den_r = 6 * (sum((mean_jack_r - pair_jack_r{k}).^2)).^(3/2);
+            if a_den_r == 0, pair_a_r(k) = 0; else, pair_a_r(k) = a_num_r / a_den_r; end
+            if ~isfinite(pair_a_r(k)), pair_a_r(k) = 0; end
+            
+            % Store original effect sizes.
+            pair_theta_hat_d(k) = p_d_vals_all(k, metric_idx);
+            pair_theta_hat_r(k) = p_rel_vals_all(k, metric_idx);
+        end
+    end
+    
+    % --- Memory-aware batch sizing for bootstrap ---
+    max_n_valid = max(pair_n_valid);
+    if max_n_valid < 2, max_n_valid = 2; end
+    bytes_per_sample = max_n_valid * 8 * 2;  % x and y bootstrap samples
+    total_memory_needed = (B_ci * bytes_per_sample) / (1024^2);
+    
+    % Smart batching: Use one batch if total memory fits, otherwise split.
+    if total_memory_needed <= effective_memory
+        BATCH_SIZE = B_ci;
+    else
+        BATCH_SIZE = max(100, floor((effective_memory * 1024^2) / bytes_per_sample));
+    end
+    num_batches = ceil(B_ci / BATCH_SIZE);
+    
+    % Unique offset for this metric to avoid substream collisions.
+    metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (num_batches + 100);
+    
+    % --- Parallel bootstrap computation over batches ---
+    % Each batch computes a portion of the B bootstrap samples.
+    boot_d_all = cell(num_pairs, 1);
+    boot_r_all = cell(num_pairs, 1);
+    for k = 1:num_pairs
+        boot_d_all{k} = zeros(1, B_ci);
+        boot_r_all{k} = zeros(1, B_ci);
+    end
+    
+    parfor b = 1:num_batches
+        % Each batch gets its own reproducible substream.
+        s_worker = s;
+        s_worker.Substream = metric_offset + b;
+        
+        % Determine batch range.
+        start_idx = (b - 1) * BATCH_SIZE + 1;
+        end_idx = min(b * BATCH_SIZE, B_ci);
+        batch_B = end_idx - start_idx + 1;
+        
+        % Local storage for this batch.
+        batch_d = cell(num_pairs, 1);
+        batch_r = cell(num_pairs, 1);
+        
+        for k = 1:num_pairs
+            if pair_n_valid(k) < 2
+                batch_d{k} = NaN(1, batch_B);
+                batch_r{k} = NaN(1, batch_B);
+                continue;
+            end
+            
+            n_valid = pair_n_valid(k);
+            data_x = pair_data_x{k};
+            data_y = pair_data_y{k};
+            
+            % Generate bootstrap indices for this batch.
+            boot_indices = randi(s_worker, n_valid, [n_valid, batch_B]);
+            boot_x = data_x(boot_indices);
+            boot_y = data_y(boot_indices);
+            
+            % Calculate effect sizes.
+            batch_d{k} = HERA.stats.cliffs_delta(boot_x, boot_y);
+            batch_r{k} = HERA.stats.relative_difference(boot_x, boot_y);
+        end
+        
+        % Return batch results (will be aggregated outside parfor).
+        boot_d_all_batch{b} = batch_d;
+        boot_r_all_batch{b} = batch_r;
+    end
+    
+    % --- Aggregate batch results ---
+    for b = 1:num_batches
+        start_idx = (b - 1) * BATCH_SIZE + 1;
+        end_idx = min(b * BATCH_SIZE, B_ci);
+        for k = 1:num_pairs
+            boot_d_all{k}(start_idx:end_idx) = boot_d_all_batch{b}{k};
+            boot_r_all{k}(start_idx:end_idx) = boot_r_all_batch{b}{k};
+        end
+    end
+    
+    % --- Calculate BCa intervals from aggregated bootstrap distributions ---
     temp_ci_d = NaN(num_pairs, 2);
     temp_ci_r = NaN(num_pairs, 2);
     temp_z0_d = NaN(num_pairs, 1);
@@ -385,92 +531,44 @@ for metric_idx = 1:num_metrics
     temp_z0_r = NaN(num_pairs, 1);
     temp_a_r = NaN(num_pairs, 1);
     
-    % Parallel loop over all pairs for the final BCa calculation with the optimal B_ci.
-    parfor k = 1:num_pairs
-        % Each iteration gets its own reproducible substream.
-        s_worker = s; 
-        s_worker.Substream = k;
-
-        i = p_pair_idx_all(k, 1);
-        j = p_pair_idx_all(k, 2);
-        data_x_orig = p_all_data{metric_idx}(:, i);
-        data_y_orig = p_all_data{metric_idx}(:, j);
-        
-        % --- Vectorized Bootstrap Sampling ---
-        % Generate all bootstrap indices and sampled data in a single operation [N x B].
-        boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci]);
-        
-        boot_x = data_x_orig(boot_indices);
-        boot_y = data_y_orig(boot_indices);
-
-        % --- Robust Handling of Missing Data (NaN) ---
-        has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
-        
-        if ~has_nans
-            % FAST PATH: No NaNs present.
-            % Calculate statistics for all B iterations simultaneously using 3D expansion.
-            boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
-            boot_r = HERA.stats.relative_difference(boot_x, boot_y);
-        else
-            % ROBUST PATH: NaNs present.
-            % Iterate through each bootstrap sample and perform pairwise exclusion.
-            boot_d = zeros(B_ci, 1); boot_r = zeros(B_ci, 1);
-            for b = 1:B_ci
-                bx = boot_x(:,b); by = boot_y(:,b);
-                valid = ~isnan(bx) & ~isnan(by);
-                boot_d(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
-                boot_r(b) = HERA.stats.relative_difference(bx(valid), by(valid));
-            end
+    z1 = norminv(alpha_level / 2); 
+    z2 = norminv(1 - alpha_level / 2);
+    
+    for k = 1:num_pairs
+        if pair_n_valid(k) < 2
+            continue;
         end
-        boot_d = boot_d(:)'; boot_r = boot_r(:)'; % Ensure row vectors
         
-        if isempty(boot_d), boot_d=0; end 
-        if isempty(boot_r), boot_r=0; end
+        boot_d = boot_d_all{k};
+        boot_r = boot_r_all{k};
+        theta_hat_d = pair_theta_hat_d(k);
+        theta_hat_r = pair_theta_hat_r(k);
+        a_d = pair_a_d(k);
+        a_r = pair_a_r(k);
         
-        % Generate Jackknife distribution (One-time calculation)
-        % Delegated to the dedicated statistics module
-        jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
-        jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
-        
-        z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
-        
-        % BCa calculation for Cliff's Delta.
-        theta_hat_d = p_d_vals_all(k, metric_idx);
-        z0_d = norminv(sum(boot_d < theta_hat_d) / B_ci); % Bias-correction factor.
-        mean_jack_d = mean(jack_d);
-        a_num_d = sum((mean_jack_d - jack_d).^3);
-        a_den_d = 6 * (sum((mean_jack_d - jack_d).^2)).^(3/2);
-        if a_den_d == 0, a_d = 0; 
-        else, a_d = a_num_d / a_den_d; end % Acceleration factor.
-        if ~isfinite(z0_d), z0_d = 0; end 
-        if ~isfinite(a_d), a_d = 0; end
-        % Calculate adjusted percentile indices.
+        % BCa for Cliff's Delta.
+        z0_d = norminv(sum(boot_d < theta_hat_d) / B_ci);
+        if ~isfinite(z0_d), z0_d = 0; end
         a1_d = normcdf(z0_d + (z0_d + z1) / (1 - a_d * (z0_d + z1)));
         a2_d = normcdf(z0_d + (z0_d + z2) / (1 - a_d * (z0_d + z2)));
-        if isnan(a1_d), a1_d = alpha_level / 2; end 
+        if isnan(a1_d), a1_d = alpha_level / 2; end
         if isnan(a2_d), a2_d = 1 - alpha_level / 2; end
         sorted_d = sort(boot_d);
         temp_ci_d(k, :) = [sorted_d(max(1, floor(B_ci * a1_d))), sorted_d(min(B_ci, ceil(B_ci * a2_d)))];
-        temp_z0_d(k) = z0_d; temp_a_d(k) = a_d;
+        temp_z0_d(k) = z0_d;
+        temp_a_d(k) = a_d;
         
-        % BCa calculation for Relative Difference.
-        theta_hat_r = p_rel_vals_all(k, metric_idx);
-        z0_r = norminv(sum(boot_r < theta_hat_r) / B_ci); % Bias-correction factor.
-        mean_jack_r = mean(jack_r);
-        a_num_r = sum((mean_jack_r - jack_r).^3);
-        a_den_r = 6 * (sum((mean_jack_r - jack_r).^2)).^(3/2);
-        if a_den_r == 0, a_r = 0; 
-        else, a_r = a_num_r / a_den_r; end % Acceleration factor.
-        if ~isfinite(z0_r), z0_r = 0; end 
-        if ~isfinite(a_r), a_r = 0; end
-        % Calculate adjusted percentile indices.
+        % BCa for Relative Difference.
+        z0_r = norminv(sum(boot_r < theta_hat_r) / B_ci);
+        if ~isfinite(z0_r), z0_r = 0; end
         a1_r = normcdf(z0_r + (z0_r + z1) / (1 - a_r * (z0_r + z1)));
         a2_r = normcdf(z0_r + (z0_r + z2) / (1 - a_r * (z0_r + z2)));
-        if isnan(a1_r), a1_r = alpha_level / 2; end 
+        if isnan(a1_r), a1_r = alpha_level / 2; end
         if isnan(a2_r), a2_r = 1 - alpha_level / 2; end
         sorted_r = sort(boot_r);
         temp_ci_r(k, :) = [sorted_r(max(1, floor(B_ci * a1_r))), sorted_r(min(B_ci, ceil(B_ci * a2_r)))];
-        temp_z0_r(k) = z0_r; temp_a_r(k) = a_r;
+        temp_z0_r(k) = z0_r;
+        temp_a_r(k) = a_r;
     end
     
     % Transfer the results from the temporary variables to the final output matrices.
