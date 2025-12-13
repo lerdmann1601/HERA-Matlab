@@ -14,11 +14,6 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   This function acts as the main controller for the BCa (Bias-Corrected and Accelerated) 
 %   Bootstrap confidence interval calculation. It dynamically determines the optimal 
 %   number of bootstrap samples (B) by analyzing the stability of the CI widths.
-%   
-%   Refactored to follow the "Strict Controller Pattern":
-%   - Core logic and orchestration remain here.
-%   - Statistical checks are delegated to `+HERA/+stats`.
-%   - Plotting and visualization are delegated to `+HERA/+plot`.
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 

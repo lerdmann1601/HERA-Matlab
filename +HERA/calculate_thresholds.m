@@ -10,7 +10,6 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %
 % Description:
 %   This function analyzes data to find robust thresholds for Cliff's Delta and the relative difference.
-%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to handle large datasets.
 %
 % Workflow:
 %   1. Initialization & Initial Statistics: 
@@ -20,7 +19,6 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %   3. Dynamic Determination of Stable Bootstrap Thresholds (for B): 
 %      Iteratively checks stability and delegates convergence checks to `HERA.stats.check_convergence` 
 %      and elbow detection to `HERA.stats.find_elbow_point`.
-%      Uses 'config.system.target_memory' to optimize chunk sizes for available RAM.
 %   4. Final Threshold Calculation: 
 %      Computes the final thresholds with the optimal B, where the relative threshold is capped by the SEM value.
 %   5. Visualization:
