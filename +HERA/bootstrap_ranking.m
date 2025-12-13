@@ -83,6 +83,18 @@ arguments
 end
 
 %% 1. Initialization and Convergence Check for Optimal B
+% Iteratively tests increasing B-values until the rank CI widths stabilize.
+%
+% Architecture:
+%   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
+%   b) Parallel stability check: For each B, runs n_trials parallel bootstrap analyses.
+%   c) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
+%   d) Fallback: If no convergence, uses HERA.stats.find_elbow_point.
+%
+% RNG Strategy:
+%   - Each trial gets a unique substream: t_b (1..n_trials)
+%   - This ensures reproducibility while utilizing all available CPU cores.
+%
 % Initialization of local variables from input parameters.
 ts = config.timestamp;
 num_datasets_b = size(all_data{1}, 2);
@@ -259,7 +271,17 @@ else
     end
 end
 %% 3. Final Bootstrap Analysis for Rank Distributions
-% Generate the final rank distribution using the optimally determined B value.
+% Generates the final rank distribution using the optimally determined B value.
+%
+% Architecture:
+%   a) Memory-aware batch sizing: Splits B into chunks that fit in RAM.
+%   b) Parallel bootstrap over batches: Each batch gets its own RNG substream.
+%   c) Fast/Robust path: Uses vectorized calculation if no NaNs, otherwise loop-based.
+%   d) Aggregation: Flattens batch results into the final [num_datasets x B] matrix.
+%
+% RNG Strategy:
+%   - Each batch gets a unique substream: OFFSET_BOOTSTRAP + b_idx
+%   - Offset ensures no overlap with Phase 1 (stability check uses substreams 1..n_trials).
 
 % Dynamic batch sizing based on memory configuration.
 if isfield(config, 'system') && isfield(config.system, 'target_memory')

@@ -82,6 +82,20 @@ arguments
 end
 
 %% 1. Dynamic determination of the optimal bootstrap count (B)
+% Iteratively tests increasing B-values until the CI widths stabilize.
+%
+% Architecture:
+%   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
+%   b) Parallel stability check: For each B, parallelizes over (num_metrics * 2) effect types.
+%   c) Inner loop: Each effect type runs n_trials to assess CI width variability.
+%   d) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
+%   e) Fallback: If no convergence, uses HERA.stats.find_elbow_point.
+%
+% RNG Strategy:
+%   - Each effect type (metric_idx) gets a unique substream: 1..(num_metrics * 2)
+%   - Trade-off: With 1 metric (2 effect types), only 2 cores are utilized.
+%     This is accepted to maintain RNG consistency with the validated convergence behavior.
+%
 % Initialization of parameters from the configuration structure.
 alpha_level = 1 - config.ci_level;
 num_pairs = size(pair_idx_all, 1);
@@ -367,6 +381,20 @@ else
 end
 
 %% 3. Final calculation of BCa confidence intervals with optimal B_ci
+% Calculates the final BCa confidence intervals for all pairs and metrics.
+%
+% Architecture:
+%   a) Pre-compute deterministic components: Jackknife and acceleration factor 'a' 
+%      are calculated once per pair (serial, reproducible, independent of B).
+%   b) Memory-aware batch sizing: Splits B into chunks that fit in RAM.
+%   c) Parallel bootstrap over batches: Each (metric, batch) gets a unique RNG substream.
+%   d) Aggregation: Combines batch results and calculates BCa intervals serially.
+%
+% RNG Strategy:
+%   - Unique substream per (metric, batch): metric_offset + b
+%   - metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (num_batches + 100)
+%   - The +100 buffer prevents collisions even if num_batches varies between metrics.
+%
 % Initialization of the output matrices.
 ci_d_all = NaN(num_pairs, 2, num_metrics);
 ci_r_all = NaN(num_pairs, 2, num_metrics);

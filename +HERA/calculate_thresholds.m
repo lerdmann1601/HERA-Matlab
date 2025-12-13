@@ -150,6 +150,20 @@ end
 min_rel_thresh = min_rel_dynamic; % Assigns the result to the output variable.
 
 %% 3. Dynamic determination of stable bootstrap thresholds (for B)
+% Iteratively tests increasing B-values until the threshold estimates stabilize.
+%
+% Architecture:
+%   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
+%   b) Parallel stability check: For each B, parallelizes over (num_metrics * 2) effect types.
+%   c) Inner loop: Each effect type runs n_trials to assess threshold variability.
+%   d) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
+%   e) Fallback: If no convergence, uses HERA.stats.find_elbow_point.
+%
+% RNG Strategy:
+%   - Each effect type (m) gets a unique substream: 1..(num_metrics * 2)
+%   - Trade-off: With 1 metric (2 effect types), only 2 cores are utilized.
+%     This is accepted to maintain RNG consistency with the validated convergence behavior.
+%
 % Checks if a manual B value was passed.
 if ~isempty(manual_B)
     selected_B = manual_B;
@@ -347,15 +361,23 @@ else
 end
 
 %% 5. Final calculation of thresholds with the optimal B
+% Calculates the final thresholds for Cliff's Delta and relative difference.
+%
+% Architecture:
+%   a) Memory-aware batch sizing: Splits B into chunks that fit in RAM.
+%   b) Parallel bootstrap over batches: Each batch gets its own RNG substream.
+%   c) Aggregation: Flattens batch results and calculates the lower CI bound as threshold.
+%
+% RNG Strategy:
+%   - Unique substream per (metric, effect_type, batch): offset_d + b or offset_rel + b
+%   - Offsets are calculated to prevent collisions between metrics and effect types.
+%
 % Initialization of the output variables.
 d_thresh = zeros(1, num_metrics); 
 rel_thresh = zeros(1, num_metrics); 
 all_bootstat_d = cell(1, num_metrics); 
 all_bootstat_rel = cell(1, num_metrics);
 
-% Calculate final thresholds with the optimal B value.
-% Dynamic batch sizing based on memory configuration.
-% Calculate final thresholds with the optimal B value.
 % Dynamic batch sizing based on memory configuration.
 if isfield(config, 'system') && isfield(config.system, 'target_memory')
      TARGET_MEMORY = config.system.target_memory;
