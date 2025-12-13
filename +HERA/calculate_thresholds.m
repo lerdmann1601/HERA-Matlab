@@ -290,9 +290,11 @@ else
             % Parallel calculation on the chunk
             parfor local_idx = 1:n_chunk_tasks
                 if chunk_valid(local_idx)
-                    % Calculate mean of bootstrapped values
-                    boot_means = mean(chunk_vals{local_idx}(chunk_indices{local_idx}), 1);
-                    chunk_results(local_idx) = std(boot_means);
+                    % Calculate bootstrap distribution (Median)
+                    boot_stats = median(chunk_vals{local_idx}(chunk_indices{local_idx}), 1);
+                    
+                    % Calculate Threshold (Quantile) to match Phase 5 logic
+                    chunk_results(local_idx) = quantile(boot_stats, alpha_level / 2);
                 end
             end
             
