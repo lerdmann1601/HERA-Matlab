@@ -88,6 +88,13 @@ classdef ScientificSuite < matlab.unittest.TestCase
             [testCase.lang, testCase.styles] = TestHelper.get_test_resources();
         end
     end
+
+    methods (TestMethodTeardown)
+        function cleanupFigures(testCase)
+            % Ensure no figures from direct function calls persist between tests.
+            close all force;
+        end
+    end
     
     methods (Test)
         
