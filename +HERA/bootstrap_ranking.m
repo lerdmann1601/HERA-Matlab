@@ -16,7 +16,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 % Workflow:
 %   1.  Dynamic search for the optimal number of bootstrap samples (B): 
 %       Analyzes the stability of the rank confidence intervals over multiple trials and an increasing number of B-values. 
-%       Stability is quantified using the ratio of the Interquartile Range (IQR) to the median of the confidence interval widths.
+%       Stability is quantified using the maximum Interquartile Range (IQR) of the confidence interval widths (absolute stability). (absolute stability).
 %       Uses 'config.system.target_memory' to optimize batch sizes.
 %   2.  Selection of the final B-value ('selected_B_final'): 
 %       The optimal B is determined either when stability converges (i.e., the relative improvement falls below a tolerance) - 
