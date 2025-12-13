@@ -219,95 +219,35 @@ else
             n_vals_vec(m) = numel(vals_cell{m});
         end
         
-        % --- Chunk-based execution (RNG + Calculation) ---
-        if isfield(config, 'system') && isfield(config.system, 'target_memory')
-             TARGET_MEMORY = config.system.target_memory;
-        else
-             TARGET_MEMORY = 200;
-        end
-        
-        % Get worker count for memory estimation (parfor broadcasts data to all workers).
-        if isfield(config, 'num_workers') && isnumeric(config.num_workers)
-            num_workers = config.num_workers;
-        else
-            num_workers = feature('numcores');
-        end
-        
-        % Effective memory per chunk accounts for parfor broadcast overhead.
-        effective_memory = TARGET_MEMORY / max(1, num_workers);
-        
-        % Estimate total memory needed for all tasks.
-        max_n_vals = max(n_vals_vec);
-        if max_n_vals < 2, max_n_vals = 2; end
-        bytes_per_task = max_n_vals * B_current * 8;
-        total_memory_needed = (total_tasks * bytes_per_task) / (1024^2);
-        
-        % Smart chunking: Use one chunk if total memory fits, otherwise split.
-        if total_memory_needed <= effective_memory
-            CHUNK_SIZE = total_tasks;
-        else
-            max_tasks_per_chunk = max(1, floor((effective_memory * 1024^2) / bytes_per_task));
-            CHUNK_SIZE = max(1, max_tasks_per_chunk);
-        end
-        num_chunks = ceil(total_tasks / CHUNK_SIZE);
-        
-        flat_results = zeros(total_tasks, 1);
-        
-        % Process tasks in memory-efficient chunks.
-        for chunk_idx = 1:num_chunks
-            chunk_start = (chunk_idx - 1) * CHUNK_SIZE + 1;
-            chunk_end = min(chunk_idx * CHUNK_SIZE, total_tasks);
-            chunk_task_indices = chunk_start:chunk_end;
-            n_chunk_tasks = numel(chunk_task_indices);
+        % Parallel loop to calculate stability for all metrics and effect sizes.
+        parfor m = 1:n_effect_types
             
-            % --- chunk-local data preparation ---
-            chunk_indices = cell(1, n_chunk_tasks);
-            chunk_vals = cell(1, n_chunk_tasks);
-            chunk_valid = false(1, n_chunk_tasks);
+            % Each iteration gets its own reproducible substream.
+            s_worker = s;
+            s_worker.Substream = m;
             
-            % Serial generation for this chunk only
-            for local_idx = 1:n_chunk_tasks
-                task_idx = chunk_task_indices(local_idx);
-                
-                % Decode task index to get metric/effect type
-                m = floor((task_idx - 1) / cfg_thr.n_trials) + 1;
-                vals = vals_cell{m};
-                
-                if ~isempty(vals)
-                    chunk_valid(local_idx) = true;
-                    n_vals = n_vals_vec(m);
-                    chunk_vals{local_idx} = vals;
-                    
-                    % Generate indices with unique substream per task.
-                    s_worker = s;
-                    s_worker.Substream = task_idx; 
-                    chunk_indices{local_idx} = randi(s_worker, n_vals, [n_vals, B_current]);
-                end
+            vals = vals_cell{m};
+            n_vals = n_vals_vec(m);
+            
+            % Protects against errors if an entire vector consisted only of NaNs.
+            if isempty(vals) || n_vals < 2
+                temp_stability_vector(m) = 0;
+                continue;
             end
             
-            chunk_results = zeros(n_chunk_tasks, 1);
-            
-            % Parallel calculation on the chunk
-            parfor local_idx = 1:n_chunk_tasks
-                if chunk_valid(local_idx)
-                    % Calculate bootstrap distribution (Median)
-                    boot_stats = median(chunk_vals{local_idx}(chunk_indices{local_idx}), 1);
-                    
-                    % Calculate Threshold (Quantile) to match Phase 5 logic
-                    chunk_results(local_idx) = quantile(boot_stats, alpha_level / 2);
-                end
+            % Repeats the threshold calculation n_trials times to capture variability.
+            thr_trials = zeros(cfg_thr.n_trials, 1);
+            for t = 1:cfg_thr.n_trials
+                % Performs a percentile bootstrap: resamples the effect sizes.
+                boot_indices = randi(s_worker, n_vals, [n_vals, B_current]);
+                bootstat = median(vals(boot_indices), 1);
+                
+                % The lower confidence interval of this distribution is an estimate of the threshold.
+                ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
+                thr_trials(t) = ci_tmp(1);
             end
             
-            % Store chunk results.
-            flat_results(chunk_task_indices) = chunk_results;
-        end
-        
-        % Aggregate results per effect type.
-        for m = 1:n_effect_types
-            start_idx = (m - 1) * cfg_thr.n_trials + 1;
-            end_idx = m * cfg_thr.n_trials;
-            thr_trials = flat_results(start_idx:end_idx);
-            
+            % Calculates stability as a relative measure of dispersion (IQR / Median).
             med_thr = median(thr_trials);
             iqr_thr = iqr(thr_trials);
             
