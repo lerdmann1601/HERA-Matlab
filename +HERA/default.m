@@ -46,8 +46,8 @@ function defaults = default()
     defaults.min_data_completeness = 0.80;
     
     %% System Configuration
-    % Target memory per chunk/batch. Increase for systems with more RAM.
-    defaults.system.target_chunk_memory_mb = 200;
+    % Target memory per chunk/batch (MB). Increase for systems with more RAM.
+    defaults.system.target_memory = 400;
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)

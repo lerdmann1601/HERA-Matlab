@@ -14,12 +14,14 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   This function acts as the main controller for the BCa (Bias-Corrected and Accelerated) 
 %   Bootstrap confidence interval calculation. It dynamically determines the optimal 
 %   number of bootstrap samples (B) by analyzing the stability of the CI widths.
+%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to handle large datasets.
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
 %      Iterates over B-values in a parfor loop. Convergence is strictly checked using
 %      `HERA.stats.check_convergence`. If no convergence is found, the optimal B is 
 %      determined via elbow method using `HERA.stats.find_elbow_point`.
+%      Uses 'config.system.target_memory' to optimize chunk sizes for available RAM.
 %   2. Creation of the convergence plot: 
 %      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
@@ -37,7 +39,7 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   rel_vals_all  - Matrix of the original relative differences.
 %   pair_idx_all  - Matrix of the indices for all pairwise comparisons.
 %   num_probanden - Number of subjects.
-%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci).
+%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci and config.system.target_memory).
 %   metric_names  - Cell array with the names of the metrics (1, 2, or 3 names).
 %   graphics_dir  - Path to the output folder for graphics.
 %   csv_dir       - Path to the output folder for CSV files.
@@ -207,19 +209,35 @@ else
         total_tasks = n_effect_types * num_pairs * cfg_ci.n_trials;
         
         % Dynamic chunk sizing to limit RAM usage.
-        if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
-             TARGET_CHUNK_MEMORY_MB = config.system.target_chunk_memory_mb;
+        if isfield(config, 'system') && isfield(config.system, 'target_memory')
+             TARGET_MEMORY = config.system.target_memory;
         else
-             TARGET_CHUNK_MEMORY_MB = 200;
+             TARGET_MEMORY = 200;
         end
         
-        % Estimate memory per task based on average valid data points.
-        avg_n_valid = mean(n_valid_all(:), 'omitnan');
-        if isnan(avg_n_valid) || avg_n_valid < 2, avg_n_valid = 20; end
-        bytes_per_task = avg_n_valid * B_ci_current * 8;
+        % Get worker count for memory estimation (parfor broadcasts data to all workers).
+        if isfield(config, 'num_workers') && isnumeric(config.num_workers)
+            num_workers = config.num_workers;
+        else
+            num_workers = feature('numcores');
+        end
         
-        max_tasks_per_chunk = max(1, floor((TARGET_CHUNK_MEMORY_MB * 1024^2) / bytes_per_task));
-        CHUNK_SIZE = max(cfg_ci.n_trials, min(max_tasks_per_chunk, total_tasks));
+        % Effective memory per chunk accounts for parfor broadcast overhead.
+        effective_memory = TARGET_MEMORY / max(1, num_workers);
+        
+        % Estimate total memory needed for all tasks.
+        avg_n_valid = mean(n_valid_all(:), 'omitnan');
+        if isnan(avg_n_valid) || avg_n_valid < 2, avg_n_valid = 2; end
+        bytes_per_task = avg_n_valid * B_ci_current * 8;
+        total_memory_needed = (total_tasks * bytes_per_task) / (1024^2);
+        
+        % Smart chunking: Use one chunk if total memory fits, otherwise split.
+        if total_memory_needed <= effective_memory
+            CHUNK_SIZE = total_tasks;
+        else
+            max_tasks_per_chunk = max(1, floor((effective_memory * 1024^2) / bytes_per_task));
+            CHUNK_SIZE = max(1, max_tasks_per_chunk);
+        end
         num_chunks = ceil(total_tasks / CHUNK_SIZE);
         
         task_results = zeros(total_tasks, 1);
@@ -352,7 +370,7 @@ else
         final_i_ci = i;
         
         % Save the average stability value for the overall convergence check.
-        overall_stability_ci(i) = nanmean(stability_matrix_ci(:, :, i), 'all');
+        overall_stability_ci(i) = mean(stability_matrix_ci(:, :, i), 'all', 'omitnan');
     
         % Convergence check via Helper Function
         [converged_ci, stats] = HERA.stats.check_convergence(overall_stability_ci(1:i), cfg_ci);

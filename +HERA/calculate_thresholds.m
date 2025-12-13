@@ -10,6 +10,7 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %
 % Description:
 %   This function analyzes data to find robust thresholds for Cliff's Delta and the relative difference.
+%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to handle large datasets.
 %
 % Workflow:
 %   1. Initialization & Initial Statistics: 
@@ -19,6 +20,7 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %   3. Dynamic Determination of Stable Bootstrap Thresholds (for B): 
 %      Iteratively checks stability and delegates convergence checks to `HERA.stats.check_convergence` 
 %      and elbow detection to `HERA.stats.find_elbow_point`.
+%      Uses 'config.system.target_memory' to optimize chunk sizes for available RAM.
 %   4. Final Threshold Calculation: 
 %      Computes the final thresholds with the optimal B, where the relative threshold is capped by the SEM value.
 %   5. Visualization:
@@ -28,7 +30,7 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 % Inputs:
 %   all_data      - Cell array of data matrices for each metric (1, 2, or 3).
 %   num_probanden - Number of subjects.
-%   config        - Struct with all configuration parameters (especially 'config.bootstrap_thresholds').
+%   config        - Struct with all configuration parameters (especially 'config.bootstrap_thresholds' and 'config.system.target_memory').
 %   manual_B      - (Optional) Manually set number of bootstrap repetitions (B). 
 %   s             - Random number stream for reproducibility.
 %   styles        - Struct with plot styling information.
@@ -198,54 +200,104 @@ else
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
-        % Pre-generate all random indices for reproducibility.
+        % Total tasks: all effect types × n_trials.
         n_effect_types = num_metrics * 2;
         total_tasks = n_effect_types * cfg_thr.n_trials;
         
-        % Storage for indices and values.
-        all_indices_cell = cell(1, n_effect_types);
+        % Extract values once per effect type (reused for all trials).
         vals_cell = cell(1, n_effect_types);
-        
+        n_vals_vec = zeros(1, n_effect_types);
         for m = 1:n_effect_types
-            s_worker = s;
-            s_worker.Substream = m;
-            
             is_delta = m <= num_metrics;
             actual_metric_idx = mod(m - 1, num_metrics) + 1;
-            
             if is_delta
                 all_vals = abs(d_vals_all(:, actual_metric_idx));
             else
                 all_vals = rel_vals_all(:, actual_metric_idx);
             end
-            vals = all_vals(~isnan(all_vals));
-            vals_cell{m} = vals;
-            
-            if ~isempty(vals)
-                n_vals = numel(vals);
-                all_indices_cell{m} = randi(s_worker, n_vals, [n_vals, B_current, cfg_thr.n_trials]);
-            else
-                all_indices_cell{m} = [];
-            end
+            vals_cell{m} = all_vals(~isnan(all_vals));
+            n_vals_vec(m) = numel(vals_cell{m});
         end
         
-        % Parallel computation of all tasks (minimizes parfor overhead).
+        % --- Chunk-based execution (RNG + Calculation) ---
+        if isfield(config, 'system') && isfield(config.system, 'target_memory')
+             TARGET_MEMORY = config.system.target_memory;
+        else
+             TARGET_MEMORY = 200;
+        end
+        
+        % Get worker count for memory estimation (parfor broadcasts data to all workers).
+        if isfield(config, 'num_workers') && isnumeric(config.num_workers)
+            num_workers = config.num_workers;
+        else
+            num_workers = feature('numcores');
+        end
+        
+        % Effective memory per chunk accounts for parfor broadcast overhead.
+        effective_memory = TARGET_MEMORY / max(1, num_workers);
+        
+        % Estimate total memory needed for all tasks.
+        max_n_vals = max(n_vals_vec);
+        if max_n_vals < 2, max_n_vals = 2; end
+        bytes_per_task = max_n_vals * B_current * 8;
+        total_memory_needed = (total_tasks * bytes_per_task) / (1024^2);
+        
+        % Smart chunking: Use one chunk if total memory fits, otherwise split.
+        if total_memory_needed <= effective_memory
+            CHUNK_SIZE = total_tasks;
+        else
+            max_tasks_per_chunk = max(1, floor((effective_memory * 1024^2) / bytes_per_task));
+            CHUNK_SIZE = max(1, max_tasks_per_chunk);
+        end
+        num_chunks = ceil(total_tasks / CHUNK_SIZE);
+        
         flat_results = zeros(total_tasks, 1);
         
-        parfor task_idx = 1:total_tasks
-            % Decode task index into metric (m) and trial (t).
-            m = floor((task_idx - 1) / cfg_thr.n_trials) + 1;
-            t = mod(task_idx - 1, cfg_thr.n_trials) + 1;
+        % Process tasks in memory-efficient chunks.
+        for chunk_idx = 1:num_chunks
+            chunk_start = (chunk_idx - 1) * CHUNK_SIZE + 1;
+            chunk_end = min(chunk_idx * CHUNK_SIZE, total_tasks);
+            chunk_task_indices = chunk_start:chunk_end;
+            n_chunk_tasks = numel(chunk_task_indices);
             
-            vals = vals_cell{m};
-            if isempty(vals)
-                flat_results(task_idx) = 0;
-            else
-                idx_chunk = all_indices_cell{m}(:, :, t);
-                bootstat = median(vals(idx_chunk), 1);
-                ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
-                flat_results(task_idx) = ci_tmp(1);
+            % --- chunk-local data preparation ---
+            chunk_indices = cell(1, n_chunk_tasks);
+            chunk_vals = cell(1, n_chunk_tasks);
+            chunk_valid = false(1, n_chunk_tasks);
+            
+            % Serial generation for this chunk only
+            for local_idx = 1:n_chunk_tasks
+                task_idx = chunk_task_indices(local_idx);
+                
+                % Decode task index to get metric/effect type
+                m = floor((task_idx - 1) / cfg_thr.n_trials) + 1;
+                vals = vals_cell{m};
+                
+                if ~isempty(vals)
+                    chunk_valid(local_idx) = true;
+                    n_vals = n_vals_vec(m);
+                    chunk_vals{local_idx} = vals;
+                    
+                    % Generate indices with unique substream per task.
+                    s_worker = s;
+                    s_worker.Substream = task_idx; 
+                    chunk_indices{local_idx} = randi(s_worker, n_vals, [n_vals, B_current]);
+                end
             end
+            
+            chunk_results = zeros(n_chunk_tasks, 1);
+            
+            % Parallel calculation on the chunk
+            parfor local_idx = 1:n_chunk_tasks
+                if chunk_valid(local_idx)
+                    % Calculate mean of bootstrapped values
+                    boot_means = mean(chunk_vals{local_idx}(chunk_indices{local_idx}), 1);
+                    chunk_results(local_idx) = std(boot_means);
+                end
+            end
+            
+            % Store chunk results.
+            flat_results(chunk_task_indices) = chunk_results;
         end
         
         % Aggregate results per effect type.
@@ -276,7 +328,7 @@ else
         
         % Calculate a single, overall stability value for the current B by averaging across all metrics.
         % This single value is used to check for convergence.
-        overall_stability_thr(i) = nanmean(stability_matrix(:, :, i), 'all');
+        overall_stability_thr(i) = mean(stability_matrix(:, :, i), 'all', 'omitnan');
        
         % Convergence check: Determines if the stability has plateaued, indicating a sufficient B value.
         [converged, conv_stats] = HERA.stats.check_convergence(overall_stability_thr(1:i), cfg_thr);
@@ -363,11 +415,21 @@ all_bootstat_rel = cell(1, num_metrics);
 
 % Calculate final thresholds with the optimal B value.
 % Dynamic batch sizing based on memory configuration.
-if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
-     TARGET_BATCH_MEMORY_MB = config.system.target_chunk_memory_mb;
+% Calculate final thresholds with the optimal B value.
+% Dynamic batch sizing based on memory configuration.
+if isfield(config, 'system') && isfield(config.system, 'target_memory')
+     TARGET_MEMORY = config.system.target_memory;
 else
-     TARGET_BATCH_MEMORY_MB = 200;
+     TARGET_MEMORY = 200;
 end
+
+% Get worker count for effective memory
+if isfield(config, 'num_workers') && isnumeric(config.num_workers)
+    num_workers = config.num_workers;
+else
+    num_workers = feature('numcores');
+end
+effective_memory = TARGET_MEMORY / max(1, num_workers);
 
 for metric_idx = 1:num_metrics
     % --- Cliff's Delta ---
@@ -379,27 +441,35 @@ for metric_idx = 1:num_metrics
         
         % Calculate batch size based on memory.
         bytes_per_sample = n_data_d * 8;
-        BATCH_SIZE = max(100, min(floor((TARGET_BATCH_MEMORY_MB * 1024^2) / bytes_per_sample), 20000));
+        
+        % Smart batching for Final Phase
+        total_memory_needed = (selected_B * bytes_per_sample) / (1024^2);
+        
+        if total_memory_needed <= effective_memory
+            BATCH_SIZE = selected_B;
+        else
+            BATCH_SIZE = max(100, min(floor((effective_memory * 1024^2) / bytes_per_sample), 20000));
+        end
         num_batches = ceil(selected_B / BATCH_SIZE);
         
         % Substream offset for this metric.
         offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);
         
-        % Serial pre-generation of indices ensures bit-perfect reproducibility.
-        all_indices_d = cell(1, num_batches);
-        for b = 1:num_batches
-            s_worker = s;
-            s_worker.Substream = offset_d + b;
+        % Parallel bootstrap computation.
+        results_cell_d = cell(1, num_batches);
+        
+        parfor b = 1:num_batches
+            s_par = s;
+            s_par.Substream = offset_d + b;
+            
             start_idx = (b - 1) * BATCH_SIZE + 1;
             end_idx = min(b * BATCH_SIZE, selected_B);
             current_n = end_idx - start_idx + 1;
-            all_indices_d{b} = randi(s_worker, n_data_d, [n_data_d, current_n]);
-        end
-        
-        % Parallel bootstrap computation.
-        results_cell_d = cell(1, num_batches);
-        parfor b = 1:num_batches
-            indices = all_indices_d{b};
+            
+            % Generate indices.
+            indices = randi(s_par, n_data_d, [n_data_d, current_n]);
+            
+            % Compute bootstrap statistic.
             results_cell_d{b} = median(d_vals_metric_abs(indices), 1);
         end
         
@@ -420,27 +490,35 @@ for metric_idx = 1:num_metrics
         
         % Calculate batch size based on memory.
         bytes_per_sample = n_data_rel * 8;
-        BATCH_SIZE = max(100, min(floor((TARGET_BATCH_MEMORY_MB * 1024^2) / bytes_per_sample), 20000));
+        
+        % Smart batching
+        total_memory_needed = (selected_B * bytes_per_sample) / (1024^2);
+        
+        if total_memory_needed <= effective_memory
+            BATCH_SIZE = selected_B;
+        else
+            BATCH_SIZE = max(100, min(floor((effective_memory * 1024^2) / bytes_per_sample), 20000));
+        end
         num_batches = ceil(selected_B / BATCH_SIZE);
         
         % Substream offset (shifted from Delta).
         offset_rel = offset_d + (num_batches + 10);
         
-        % Serial pre-generation of indices ensures bit-perfect reproducibility.
-        all_indices_rel = cell(1, num_batches);
-        for b = 1:num_batches
-            s_worker = s;
-            s_worker.Substream = offset_rel + b;
+        % Parallel bootstrap computation.
+        results_cell_rel = cell(1, num_batches);
+        
+        parfor b = 1:num_batches
+            s_par = s;
+            s_par.Substream = offset_rel + b;
+            
             start_idx = (b - 1) * BATCH_SIZE + 1;
             end_idx = min(b * BATCH_SIZE, selected_B);
             current_n = end_idx - start_idx + 1;
-            all_indices_rel{b} = randi(s_worker, n_data_rel, [n_data_rel, current_n]);
-        end
-        
-        % Parallel bootstrap computation.
-        results_cell_rel = cell(1, num_batches);
-        parfor b = 1:num_batches
-            indices = all_indices_rel{b};
+            
+            % Generate indices.
+            indices = randi(s_par, n_data_rel, [n_data_rel, current_n]);
+            
+            % Compute bootstrap statistic.
             results_cell_rel{b} = median(rel_vals_metric(indices), 1);
         end
         

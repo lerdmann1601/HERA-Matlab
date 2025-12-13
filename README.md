@@ -363,6 +363,7 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 | **System** | `reproducible` | bool | `true` | Use fixed RNG seed. |
 | | `seed` | int | `123` | RNG seed value. |
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
+| | `system.target_memory` | int | `400` | Target memory per chunk (MB). Increase for systems with more RAM (e.g., 800 for 32GB). |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `1000` | Iterations for Thresholds (empty = auto). |

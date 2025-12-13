@@ -8,7 +8,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %
 % Description:
 %   This function evaluates the stability of the dataset ranking using a cluster bootstrap approach.
-%   It employs a memory-optimized implementation (virtual indexing) to avoid data duplication during resampling.
+%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to prevent memory spikes.
 %   Subjects (as clusters) are drawn with replacement, and for each sample, the complete ranking process (including effect size calculation) is repeated. 
 %   This process generates a distribution of possible ranks for each dataset, which is then used to assess the robustness of the primary ranking result.
 %   This function dynamically handles 1, 2, or 3 metrics and respects the 'ranking_mode' from the 'config' struct when calling 'calculate_ranking'.
@@ -17,6 +17,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %   1.  Dynamic search for the optimal number of bootstrap samples (B): 
 %       Analyzes the stability of the rank confidence intervals over multiple trials and an increasing number of B-values. 
 %       Stability is quantified using the ratio of the Interquartile Range (IQR) to the median of the confidence interval widths.
+%       Uses 'config.system.target_memory' to optimize batch sizes.
 %   2.  Selection of the final B-value ('selected_B_final'): 
 %       The optimal B is determined either when stability converges (i.e., the relative improvement falls below a tolerance) - 
 %       or, if convergence is not reached, through an "elbow analysis" of the stability curve.
@@ -24,6 +25,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %       Generates and saves the convergence plot showing the stability analysis using 'HERA.plot.rank_convergence'.
 %   4.  Final bootstrap analysis: 
 %       Using the optimal B-value, the function runs a final, comprehensive bootstrap analysis to generate the definitive rank distribution for each dataset.
+%       This step is parallelized and uses memory-aware batching.
 %   5.  Result Output (Console): 
 %       Calculates the frequency of each rank for each dataset and prints a formatted table to the console.
 %   7.  Result Output (csv): 
@@ -40,6 +42,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %                       .bootstrap_ranks (settings)
 %                       .ranking_mode (logic)
 %                       .ci_level (confidence interval width)
+%                       .system.target_memory (RAM optimization)
 %   dataset_names   - Cell array of strings with the names of the datasets (required for the 'calculate_ranking' function).
 %   final_rank      - Vector of the primary ranking (used for sorting the console output).
 %   pair_idx_all    - Matrix of indices for all pairwise comparisons between datasets.
@@ -300,31 +303,36 @@ end
 %% 3. Final Bootstrap Analysis for Rank Distributions
 % Generate the final rank distribution using the optimally determined B value.
 
-% Get worker count from config (set during setup_environment).
-if isfield(config, 'num_workers')
-    num_workers = config.num_workers;
+% Dynamic batch sizing based on memory configuration.
+if isfield(config, 'system') && isfield(config.system, 'target_memory')
+     TARGET_MEMORY = config.system.target_memory;
 else
-    num_workers = feature('numcores'); % Fallback for direct function calls
+     TARGET_MEMORY = 200;
 end
 
-% Dynamic batch sizing based on memory configuration.
-if isfield(config, 'system') && isfield(config.system, 'target_chunk_memory_mb')
-     TARGET_BATCH_MEMORY_MB = config.system.target_chunk_memory_mb;
+% Get worker count for memory estimation (parfor broadcasts data to all workers).
+if isfield(config, 'num_workers') && isnumeric(config.num_workers)
+    num_workers = config.num_workers;
 else
-     TARGET_BATCH_MEMORY_MB = 200;
+    num_workers = feature('numcores');
 end
+
+% Effective memory per batch accounts for parfor broadcast overhead.
+effective_memory = TARGET_MEMORY / max(1, num_workers);
 
 bytes_per_double = 8;
 bytes_per_int = 4;
 
-% Estimate memory per iteration (indices + effect sizes).
+% Estimate total memory needed for all iterations.
 mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
+total_memory_needed = (selected_B_final * mem_per_iter_bytes) / (1024^2);
 
-% Calculate batch size based on memory and parallelism constraints.
-OPTIMAL_BATCH_SIZE = floor((TARGET_BATCH_MEMORY_MB * 1024^2) / mem_per_iter_bytes);
-OPTIMAL_BATCH_SIZE = max(1, min(OPTIMAL_BATCH_SIZE, 5000));
-parallel_limit_batch = floor(selected_B_final / num_workers);
-BATCH_SIZE = max(1, min(OPTIMAL_BATCH_SIZE, parallel_limit_batch));
+% Smart batching: Use one batch if total memory fits, otherwise split.
+if total_memory_needed <= effective_memory
+    BATCH_SIZE = selected_B_final;
+else
+    BATCH_SIZE = max(1, floor((effective_memory * 1024^2) / mem_per_iter_bytes));
+end
 num_batches = ceil(selected_B_final / BATCH_SIZE);
 
 rank_batches = cell(1, num_batches);
