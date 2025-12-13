@@ -166,9 +166,20 @@ else
         % Reset temp vector for each B value
         temp_stability_ci_vector(:) = 0; 
     
+        % --- Parallel Worker Limit ---
+        % Allows external control of worker count for nested parallelism scenarios.
+        % When config.num_workers is set, limits the parfor to that many workers.
+        % Default: Uses all available pool workers.
+        pool = gcp('nocreate');
+        if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
+            parfor_limit = min(pool.NumWorkers, config.num_workers);
+        else
+            parfor_limit = pool.NumWorkers;
+        end
+
         % Parallel loop to calculate stability for all metrics and effect sizes.
         % Loop count is dynamic (num_metrics * 2)
-        parfor metric_idx = 1:(num_metrics * 2)
+        parfor (metric_idx = 1:(num_metrics * 2), parfor_limit)
             % Each iteration gets its own reproducible substream.
             s_worker = s; 
             s_worker.Substream = metric_idx;

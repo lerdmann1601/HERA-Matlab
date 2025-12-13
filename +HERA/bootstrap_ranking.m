@@ -135,11 +135,22 @@ else
     % Loop over the different B-values to check for stability.
     for b_idx = 1:numel(B_vector_b)
         Br_b = B_vector_b(b_idx);
-        fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
+        fprintf([' -\u003e ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
         ci_widths_b = zeros(cfg_rank.n_trials, num_datasets_b);
         
+        % --- Parallel Worker Limit ---
+        % Allows external control of worker count for nested parallelism scenarios.
+        % When config.num_workers is set, limits the parfor to that many workers.
+        % Default: Uses all available pool workers.
+        pool = gcp('nocreate');
+        if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
+            parfor_limit = min(pool.NumWorkers, config.num_workers);
+        else
+            parfor_limit = pool.NumWorkers;
+        end
+        
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
-        parfor t_b = 1:cfg_rank.n_trials
+        parfor (t_b = 1:cfg_rank.n_trials, parfor_limit)
             % Each parallel worker gets its own reproducible substream of the random number generator.
             s_worker = s;
             s_worker.Substream = t_b;
