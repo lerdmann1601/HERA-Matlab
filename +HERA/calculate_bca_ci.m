@@ -175,7 +175,7 @@ else
         if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
             parfor_limit = min(current_pool_size, config.num_workers);
         else
-            parfor_limit = isfinite(current_pool_size) * current_pool_size + ~isfinite(current_pool_size) * Inf;
+            parfor_limit = current_pool_size;
         end
 
         % Loop over metrics and effect types

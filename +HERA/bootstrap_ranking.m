@@ -157,11 +157,7 @@ else
         if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
             parfor_limit = min(current_pool_size, config.num_workers);
         else
-            if isfinite(current_pool_size)
-                parfor_limit = current_pool_size;
-            else
-                parfor_limit = Inf;
-            end
+            parfor_limit = current_pool_size;
         end
         
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
