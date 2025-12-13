@@ -14,14 +14,17 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   This function acts as the main controller for the BCa (Bias-Corrected and Accelerated) 
 %   Bootstrap confidence interval calculation. It dynamically determines the optimal 
 %   number of bootstrap samples (B) by analyzing the stability of the CI widths.
-%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to handle large datasets.
+%   
+%   Refactored to follow the "Strict Controller Pattern":
+%   - Core logic and orchestration remain here.
+%   - Statistical checks are delegated to `+HERA/+stats`.
+%   - Plotting and visualization are delegated to `+HERA/+plot`.
 %
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
 %      Iterates over B-values in a parfor loop. Convergence is strictly checked using
 %      `HERA.stats.check_convergence`. If no convergence is found, the optimal B is 
 %      determined via elbow method using `HERA.stats.find_elbow_point`.
-%      Uses 'config.system.target_memory' to optimize chunk sizes for available RAM.
 %   2. Creation of the convergence plot: 
 %      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
@@ -39,7 +42,7 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   rel_vals_all  - Matrix of the original relative differences.
 %   pair_idx_all  - Matrix of the indices for all pairwise comparisons.
 %   num_probanden - Number of subjects.
-%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci and config.system.target_memory).
+%   config        - Struct containing configuration parameters (esp. config.bootstrap_ci).
 %   metric_names  - Cell array with the names of the metrics (1, 2, or 3 names).
 %   graphics_dir  - Path to the output folder for graphics.
 %   csv_dir       - Path to the output folder for CSV files.
@@ -100,9 +103,6 @@ p_all_data = all_data;
 p_d_vals_all = d_vals_all; 
 p_rel_vals_all = rel_vals_all;
 
-% Parfor warmup 
-evalc('parfor i_warmup = 1:1; end');
-
 if ~isempty(manual_B)
     B_ci = manual_B;
     % Assign empty handles for the plot outputs that are skipped
@@ -117,7 +117,7 @@ else
     % Checks if the robust convergence check (with smoothing) should be used.
     use_robust_convergence_ci = isfield(cfg_ci, 'smoothing_window') && ~isempty(cfg_ci.smoothing_window) ...
                                && isfield(cfg_ci, 'convergence_streak_needed') && ~isempty(cfg_ci.convergence_streak_needed);
-
+    
     % Console output to inform the user about the process.
     fprintf(['\n' lang.bca.searching_optimal_b '\n']);
     if use_robust_convergence_ci
@@ -148,221 +148,142 @@ else
     % temp vector is now sized
     temp_stability_ci_vector = zeros(1, num_metrics * 2);
     
-    % --- Phase 1: Serial Pre-computation of Jackknife values ---
-    % Jackknife depends only on original data, not on B. Compute once outside loop.
-    n_effect_types = num_metrics * 2;
-    
-    % Pre-compute data pairs and Jackknife acceleration factors for all pairs/metrics.
-    data_x_all = cell(num_pairs, num_metrics);
-    data_y_all = cell(num_pairs, num_metrics);
-    n_valid_all = zeros(num_pairs, num_metrics);
-    theta_hat_all = zeros(num_pairs, n_effect_types);  % [d1..dM, r1..rM]
-    a_all = zeros(num_pairs, n_effect_types);          % acceleration factors
-    
-    for k = 1:num_pairs
-        idx1 = p_pair_idx_all(k, 1);
-        idx2 = p_pair_idx_all(k, 2);
-        
-        for metric_idx = 1:num_metrics
-            data_x_orig = p_all_data{metric_idx}(:, idx1);
-            data_y_orig = p_all_data{metric_idx}(:, idx2);
-            
-            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-            data_x_orig = data_x_orig(valid_mask);
-            data_y_orig = data_y_orig(valid_mask);
-            n_valid = numel(data_x_orig);
-            
-            data_x_all{k, metric_idx} = data_x_orig;
-            data_y_all{k, metric_idx} = data_y_orig;
-            n_valid_all(k, metric_idx) = n_valid;
-            
-            if n_valid >= 2
-                % Cliff's Delta (effect type index: metric_idx)
-                jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
-                theta_hat_all(k, metric_idx) = p_d_vals_all(k, metric_idx);
-                mean_jack_d = mean(jack_d);
-                a_num_d = sum((mean_jack_d - jack_d).^3);
-                a_den_d = 6 * (sum((mean_jack_d - jack_d).^2)).^(3/2);
-                if a_den_d == 0, a_all(k, metric_idx) = 0;
-                else, a_all(k, metric_idx) = a_num_d / a_den_d; end
-                if ~isfinite(a_all(k, metric_idx)), a_all(k, metric_idx) = 0; end
-                
-                % Relative Difference (effect type index: num_metrics + metric_idx)
-                jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
-                theta_hat_all(k, num_metrics + metric_idx) = p_rel_vals_all(k, metric_idx);
-                mean_jack_r = mean(jack_r);
-                a_num_r = sum((mean_jack_r - jack_r).^3);
-                a_den_r = 6 * (sum((mean_jack_r - jack_r).^2)).^(3/2);
-                if a_den_r == 0, a_all(k, num_metrics + metric_idx) = 0;
-                else, a_all(k, num_metrics + metric_idx) = a_num_r / a_den_r; end
-                if ~isfinite(a_all(k, num_metrics + metric_idx)), a_all(k, num_metrics + metric_idx) = 0; end
-            end
-        end
-    end
-    
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector_ci)
         B_ci_current = B_vector_ci(i);
         fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
-        
-        % Total tasks: all effect types × all pairs × n_trials
-        total_tasks = n_effect_types * num_pairs * cfg_ci.n_trials;
-        
-        % Dynamic chunk sizing to limit RAM usage.
-        if isfield(config, 'system') && isfield(config.system, 'target_memory')
-             TARGET_MEMORY = config.system.target_memory;
-        else
-             TARGET_MEMORY = 200;
-        end
-        
-        % Get worker count for memory estimation (parfor broadcasts data to all workers).
-        if isfield(config, 'num_workers') && isnumeric(config.num_workers)
-            num_workers = config.num_workers;
-        else
-            num_workers = feature('numcores');
-        end
-        
-        % Effective memory per chunk accounts for parfor broadcast overhead.
-        effective_memory = TARGET_MEMORY / max(1, num_workers);
-        
-        % Estimate total memory needed for all tasks.
-        avg_n_valid = mean(n_valid_all(:), 'omitnan');
-        if isnan(avg_n_valid) || avg_n_valid < 2, avg_n_valid = 2; end
-        bytes_per_task = avg_n_valid * B_ci_current * 8;
-        total_memory_needed = (total_tasks * bytes_per_task) / (1024^2);
-        
-        % Smart chunking: Use one chunk if total memory fits, otherwise split.
-        if total_memory_needed <= effective_memory
-            CHUNK_SIZE = total_tasks;
-        else
-            max_tasks_per_chunk = max(1, floor((effective_memory * 1024^2) / bytes_per_task));
-            CHUNK_SIZE = max(1, max_tasks_per_chunk);
-        end
-        num_chunks = ceil(total_tasks / CHUNK_SIZE);
-        
-        task_results = zeros(total_tasks, 1);
-        
-        % Process tasks in memory-efficient chunks.
-        for chunk_idx = 1:num_chunks
-            chunk_start = (chunk_idx - 1) * CHUNK_SIZE + 1;
-            chunk_end = min(chunk_idx * CHUNK_SIZE, total_tasks);
-            chunk_task_indices = chunk_start:chunk_end;
-            n_chunk_tasks = numel(chunk_task_indices);
-            
-            % Serial pre-generation of bootstrap indices for this chunk.
-            chunk_boot_indices = cell(1, n_chunk_tasks);
-            chunk_data_x = cell(1, n_chunk_tasks);
-            chunk_data_y = cell(1, n_chunk_tasks);
-            chunk_theta_hat = zeros(1, n_chunk_tasks);
-            chunk_a = zeros(1, n_chunk_tasks);
-            chunk_is_delta = false(1, n_chunk_tasks);
-            chunk_valid = false(1, n_chunk_tasks);
-            chunk_B = B_ci_current;
-            
-            for local_idx = 1:n_chunk_tasks
-                task_idx = chunk_task_indices(local_idx);
-                
-                % Decode task index
-                temp_idx = task_idx - 1;
-                m = floor(temp_idx / (num_pairs * cfg_ci.n_trials)) + 1;
-                temp_idx = mod(temp_idx, num_pairs * cfg_ci.n_trials);
-                k = floor(temp_idx / cfg_ci.n_trials) + 1;
-                
-                metric_idx = mod(m - 1, num_metrics) + 1;
-                n_valid = n_valid_all(k, metric_idx);
-                
-                if n_valid >= 2
-                    chunk_valid(local_idx) = true;
-                    chunk_is_delta(local_idx) = (m <= num_metrics);
-                    chunk_data_x{local_idx} = data_x_all{k, metric_idx};
-                    chunk_data_y{local_idx} = data_y_all{k, metric_idx};
-                    chunk_theta_hat(local_idx) = theta_hat_all(k, m);
-                    chunk_a(local_idx) = a_all(k, m);
-                    
-                    % Generate indices with unique substream
-                    s_worker = s;
-                    s_worker.Substream = task_idx;
-                    chunk_boot_indices{local_idx} = randi(s_worker, n_valid, [n_valid, B_ci_current]);
-                end
-            end
-            
-            % Parallel bootstrap computation for this chunk.
-            chunk_results = zeros(n_chunk_tasks, 1);
-            
-            parfor local_idx = 1:n_chunk_tasks
-                if ~chunk_valid(local_idx)
-                    chunk_results(local_idx) = 0;
-                    continue;
-                end
-                
-                data_x = chunk_data_x{local_idx};
-                data_y = chunk_data_y{local_idx};
-                boot_indices = chunk_boot_indices{local_idx};
-                
-                boot_x = data_x(boot_indices);
-                boot_y = data_y(boot_indices);
-                
-                if chunk_is_delta(local_idx)
-                    b_stat = HERA.stats.cliffs_delta(boot_x, boot_y);
-                else
-                    b_stat = HERA.stats.relative_difference(boot_x, boot_y);
-                end
-                b_stat = b_stat(:)';
-                
-                theta_hat = chunk_theta_hat(local_idx);
-                a = chunk_a(local_idx);
-                
-                z0 = norminv(sum(b_stat < theta_hat) / chunk_B);
-                if ~isfinite(z0), z0 = 0; end
-                z1 = norminv(alpha_level / 2);
-                z2 = norminv(1 - alpha_level / 2);
-                a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
-                a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
-                if isnan(a1), a1 = alpha_level / 2; end
-                if isnan(a2), a2 = 1 - alpha_level / 2; end
-                
-                sorted_boots = sort(b_stat);
-                ci_lower = sorted_boots(max(1, floor(chunk_B * a1)));
-                ci_upper = sorted_boots(min(chunk_B, ceil(chunk_B * a2)));
-                chunk_results(local_idx) = ci_upper - ci_lower;
-            end
-            
-            % Store chunk results
-            task_results(chunk_task_indices) = chunk_results;
-        end
-        
-        % Aggregate results per effect type.
-        temp_stability_ci_vector = zeros(1, n_effect_types);
-        
-        for m = 1:n_effect_types
+        % Reset temp vector for each B value
+        temp_stability_ci_vector(:) = 0; 
+    
+        % Parallel loop to calculate stability for all metrics and effect sizes.
+        % Loop count is dynamic (num_metrics * 2)
+        parfor metric_idx = 1:(num_metrics * 2)
+            % Each iteration gets its own reproducible substream.
+            s_worker = s; 
+            s_worker.Substream = metric_idx;
+
+            % Logic to determine effect type and metric index
+            is_delta = metric_idx <= num_metrics;
+            actual_metric_idx = mod(metric_idx-1, num_metrics) + 1;
             stability_all_pairs = zeros(num_pairs, 1);
-            
+
+            % Loop over all dataset pairs.
             for k = 1:num_pairs
-                metric_idx = mod(m - 1, num_metrics) + 1;
+                idx1=p_pair_idx_all(k,1); idx2=p_pair_idx_all(k,2);
+                % Access data using dynamic index
+                data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
+                data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
+                ci_widths_trial = zeros(cfg_ci.n_trials, 1);
                 
-                if n_valid_all(k, metric_idx) < 2
-                    stability_all_pairs(k) = 0;
-                    continue;
-                end
+                % --- Jackknife Statistics ---
+                % Pre-calculate Jackknife metrics once per pair. 
+                % These are deterministic and independent of the bootstrap trials, 
+                % allowing significant computational savings compared to re-evaluating them inside the loop.
                 
-                % Gather all trials for this (m, k) combination.
-                ci_widths = zeros(cfg_ci.n_trials, 1);
-                for t = 1:cfg_ci.n_trials
-                    task_idx = (m - 1) * num_pairs * cfg_ci.n_trials + (k - 1) * cfg_ci.n_trials + t;
-                    ci_widths(t) = task_results(task_idx);
-                end
-                
-                med_w = median(ci_widths);
-                iqr_w = iqr(ci_widths);
-                if med_w == 0
-                    if iqr_w == 0, stability_all_pairs(k) = 0;
-                    else, stability_all_pairs(k) = Inf; end
+                jack_d = []; jack_r = [];
+                % We only need to compute Jackknife for the relevant metric (d or r)
+                if is_delta
+                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                   mean_jack = mean(jack_d);
+                   jack_vals = jack_d;
                 else
-                    stability_all_pairs(k) = iqr_w / abs(med_w);
+                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                   mean_jack = mean(jack_r);
+                   jack_vals = jack_r;
+                end
+                
+                a_num = sum((mean_jack - jack_vals).^3);
+                a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
+                if a_den == 0, a = 0; else, a = a_num / a_den; end
+                if ~isfinite(a), a = 0; end
+            
+                % Repeats the BCa calculation 'n_trials' times to assess the stability of the CI width.
+                for t = 1:cfg_ci.n_trials
+                    
+                    % --- Vectorized Bootstrap Sampling ---
+                    % Generate all bootstrap indices and sampled data in a single operation [N x B].
+                    % This avoids the overhead of repeated function calls in a loop.
+                    boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
+                    
+                    % Direct indexing is significantly faster than generating intermediate matrices.
+                    boot_x = data_x_orig(boot_indices);
+                    boot_y = data_y_orig(boot_indices);
+                    
+                    % --- Robust Handling of Missing Data (NaN) ---
+                    % Standard vectorized operations assume consistent sample sizes. 
+                    % If the original data contains NaNs, pairwise exclusion results in varying 
+                    % valid sample sizes per bootstrap iteration, preventing simple 3D vectorization.
+                    %
+                    % Strategy:
+                    % 1. Check for NaNs in the source data.
+                    % 2. Fast Path: If clean, use highly efficient vectorized calculations.
+                    % 3. Robust Path: If NaNs exist, fall back to a loop to correctly handle varying N.
+                    
+                    has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+                    
+                    if ~has_nans
+                         % FAST PATH: No NaNs present.
+                         % Calculate statistics for all B iterations simultaneously using 3D expansion.
+                         if is_delta
+                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                         else
+                             boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
+                         end
+                    else
+                         % ROBUST PATH: NaNs present.
+                         % Iterate through each bootstrap sample and perform pairwise exclusion.
+                         boot_stats = zeros(B_ci_current, 1);
+                         for b = 1:B_ci_current
+                             bx = boot_x(:, b); 
+                             by = boot_y(:, b);
+                             valid = ~isnan(bx) & ~isnan(by);
+                             if is_delta
+                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                             else
+                                 boot_stats(b) = HERA.stats.relative_difference(bx(valid), by(valid));
+                             end
+                         end
+                    end
+                    
+                    % Ensure row vector
+                    boot_stats = boot_stats(:)'; 
+
+                    % Calculate BCa correction factors (z0 for bias).
+                    % Access effect size using dynamic index
+                    if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
+                    else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
+                    
+                    z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
+                    if ~isfinite(z0), z0 = 0; end 
+    
+                    % Calculate BCa interval limits as percentiles.
+                    z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
+                    a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
+                    a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
+                    if isnan(a1), a1 = alpha_level / 2; end 
+                    if isnan(a2), a2 = 1 - alpha_level / 2; end
+                    
+                    % Read confidence interval from the sorted bootstrap distribution and save the width.
+                    sorted_boots = sort(boot_stats);
+                    ci_lower = sorted_boots(max(1, floor(B_ci_current * a1)));
+                    ci_upper = sorted_boots(min(B_ci_current, ceil(B_ci_current * a2)));
+                    ci_widths_trial(t) = ci_upper - ci_lower;
+                end
+                
+                % Calculate stability as a relative dispersion measure (IQR / Median) of the CI widths.
+                med_w = median(ci_widths_trial); iqr_w = iqr(ci_widths_trial);
+                if med_w == 0
+                    if iqr_w == 0 
+                        stability_all_pairs(k) = 0; 
+                    else
+                        stability_all_pairs(k) = Inf; 
+                    end
+                else
+                    stability_all_pairs(k) = iqr_w / abs(med_w); 
                 end
             end
-            
-            temp_stability_ci_vector(m) = median(stability_all_pairs, 'omitnan');
+            % Median of the stability values over all pairs as a measure for the current metric.
+            temp_stability_ci_vector(metric_idx) = median(stability_all_pairs, 'omitnan');
         end
         % Save the stability values for each metric and effect size.
         stability_matrix_ci(1, :, i) = temp_stability_ci_vector(1:num_metrics);
@@ -370,7 +291,7 @@ else
         final_i_ci = i;
         
         % Save the average stability value for the overall convergence check.
-        overall_stability_ci(i) = mean(stability_matrix_ci(:, :, i), 'all', 'omitnan');
+        overall_stability_ci(i) = nanmean(stability_matrix_ci(:, :, i), 'all');
     
         % Convergence check via Helper Function
         [converged_ci, stats] = HERA.stats.check_convergence(overall_stability_ci(1:i), cfg_ci);
@@ -459,11 +380,6 @@ a_r_all = NaN(num_pairs, num_metrics);
 
 
 % Loop over the metrics for the final calculation.
-OFFSET_BASE_CI = 1000; % Start final phase well after stability phase (which uses 1..2*M)
-
-% Stride to prevent substream overlap between metrics.
-pair_stride = num_pairs + 100;
-
 for metric_idx = 1:num_metrics
     fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
     % Temporary variables for the results of the parfor loop.
@@ -474,47 +390,50 @@ for metric_idx = 1:num_metrics
     temp_z0_r = NaN(num_pairs, 1);
     temp_a_r = NaN(num_pairs, 1);
     
-    % Calculate unique offset for this metric
-    metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * pair_stride;
-
     % Parallel loop over all pairs for the final BCa calculation with the optimal B_ci.
     parfor k = 1:num_pairs
         % Each iteration gets its own reproducible substream.
         s_worker = s; 
-        s_worker.Substream = metric_offset + k;
+        s_worker.Substream = k;
 
         i = p_pair_idx_all(k, 1);
         j = p_pair_idx_all(k, 2);
         data_x_orig = p_all_data{metric_idx}(:, i);
         data_y_orig = p_all_data{metric_idx}(:, j);
         
-        % Pairwise NaN exclusion.
-        valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-        data_x_orig = data_x_orig(valid_mask);
-        data_y_orig = data_y_orig(valid_mask);
-        n_valid = numel(data_x_orig);
-        
-        if n_valid < 2
-             % Return NaNs if insufficient data (temp variables are initialized to NaN)
-             continue; 
-        end
-        
-        % Generate all bootstrap indices [N x B].
-        boot_indices = randi(s_worker, n_valid, [n_valid, B_ci]);
+        % --- Vectorized Bootstrap Sampling ---
+        % Generate all bootstrap indices and sampled data in a single operation [N x B].
+        boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci]);
         
         boot_x = data_x_orig(boot_indices);
         boot_y = data_y_orig(boot_indices);
 
-        % Calculate bootstrap effect sizes.
-        boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
-        boot_r = HERA.stats.relative_difference(boot_x, boot_y);
+        % --- Robust Handling of Missing Data (NaN) ---
+        has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
         
+        if ~has_nans
+            % FAST PATH: No NaNs present.
+            % Calculate statistics for all B iterations simultaneously using 3D expansion.
+            boot_d = HERA.stats.cliffs_delta(boot_x, boot_y);
+            boot_r = HERA.stats.relative_difference(boot_x, boot_y);
+        else
+            % ROBUST PATH: NaNs present.
+            % Iterate through each bootstrap sample and perform pairwise exclusion.
+            boot_d = zeros(B_ci, 1); boot_r = zeros(B_ci, 1);
+            for b = 1:B_ci
+                bx = boot_x(:,b); by = boot_y(:,b);
+                valid = ~isnan(bx) & ~isnan(by);
+                boot_d(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                boot_r(b) = HERA.stats.relative_difference(bx(valid), by(valid));
+            end
+        end
         boot_d = boot_d(:)'; boot_r = boot_r(:)'; % Ensure row vectors
         
         if isempty(boot_d), boot_d=0; end 
         if isempty(boot_r), boot_r=0; end
         
         % Generate Jackknife distribution (One-time calculation)
+        % Delegated to the dedicated statistics module
         jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
         jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
         
