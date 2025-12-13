@@ -142,11 +142,30 @@ else
         % Allows external control of worker count for nested parallelism scenarios.
         % When config.num_workers is set, limits the parfor to that many workers.
         % Default: Uses all available pool workers.
+        % --- Parallel Worker Limit ---
+        % Allows external control of worker count for nested parallelism scenarios.
+        % When config.num_workers is set, limits the parfor to that many workers.
+        % Default: Uses all available pool workers.
         pool = gcp('nocreate');
+        current_pool_size = Inf;
+        if ~isempty(pool)
+            try
+                current_pool_size = pool.NumWorkers;
+            catch
+                % Accessing pool properties (like NumWorkers) is not allowed on workers
+                % We default to Inf so that config.num_workers (if set) is respected,
+                % or parfor uses all available resources.
+            end
+        end
+
         if isfield(config, 'num_workers') && isnumeric(config.num_workers) && config.num_workers > 0
-            parfor_limit = min(pool.NumWorkers, config.num_workers);
+            parfor_limit = min(current_pool_size, config.num_workers);
         else
-            parfor_limit = pool.NumWorkers;
+            if isfinite(current_pool_size)
+                parfor_limit = current_pool_size;
+            else
+                parfor_limit = Inf;
+            end
         end
         
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
