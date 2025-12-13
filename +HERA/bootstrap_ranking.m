@@ -8,7 +8,6 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %
 % Description:
 %   This function evaluates the stability of the dataset ranking using a cluster bootstrap approach.
-%   It employs a memory-efficient parallelization strategy (RAM-aware chunking) to prevent memory spikes.
 %   Subjects (as clusters) are drawn with replacement, and for each sample, the complete ranking process (including effect size calculation) is repeated. 
 %   This process generates a distribution of possible ranks for each dataset, which is then used to assess the robustness of the primary ranking result.
 %   This function dynamically handles 1, 2, or 3 metrics and respects the 'ranking_mode' from the 'config' struct when calling 'calculate_ranking'.
@@ -16,8 +15,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 % Workflow:
 %   1.  Dynamic search for the optimal number of bootstrap samples (B): 
 %       Analyzes the stability of the rank confidence intervals over multiple trials and an increasing number of B-values. 
-%       Stability is quantified using the maximum Interquartile Range (IQR) of the confidence interval widths (absolute stability). (absolute stability).
-%       Uses 'config.system.target_memory' to optimize batch sizes.
+%       Stability is quantified using the maximum Interquartile Range (IQR) of the confidence interval widths.
 %   2.  Selection of the final B-value ('selected_B_final'): 
 %       The optimal B is determined either when stability converges (i.e., the relative improvement falls below a tolerance) - 
 %       or, if convergence is not reached, through an "elbow analysis" of the stability curve.
@@ -25,7 +23,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %       Generates and saves the convergence plot showing the stability analysis using 'HERA.plot.rank_convergence'.
 %   4.  Final bootstrap analysis: 
 %       Using the optimal B-value, the function runs a final, comprehensive bootstrap analysis to generate the definitive rank distribution for each dataset.
-%       This step is parallelized and uses memory-aware batching.
+%       This step is parallelized and uses 'config.system.target_memory' for memory-aware batching.
 %   5.  Result Output (Console): 
 %       Calculates the frequency of each rank for each dataset and prints a formatted table to the console.
 %   7.  Result Output (csv): 
@@ -42,7 +40,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %                       .bootstrap_ranks (settings)
 %                       .ranking_mode (logic)
 %                       .ci_level (confidence interval width)
-%                       .system.target_memory (RAM optimization)
+%                       .system.target_memory (RAM optimization for final bootstrap)
 %   dataset_names   - Cell array of strings with the names of the datasets (required for the 'calculate_ranking' function).
 %   final_rank      - Vector of the primary ranking (used for sorting the console output).
 %   pair_idx_all    - Matrix of indices for all pairwise comparisons between datasets.
@@ -128,94 +126,54 @@ else
         fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
         ci_widths_b = zeros(cfg_rank.n_trials, num_datasets_b);
         
-        % Check stability of rank confidence intervals for the current B-value.
-        
-        % Serial pre-generation of bootstrap indices ensures bit-perfect reproducibility.
-        all_boot_indices = cell(1, cfg_rank.n_trials);
-        for t_b = 1:cfg_rank.n_trials
+        % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
+        parfor t_b = 1:cfg_rank.n_trials
+            % Each parallel worker gets its own reproducible substream of the random number generator.
             s_worker = s;
             s_worker.Substream = t_b;
-            all_boot_indices{t_b} = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
-        end
-        
-        % Parallel computation using pre-generated indices.
-        parfor t_b = 1:cfg_rank.n_trials
-            boot_indices_block = all_boot_indices{t_b};
             rank_tmp_b = zeros(num_datasets_b, Br_b);
             
-            % Calculate effect sizes for each bootstrap sample.
-            num_pairs = size(pair_idx_all, 1);
-            
-            % Check for NaNs to decide on calculation strategy.
-            has_nans = false;
-            for col = 1:num_datasets_b
-               for mid = 1:num_metrics
-                   if any(isnan(all_data{mid}(:, col)))
-                       has_nans = true; break;
-                   end
-               end
-               if has_nans, break; end
-            end
-
-            % Pre-allocate 3D arrays for this trial block
-            d_vals_3d = zeros(num_pairs, num_metrics, Br_b);
-            rel_vals_3d = zeros(num_pairs, num_metrics, Br_b);
-            
-            if ~has_nans
-                 % Fast path: Vectorized calculation (no NaNs present).
-                 for p_idx = 1:num_pairs
+            % Inner loop: Performs the bootstrap process Br_b times to generate one rank distribution for one trial.
+            for bb_b = 1:Br_b
+                % Perform a cluster bootstrap: Subjects (clusters) are drawn with replacement.
+                boot_indices = randi(s_worker, n_subj_b, [n_subj_b, 1]);
+                
+                % Effect sizes are completely recalculated for the new bootstrap sample.
+                num_pairs = size(pair_idx_all, 1);
+                bootstrap_d_vals_all = zeros(num_pairs, num_metrics);
+                bootstrap_rel_vals_all = zeros(num_pairs, num_metrics);
+                
+                % Loop through all pairwise comparisons to calculate effect sizes.
+                for p_idx = 1:num_pairs
                     i = pair_idx_all(p_idx, 1);
                     j = pair_idx_all(p_idx, 2);
                     for metric_idx = 1:num_metrics
-                         % Extract data matrices [N x Br_b].
-                         data_i = all_data{metric_idx}(:, i);
-                         data_j = all_data{metric_idx}(:, j);
-                         x_mat = data_i(boot_indices_block);
-                         y_mat = data_j(boot_indices_block);
-                         
-                         % Vectorized effect size calculation.
-                         d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat);
-                         rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
-                    end
-                 end
-            else
-                 % Robust path: Loop-based calculation for data with NaNs.
-                 for bb = 1:Br_b
-                     current_indices = boot_indices_block(:, bb);
-                     for p_idx = 1:num_pairs
-                        i = pair_idx_all(p_idx, 1);
-                        j = pair_idx_all(p_idx, 2);
-                        for metric_idx = 1:num_metrics
-                            % Extract data with pairwise NaN exclusion.
-                            col_i = all_data{metric_idx}(current_indices, i);
-                            col_j = all_data{metric_idx}(current_indices, j);
-                            
-                            valid = ~isnan(col_i) & ~isnan(col_j);
-                            x = col_i(valid); y = col_j(valid);
-                            
-                            if ~isempty(x)
-                                d_vals_3d(p_idx, metric_idx, bb) = HERA.stats.cliffs_delta(x, y);
-                                rel_vals_3d(p_idx, metric_idx, bb) = HERA.stats.relative_difference(x, y);
-                            else
-                                d_vals_3d(p_idx, metric_idx, bb) = NaN;
-                                rel_vals_3d(p_idx, metric_idx, bb) = NaN;
-                            end
-                        end
-                     end
-                 end
-            end
+                        % Access original data directly via indices.
+                        boot_col_i = all_data{metric_idx}(boot_indices, i);
+                        boot_col_j = all_data{metric_idx}(boot_indices, j);
 
-            % Calculate ranking for each bootstrap iteration.
-            for bb = 1:Br_b
-                % Slice effect sizes for this iteration.
-                es_struct = struct('d_vals_all', d_vals_3d(:, :, bb), ...
-                                   'rel_vals_all', rel_vals_3d(:, :, bb));
+                        % Find valid (non-NaN) rows within the bootstrap sample for this specific pair.
+                        valid_boot_rows = ~isnan(boot_col_i) & ~isnan(boot_col_j);
+                        x = boot_col_i(valid_boot_rows);
+                        y = boot_col_j(valid_boot_rows);
+                        n_valid = size(x, 1);
+        
+                        if n_valid > 0
+                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y);
+                            bootstrap_rel_vals_all(p_idx, metric_idx) = HERA.stats.relative_difference(x, y);
+                        else
+                            bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
+                            bootstrap_rel_vals_all(p_idx, metric_idx) = NaN;
+                        end
+                    end
+                end
+                bootstrap_effect_sizes = struct('d_vals_all', bootstrap_d_vals_all, 'rel_vals_all', bootstrap_rel_vals_all);
                 
-                % Calculate ranking using current bootstrap sample.
+                % The complete ranking algorithm is run on the bootstrapped effect sizes.
                 [~, bootstrap_rank] = HERA.calculate_ranking(...
-                     all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb));
+                    all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all, boot_indices);
                 
-                rank_tmp_b(:, bb) = bootstrap_rank;
+                rank_tmp_b(:, bb_b) = bootstrap_rank;
             end
             
             % After Br_b iterations, calculate the width of the 95% confidence interval of the ranks for this one trial.
