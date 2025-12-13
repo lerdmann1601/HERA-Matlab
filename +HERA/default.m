@@ -59,7 +59,7 @@ function defaults = default()
     % Thresholds (Percentile Bootstrap)
     cfg_thr = struct();
     cfg_thr.B_start = 100;
-    cfg_thr.B_step = 150;
+    cfg_thr.B_step = 100;
     cfg_thr.B_end = 10000;
     cfg_thr.n_trials = 25;
     cfg_thr.min_steps_for_convergence_check = 1;
