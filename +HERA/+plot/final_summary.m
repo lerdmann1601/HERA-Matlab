@@ -163,7 +163,7 @@ xlim(ax_rank, [0.5, num_datasets + 0.5]); ylim(ax_rank, [0.5, num_datasets + 0.5
 % Save the final summary graphic.
 [~, fName, fExt] = fileparts(lang.files.final_ranking);
 filename_summary = fullfile(output_dir, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_summary, filename_summary, 'Resolution', 300, 'Padding', 30);
+exportgraphics(h_fig_summary, filename_summary, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
 fprintf(['  ' lang.plots.log_messages.graphic_saved '\n'], filename_summary);
 
 end

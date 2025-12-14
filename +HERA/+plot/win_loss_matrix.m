@@ -150,7 +150,7 @@ end
 % Save the win-loss matrix graphic.
 [~, fName, fExt] = fileparts(lang.files.win_loss_matrix);
 filename_winloss = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-exportgraphics(h_fig_winloss, filename_winloss, 'Resolution', 300, 'Padding', 30);
+exportgraphics(h_fig_winloss, filename_winloss, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
 fprintf(['  ' lang.plots.log_messages.graphic_saved '\n'], filename_winloss);
 
 end

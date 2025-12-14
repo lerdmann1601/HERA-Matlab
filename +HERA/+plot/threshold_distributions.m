@@ -198,7 +198,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     % Save graphic with padding.
     [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_thresholds);
     filename = fullfile(subfolder_thresholds, [fName, '_', ts, fExt]);
-    exportgraphics(tcl_thr, filename, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(tcl_thr, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.thresholds.histogram_plot_saved '\n'], filename);
 
     %% Plot 2: Histogram Distribution of Raw Effect Sizes
@@ -373,7 +373,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     % Save graphic with padding.
     [~, fName, fExt] = fileparts(lang.files.dist_raw_effects);
     filename = fullfile(subfolder_thresholds, [fName, '_', ts, fExt]);
-    exportgraphics(tcl_thr, filename, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(tcl_thr, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.thresholds.effects_plot_saved '\n'], filename);
 
 end

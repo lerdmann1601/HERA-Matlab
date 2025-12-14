@@ -251,7 +251,7 @@ for page = 1:num_pages
     base_fname = sprintf(lang.files.detail_plot, strtrim(metric_names{metric_idx}), filename_part);
     [~, fName, fExt] = fileparts(base_fname);
     filename = fullfile(subfolder_detail_comp, [fName, '_', shared_info.config.timestamp, fExt]);
-    exportgraphics(h_fig, filename, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf(['  ' lang.plots.log_messages.graphic_saved '\n'], filename);
 end 
 

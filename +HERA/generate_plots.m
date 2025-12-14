@@ -210,7 +210,7 @@ all_handles_to_close = unique([ranking_report_handles, final_report, convergence
 
 % Define a local helper function to save an array of figures to a single PDF.
 save_pdf_report = @(handles, filename) ...
-    arrayfun(@(i) exportgraphics(handles(i), filename, 'ContentType', 'vector', 'Append', i > 1), 1:numel(handles));
+    arrayfun(@(i) exportgraphics(handles(i), filename, 'ContentType', 'vector', 'Append', i > 1, 'BackgroundColor', styles.colors.background), 1:numel(handles));
 
 % Generate Convergence_Report.pdf.
 [~, fName, fExt] = fileparts(lang.files.convergence_report);

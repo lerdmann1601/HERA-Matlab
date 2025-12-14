@@ -286,7 +286,7 @@ else
          % Save graphic.
         [~, fName, fExt] = fileparts(lang.files.convergence_rank_stability);
         filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-        exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'Padding', 30);
+        exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
         fprintf([lang.ranking.convergence_plot_saved '\n'], filename);
 
         h_figs_rank(end+1) = h_fig_rank;
@@ -580,7 +580,7 @@ if isgraphics(h_fig_hist_rank)
     % Save the complete histogram figure to a file.
     [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_ranks);
     filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
 end
 

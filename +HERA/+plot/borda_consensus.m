@@ -82,7 +82,7 @@ if isfield(results, 'borda_results') && ~isempty(results.borda_results)
     % Save the Borda plot graphic.
     [~, fName, fExt] = fileparts(lang.files.borda_plot);
     filename_borda = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_borda, filename_borda, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig_borda, filename_borda, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf(['  ' lang.plots.log_messages.graphic_saved '\n'], filename_borda);
 else
     h_fig_borda = gobjects(0); % Create empty handle if no plot is made

@@ -110,7 +110,7 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     % Save global graphic.
     [~, fName, fExt] = fileparts(lang.files.convergence_thresholds_global);
     filename_global = fullfile(subfolder_thresholds, [fName, '_', ts, fExt]);
-    exportgraphics(tcl_thr_global, filename_global, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(tcl_thr_global, filename_global, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.thresholds.convergence_plot_saved '\n'], filename_global);
 
     %% Plot 2: Detailed Convergence Curves (per Metric) 
@@ -239,7 +239,7 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     % Save graphic.
     [~, fName, fExt] = fileparts(lang.files.convergence_thresholds);
     filename_detailed = fullfile(subfolder_thresholds, [fName, '_', ts, fExt]);
-    exportgraphics(tcl_thr_detailed, filename_detailed, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(tcl_thr_detailed, filename_detailed, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.thresholds.convergence_plot_saved '\n'], filename_detailed);
 
 end

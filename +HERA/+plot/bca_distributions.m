@@ -80,7 +80,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     end
     [~, fName, fExt] = fileparts(lang.files.dist_bca_bias_z0); 
     filename_z0 = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_z0, filename_z0, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_z0, filename_z0, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.bca.z0_histogram_saved '\n'], filename_z0);
 
     %% 2. A Distribution (Acceleration/Skewness)
@@ -114,7 +114,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     end
     [~, fName, fExt] = fileparts(lang.files.dist_bca_skew_a); 
     filename_a = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_a, filename_a, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_a, filename_a, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.bca.a_histogram_saved '\n'], filename_a);
 
     %% 3. CI Widths Distribution
@@ -151,7 +151,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     end
     [~, fName, fExt] = fileparts(lang.files.dist_ci_widths); 
     filename_widths = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_widths, filename_widths, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_widths, filename_widths, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.bca.ci_width_histogram_saved '\n'], filename_widths);
 
 end

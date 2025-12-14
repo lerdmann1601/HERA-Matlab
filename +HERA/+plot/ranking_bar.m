@@ -71,7 +71,7 @@ hold(ax, 'off');
 % Save the graphic.
 [~, fName, fExt] = fileparts(filename_base_str);
 filename = fullfile(subfolder_path, [fName, '_', shared_info.config.timestamp, fExt]);
-exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'Padding', 30);
+exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
 fprintf(['  ' lang.plots.log_messages.graphic_saved '\n'], filename);
 
 end

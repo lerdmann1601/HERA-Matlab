@@ -121,7 +121,7 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
     % 5. Save Global Plot
     [~, fName, fExt] = fileparts(lang.files.convergence_bca_global);
     filename_global = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_global, filename_global, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig_global, filename_global, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.bca.convergence_plot_saved '\n'], filename_global);
 
 
@@ -244,6 +244,6 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
     % 5. Save Detailed Plot
     [~, fName, fExt] = fileparts(lang.files.convergence_bca);
     filename_det = fullfile(subfolder_bca_CI, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_detailed, filename_det, 'Resolution', 300, 'Padding', 30);
+    exportgraphics(h_fig_detailed, filename_det, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.bca.convergence_plot_saved '\n\n'], filename_det);
 end
