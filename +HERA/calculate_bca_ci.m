@@ -84,7 +84,7 @@ end
 %% 1. Dynamic determination of the optimal bootstrap count (B)
 % Iteratively tests increasing B-values until the CI widths stabilize.
 %
-% Architecture:
+% Workflow:
 %   a) Iterate sequentially over B-values (B_start:B_step:B_end).
 %   b) Iterate sequentially over each effect type (Metric x [Delta, RelDiff]).
 %   c) Parallelize stability trials: Execute n_trials in parallel using `parfor`.
@@ -385,7 +385,7 @@ end
 %% 3. Final calculation of BCa confidence intervals with optimal B_ci
 % Calculates the final BCa confidence intervals for all pairs and metrics.
 %
-% Architecture:
+% Workflow:
 %   a) Pre-compute deterministic components: Jackknife and acceleration factor 'a' 
 %      are calculated once per pair (serial, reproducible, independent of B).
 %   b) Memory-aware batch sizing: Splits B into chunks that fit in RAM.

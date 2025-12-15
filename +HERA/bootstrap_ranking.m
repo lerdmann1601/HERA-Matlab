@@ -85,7 +85,7 @@ end
 %% 1. Initialization and Convergence Check for Optimal B
 % Iteratively tests increasing B-values until the rank CI widths stabilize.
 %
-% Architecture:
+% Workflow:
 %   a) Outer loop: Iterates over B-values (B_start:B_step:B_end).
 %   b) Parallel stability check: For each B, runs n_trials parallel bootstrap analyses.
 %   c) Convergence detection: Uses HERA.stats.check_convergence to detect plateau.
@@ -295,7 +295,7 @@ end
 %% 3. Final Bootstrap Analysis for Rank Distributions
 % Generates the final rank distribution using the optimally determined B value.
 %
-% Architecture:
+% Workflow:
 %   a) Memory-aware batch sizing: Splits B into chunks that fit in RAM.
 %   b) Parallel bootstrap over batches: Each batch gets its own RNG substream.
 %   c) Fast/Robust path: Uses vectorized calculation if no NaNs, otherwise loop-based.

@@ -152,7 +152,7 @@ min_rel_thresh = min_rel_dynamic; % Assigns the result to the output variable.
 %% 3. Dynamic determination of stable bootstrap thresholds (for B)
 % Iteratively tests increasing B-values until the threshold estimates stabilize.
 %
-% Architecture:
+% Workflow:
 %   a) Iterate sequentially over B-values (B_start:B_step:B_end).
 %   b) Iterate sequentially over each effect type / metric.
 %   c) Parallelize stability trials: Execute n_trials in parallel using `parfor`.
@@ -380,7 +380,7 @@ end
 %% 5. Final calculation of thresholds with the optimal B
 % Calculates the final thresholds for Cliff's Delta and relative difference.
 %
-% Architecture:
+% Workflow:
 %   a) Memory-aware batch sizing: Splits B into chunks that fit in RAM.
 %   b) Parallel bootstrap over batches: Each batch gets its own RNG substream.
 %   c) Aggregation: Flattens batch results and calculates the lower CI bound as threshold.

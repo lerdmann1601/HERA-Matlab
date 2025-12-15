@@ -28,7 +28,7 @@ function [userInput, setupData] = setup_environment(userInput)
 %
 % Author: Lukas von Erdmannsdorff
 
-    %% 1. Initialization and Setup
+    %% 1. Configuration Setup
     
     % Import the HERA namespace to find internal functions
     import HERA.*
@@ -65,6 +65,36 @@ function [userInput, setupData] = setup_environment(userInput)
         end
     end
 
+    % Automatic Target Memory Calculation
+    % If target_memory is empty (default), calculate it based on system RAM
+    if isfield(userInput, 'system') && isstruct(userInput.system)
+        % Check if user manually set it (non-empty)
+        if isfield(userInput.system, 'target_memory') && ~isempty(userInput.system.target_memory)
+             fprintf([lang.run_ranking.ram_manual '\n'], userInput.system.target_memory);
+        else
+            % Auto calculation
+            [calc_mem, ram_gb, ram_status] = HERA.run.get_target_memory();
+            userInput.system.target_memory = calc_mem;
+            
+            if isnan(ram_gb)
+                 % Fallback case
+                 fprintf([lang.run_ranking.ram_fallback '\n'], ram_status, calc_mem);
+            else
+                 % Success case
+                 fprintf([lang.run_ranking.ram_auto '\n'], ram_gb, calc_mem);
+            end
+        end
+    else
+         % Should not happen if defaults are loaded correctly, but safe fallback
+         [calc_mem, ram_gb, ram_status] = HERA.run.get_target_memory();
+         userInput.system.target_memory = calc_mem;
+         if isnan(ram_gb)
+             fprintf([lang.run_ranking.ram_fallback '\n'], ram_status, calc_mem);
+         else
+             fprintf([lang.run_ranking.ram_auto '\n'], ram_gb, calc_mem);
+         end
+    end
+
     % Logic Auto-Correction (Dependencies that depend on User Input)
     % Ensure Alphas match metric count (if generic default was loaded)
     if numel(userInput.alphas) ~= num_metrics
@@ -90,6 +120,7 @@ function [userInput, setupData] = setup_environment(userInput)
         userInput.config.ranking_mode = userInput.ranking_mode;
     end
 
+    %% 2. Environment Initialization
     % Create a unique output folder name using the current timestamp.
     timestamp_folder = string(datetime('now'), 'yyyyMMdd_HHmmss');
     output_dir_name = "Ranking_" + timestamp_folder;
@@ -214,7 +245,7 @@ function [userInput, setupData] = setup_environment(userInput)
     % Update config with timestamp
     config.timestamp = char(timestamp_folder);
     
-    %% 2. Reproducibility of the Random Number Generator
+    %% 3. Reproducibility Setup
     s = []; % Initialize the random stream variable.
     if userInput.reproducible
         % Use a fixed seed for reproducible results.
@@ -227,8 +258,7 @@ function [userInput, setupData] = setup_environment(userInput)
     end
     RandStream.setGlobalStream(s); % Set the configured stream as the global default.
 
-    %% 3. Initialize Parallel Processing
-    
+    %% 4. Parallel Processing Initialization
     % Determine intended number of workers
     if ischar(userInput.num_workers) && strcmp(userInput.num_workers, 'auto')
         target_workers = max(1, parcluster('local').NumWorkers);

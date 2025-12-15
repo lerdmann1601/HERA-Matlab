@@ -210,9 +210,11 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
 >
-> **Note:** Please ensure you use enough CPU cores since HERA is a
-> CPU-intensive application due to the extensive use of bootstrap procedures.
-> I have implemented parallelization where possible.
+> **Note:** HERA is designed for high-performance scientific computing, featuring
+> **fully parallelized bootstrap procedures** and **automatic memory management**
+> to optimize efficiency. However, specifically due to the extensive use of
+> bootstrapping, it remains a **CPU-intensive application**. Please ensure you
+> have access to enough CPU cores for reasonable performance.
 ---
 
 ## Documentation
@@ -363,7 +365,7 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 | **System** | `reproducible` | bool | `true` | Use fixed RNG seed. |
 | | `seed` | int | `123` | RNG seed value. |
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
-| | `system.target_memory` | int | `400` | Target memory per chunk (MB). Increase for systems with more RAM (e.g., 800 for 32GB). |
+| | `system.target_memory` | int | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `1000` | Iterations for Thresholds (empty = auto). |

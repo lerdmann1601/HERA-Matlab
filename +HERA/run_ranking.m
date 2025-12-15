@@ -19,10 +19,10 @@ function results = run_ranking(userInput)
 %
 %
 % Workflow:
-%   1.  Initialization: 
-%       Creates output directories and sets up log file.
-%   2.  Configuration Loading: 
-%       Loads all settings (incl. dynamic metric count and ranking_mode) and graphic styles.
+%   1.  Configuration Setup: 
+%       Loads defaults, validates metric names, and adjusts system settings.
+%   2.  Environment Initialization: 
+%       Creates output directories, sets up the log file, and saves the configuration.
 %   3.  Reproducibility Setup: 
 %       Configures the random number generator.
 %   4.  Parallel Processing: 

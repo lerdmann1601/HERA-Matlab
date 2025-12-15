@@ -46,8 +46,8 @@ function defaults = default()
     defaults.min_data_completeness = 0.80;
     
     %% System Configuration
-    % Target memory per chunk/batch (MB). Increase for systems with more RAM.
-    defaults.system.target_memory = 400;
+    % Target memory per chunk/batch (MB). Only used if passed to HERA by config.
+    defaults.system.target_memory = [];
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)
@@ -84,8 +84,8 @@ function defaults = default()
     cfg_rank = struct();
     cfg_rank.B_start = 50;
     cfg_rank.B_step = 25;
-    cfg_rank.B_end = 1500;
-    cfg_rank.n_trials = 20;
+    cfg_rank.B_end = 2500;
+    cfg_rank.n_trials = 15;
     cfg_rank.min_steps_for_convergence_check = 1;
     cfg_rank.convergence_tolerance = 0.005;
     cfg_rank.smoothing_window = 3;
