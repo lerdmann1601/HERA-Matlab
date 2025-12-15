@@ -162,6 +162,11 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         
         % config: Contains all initial settings
         json_export_data.config = config;
+
+        % Remove target_memory from saved config
+        if isfield(json_export_data.config, 'system') && isfield(json_export_data.config.system, 'target_memory')
+            json_export_data.config.system = rmfield(json_export_data.config.system, 'target_memory');
+        end
         
         % meta: Contains key execution parameters
         json_export_data.meta = struct();

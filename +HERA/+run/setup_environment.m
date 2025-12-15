@@ -156,7 +156,16 @@ function [userInput, setupData] = setup_environment(userInput)
     % Save the complete user configuration to a JSON file for reproducibility.
     config_path = fullfile(output_dir, "configuration.json"); 
     try
-        data_to_save = struct('userInput', userInput);
+        userInputToSave = userInput;
+        if isfield(userInputToSave, 'system') && isfield(userInputToSave.system, 'target_memory')
+            userInputToSave.system = rmfield(userInputToSave.system, 'target_memory');
+        end
+        % Also check config.system if it exists separately
+        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system') && isfield(userInputToSave.config.system, 'target_memory')
+            userInputToSave.config.system = rmfield(userInputToSave.config.system, 'target_memory');
+        end
+        
+        data_to_save = struct('userInput', userInputToSave);
         json_text = jsonencode(data_to_save, 'PrettyPrint', true);     
         
         fid = fopen(config_path, 'w'); 

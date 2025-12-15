@@ -409,6 +409,9 @@ a_r_all = NaN(num_pairs, num_metrics);
 % Dynamic batch sizing based on memory configuration.
 if isfield(config, 'system') && isfield(config.system, 'target_memory')
      TARGET_MEMORY = config.system.target_memory;
+     if numel(TARGET_MEMORY) > 1
+         TARGET_MEMORY = TARGET_MEMORY(1);
+     end
 else
      TARGET_MEMORY = 200;
 end
@@ -416,6 +419,9 @@ end
 % Get worker count for memory estimation (parfor broadcasts data to all workers).
 if isfield(config, 'num_workers') && isnumeric(config.num_workers)
     num_workers = config.num_workers;
+    if numel(num_workers) > 1
+        num_workers = num_workers(1);
+    end
 else
     num_workers = feature('numcores');
 end

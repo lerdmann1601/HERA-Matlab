@@ -340,7 +340,12 @@ while true
                 if ischar(file) % Check if a valid file name was provided (not cancelled).
                     try
                         % Wrap the userInput struct in another struct to match the loading format.
-                        data_to_save = struct('userInput', userInput);
+                        % Remove target_memory before saving
+                        userInputToSave = userInput;
+                        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system') && isfield(userInputToSave.config.system, 'target_memory')
+                             userInputToSave.config.system = rmfield(userInputToSave.config.system, 'target_memory');
+                        end
+                        data_to_save = struct('userInput', userInputToSave);
                         % Encode the MATLAB struct into a nicely formatted JSON string.
                         json_text = jsonencode(data_to_save, 'PrettyPrint', true);                
                         % Write the JSON string to the selected file.

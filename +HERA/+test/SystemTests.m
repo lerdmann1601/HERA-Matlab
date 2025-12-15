@@ -18,7 +18,14 @@ classdef SystemTests < matlab.unittest.TestCase
     
     methods (TestMethodSetup)
         function setupDesc(testCase)
-            testCase.tempDir = tempname;
+            % Determine project root (3 levels up from +HERA/+test/SystemTests.m)
+            root = fileparts(fileparts(fileparts(mfilename('fullpath'))));
+            testCase.tempDir = fullfile(root, 'tests', 'TestOutput');
+            
+            % Ensure we start with a clean slate
+            if exist(testCase.tempDir, 'dir')
+                HERA.test.SystemTests.safeCleanup(testCase.tempDir);
+            end
             mkdir(testCase.tempDir);
         end
     end
