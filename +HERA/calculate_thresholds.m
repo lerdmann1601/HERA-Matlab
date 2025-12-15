@@ -427,16 +427,20 @@ for metric_idx = 1:num_metrics
         % Calculate batch size based on memory.
         bytes_per_sample = n_data_d * 8;
         
-        % Smart batching for Final Phase
-        total_memory_needed = (selected_B * bytes_per_sample) / (1024^2);
+        % Smart batching for Final Phase with defensive scalar enforcement
+        total_memory_needed = (double(selected_B) * double(bytes_per_sample)) / (1024^2);
         
-        if total_memory_needed <= effective_memory
-            BATCH_SIZE = selected_B;
+        if total_memory_needed <= double(effective_memory)
+            BATCH_SIZE = double(selected_B);
         else
-            BATCH_SIZE = max(100, min(floor((effective_memory * 1024^2) / bytes_per_sample), 20000));
+            BATCH_SIZE = max(100, min(floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)), 20000));
         end
-
-        num_batches = ceil(selected_B / BATCH_SIZE);
+        
+        % Ensure scalar double for loop limit
+        num_batches = double(ceil(double(selected_B) ./ BATCH_SIZE));
+        if numel(num_batches) > 1
+             num_batches = num_batches(1);
+        end
         
         % Substream offset for this metric.
         offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);

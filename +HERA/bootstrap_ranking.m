@@ -333,15 +333,20 @@ bytes_per_int = 4;
 
 % Estimate total memory needed for all iterations.
 mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
-total_memory_needed = (selected_B_final * mem_per_iter_bytes) / (1024^2);
+% Estimate total memory needed for all iterations.
+mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
+total_memory_needed = (double(selected_B_final) * double(mem_per_iter_bytes)) / (1024^2);
 
 % Smart batching: Use one batch if total memory fits, otherwise split.
-if total_memory_needed <= effective_memory
-    BATCH_SIZE = selected_B_final;
+if total_memory_needed <= double(effective_memory)
+    BATCH_SIZE = double(selected_B_final);
 else
-    BATCH_SIZE = max(1, floor((effective_memory * 1024^2) / mem_per_iter_bytes));
+    BATCH_SIZE = max(1, floor((double(effective_memory) * 1024^2) / double(mem_per_iter_bytes)));
 end
-num_batches = ceil(selected_B_final / BATCH_SIZE);
+num_batches = double(ceil(double(selected_B_final) ./ BATCH_SIZE));
+if numel(num_batches) > 1
+     num_batches = num_batches(1);
+end
 
 rank_batches = cell(1, num_batches);
 

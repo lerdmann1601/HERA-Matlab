@@ -487,15 +487,19 @@ for metric_idx = 1:num_metrics
     max_n_valid = max(pair_n_valid);
     if max_n_valid < 2, max_n_valid = 2; end
     bytes_per_sample = max_n_valid * 8 * 2;  % x and y bootstrap samples
-    total_memory_needed = (B_ci * bytes_per_sample) / (1024^2);
-    
     % Smart batching: Use one batch if total memory fits, otherwise split.
-    if total_memory_needed <= effective_memory
-        BATCH_SIZE = B_ci;
+    total_memory_needed = (double(B_ci) * double(bytes_per_sample)) / (1024^2);
+    
+    if total_memory_needed <= double(effective_memory)
+        BATCH_SIZE = double(B_ci);
     else
-        BATCH_SIZE = max(100, floor((effective_memory * 1024^2) / bytes_per_sample));
+        BATCH_SIZE = max(100, floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)));
     end
-    num_batches = ceil(B_ci / BATCH_SIZE);
+    
+    num_batches = double(ceil(double(B_ci) ./ BATCH_SIZE));
+    if numel(num_batches) > 1
+         num_batches = num_batches(1);
+    end
     
     % Unique offset for this metric to avoid substream collisions.
     metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (num_batches + 100);
