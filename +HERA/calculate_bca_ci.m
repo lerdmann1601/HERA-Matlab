@@ -522,6 +522,10 @@ for metric_idx = 1:num_metrics
         boot_r_all{k} = zeros(1, B_ci);
     end
     
+    % Pre-allocate sliced output variables for parfor
+    boot_d_all_batch = cell(num_batches, 1);
+    boot_r_all_batch = cell(num_batches, 1);
+    
     parfor b = 1:num_batches
         % Each batch gets its own reproducible substream.
         s_worker = s;
