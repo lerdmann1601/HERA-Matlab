@@ -52,8 +52,8 @@ end
     fprintf(['  ' lang.power.bootstrap_info '\n'], num_simulations);
     
     % Ensure valid integer for parfor
-    if isnan(num_simulations) || isinf(num_simulations)
-        error('HERA:PowerAnalysis:InvalidSimulations', 'Number of simulations is NaN or Inf. Please check configuration.');
+    if isempty(num_simulations) || isnan(num_simulations) || isinf(num_simulations)
+        error('HERA:PowerAnalysis:InvalidSimulations', 'Number of simulations is Empty, NaN or Inf. Please check configuration.');
     end % Should be a theoretical Problem therefore not in en.json...
     num_simulations = double(int32(round(num_simulations)));
 

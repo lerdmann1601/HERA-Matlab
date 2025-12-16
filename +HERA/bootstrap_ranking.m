@@ -356,7 +356,7 @@ if numel(num_batches) > 1
      num_batches = num_batches(1);
 end
 % EXTRA SAFETY for parfor
-if any(isnan(num_batches)) || any(isinf(num_batches))
+if isempty(num_batches) || any(isnan(num_batches)) || any(isinf(num_batches))
     num_batches = 1;
 end
 num_batches = double(int32(round(num_batches)));

@@ -394,6 +394,9 @@ while true
             case lang.general.start_char
                 fprintf([lang.prompts.starting_analysis '\n\n']);
                 try
+                    % Sanitize configuration (Simulate JSON trip to fix R2025b parfor issues in Manual Mode, this was a realy annoing bug!!!)
+                    userInput = clean_struct(userInput);
+                    
                     % Call the main analysis function.
                     run_ranking(userInput);
                 catch ME
@@ -431,4 +434,18 @@ function args = parse_args(options)
         options.logPath (1,1) string = ""
     end
     args = options;
+end
+
+function s = clean_struct(s)
+    % Helper to recursively sanitize struct fields to pure doubles.
+    % This simulates the "JSON Load" effect to fix parfor type issues.
+    fields = fieldnames(s);
+    for i = 1:numel(fields)
+        val = s.(fields{i});
+        if isstruct(val)
+            s.(fields{i}) = clean_struct(val);
+        elseif isnumeric(val)
+            s.(fields{i}) = double(val);
+        end
+    end
 end
