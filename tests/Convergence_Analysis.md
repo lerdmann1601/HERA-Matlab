@@ -37,6 +37,14 @@ We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) 
 **Method Configurations:**
 ![Method Parameters](Robustness_Report_20251214_233500/Graphics/Param_Methods_20251214_233500.png)
 
+### Analysis Scope
+
+To isolate the behavior of individual convergence algorithms, the following simplifications were applied:
+
+* **Effect Size Metrics**: Both Cliff's Delta and Relative Difference are always calculated, and the convergence criterion is based on the averaged stability of both. Only Cliff's Delta was used as the accuracy metric for comparison against reference values. This design choice allows us to test whether the averaged convergence approach produces accurate individual estimates despite relying on a combined stability indicator.
+* **Ranking Stability**: A single-metric ranking (M1 only) was used to provide a stable reference point. Multi-metric rankings (M1_M2, M1_M2_M3) may exhibit different convergence characteristics due to increased complexity.
+* **Thresholds for Ranking**: Pre-calculated reference thresholds were used to isolate the ranking convergence behavior from threshold estimation variability.
+
 ## Validation Results
 
 We evaluated the performance of the Robust Mode based on two key criteria: **Convergence Success** (did it finish?) and **Accuracy** (were the results correct?).
@@ -59,7 +67,7 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
   * **BCa Confidence Intervals**: $B_{ref} = 30{,}000$
   * **Ranking Stability**: $B_{ref} = 5{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. Median absolute errors were typically well below 5% relative to the reference values.
+* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. Median absolute errors were typically well below 5% relative to the reference values. This also validates the averaged convergence approach: despite determining convergence from a combined stability indicator, the individual accuracy of Cliff's Delta remained excellent.
 
 ### Global Results Summary
 
@@ -81,6 +89,10 @@ Based on these results, we can discuss the theoretical implications of the diffe
 * **Default**: Designed to balance efficiency and reliability, it seems to be the best option for general usage. Interestingly, in some tested scenarios it provides higher accuracy for the BCa confidence intervals compared to stricter settings when comparing to the reference values. This is likely because stricter settings with more iterations can occasionally include rare extreme bootstrap samples that increase variance without improving the central estimate.
   * **Conclusion**: Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in >99.7% of tested Ranking cases and virtually 100% of other cases, while maintaining high accuracy against reference standards.
   
+## Computational Note
+
+The complete analysis (7 scenarios × 50 simulations = 350 unique datasets) was performed on a standard consumer laptop (Base Model Apple M1 MBP, 16 GB RAM) in approximately 15 hours. For each simulation, one high-precision reference was calculated ($B$ up to 30,000 bootstrap samples), followed by convergence tests for all three modes (Relaxed, Default, Strict), each with 15–40 independent stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
+
 ## Full Report
 
 For a comprehensive look at the data, including specific breakdowns for each distribution type, please refer to the generated PDF report:
