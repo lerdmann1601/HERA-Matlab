@@ -438,12 +438,27 @@ end
 
 function s = clean_struct(s)
     % Helper to recursively sanitize struct fields to pure doubles.
-    % This simulates the "JSON Load" effect to fix parfor type issues.
+    % Handled structs and cell arrays to ensure deep sanitization of the configuration.
+    % This prevents type mismatch errors in parallel computing (parfor).  
     fields = fieldnames(s);
     for i = 1:numel(fields)
         val = s.(fields{i});
+      
         if isstruct(val)
             s.(fields{i}) = clean_struct(val);
+            
+        elseif iscell(val)
+            % Recursively clean cell array content
+            for k = 1:numel(val)
+                c_val = val{k};
+                if isstruct(c_val)
+                    val{k} = clean_struct(c_val);
+                elseif isnumeric(c_val)
+                    val{k} = double(c_val);
+                end
+            end
+            s.(fields{i}) = val;
+            
         elseif isnumeric(val)
             s.(fields{i}) = double(val);
         end
