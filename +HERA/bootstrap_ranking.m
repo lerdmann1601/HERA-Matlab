@@ -161,7 +161,7 @@ else
         end
         
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
-        parfor (t_b = 1:int32(round(cfg_rank.n_trials)), int32(round(parfor_limit)))
+        parfor (t_b = 1:double(int32(round(cfg_rank.n_trials))), double(int32(round(parfor_limit))))
             % Each parallel worker gets its own reproducible substream of the random number generator.
             s_worker = s;
             s_worker.Substream = t_b;
@@ -359,7 +359,7 @@ end
 if any(isnan(num_batches)) || any(isinf(num_batches))
     num_batches = 1;
 end
-num_batches = int32(round(num_batches));
+num_batches = double(int32(round(num_batches)));
 
 rank_batches = cell(1, num_batches);
 

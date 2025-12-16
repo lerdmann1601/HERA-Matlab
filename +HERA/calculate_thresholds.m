@@ -260,8 +260,8 @@ else
             
             % --- Inner Parallel Loop (Trials) ---
             % Parallelizes the bootstrap trials to ensure maximum core utilization.
-            n_trials_int = int32(round(cfg_thr.n_trials));
-            parfor_limit = int32(round(parfor_limit));
+            n_trials_int = double(int32(round(cfg_thr.n_trials)));
+            parfor_limit = double(int32(round(parfor_limit)));
             thr_trials = zeros(n_trials_int, 1);
             
             parfor (t = 1:n_trials_int, parfor_limit)
@@ -451,10 +451,10 @@ for metric_idx = 1:num_metrics
         if any(isnan(num_batches)) || any(isinf(num_batches))
             num_batches = 1;
         end
-        num_batches = int32(round(num_batches));
+        num_batches = double(int32(round(num_batches)));
         
         % Substream offset for this metric.
-        offset_d = 1000 + (metric_idx - 1) * 2 * (double(num_batches) + 10);
+        offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);
         
         % Parallel bootstrap computation.
         results_cell_d = cell(1, num_batches);
@@ -508,10 +508,10 @@ for metric_idx = 1:num_metrics
         if any(isnan(num_batches)) || any(isinf(num_batches))
             num_batches = 1;
         end
-        num_batches = int32(round(num_batches));
+        num_batches = double(int32(round(num_batches)));
         
         % Substream offset (shifted from Delta).
-        offset_rel = offset_d + (double(num_batches) + 10);
+        offset_rel = offset_d + (num_batches + 10);
         
         % Parallel bootstrap computation.
         results_cell_rel = cell(1, num_batches);

@@ -55,7 +55,7 @@ end
     if isnan(num_simulations) || isinf(num_simulations)
         error('HERA:PowerAnalysis:InvalidSimulations', 'Number of simulations is NaN or Inf. Please check configuration.');
     end % Should be a theoretical Problem therefore not in en.json...
-    num_simulations = int32(round(num_simulations));
+    num_simulations = double(int32(round(num_simulations)));
 
     for m = 1:num_metrics
         % Initialize Win Counters for all pairs
@@ -146,7 +146,7 @@ end
         end
         
         % Calculate Power
-        power_matrix = win_counts / num_simulations;
+        power_matrix = win_counts / double(num_simulations);
         power_matrices{m} = power_matrix;
     end    
     power_results = struct('power_matrices', {power_matrices});

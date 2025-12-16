@@ -218,11 +218,11 @@ else
                 if is_delta, theta_hat = p_d_vals_all(k, actual_metric_idx);
                 else, theta_hat = p_rel_vals_all(k, actual_metric_idx); end
                 
-                ci_widths_trial = zeros(int32(round(cfg_ci.n_trials)), 1);
+                ci_widths_trial = zeros(double(int32(round(cfg_ci.n_trials))), 1);
                 
                 % --- Inner Parallel Loop (Trials) ---
                 % Parallelizes the bootstrap trials to ensure maximum core utilization.
-                parfor (t = 1:int32(round(cfg_ci.n_trials)), int32(round(parfor_limit)))
+                parfor (t = 1:double(int32(round(cfg_ci.n_trials))), double(int32(round(parfor_limit))))
                     % RNG: Deterministic substream based on EffectType and Trial index.
                     s_worker = s;
                     s_worker.Substream = (metric_idx - 1) * 1000 + t;
@@ -508,10 +508,10 @@ for metric_idx = 1:num_metrics
     if any(isnan(num_batches)) || any(isinf(num_batches))
         num_batches = 1;
     end
-    num_batches = int32(round(num_batches));
+    num_batches = double(int32(round(num_batches)));
     
     % Unique offset for this metric to avoid substream collisions.
-    metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (double(num_batches) + 100);
+    metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (num_batches + 100);
     
     % --- Parallel bootstrap computation over batches ---
     % Each batch computes a portion of the B bootstrap samples.
