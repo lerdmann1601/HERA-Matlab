@@ -229,10 +229,15 @@ else
 
         % Log details from the check
         if ~isnan(results.improvement)
-             if abs(results.improvement) < cfg_rank.convergence_tolerance
-                fprintf(['    ' lang.ranking.convergence_run_info '\n'], results.improvement * 100, results.streak, cfg_rank.convergence_streak_needed);
+             if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
+                  if abs(results.improvement) < cfg_rank.convergence_tolerance
+                     fprintf(['    ' lang.ranking.convergence_run_info '\n'], results.improvement * 100, results.streak, cfg_rank.convergence_streak_needed);
+                  else
+                     fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
+                  end
              else
-                fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
+                  % Simple mode logs
+                  fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
              end
         end
 
@@ -276,6 +281,8 @@ else
     stability_data_rank.elbow_indices = elbow_idx_rank;
     % Rank stability only has one (global) curve, so detailed_stability is empty.
     stability_data_rank.detailed_stability = [];
+    % Ensure selected_B_final is a valid integer for parfor
+    selected_B_final = round(selected_B_final);
     
 %% 3. Create and save the convergence graphic.
     h_fig_rank = HERA.plot.rank_convergence(B_tested_vector_b, stability_vector_b_plotted, ...
@@ -349,7 +356,7 @@ if numel(num_batches) > 1
      num_batches = num_batches(1);
 end
 % EXTRA SAFETY for parfor
-if isnan(num_batches) || isinf(num_batches)
+if any(isnan(num_batches)) || any(isinf(num_batches))
     num_batches = 1;
 end
 num_batches = round(num_batches);
@@ -357,7 +364,11 @@ num_batches = round(num_batches);
 rank_batches = cell(1, num_batches);
 
 % Use substream offset to avoid overlap with stability analysis phase.
-OFFSET_BOOTSTRAP = cfg_rank.n_trials + 1000;
+if isfield(cfg_rank, 'n_trials')
+    OFFSET_BOOTSTRAP = cfg_rank.n_trials + 1000;
+else
+    OFFSET_BOOTSTRAP = 1000;
+end
 
 parfor b_idx = 1:num_batches
     s_worker = s;

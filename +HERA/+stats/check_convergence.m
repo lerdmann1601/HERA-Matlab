@@ -144,7 +144,8 @@ function [is_converged, stats] = check_convergence(stability_history, config)
     else
         %% Simple Convergence Logic 
         % Simple convergence check (No smoothing, immediate check)
-        if n >= cfg.min_steps_for_convergence_check
+        % We strictly need at least 2 data points to calculate a change.
+        if n >= max(2, cfg.min_steps_for_convergence_check)
             % Ensure scalar values for stability
             curr_stab = stability_history(end);
             if numel(curr_stab) > 1, curr_stab = curr_stab(1); end

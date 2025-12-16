@@ -321,7 +321,9 @@ else
         else
              % Simple method logging
              if i >= cfg_thr.min_steps_for_convergence_check
-                 fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
+                 if ~isnan(conv_stats.improvement)
+                     fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
+                 end
                  if converged
                      fprintf([lang.thresholds.convergence_reached '\n'], conv_stats.improvement * 100);
                  end
@@ -362,6 +364,8 @@ else
         [selected_B, elbow_indices] = HERA.stats.find_elbow_point(B_tested_vector, stability_vectors);
         fprintf([lang.thresholds.elbow_result '\n'], selected_B);
     end
+    % Ensure selected_B is a valid integer for parfor
+    selected_B = round(selected_B);
     % Store stability data for JSON export and plotting
     stability_data_thr = struct();
     stability_data_thr.B_vector = B_tested_vector;
@@ -442,7 +446,7 @@ for metric_idx = 1:num_metrics
              num_batches = num_batches(1);
         end
         % EXTRA SAFETY for parfor
-        if isnan(num_batches) || isinf(num_batches)
+        if any(isnan(num_batches)) || any(isinf(num_batches))
             num_batches = 1;
         end
         num_batches = round(num_batches);
@@ -499,7 +503,7 @@ for metric_idx = 1:num_metrics
              num_batches = num_batches(1);
         end
         % EXTRA SAFETY for parfor
-        if isnan(num_batches) || isinf(num_batches)
+        if any(isnan(num_batches)) || any(isinf(num_batches))
             num_batches = 1;
         end
         num_batches = round(num_batches);

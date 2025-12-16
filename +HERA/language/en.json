@@ -174,7 +174,8 @@
         "n_trials": "n_trials",
         "tolerance": "convergence_tolerance",
         "smoothing": "smoothing_window",
-        "streak": "convergence_streak_needed"
+        "streak": "convergence_streak_needed",
+        "min_steps": "min_steps_for_convergence_check"
     },
     "run_ranking": {
         "ram_auto": "System RAM: %.1f GB. Automatic target_memory set to %d MB.\n",

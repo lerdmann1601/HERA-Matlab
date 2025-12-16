@@ -328,13 +328,15 @@ else
                 end
             end
         else
-            % Simple convergence check logs
-            if ~isnan(rel_imp) && i >= cfg_ci.min_steps_for_convergence_check
-                 fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);    
-                 if converged_ci
-                    fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
+            % Simple method
+             if i >= cfg_ci.min_steps_for_convergence_check
+                 if ~isnan(rel_imp)
+                     fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
                  end
-            end
+                 if converged_ci
+                      fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
+                 end
+             end
         end
 
         if converged_ci
@@ -374,6 +376,8 @@ else
     stability_data_ci.detailed_stability = stability_matrix_ci(:, :, 1:final_i_ci);
     stability_data_ci.converged = converged_ci;
     stability_data_ci.elbow_indices = elbow_indices;
+    % Ensure selected_B_ci is a valid integer for parfor
+    selected_B_ci = round(selected_B_ci);
     B_ci = selected_B_ci; 
 
     %% 2. Generate graphics to visualize the convergence analysis via Helper
@@ -501,7 +505,7 @@ for metric_idx = 1:num_metrics
          num_batches = num_batches(1);
     end
     % EXTRA SAFETY for parfor
-    if isnan(num_batches) || isinf(num_batches)
+    if any(isnan(num_batches)) || any(isinf(num_batches))
         num_batches = 1;
     end
     num_batches = round(num_batches);

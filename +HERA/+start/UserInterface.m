@@ -183,9 +183,10 @@ classdef UserInterface
                 end
             end
             
-            % 3. Step size and trials
+            % 3. Step size and trials and Min Steps
             cfg_custom.B_step = HERA.start.UserInterface.get_numeric_input(['    ' lang.params.b_step], default_cfg.B_step, true, lang);
             cfg_custom.n_trials = HERA.start.UserInterface.get_numeric_input(['    ' lang.params.n_trials], default_cfg.n_trials, true, lang);
+            cfg_custom.min_steps_for_convergence_check = HERA.start.UserInterface.get_numeric_input(['    ' lang.params.min_steps], default_cfg.min_steps_for_convergence_check, true, lang);      
             cfg_custom.convergence_tolerance = HERA.start.UserInterface.get_numeric_input(['    ' lang.params.tolerance], default_cfg.convergence_tolerance, false, lang);
             
             % 4. Robust/Smoothing parameters (only if applicable)

@@ -20,11 +20,9 @@ date: 02 December 2025
 bibliography: paper.bib
 ---
 
-![HERA Logo](images/hera_logo.png)
-
 ## Summary
 
-In scientific disciplines ranging from clinical research to machine learning, researchers face the challenge of objectively comparing multiple algorithms, experimental conditions, or datasets across a variety of performance metrics. This process, often framed as Multi-Criteria Decision Making (MCDM), is critical for identifying state-of-the-art methods. However, traditional ranking approaches frequently suffer from limitations: they may rely on central tendencies that ignore data variability [@Demsar2006], depend solely on p-values which can be misleading in large samples [@Wasserstein2016], or require subjective weighting of conflicting metrics [@Taherdoost2023].
+In scientific disciplines ranging from clinical research to machine learning, researchers face the challenge of objectively comparing multiple algorithms, experimental conditions, or datasets across a variety of performance metrics. This process, often framed as Multi-Criteria Decision Making (MCDM), is critical for identifying state-of-the-art methods. However, traditional ranking approaches frequently suffer from limitations: they may rely on central tendencies that ignore data variability [@Demsar2006; @Benavoli2016], depend solely on p-values which can be misleading in large samples [@Wasserstein2016], or require subjective weighting of conflicting metrics [@Taherdoost2023].
 
 **HERA** (Hierarchical-Compensatory, Effect-Size Driven Ranking Algorithm) is a MATLAB toolbox designed to automate this comparison process, bridging the gap between elementary statistical tests and complex decision-making frameworks. Unlike weighted-sum approaches that collapse multi-dimensional performance into a single scalar, HERA implements a **hierarchical-compensatory logic**. This logic integrates non-parametric significance testing (Wilcoxon signed-rank test), robust effect size estimation (Cliff's Delta, Relative Difference), and bootstrapping (e.g. Percentile and Cluster) to produce rankings that are both statistically robust and practically relevant. HERA is designed for researchers in biomedical imaging, machine learning, and applied statistics who need to compare method performance across multiple quality metrics in a statistically rigorous manner without requiring subjective parameter tuning.
 
@@ -33,7 +31,7 @@ In scientific disciplines ranging from clinical research to machine learning, re
 The scientific community increasingly recognizes the pitfalls of relying on simple summary statistics or p-values alone [@Wasserstein2016]. In benchmarking studies, specifically, several issues persist:
 
 1. **Ignoring Variance**: Ranking based on mean scores fails to account for the stability of performance across different subjects or folds. A method might achieve a high average score due to exceptional performance on a few easy cases while failing catastrophically on others, yet still outrank a more consistent competitor.
-2. **Statistical vs. Practical Significance**: A result can be statistically significant but practically irrelevant, especially in large datasets where even trivial differences yield $p < 0.05$. Standard tests do not inherently distinguish between these cases, potentially leading to the adoption of methods that offer no tangible benefit [@Lakens2021].
+2. **Statistical vs. Practical Significance**: A result can be statistically significant but practically irrelevant, especially in large datasets where even trivial differences yield $p < 0.05$. Standard tests do not inherently distinguish between these cases, potentially leading to the adoption of methods that offer no tangible benefit [@Sullivan2012].
 3. **Subjectivity in Aggregation**: Many MCDM methods require users to assign arbitrary weights to metrics (e.g., "Accuracy is 0.7, Speed is 0.3"). These weights are often chosen post-hoc or lack empirical justification, introducing researcher bias that can be manipulated to favor a specific outcome [@Taherdoost2023].
 4. **Distributional Assumptions**: Parametric tests (e.g., t-test) assume normality, which is often violated in real-world benchmarks where performance metrics may be skewed, bounded, or ordinal [@Romano2006].
 
@@ -58,6 +56,8 @@ HERA's complementary logic requires both dominance and magnitude, preventing "wi
 
 The ranking process is structured as a multi-stage tournament. It does not use a global score but refines the rank order iteratively (see Fig. 1):
 
+![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png){height=85%}
+
 - **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie, Cliff's Delta is used to break the tie.
 - **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric $M_2$. This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
 - **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two sub-logics to ensure a total ordering:
@@ -80,23 +80,13 @@ HERA offers a flexible configuration of up to three metrics (see Fig. 2). This a
 - **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV exports.
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
 - **Convergence Analysis**: To avoid the common pitfall of using an arbitrary number of bootstrap iterations, HERA implements an adaptive algorithm. It automatically monitors the stability of the estimated confidence intervals and effect size thresholds, continuing the resampling process until the estimates converge within a specified tolerance, thus determining the optimal number of iterations $B$ dynamically [@Pattengale2010]. If the characteristics of the data for bootstrapping are known, the number of bootstrap iterations can be set manually.
-- **Data Integration**: HERA supports seamless data import from standard formats (CSV, Excel) and MATLAB tables, facilitating integration into existing research pipelines.
+- **Data Integration**: HERA supports seamless data import from standard formats (CSV, Excel) and MATLAB tables, facilitating integration into existing research pipelines. Example datasets and workflows demonstrating practical applications are included in the repository.
 - **Accessibility**: HERA can be easily installed by cloning the GitHub repository and running a setup script, or deployed as a standalone application that requires no MATLAB license. An interactive command-line interface guides users through the analysis without requiring programming expertise, while an API and JSON Configuration allow for automated batch processing.
 
-## Future Work
-
-We plan to expand HERA's capabilities in several directions:
-
-- **Python Implementation**: Developing a Python version to reach a broader data science audience.
-- **Bayesian Methods**: Incorporating Bayesian approaches for ranking and probability estimation [@Benavoli2016].
-- **Independent Samples**: Extending the framework to handle unpaired data (e.g., randomized clinical trials comparing independent groups).
+![Flexible Configuration options for Ranking Logic](images/features.png)
 
 ## Acknowledgements
 
 This software was developed at the Institute of Neuroradiology, Goethe University Frankfurt. I thank Prof. Dr. Dipl.-Phys. Ralf Deichmann (Cooperative Brain Imaging Center, Goethe University Frankfurt) for his support during the initial conceptualization of this project. I acknowledge Dr. med. Christophe Arendt (Institute of Neuroradiology, Goethe University Frankfurt) for his supervision and support throughout the project. I also thank Rejane Golbach PhD (Institute of Biostatistics and Mathematical Modeling, Goethe University Frankfurt) for her valuable feedback on the statistical methodology.
-
-![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png)
-
-![Flexible Configuration options for Ranking Logic](images/features.png)
 
 ## References

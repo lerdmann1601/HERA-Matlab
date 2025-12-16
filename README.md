@@ -406,11 +406,14 @@ nested parameters to control the convergence algorithm:
     Results should be treated as a suggestion to be verified by visual inspection
     and for further analysis (for more details see Troubleshooting Convergence).
 
-> **Note:** The parameters used for convergence checking have not been validated
-> empirically or in simulation studies! They are based on literature recommendations,
-> theoretical considerations, and initial tests. However with the default parameters
-> in robust mode, convergence starts to be evaluated within the lower range of
-> iterations consistent with literature recommendations.
+> **Note:** The different parameters used in the **Robust Mode** for
+> convergence checking have been validated in a empirical Convergence Analysis.
+> The default parameters were found to be sufficient for the majority of scenarios.
+> However it is not a guarantee!
+> Convergence failures using the elbow method were rare (0.3% of cases,
+> exclusively in Ranking). Simple Convergence Mode was not assessed in this analysis!
+> For detailed results, see
+> [tests/Convergence_Analysis.md](tests/Convergence_Analysis.md).
 
 </details>
 
