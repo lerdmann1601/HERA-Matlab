@@ -50,6 +50,12 @@ end
     power_matrices = cell(1, num_metrics);
     
     fprintf(['  ' lang.power.bootstrap_info '\n'], num_simulations);
+    
+    % Ensure valid integer for parfor
+    if isnan(num_simulations) || isinf(num_simulations)
+        error('HERA:PowerAnalysis:InvalidSimulations', 'Number of simulations is NaN or Inf. Please check configuration.');
+    end % Should be a theoretical Problem therefore not in en.json...
+    num_simulations = round(num_simulations);
 
     for m = 1:num_metrics
         % Initialize Win Counters for all pairs

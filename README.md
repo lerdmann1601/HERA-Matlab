@@ -368,9 +368,9 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 | | `system.target_memory` | int | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
-| **Bootstrap (Manual)** | `manual_B_thr` | int | `1000` | Iterations for Thresholds (empty = auto). |
+| **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
 | | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |
-| | `manual_B_rank` | int | `250` | Iterations for Rank Stability (empty = auto). |
+| | `manual_B_rank` | int | `500` | Iterations for Rank Stability (empty = auto). |
 | **Bootstrap (Auto)** | `bootstrap_thresholds` | struct | (See Below) | Config for Threshold convergence. |
 | | `bootstrap_ci` | struct | (See Below) | Config for CI convergence. |
 | | `bootstrap_ranks` | struct | (See Below) | Config for Rank Stability convergence. |
@@ -383,10 +383,10 @@ nested parameters to control the convergence algorithm:
 | Field | Type | Default (Thr/CI/Rank) | Description |
 | :--- | :--- | :--- | :--- |
 | `B_start` | int | `100` / `100` / `50` | Initial number of bootstrap iterations. |
-| `B_step` | int | `150` / `200` / `25` | Iterations to add in each step. |
-| `B_end` | int | `10000` / `20000` / `1500` | Maximum number of iterations. |
-| `n_trials` | int | `25` / `30` / `20` | Number of independent trials per step to check stability. |
-| `convergence_tolerance` | double | `0.01` / `0.05` / `0.005` | Max allowed variation (e.g., 0.005 = 0.5%). |
+| `B_step` | int | `100` / `200` / `25` | Iterations to add in each step. |
+| `B_end` | int | `10000` / `20000` / `2500` | Maximum number of iterations. |
+| `n_trials` | int | `25` / `30` / `15` | Number of independent trials per step to check stability. |
+| `convergence_tolerance` | double | `0.01` / `0.03` / `0.005` | Max allowed variation (e.g., 0.005 = 0.5%). |
 | `smoothing_window` | int | `3` / `3` / `3` | Window size for moving average smoothing. |
 | `convergence_streak_needed` | int | `3` / `3` / `3` | Consecutive steps required to pass tolerance. |
 | `min_steps_for_convergence_check` | int | `1` | Minimum steps before checking convergence. |

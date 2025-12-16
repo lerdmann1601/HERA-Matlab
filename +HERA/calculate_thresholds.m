@@ -441,6 +441,11 @@ for metric_idx = 1:num_metrics
         if numel(num_batches) > 1
              num_batches = num_batches(1);
         end
+        % EXTRA SAFETY for parfor
+        if isnan(num_batches) || isinf(num_batches)
+            num_batches = 1;
+        end
+        num_batches = round(num_batches);
         
         % Substream offset for this metric.
         offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);
@@ -482,14 +487,22 @@ for metric_idx = 1:num_metrics
         bytes_per_sample = n_data_rel * 8;
         
         % Smart batching
-        total_memory_needed = (selected_B * bytes_per_sample) / (1024^2);
+        total_memory_needed = (double(selected_B) * double(bytes_per_sample)) / (1024^2);
         
-        if total_memory_needed <= effective_memory
-            BATCH_SIZE = selected_B;
+        if total_memory_needed <= double(effective_memory)
+            BATCH_SIZE = double(selected_B);
         else
-            BATCH_SIZE = max(100, min(floor((effective_memory * 1024^2) / bytes_per_sample), 20000));
+            BATCH_SIZE = max(100, min(floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)), 20000));
         end
-        num_batches = ceil(selected_B / BATCH_SIZE);
+        num_batches = double(ceil(double(selected_B) ./ BATCH_SIZE));
+        if numel(num_batches) > 1
+             num_batches = num_batches(1);
+        end
+        % EXTRA SAFETY for parfor
+        if isnan(num_batches) || isinf(num_batches)
+            num_batches = 1;
+        end
+        num_batches = round(num_batches);
         
         % Substream offset (shifted from Delta).
         offset_rel = offset_d + (num_batches + 10);
