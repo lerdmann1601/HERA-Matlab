@@ -12,7 +12,7 @@ The results confirm that the default settings are appropriate for the vast major
 
 To ensure **reproducibility** and fair comparability between the Robust Mode and the reference runs, we utilized a **fixed random seed** for all simulations. This guarantees that both the convergence checks and the reference benchmarks were performed on identical data sequences and bootstrap samples.
 
-## Study Design & Constraints
+## Analysis Design & Constraints
 
 To validate the robustness of the default parameters, we simulated a diverse set of conditions.
 
