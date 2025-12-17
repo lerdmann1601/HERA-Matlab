@@ -635,8 +635,6 @@ end
 
 %% 4. Output of BCa Correction Factors
 % Prints a formatted table with the summarized correction factors to the console and saves it to a CSV file.
-fprintf(lang.bca.correction_factors.header, num_pairs);
-
 HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts);
 
 %% 5. Generate histogram distributions via Helper Function
