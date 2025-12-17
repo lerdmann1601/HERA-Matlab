@@ -65,7 +65,7 @@ Implement your feature or bug fix.
 Before submitting, please ensure that your changes don't break existing functionality. Run the included test suite:
 
 ```matlab
-run('tests/run_tests.m')
+run('tests/run_HERA_tests.m')
 ```
 
 ### 5. Commit and Push
