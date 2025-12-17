@@ -35,7 +35,7 @@ jobs:
       - name: Run Unit Tests
         uses: matlab-actions/run-command@v2
         with:
-          command: run('tests/run_hera_tests.m')
+          command: run('tests/run_HERA_tests.m')
 
       - name: Build HERA Runtime
         if: env.MATLAB_LICENSE != ''
