@@ -395,7 +395,8 @@ while true
                 fprintf([lang.prompts.starting_analysis '\n\n']);
                 try
                     % Sanitize configuration (Simulate JSON trip to fix R2025b parfor issues in Manual Mode, this was a realy annoing bug!!!)
-                    userInput = clean_struct(userInput);
+                    % Also handles string-to-number conversion for manual entries.
+                    userInput = Utils.clean_struct(userInput);
                    
                     % Call the main analysis function.
                     run_ranking(userInput);
@@ -436,44 +437,4 @@ function args = parse_args(options)
     args = options;
 end
 
-function s = clean_struct(s)
-    % Helper to recursively sanitize struct fields to pure doubles.
-    % Handled structs and cell arrays to ensure deep sanitization of the configuration.
-    % This prevents type mismatch errors in parallel computing (parfor).  
-    fields = fieldnames(s);
-    for i = 1:numel(fields)
-        val = s.(fields{i});
-      
-        if isstruct(val)
-            s.(fields{i}) = clean_struct(val);
-            
-        elseif iscell(val)
-            % Recursively clean cell array content
-            for k = 1:numel(val)
-                c_val = val{k};
-                if isstruct(c_val)
-                    val{k} = clean_struct(c_val);
-                elseif isnumeric(c_val)
-                    val{k} = double(c_val);
-                elseif isstring(c_val) || ischar(c_val)
-                    % Convert numeric strings (e.g. "3") to doubles
-                    num_val = str2double(c_val);
-                    if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
-                         val{k} = num_val;
-                    end
-                end
-            end
-            s.(fields{i}) = val;
-            
-        elseif isnumeric(val)
-            s.(fields{i}) = double(val);
-        
-        elseif isstring(val) || ischar(val)
-             % Convert numeric strings (e.g. "3") to doubles
-             num_val = str2double(val);
-             if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
-                 s.(fields{i}) = num_val;
-             end
-        end
-    end
-end
+

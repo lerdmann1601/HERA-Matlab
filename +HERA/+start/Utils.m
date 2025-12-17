@@ -134,6 +134,66 @@ classdef Utils
             json_text = fileread(file_path); 
             lang = jsondecode(json_text);
         end
+
+        function s = clean_struct(s)
+            % clean_struct - Recursively sanitizes struct fields to pure doubles.
+            %
+            % Description:
+            %   Helper to recursively sanitize struct fields.
+            %   Handles structs and cell arrays to ensure deep sanitization of the configuration.
+            %   Crucially, it converts numeric-strings (e.g. "3") to real doubles, preventing
+            %   type mismatch errors in parallel computing or logical comparisons.
+            %
+            % Syntax:
+            %   cleaned = HERA.start.Utils.clean_struct(inputStruct);
+            %
+            % Inputs:
+            %   s - (struct) The input structure to clean.
+            %
+            % Outputs:
+            %   s - (struct) The sanitized structure.
+            
+            fields = fieldnames(s);
+            for i = 1:numel(fields)
+                val = s.(fields{i});
+              
+                if isstruct(val)
+                    % Recursively clean struct content (handle struct arrays correctly)
+                    for j = 1:numel(val)
+                        val(j) = HERA.start.Utils.clean_struct(val(j));
+                    end
+                    s.(fields{i}) = val;
+                    
+                elseif iscell(val)
+                    % Recursively clean cell array content
+                    for k = 1:numel(val)
+                        c_val = val{k};
+                        if isstruct(c_val)
+                            val{k} = HERA.start.Utils.clean_struct(c_val);
+                        elseif isnumeric(c_val)
+                            val{k} = double(c_val);
+                        elseif isstring(c_val) || ischar(c_val)
+                             % Convert numeric strings (e.g. "3") to doubles
+                             num_val = str2double(c_val);
+                             if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
+                                 val{k} = num_val;
+                             end
+                        end
+                    end
+                    s.(fields{i}) = val;
+                    
+                elseif isnumeric(val)
+                    s.(fields{i}) = double(val);
+                
+                elseif isstring(val) || ischar(val)
+                     % Convert numeric strings (e.g. "3") to doubles
+                     num_val = str2double(val);
+                     if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
+                         s.(fields{i}) = num_val;
+                     end
+                end
+            end
+        end
         
     end
 end

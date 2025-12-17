@@ -94,6 +94,12 @@ function [userInput, setupData] = setup_environment(userInput)
              fprintf([lang.run_ranking.ram_auto '\n'], ram_gb, calc_mem);
          end
     end
+    
+    % Propagate calculated target_memory to userInput.config if it exists.
+    % In Manual Mode, .config already exists and would otherwise contain a stale/empty value.
+    if isfield(userInput, 'config') && isfield(userInput.config, 'system')
+        userInput.config.system.target_memory = userInput.system.target_memory;
+    end
 
     % Logic Auto-Correction (Dependencies that depend on User Input)
     % Ensure Alphas match metric count (if generic default was loaded)
