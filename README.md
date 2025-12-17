@@ -244,6 +244,7 @@ HERA-Matlab/
 │   └── README.md           % Data Documentation
 ├── deploy/                 % Build Scripts (Standalone App)
 ├── paper/                  % Paper Resources
+├── tests/                  % Unit Test & Analysis Reports
 ├── setup_HERA.m            % Path Setup Script
 ├── CITATION.cff            % Citation Metadata
 ├── CONTRIBUTING.md         % Contribution Guidelines
