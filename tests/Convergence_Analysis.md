@@ -91,7 +91,7 @@ Based on these results, we can discuss the theoretical implications of the diffe
   
 ## Computational Note
 
-The complete analysis (7 scenarios × 50 simulations = 350 unique datasets) was performed on a standard consumer laptop (Base Model Apple M1 MBP, 16 GB RAM) in approximately 15 hours. For each simulation, one high-precision reference was calculated ($B$ up to 30,000 bootstrap samples), followed by convergence tests for all three modes (Relaxed, Default, Strict), each with 15–40 independent stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
+The complete analysis (7 scenarios × 50 simulations = 350 unique datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 15 hours. For each simulation, one high-precision reference was calculated ($B$ up to 30,000 bootstrap samples), followed by convergence tests for all three modes (Relaxed, Default, Strict), each with 15–40 independent stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
 
 ## Full Report
 
