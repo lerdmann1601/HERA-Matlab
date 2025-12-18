@@ -21,13 +21,6 @@ function defaults = default()
 
     defaults = struct();
     
-    %% System Performance Limits
-    % These values control the hybrid algorithm switching (Serial vs. Vectorized vs. Parallel)
-    % defined in HERA.stats.jackknife and HERA.stats.cliffs_delta.
-    defaults.system.jack_vec_limit = 150;     % N limit for vectorized Jackknife
-    defaults.system.delta_mat_limit = 30000;  % N*M limit for matrix Cliff's Delta
-    defaults.system.jack_parfor_thr = 300;    % N limit for parfor switch in BCa
-    
     %% General Settings
     defaults.reproducible = true;
     defaults.seed = 123;
@@ -57,7 +50,8 @@ function defaults = default()
     defaults.system.target_memory = [];
     
     % Performance Heuristics (Hardware dependent)
-    % These values control hybrid algorithm switching and parallelization triggers.
+    % These values control the hybrid algorithm switching (Serial vs. Vectorized vs. Parallel)
+    % defined in HERA.calculate_bca_ci, HERA.stats.jackknife and HERA.stats.cliffs_delta. 
     defaults.system.jack_parfor_thr = 300;     % Min N to trigger parallel execution
     defaults.system.jack_vec_limit = 150;      % Max N for vectorized Jackknife
     defaults.system.delta_mat_limit = 30000;   % Max N*M product for matrix Cliff's Delta
@@ -68,7 +62,6 @@ function defaults = default()
     defaults.manual_B_ci = 10000;
     defaults.manual_B_rank = 500;
 
-    
     % Thresholds (Percentile Bootstrap)
     cfg_thr = struct();
     cfg_thr.B_start = 100;

@@ -31,8 +31,6 @@ function d = cliffs_delta(x, y, mat_limit)
 %   Both methods compute (GT - LT) / N. The rank method uses (2*U - N) / N
 %   which is mathematically equivalent and numerically stable.
 %
-
-%
 % Inputs:
 %   x           - Column vector or matrix of the first sample.
 %   y           - Column vector or matrix of the second sample.
