@@ -263,7 +263,7 @@ HERA-Matlab/
 ├── CODE_OF_CONDUCT.md         % Community Standards
 ├── CONTRIBUTING.md            % Contribution Guidelines
 ├── LICENSE                    % License File
-└── README.md               % Global Documentation
+└── README.md                  % Global Documentation
 ```
 
 </details>
