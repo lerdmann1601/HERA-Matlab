@@ -10,7 +10,8 @@ function run_unit_test(log_path_or_mode)
 %   This function serves as the master runner for the HERA validation framework.
 %   It employs a Clean Code Delegation Architecture to execute:
 %     1. Unit Tests (Component Validation)
-%     2. Scientific Tests (Algorithm Accuracy, Robustness, Logic)
+%     2. Statistical Tests (Statistical Kernel Verification for hybrid algorithm switching)
+%     3. Scientific Tests (Algorithm Accuracy, Robustness, Logic)
 %
 %   Architecture:
 %     - Controller: +HERA/+test/run_unit_test.m

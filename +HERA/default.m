@@ -21,6 +21,13 @@ function defaults = default()
 
     defaults = struct();
     
+    %% System Performance Limits
+    % These values control the hybrid algorithm switching (Serial vs. Vectorized vs. Parallel)
+    % defined in HERA.stats.jackknife and HERA.stats.cliffs_delta.
+    defaults.system.jack_vec_limit = 150;     % N limit for vectorized Jackknife
+    defaults.system.delta_mat_limit = 30000;  % N*M limit for matrix Cliff's Delta
+    defaults.system.jack_parfor_thr = 300;    % N limit for parfor switch in BCa
+    
     %% General Settings
     defaults.reproducible = true;
     defaults.seed = 123;

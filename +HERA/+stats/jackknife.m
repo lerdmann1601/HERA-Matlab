@@ -32,7 +32,8 @@ function [vals, a] = jackknife(x, y, metric_type, vec_limit)
 %   y           - Column vector of the second sample.
 %   metric_type - String/Char 'delta' for Cliff's Delta, 'rel' for Rel. Diff.
 %                 Or boolean true for Delta, false for Rel Diff (internal optimization).
-%   vec_limit   - (Optional) Threshold for N to switch algorithms. Default: 150.
+%   vec_limit   - (Optional) Threshold for N to switch algorithms. 
+%                 Pass [] to use internal default (150).
 %
 % Outputs:
 %   vals - Column vector of Jackknife statistics (length depends on valid input pairs).

@@ -39,7 +39,7 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %   pair_idx_all  - Matrix of the indices for all pairwise comparisons.
 %   num_probanden - Number of subjects.
 %   config        - Struct containing configuration parameters (esp. config.bootstrap_ci 
-%                   and config.system.target_memory for RAM optimization).
+%                   and optional config.system limits/RAM settings).
 %   metric_names  - Cell array with the names of the metrics (1, 2, or 3 names).
 %   graphics_dir  - Path to the output folder for graphics.
 %   csv_dir       - Path to the output folder for CSV files.
@@ -79,6 +79,17 @@ arguments
     styles (1,1) struct
     lang (1,1) struct
     base_name (1,1) string
+end
+
+% Extract system limits safely (pass [] if missing/default)
+jack_vec_limit = [];
+if isfield(config, 'system') && isfield(config.system, 'jack_vec_limit')
+    jack_vec_limit = config.system.jack_vec_limit;
+end
+
+delta_mat_limit = [];
+if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
+    delta_mat_limit = config.system.delta_mat_limit;
 end
 
 %% 1. Dynamic determination of the optimal bootstrap count (B)
@@ -199,11 +210,11 @@ else
                 jack_d = []; jack_r = [];
                 % We only need to compute Jackknife for the relevant metric (d or r)
                 if is_delta
-                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta', config.system.jack_vec_limit);
+                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta', jack_vec_limit);
                    mean_jack = mean(jack_d);
                    jack_vals = jack_d;
                 else
-                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel', config.system.jack_vec_limit);
+                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel', jack_vec_limit);
                    mean_jack = mean(jack_r);
                    jack_vals = jack_r;
                 end
@@ -442,21 +453,10 @@ OFFSET_BASE_CI = 1000;
 % where parallel execution becomes faster than serial execution on typical systems.
 % Setting a conservative threshold to ensure overhead does not degrade performance
 % on low-core machines.
-if isfield(config.system, 'jack_parfor_thr')
+if isfield(config, 'system') && isfield(config.system, 'jack_parfor_thr')
     MIN_N_FOR_PARFOR = config.system.jack_parfor_thr;
 else
     MIN_N_FOR_PARFOR = 300;
-end
-
-% Extract limits safely (pass [] if missing to trigger internal function defaults)
-jack_vec_limit = [];
-if isfield(config.system, 'jack_vec_limit')
-    jack_vec_limit = config.system.jack_vec_limit;
-end
-
-delta_mat_limit = [];
-if isfield(config.system, 'delta_mat_limit')
-    delta_mat_limit = config.system.delta_mat_limit;
 end
 
 % Loop over the metrics for the final calculation.

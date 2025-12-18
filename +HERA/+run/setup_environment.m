@@ -6,8 +6,9 @@ function [userInput, setupData] = setup_environment(userInput)
 %
 % Description:
 %   This function handles the initialization steps (1-4) of the ranking analysis.
-%   It sets up defaults, creates output directories, configures the random number generator,
-%   and initializes the parallel pool.
+%   It sets up defaults (deep merge), creates output directories, configures the RNG,
+%   and initializes the parallel pool. It ensures full system configuration 
+%   propagation (including internal limits) to the analysis struct.
 %
 % Inputs:
 %   userInput - (struct) Initial configuration structure provided by the user.

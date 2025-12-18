@@ -40,7 +40,7 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %                       .bootstrap_ranks (settings)
 %                       .ranking_mode (logic)
 %                       .ci_level (confidence interval width)
-%                       .system.target_memory (RAM optimization for final bootstrap)
+%                       .system (optional performance limits & RAM settings)
 %   dataset_names   - Cell array of strings with the names of the datasets (required for the 'calculate_ranking' function).
 %   final_rank      - Vector of the primary ranking (used for sorting the console output).
 %   pair_idx_all    - Matrix of indices for all pairwise comparisons between datasets.
@@ -80,6 +80,12 @@ arguments
     styles (1,1) struct
     lang (1,1) struct
     base_name (1,1) string
+end
+
+% Extract system limits safely (pass [] if missing/default)
+delta_mat_limit = [];
+if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
+    delta_mat_limit = config.system.delta_mat_limit;
 end
 
 %% 1. Initialization and Convergence Check for Optimal B
@@ -193,7 +199,7 @@ else
                         n_valid = size(x, 1);
         
                         if n_valid > 0
-                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
+                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y, delta_mat_limit);
                             bootstrap_rel_vals_all(p_idx, metric_idx) = HERA.stats.relative_difference(x, y);
                         else
                             bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
@@ -410,7 +416,7 @@ parfor b_idx = 1:num_batches
                  x_mat = data_i(boot_indices_block);
                  y_mat = data_j(boot_indices_block);
                  
-                 d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat, config.system.delta_mat_limit);
+                 d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat, delta_mat_limit);
                  rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
             end
         end
@@ -428,7 +434,7 @@ parfor b_idx = 1:num_batches
                     x = col_i(valid); y = col_j(valid);
                     
                     if ~isempty(x)
-                        d_vals_3d(p_idx, metric_idx, k) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
+                        d_vals_3d(p_idx, metric_idx, k) = HERA.stats.cliffs_delta(x, y, delta_mat_limit);
                         rel_vals_3d(p_idx, metric_idx, k) = HERA.stats.relative_difference(x, y);
                     else
                         d_vals_3d(p_idx, metric_idx, k) = NaN;

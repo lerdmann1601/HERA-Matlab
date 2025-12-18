@@ -28,7 +28,7 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 % Inputs:
 %   all_data      - Cell array of data matrices for each metric (1, 2, or 3).
 %   num_probanden - Number of subjects.
-%   config        - Struct with all configuration parameters (especially 'config.bootstrap_thresholds' and 'config.system.target_memory').
+%   config        - Struct with all configuration parameters (including 'config.bootstrap_thresholds' and optional 'config.system' limits).
 %   manual_B      - (Optional) Manually set number of bootstrap repetitions (B). 
 %   s             - Random number stream for reproducibility.
 %   styles        - Struct with plot styling information.
@@ -59,6 +59,12 @@ arguments
     s
     styles (1,1) struct
     lang (1,1) struct
+end
+
+% Extract system limits safely (pass [] if missing/default)
+delta_mat_limit = [];
+if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
+    delta_mat_limit = config.system.delta_mat_limit;
 end
 
 %% 1. Initialization and Calculation of Initial Statistics
@@ -105,7 +111,7 @@ for i = 1:(num_datasets - 1)
             
             if n_valid > 0
                 % Calculation of Cliff's Delta with the valid sample size.
-                d_vals_all(idx_pair, metric_idx) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
+                d_vals_all(idx_pair, metric_idx) = HERA.stats.cliffs_delta(x, y, delta_mat_limit);
                 
                 % Calculation of the relative mean difference.
                 rel_vals_all(idx_pair, metric_idx) = HERA.stats.relative_difference(x, y);

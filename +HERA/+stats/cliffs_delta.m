@@ -37,7 +37,7 @@ function d = cliffs_delta(x, y, mat_limit)
 %   x           - Column vector or matrix of the first sample.
 %   y           - Column vector or matrix of the second sample.
 %   mat_limit   - (Optional) Threshold for N*M product to switch algorithms. 
-%                 Default: 30000.
+%                 Pass [] to use internal default (30000).
 %
 % Outputs:
 %   d           - Scalar value of Cliff's Delta (-1 to +1).
