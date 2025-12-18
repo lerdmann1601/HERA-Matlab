@@ -562,7 +562,8 @@ comprising **over 30 test cases** organized into four suites:
     statistical accuracy, and robustness against edge cases (e.g., zero
     variance, outliers).
 4. **System Tests**: Runs the entire HERA pipeline from start to finish to
-    ensure that the CLI, batch mode, and file outputs are generated correctly.
+    ensure that the JSON configuration (batch) and Developer API are working
+    correctly.
 
 ### Running Tests
 
