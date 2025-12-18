@@ -58,6 +58,7 @@ function results = run_ranking(userInput)
 %       B) Direct Injection Mode (Developer):
 %          .custom_data  - (cell) {M x 1} Cell array of matrices. Each cell contains an [N_Subjects x N_Datasets] matrix.
 %          .metric_names - (cell) Names of metrics (must match number of matrices).
+%          .system       - (struct) Optional performance settings (e.g., .target_memory, .jack_vec_limit).
 %          .dataset_names- (cell, optional) Names of the columns/datasets.
 %
 %       Common Settings (Optional overrides):

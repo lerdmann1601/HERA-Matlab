@@ -31,6 +31,7 @@ function start_ranking(varargin)
 %       - Bootstrap Method: For three separate analysis (thresholds, confidence intervals, rank stability), the user can choose
 %                           Manual: A fixed number of bootstrap samples (B-value).
 %                           Automatic: A convergence search (robust or simple) to find a stable B-value automatically.
+%                           System: Automatic or manual tuning of RAM targets and parallelization thresholds.
 %
 %   4.  Data Selection:
 %       - Selects the file type of the metric data (.csv or .xlsx).

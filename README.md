@@ -550,10 +550,19 @@ HERA generates a timestamped directory containing:
 
 ## Testing
 
-HERA includes a comprehensive scientific validation suite (`run_unit_test.m`)
-comprising **19 test cases**. These tests verify statistical accuracy (e.g.,
-Wilcoxon exact p-values), logical robustness (e.g., outlier handling), and
-algorithm stability.
+HERA includes a comprehensive validation framework (`run_unit_test.m`)
+comprising **over 30 test cases** organized into four suites:
+
+1. **Unit Tests**: Checks individual components and helper functions to ensure
+    specific parts of the code work correctly.
+2. **Statistical Tests**: Verifies the core mathematical functions (e.g.,
+    Jackknife, Cliff's Delta) and ensures the performance optimizations
+    (hybrid switching) work as intended.
+3. **Scientific Tests** (19 cases): Comprehensive validation of ranking logic,
+    statistical accuracy, and robustness against edge cases (e.g., zero
+    variance, outliers).
+4. **System Tests**: Runs the entire HERA pipeline from start to finish to
+    ensure that the CLI, batch mode, and file outputs are generated correctly.
 
 ### Running Tests
 
