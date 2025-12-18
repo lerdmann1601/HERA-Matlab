@@ -436,11 +436,22 @@ effective_memory = TARGET_MEMORY / max(1, num_workers);
 % Use substream offset to avoid overlap with stability analysis phase.
 OFFSET_BASE_CI = 1000;
 
+% --- Optimization for Jackknife Calculation ---
+% Empirical benchmark (M1 MBP,Dec 2025) determined N ~ 300-400 as the crossover point
+% where parallel execution becomes faster than serial execution on typical systems.
+% Setting a conservative threshold to ensure overhead does not degrade performance
+% on low-core machines.
+MIN_N_FOR_PARFOR = 400;
+
 % Loop over the metrics for the final calculation.
 for metric_idx = 1:num_metrics
     fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
     
-    % --- Pre-compute data and Jackknife for all pairs (serial, deterministic) ---
+    % --- Pre-compute data and Jackknife for all pairs ---
+    % Hybrid Parallelization Strategy:
+    % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
+    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)
+    
     pair_data_x = cell(num_pairs, 1);
     pair_data_y = cell(num_pairs, 1);
     pair_n_valid = zeros(num_pairs, 1);
@@ -451,39 +462,59 @@ for metric_idx = 1:num_metrics
     pair_a_d = zeros(num_pairs, 1);
     pair_a_r = zeros(num_pairs, 1);
     
-    for k = 1:num_pairs
-        i = p_pair_idx_all(k, 1);
-        j = p_pair_idx_all(k, 2);
-        data_x_orig = p_all_data{metric_idx}(:, i);
-        data_y_orig = p_all_data{metric_idx}(:, j);
-        
-        % Pairwise NaN exclusion.
-        valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-        pair_data_x{k} = data_x_orig(valid_mask);
-        pair_data_y{k} = data_y_orig(valid_mask);
-        pair_n_valid(k) = sum(valid_mask);
-        
-        if pair_n_valid(k) >= 2
-            % Pre-compute Jackknife (deterministic, only depends on original data).
-            pair_jack_d{k} = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
-            pair_jack_r{k} = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+    % Prepare sliced inputs for parallel/serial execution
+    sliced_pair_idx = p_pair_idx_all;
+    sliced_d_vals = p_d_vals_all(:, metric_idx);
+    sliced_rel_vals = p_rel_vals_all(:, metric_idx);
+    sliced_all_data = p_all_data{metric_idx};
+
+    if num_probanden > MIN_N_FOR_PARFOR
+         % --- Parallel Execution (High Scaling) ---
+         parfor k = 1:num_pairs
+            i = sliced_pair_idx(k, 1);
+            j = sliced_pair_idx(k, 2);
+            data_x_orig = sliced_all_data(:, i);
+            data_y_orig = sliced_all_data(:, j);
             
-            % Calculate acceleration factors from Jackknife.
-            mean_jack_d = mean(pair_jack_d{k});
-            a_num_d = sum((mean_jack_d - pair_jack_d{k}).^3);
-            a_den_d = 6 * (sum((mean_jack_d - pair_jack_d{k}).^2)).^(3/2);
-            if a_den_d == 0, pair_a_d(k) = 0; else, pair_a_d(k) = a_num_d / a_den_d; end
-            if ~isfinite(pair_a_d(k)), pair_a_d(k) = 0; end
+            % Pairwise NaN exclusion.
+            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+            pair_data_x{k} = data_x_orig(valid_mask);
+            pair_data_y{k} = data_y_orig(valid_mask);
+            pair_n_valid(k) = sum(valid_mask);
             
-            mean_jack_r = mean(pair_jack_r{k});
-            a_num_r = sum((mean_jack_r - pair_jack_r{k}).^3);
-            a_den_r = 6 * (sum((mean_jack_r - pair_jack_r{k}).^2)).^(3/2);
-            if a_den_r == 0, pair_a_r(k) = 0; else, pair_a_r(k) = a_num_r / a_den_r; end
-            if ~isfinite(pair_a_r(k)), pair_a_r(k) = 0; end
+            if pair_n_valid(k) >= 2
+                % Pre-compute Jackknife + Acceleration (using updated API).
+                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
+                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+                
+                % Store original effect sizes.
+                pair_theta_hat_d(k) = sliced_d_vals(k);
+                pair_theta_hat_r(k) = sliced_rel_vals(k);
+            end
+        end
+    else
+        % --- Serial Execution (Low Overhead) ---
+        for k = 1:num_pairs
+            i = sliced_pair_idx(k, 1);
+            j = sliced_pair_idx(k, 2);
+            data_x_orig = sliced_all_data(:, i);
+            data_y_orig = sliced_all_data(:, j);
             
-            % Store original effect sizes.
-            pair_theta_hat_d(k) = p_d_vals_all(k, metric_idx);
-            pair_theta_hat_r(k) = p_rel_vals_all(k, metric_idx);
+            % Pairwise NaN exclusion.
+            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+            pair_data_x{k} = data_x_orig(valid_mask);
+            pair_data_y{k} = data_y_orig(valid_mask);
+            pair_n_valid(k) = sum(valid_mask);
+            
+            if pair_n_valid(k) >= 2
+                % Pre-compute Jackknife + Acceleration (using updated API).
+                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
+                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+                
+                % Store original effect sizes.
+                pair_theta_hat_d(k) = sliced_d_vals(k);
+                pair_theta_hat_r(k) = sliced_rel_vals(k);
+            end
         end
     end
     

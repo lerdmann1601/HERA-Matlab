@@ -1,13 +1,16 @@
-function vals = jackknife(x, y, metric_type)
+function [vals, a] = jackknife(x, y, metric_type)
 % JACKKNIFE - Calculates Jackknife statistics for Cliff's Delta or Relative Difference.
 %
 % Syntax:
-%   vals = HERA.stats.jackknife(x, y, metric_type)
+%   [vals, a] = HERA.stats.jackknife(x, y, metric_type)
 %
 % Description:
 %   Computes the Jackknife (leave-one-out) statistics for a given metric.
 %   It iteratively removes one subject (pair) and calculates the effect size
 %   on the remaining N-1 subjects.
+%
+%   Additionally, it calculates the acceleration factor (a) for BCa confidence
+%   intervals, utilizing the 3rd moment of the jackknife distribution.
 %
 %   This function strictly handles missing data (NaNs) by performing pairwise exclusion
 %   within each Jackknife subsample. It is optimized for performance by avoiding
@@ -33,6 +36,7 @@ function vals = jackknife(x, y, metric_type)
 %          If input has N elements, output has N elements (some might be NaN if N-1 sample is invalid).
 %          Note: The function returns clean values (NaNs removed from result) to match
 %          BCa requirements, or zeros if empty.
+%   a    - Acceleration factor (scalar) for BCa calculation.
 %
 % Author: Lukas von Erdmannsdorff
 
@@ -143,5 +147,22 @@ function vals = jackknife(x, y, metric_type)
     
     if isempty(vals)
         vals = 0; % Safety fallback to avoid empty returns causing issues in mean/sum
+    end
+
+    % --- Optional: Calculate BCa Acceleration Factor (a) ---
+    if nargout > 1
+        mean_jack = mean(vals);
+        a_num = sum((mean_jack - vals).^3);
+        a_den = 6 * (sum((mean_jack - vals).^2)).^(3/2);
+        
+        if a_den == 0
+            a = 0;
+        else
+            a = a_num / a_den;
+        end
+        
+        if ~isfinite(a)
+            a = 0;
+        end
     end
 end
