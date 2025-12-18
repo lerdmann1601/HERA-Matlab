@@ -119,8 +119,8 @@ end
     
     try
         % Combine suites
-        % Combine suites
         suite = [TestSuite.fromClass(?HERA.test.UnitTests), ...
+                 TestSuite.fromClass(?HERA.test.StatsTests), ...
                  TestSuite.fromClass(?HERA.test.ScientificSuite), ...
                  TestSuite.fromClass(?HERA.test.SystemTests)];
 

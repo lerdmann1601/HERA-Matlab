@@ -164,8 +164,17 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         json_export_data.config = config;
 
         % Remove target_memory from saved config
-        if isfield(json_export_data.config, 'system') && isfield(json_export_data.config.system, 'target_memory')
-            json_export_data.config.system = rmfield(json_export_data.config.system, 'target_memory');
+        % Remove target_memory and performance heuristics from saved config
+        if isfield(json_export_data.config, 'system')
+             sys = json_export_data.config.system;
+             fields_to_remove = {'target_memory', 'jack_vec_limit', 'delta_mat_limit', 'jack_parfor_thr'};
+             % Remove any that exist
+             for f = fields_to_remove
+                 if isfield(sys, f{1})
+                     sys = rmfield(sys, f{1});
+                 end
+             end
+             json_export_data.config.system = sys;
         end
         
         % meta: Contains key execution parameters

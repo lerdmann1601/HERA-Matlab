@@ -193,7 +193,7 @@ else
                         n_valid = size(x, 1);
         
                         if n_valid > 0
-                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y);
+                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
                             bootstrap_rel_vals_all(p_idx, metric_idx) = HERA.stats.relative_difference(x, y);
                         else
                             bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
@@ -410,7 +410,7 @@ parfor b_idx = 1:num_batches
                  x_mat = data_i(boot_indices_block);
                  y_mat = data_j(boot_indices_block);
                  
-                 d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat);
+                 d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat, config.system.delta_mat_limit);
                  rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
             end
         end
@@ -428,7 +428,7 @@ parfor b_idx = 1:num_batches
                     x = col_i(valid); y = col_j(valid);
                     
                     if ~isempty(x)
-                        d_vals_3d(p_idx, metric_idx, k) = HERA.stats.cliffs_delta(x, y);
+                        d_vals_3d(p_idx, metric_idx, k) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
                         rel_vals_3d(p_idx, metric_idx, k) = HERA.stats.relative_difference(x, y);
                     else
                         d_vals_3d(p_idx, metric_idx, k) = NaN;

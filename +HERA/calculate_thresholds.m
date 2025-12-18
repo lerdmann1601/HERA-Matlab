@@ -105,7 +105,7 @@ for i = 1:(num_datasets - 1)
             
             if n_valid > 0
                 % Calculation of Cliff's Delta with the valid sample size.
-                d_vals_all(idx_pair, metric_idx) = HERA.stats.cliffs_delta(x, y);
+                d_vals_all(idx_pair, metric_idx) = HERA.stats.cliffs_delta(x, y, config.system.delta_mat_limit);
                 
                 % Calculation of the relative mean difference.
                 rel_vals_all(idx_pair, metric_idx) = HERA.stats.relative_difference(x, y);

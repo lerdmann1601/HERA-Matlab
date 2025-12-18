@@ -367,6 +367,9 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 | | `seed` | int | `123` | RNG seed value. |
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
 | | `system.target_memory` | int | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
+| | `system.jack_parfor_thr` | int | `300` | Min N to trigger parallel execution. |
+| | `system.jack_vec_limit` | int | `150` | Max N for vectorized Jackknife calculations. |
+| | `system.delta_mat_limit` | int | `30000` | Max N*M product for matrix-based Cliff's Delta. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |

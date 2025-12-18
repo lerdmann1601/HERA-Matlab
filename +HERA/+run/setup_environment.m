@@ -55,22 +55,23 @@ function [userInput, setupData] = setup_environment(userInput)
     end
     num_metrics = numel(userInput.metric_names);
 
-    % Only fill fields that are missing
-    fields = fieldnames(defaults);
-    for i = 1:numel(fields)
-        fieldName = fields{i};
-        % Only apply default if the user/wrapper didn't provide it yet
-        if ~isfield(userInput, fieldName)
-            userInput.(fieldName) = defaults.(fieldName);
-        end
-    end
+    % Use Utils helper for deep merge of defaults (ensures nested structs like 'system' are merged)
+    userInput = HERA.start.Utils.fill_defaults(userInput, defaults);
 
     % Automatic Target Memory Calculation
     % If target_memory is empty (default), calculate it based on system RAM
     if isfield(userInput, 'system') && isstruct(userInput.system)
-        % Check if user manually set it (non-empty)
-        if isfield(userInput.system, 'target_memory') && ~isempty(userInput.system.target_memory)
-             fprintf([lang.run_ranking.ram_manual '\n'], userInput.system.target_memory);
+        % Check if user manually set it (non-empty and not 'auto')
+        manual_mem = [];
+        has_mem = isfield(userInput.system, 'target_memory');
+        if has_mem
+            manual_mem = userInput.system.target_memory;
+        end
+        
+        is_auto = (isstring(manual_mem) && manual_mem == "auto") || (ischar(manual_mem) && strcmp(manual_mem, 'auto'));
+        
+        if has_mem && ~isempty(manual_mem) && ~is_auto
+             fprintf([lang.run_ranking.ram_manual '\n'], manual_mem);
         else
             % Auto calculation
             [calc_mem, ram_gb, ram_status] = HERA.run.get_target_memory();
@@ -95,10 +96,11 @@ function [userInput, setupData] = setup_environment(userInput)
          end
     end
     
-    % Propagate calculated target_memory to userInput.config if it exists.
-    % In Manual Mode, .config already exists and would otherwise contain a stale/empty value.
-    if isfield(userInput, 'config') && isfield(userInput.config, 'system')
-        userInput.config.system.target_memory = userInput.system.target_memory;
+    % Propagate system configuration (including computed target_memory) to config struct.
+    % In manual mode, .config needs to be synchronized with the fully defaulted userInput.system.
+    if isfield(userInput, 'config')
+        % Overwrite/Create system struct to ensure all defaults and computed values are present
+        userInput.config.system = userInput.system;
     end
 
     % Logic Auto-Correction (Dependencies that depend on User Input)

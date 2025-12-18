@@ -1,8 +1,8 @@
-function d = cliffs_delta(x, y)
+function d = cliffs_delta(x, y, mat_limit)
 % CLIFFS_DELTA - Calculates Cliff's Delta effect size using hybrid efficient logic.
 %
 % Syntax:
-%   d = HERA.stats.cliffs_delta(x, y)
+%   d = HERA.stats.cliffs_delta(x, y, [mat_limit])
 %
 % Description:
 %   Computes the non-parametric effect size Cliff's Delta.
@@ -20,21 +20,27 @@ function d = cliffs_delta(x, y)
 %   by the Wilcoxon signed-rank test.
 %
 %   Implementation Note:
-%   This is a hybrid implementation that automatically selects the fastest method:
-%   1. For small samples (N*M < 30,000): Uses vectorized matrix comparison (O(N^2)).
-%      This is faster for small N due to lower overhead.
+%   This is a hybrid implementation that automatically selects the fastest method.
+%   Empirical benchmarks (M1 MBP, Dec 2025) determined N*M ~ 30,000 as the crossover point:
+%   1. For small samples (N*M < mat_limit): Uses vectorized matrix comparison (O(N^2)).
+%      This is faster for small N due to BLAS optimization and lower overhead.
 %   2. For large samples: Uses efficient rank-based logic (O(N log N)).
-%      This avoids the quadratic complexity scaling.
+%      This avoids the quadratic complexity scaling of the matrix comparison,
+%      which becomes a bottleneck at large N*M.
 %
 %   Both methods compute (GT - LT) / N. The rank method uses (2*U - N) / N
 %   which is mathematically equivalent and numerically stable.
 %
+
+%
 % Inputs:
-%   x - Column vector of the first sample.
-%   y - Column vector of the second sample.
+%   x           - Column vector or matrix of the first sample.
+%   y           - Column vector or matrix of the second sample.
+%   mat_limit   - (Optional) Threshold for N*M product to switch algorithms. 
+%                 Default: 30000.
 %
 % Outputs:
-%   d - Scalar value of Cliff's Delta (-1 to +1).
+%   d           - Scalar value of Cliff's Delta (-1 to +1).
 %
 % Author: Lukas von Erdmannsdorff
 
@@ -88,7 +94,10 @@ function d = cliffs_delta(x, y)
     % Heuristic threshold for switching algorithms.
     % Empirical testing shows crossover point around N*M = 30,000.
     % Bejond this point, rank-based logic is generally faster.
-    IS_SMALL_SAMPLE = (nx * ny) < 30000;
+    if nargin < 3 || isempty(mat_limit)
+        mat_limit = 30000;
+    end
+    IS_SMALL_SAMPLE = (nx * ny) < mat_limit;
     
     if IS_SMALL_SAMPLE
         %% Method A: Matrix Comparison (O(N*M))
@@ -132,7 +141,7 @@ function d = cliffs_delta(x, y)
              % Given B is large, a simple loop over B is acceptable here if N is large.
              d = zeros(1, B);
              for b = 1:B
-                 d(b) = HERA.stats.cliffs_delta(x(:,b), y(:,b));
+                 d(b) = HERA.stats.cliffs_delta(x(:,b), y(:,b), mat_limit);
              end
              return;
         end

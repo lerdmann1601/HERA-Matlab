@@ -48,6 +48,12 @@ function defaults = default()
     %% System Configuration
     % Target memory per chunk/batch (MB). Only used if passed to HERA by config.
     defaults.system.target_memory = [];
+    
+    % Performance Heuristics (Hardware dependent)
+    % These values control hybrid algorithm switching and parallelization triggers.
+    defaults.system.jack_parfor_thr = 300;     % Min N to trigger parallel execution
+    defaults.system.jack_vec_limit = 150;      % Max N for vectorized Jackknife
+    defaults.system.delta_mat_limit = 30000;   % Max N*M product for matrix Cliff's Delta
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)

@@ -1,8 +1,8 @@
-function [vals, a] = jackknife(x, y, metric_type)
+function [vals, a] = jackknife(x, y, metric_type, vec_limit)
 % JACKKNIFE - Calculates Jackknife statistics for Cliff's Delta or Relative Difference.
 %
 % Syntax:
-%   [vals, a] = HERA.stats.jackknife(x, y, metric_type)
+%   [vals, a] = HERA.stats.jackknife(x, y, metric_type, [vec_limit])
 %
 % Description:
 %   Computes the Jackknife (leave-one-out) statistics for a given metric.
@@ -17,11 +17,13 @@ function [vals, a] = jackknife(x, y, metric_type)
 %   redundant memory allocations where possible.
 %
 %   Implementation Note:
-%   This is a hybrid implementation that automatically selects the fastest method:
-%   1. For standard samples (N <= 150) without NaNs: Uses vectorized matrix indexing.
-%   2. For large samples (N > 150) or with NaNs: Uses the loop-based approach.
-%      This avoids the O(N^3) memory/compute scaling of the matrix expansion in
-%      Cliff's Delta, which becomes a bottleneck at large N.
+%   This is a hybrid implementation that automatically selects the fastest method.
+%   Empirical benchmarks (M1 MBP, Dec 2025) determined N ~ 150 as the crossover point:
+%   1. For standard samples (N <= vec_limit) without NaNs: Uses vectorized matrix indexing.
+%      This is significantly faster for small N due to vectorized BLAS operations.
+%   2. For large samples (N > vec_limit) or with NaNs: Uses the loop-based approach.
+%      This avoids the O(N^3) memory/compute scaling of the matrix expansion,
+%      which becomes a severe bottleneck at large N.
 %
 %   Both methods produce bit-identical results.
 %
@@ -30,12 +32,10 @@ function [vals, a] = jackknife(x, y, metric_type)
 %   y           - Column vector of the second sample.
 %   metric_type - String/Char 'delta' for Cliff's Delta, 'rel' for Rel. Diff.
 %                 Or boolean true for Delta, false for Rel Diff (internal optimization).
+%   vec_limit   - (Optional) Threshold for N to switch algorithms. Default: 150.
 %
 % Outputs:
 %   vals - Column vector of Jackknife statistics (length depends on valid input pairs).
-%          If input has N elements, output has N elements (some might be NaN if N-1 sample is invalid).
-%          Note: The function returns clean values (NaNs removed from result) to match
-%          BCa requirements, or zeros if empty.
 %   a    - Acceleration factor (scalar) for BCa calculation.
 %
 % Author: Lukas von Erdmannsdorff
@@ -66,15 +66,10 @@ function [vals, a] = jackknife(x, y, metric_type)
     end
     
     % --- Hybrid Algorithm Selection ---
-    % Heuristic threshold for switching algorithms.
-    % Benchmark on M1 Mac (2025) showed:
-    % - N=10 to 150: Vectorized approach is faster (up to 3.6x).
-    % - N > 200: Vectorized approach slows down due to memory overhead (matrix expansion).
-    % - N > 300: Loop is faster and significantly lighter on memory.
-    %
-    % Threshold set to 150 to prioritize performance for typical sample sizes (n=50-150)
-    % while ensuring safety and stability for large datasets.
-    MAX_VECTORIZED_SAMPLE_SIZE = 150;
+    if nargin < 4 || isempty(vec_limit)
+        vec_limit = 150;
+    end
+    MAX_VECTORIZED_SAMPLE_SIZE = vec_limit;
     
     % Check for NaN presence in source data
     has_nans = any(isnan(x)) || any(isnan(y));

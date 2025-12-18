@@ -199,11 +199,11 @@ else
                 jack_d = []; jack_r = [];
                 % We only need to compute Jackknife for the relevant metric (d or r)
                 if is_delta
-                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta');
+                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta', config.system.jack_vec_limit);
                    mean_jack = mean(jack_d);
                    jack_vals = jack_d;
                 else
-                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel');
+                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel', config.system.jack_vec_limit);
                    mean_jack = mean(jack_r);
                    jack_vals = jack_r;
                 end
@@ -242,7 +242,7 @@ else
                          % FAST PATH: No NaNs present.
                          % Calculate statistics for all B iterations simultaneously using 3D expansion.
                          if is_delta
-                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y);
+                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y, delta_mat_limit);
                          else
                              boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
                          end
@@ -254,8 +254,9 @@ else
                              bx = boot_x(:, b); 
                              by = boot_y(:, b);
                              valid = ~isnan(bx) & ~isnan(by);
+
                              if is_delta
-                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid));
+                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid), delta_mat_limit);
                              else
                                  boot_stats(b) = HERA.stats.relative_difference(bx(valid), by(valid));
                              end
@@ -441,7 +442,22 @@ OFFSET_BASE_CI = 1000;
 % where parallel execution becomes faster than serial execution on typical systems.
 % Setting a conservative threshold to ensure overhead does not degrade performance
 % on low-core machines.
-MIN_N_FOR_PARFOR = 400;
+if isfield(config.system, 'jack_parfor_thr')
+    MIN_N_FOR_PARFOR = config.system.jack_parfor_thr;
+else
+    MIN_N_FOR_PARFOR = 300;
+end
+
+% Extract limits safely (pass [] if missing to trigger internal function defaults)
+jack_vec_limit = [];
+if isfield(config.system, 'jack_vec_limit')
+    jack_vec_limit = config.system.jack_vec_limit;
+end
+
+delta_mat_limit = [];
+if isfield(config.system, 'delta_mat_limit')
+    delta_mat_limit = config.system.delta_mat_limit;
+end
 
 % Loop over the metrics for the final calculation.
 for metric_idx = 1:num_metrics
@@ -484,8 +500,8 @@ for metric_idx = 1:num_metrics
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
-                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
-                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
+                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
                 
                 % Store original effect sizes.
                 pair_theta_hat_d(k) = sliced_d_vals(k);
@@ -508,8 +524,8 @@ for metric_idx = 1:num_metrics
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
-                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta');
-                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel');
+                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
+                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
                 
                 % Store original effect sizes.
                 pair_theta_hat_d(k) = sliced_d_vals(k);
@@ -587,8 +603,8 @@ for metric_idx = 1:num_metrics
             boot_x = data_x(boot_indices);
             boot_y = data_y(boot_indices);
             
-            % Calculate effect sizes.
-            batch_d{k} = HERA.stats.cliffs_delta(boot_x, boot_y);
+            % Serial: Calculate effect sizes for this bootstrap sample.
+            batch_d{k} = HERA.stats.cliffs_delta(boot_x, boot_y, delta_mat_limit);
             batch_r{k} = HERA.stats.relative_difference(boot_x, boot_y);
         end
         
