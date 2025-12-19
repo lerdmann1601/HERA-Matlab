@@ -17,7 +17,6 @@ function results = run_ranking(userInput)
 %   2. Integration/Developer: Called directly with data matrices in memory. 
 %      Returns a structured results object for further processing in MATLAB.
 %
-%
 % Workflow:
 %   1.  Configuration Setup: 
 %       Loads defaults, validates metric names, and adjusts system settings.

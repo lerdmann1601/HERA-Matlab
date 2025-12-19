@@ -30,7 +30,6 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
     if ~strcmpi(main_choice, lang.general.standard_char) && ~configLoadedFromFile
         fprintf('%s\n', lang.prompts.stat_params_header);
         % Get the confidence level for CIs.
-        % Get the confidence level for CIs.
         config.ci_level = UserInterface.get_numeric_input(lang.prompts.ci_level, defaults.ci_level, false, lang);
     
         % Get the alpha level for each metric in the hierarchy.

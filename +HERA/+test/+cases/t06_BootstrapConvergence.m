@@ -92,7 +92,6 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     test6_all_passed = true;
 
     % Loop through Method -> Mode
-    % Loop through Method -> Mode
     for m = 1:3
         curr_method = test_methods(m).name;
         base_cfg    = test_methods(m).cfg;

@@ -361,6 +361,83 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 }
 ```
 
+<details>
+<summary><strong>Full Configuration Example (JSON)</strong></summary>
+
+This example shows **all** possible parameters with their default values. Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
+
+```json
+{
+  "userInput": {
+    "folderPath": "/Path/To/Data",
+    "fileType": ".csv",
+    "metric_names": ["Metric1", "Metric2", "Metric3"],
+    "output_dir": "/Path/To/Results",
+    "language": "en",
+    "ranking_mode": "M1_M2_M3",
+    
+    "reproducible": true,
+    "seed": 123,
+    "num_workers": "auto",
+    "create_reports": true,
+    "plot_theme": "light",
+    
+    "ci_level": 0.95,
+    "alphas": [0.05, 0.05, 0.05],
+    "run_sensitivity_analysis": true,
+    "run_power_analysis": true,
+    "power_simulations": 10000,
+    "min_data_completeness": 0.80,
+
+    "manual_B_thr": 2000,
+    "manual_B_ci": 10000,
+    "manual_B_rank": 500,
+
+    "system": {
+      "target_memory": "auto",
+      "jack_parfor_thr": 300,
+      "jack_vec_limit": 150,
+      "delta_mat_limit": 30000
+    },
+
+    "bootstrap_thresholds": {
+      "B_start": 100,
+      "B_step": 100,
+      "B_end": 10000,
+      "n_trials": 25,
+      "convergence_tolerance": 0.01,
+      "smoothing_window": 3,
+      "convergence_streak_needed": 3,
+      "min_steps_for_convergence_check": 1
+    },
+
+    "bootstrap_ci": {
+      "B_start": 100,
+      "B_step": 200,
+      "B_end": 20000,
+      "n_trials": 30,
+      "convergence_tolerance": 0.03,
+      "smoothing_window": 3,
+      "convergence_streak_needed": 3,
+      "min_steps_for_convergence_check": 1
+    },
+
+    "bootstrap_ranks": {
+      "B_start": 50,
+      "B_step": 25,
+      "B_end": 2500,
+      "n_trials": 15,
+      "convergence_tolerance": 0.005,
+      "smoothing_window": 3,
+      "convergence_streak_needed": 3,
+      "min_steps_for_convergence_check": 1
+    }
+  }
+}
+```
+
+</details>
+
 **Parameter Dictionary:**
 
 <!-- markdownlint-disable MD013 MD060 -->
@@ -639,7 +716,7 @@ If you use HERA in your research, please cite:
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking
            Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.0.0},
+  version = {1.0.1},
   year = {2025}
 }
 ```
