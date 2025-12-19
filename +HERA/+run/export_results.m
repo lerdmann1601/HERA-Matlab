@@ -163,7 +163,6 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         % config: Contains all initial settings
         json_export_data.config = config;
 
-        % Remove target_memory from saved config
         % Remove target_memory and performance heuristics from saved config
         if isfield(json_export_data.config, 'system')
              sys = json_export_data.config.system;
