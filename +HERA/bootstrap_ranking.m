@@ -221,7 +221,7 @@ else
             ci_widths_b(t_b, :) = ci_bounds_b(:, 2) - ci_bounds_b(:, 1);
         end
         
-        % Calculate the stability metric for the current B-value. This is the median of the relative IQR of CI widths across all datasets.
+        % Calculate the stability metric for the current B-value. 
         med_widths = median(ci_widths_b, 1);
         iqr_widths = iqr(ci_widths_b, 1);
         
@@ -345,8 +345,6 @@ effective_memory = TARGET_MEMORY / max(1, num_workers);
 bytes_per_double = 8;
 bytes_per_int = 4;
 
-% Estimate total memory needed for all iterations.
-mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
 % Estimate total memory needed for all iterations.
 mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
 total_memory_needed = (double(selected_B_final) * double(mem_per_iter_bytes)) / (1024^2);
