@@ -166,6 +166,36 @@ else
             parfor_limit = current_pool_size;
         end
         
+        % --- Pre-Calculation of Safety Batching Parameters ---
+        % Workflow (Memory Safety):
+        %   a) Memory-aware batch sizing: Splits B into chunks if RAM is tight.
+        %   b) Vectorized Bootstrap: Each batch computed efficiently.
+        %   c) Aggregation: Prevents OOM errors for large N.
+        %
+        % RNG Strategy:
+        %   - Preserves bit-perfect sequences via column-wise randi generation.
+
+        % Dynamic batch sizing based on memory configuration.
+        if isfield(config, 'system') && isfield(config.system, 'target_memory')
+             TARGET_MEMORY_LOC = config.system.target_memory;
+             if numel(TARGET_MEMORY_LOC) > 1, TARGET_MEMORY_LOC = TARGET_MEMORY_LOC(1); end
+        else
+             TARGET_MEMORY_LOC = 200;
+        end
+        
+        effective_memory_loc = TARGET_MEMORY_LOC;
+        
+        % Estimate total memory needed (ranking involves 3D arrays [Pairs x Metrics x B])
+        mem_per_iter_bytes = (n_subj_b * 4) + (size(pair_idx_all, 1) * num_metrics * 2 * 8);
+        total_memory_needed = (double(Br_b) * double(mem_per_iter_bytes)) / (1024^2);
+        
+        if total_memory_needed <= double(effective_memory_loc)
+             BATCH_SIZE_PAR = double(Br_b);
+        else
+             BATCH_SIZE_PAR = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(mem_per_iter_bytes)), 20000));
+        end
+        num_batches_par = double(ceil(double(Br_b) ./ BATCH_SIZE_PAR));
+        
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
         parfor (t_b = 1:double(int32(round(cfg_rank.n_trials))), double(int32(round(parfor_limit))))
             % Each parallel worker gets its own reproducible substream of the random number generator.
@@ -173,42 +203,9 @@ else
             s_worker.Substream = t_b;
             rank_tmp_b = zeros(num_datasets_b, Br_b);
             
-            % Workflow (Memory Safety):
-            %   a) Memory-aware batch sizing: Splits B into chunks if RAM is tight.
-            %   b) Vectorized Bootstrap: Each batch computed efficiently.
-            %   c) Aggregation: Prevents OOM errors for large N.
-            %
-            % RNG Strategy:
-            %   - Preserves bit-perfect sequences via column-wise randi generation.
-
-            % --- Fast path: Analyze memory requirements ---
-            bytes_per_sample = n_subj_b * 8; % Double precision
-            
-            % Dynamic batch sizing based on memory configuration.
-            if isfield(config, 'system') && isfield(config.system, 'target_memory')
-                 TARGET_MEMORY_LOC = config.system.target_memory;
-                 if numel(TARGET_MEMORY_LOC) > 1, TARGET_MEMORY_LOC = TARGET_MEMORY_LOC(1); end
-            else
-                 TARGET_MEMORY_LOC = 200;
-            end
-            
-            effective_memory_loc = TARGET_MEMORY_LOC;
-            
-            % Estimate total memory needed (ranking involves 3D arrays [Pairs x Metrics x B])
-            mem_per_iter_bytes = (n_subj_b * 4) + (size(pair_idx_all, 1) * num_metrics * 2 * 8);
-            total_memory_needed = (double(Br_b) * double(mem_per_iter_bytes)) / (1024^2);
-            
-            if total_memory_needed <= double(effective_memory_loc)
-                 BATCH_SIZE_LOC = double(Br_b);
-            else
-                 BATCH_SIZE_LOC = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(mem_per_iter_bytes)), 20000));
-            end
-            
-            num_batches_loc = double(ceil(double(Br_b) ./ BATCH_SIZE_LOC));
-            
-            for b_loc = 1:num_batches_loc
-                 start_idx_loc = (b_loc - 1) * BATCH_SIZE_LOC + 1;
-                 end_idx_loc = min(b_loc * BATCH_SIZE_LOC, Br_b);
+            for b_loc = 1:num_batches_par
+                 start_idx_loc = (b_loc - 1) * BATCH_SIZE_PAR + 1;
+                 end_idx_loc = min(b_loc * BATCH_SIZE_PAR, Br_b);
                  current_n_loc = end_idx_loc - start_idx_loc + 1;
                  
                  % Inner loop: Vectorized Bootstrap + Ranking (Chunked)
