@@ -364,7 +364,8 @@ To run HERA in **Batch Mode**, create a `.json` file (e.g.,
 <details>
 <summary><strong>Full Configuration Example (JSON)</strong></summary>
 
-This example shows **all** possible parameters with their default values. Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
+This example shows **all** possible parameters with their default values.
+Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 
 ```json
 {
@@ -397,7 +398,8 @@ This example shows **all** possible parameters with their default values. Parame
       "target_memory": "auto",
       "jack_parfor_thr": 300,
       "jack_vec_limit": 150,
-      "delta_mat_limit": 30000
+      "delta_mat_limit": 30000,
+      "min_batch_size": 100
     },
 
     "bootstrap_thresholds": {
@@ -462,6 +464,7 @@ This example shows **all** possible parameters with their default values. Parame
 | | `system.jack_parfor_thr` | int | `300` | Min N to trigger parallel execution. |
 | | `system.jack_vec_limit` | int | `150` | Max N for vectorized Jackknife calculations. |
 | | `system.delta_mat_limit` | int | `30000` | Max N*M product for matrix-based Cliff's Delta. |
+| | `system.min_batch_size` | int | `100` | Min batch size for parallel processing. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
@@ -643,19 +646,19 @@ HERA generates a timestamped directory containing:
 ## Testing
 
 HERA includes a comprehensive validation framework (`run_unit_test.m`)
-comprising **over 30 test cases** organized into four suites:
+comprising **32 test cases** organized into four suites:
 
-1. **Unit Tests**: Checks individual components and helper functions to ensure
-    specific parts of the code work correctly.
-2. **Statistical Tests**: Verifies the core mathematical functions (e.g.,
-    Jackknife, Cliff's Delta) and ensures the performance optimizations
+1. **Unit Tests** (6 cases): Checks individual components and helper functions
+    to ensure specific parts of the code work correctly.
+2. **Statistical Tests** (5 cases): Verifies the core mathematical functions
+    (e.g., Jackknife, Cliff's Delta) and ensures the performance optimizations
     (hybrid switching) work as intended.
 3. **Scientific Tests** (19 cases): Comprehensive validation of ranking logic,
     statistical accuracy, and robustness against edge cases (e.g., zero
     variance, outliers).
-4. **System Tests**: Runs the entire HERA pipeline from start to finish to
-    ensure that the JSON configuration (batch) and Developer API are working
-    correctly.
+4. **System Tests** (2 cases): Runs the entire HERA pipeline from start to
+    finish to ensure that the JSON configuration (batch) and Developer API are
+    working correctly.
 
 ### Running Tests
 
