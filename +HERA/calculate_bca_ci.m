@@ -303,45 +303,80 @@ else
                     s_worker = s;
                     s_worker.Substream = (metric_idx - 1) * 1000 + t;
                     
-                    % --- Vectorized Bootstrap Sampling ---
-                    % Generate all bootstrap indices and sampled data simultaneously [N x B].
-                    boot_indices = randi(s_worker, num_probanden, [num_probanden, B_ci_current]);
-                    
-                    % Direct indexing is significantly faster than generating intermediate matrices.
-                    boot_x = data_x_orig(boot_indices);
-                    boot_y = data_y_orig(boot_indices);
-                    
-                    % --- Robust Handling of Missing Data (NaN) ---
-                    has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
-                    
-                    if ~has_nans
-                         % FAST PATH: No NaNs present.
-                         % Calculate statistics for all B iterations simultaneously using 3D expansion.
-                         if is_delta
-                             boot_stats = HERA.stats.cliffs_delta(boot_x, boot_y, delta_mat_limit);
-                         else
-                             boot_stats = HERA.stats.relative_difference(boot_x, boot_y);
-                         end
-                    else
-                         % ROBUST PATH: NaNs present.
-                         % Iterate through each bootstrap sample and perform pairwise exclusion.
-                         boot_stats = zeros(B_ci_current, 1);
-                         for b = 1:B_ci_current
-                             bx = boot_x(:, b); 
-                             by = boot_y(:, b);
-                             valid = ~isnan(bx) & ~isnan(by);
+                    % Workflow (Memory Safety):
+                    %   a) Memory-aware batch sizing: Splits B into chunks if RAM is tight.
+                    %   b) Vectorized Bootstrap: Each batch computed efficiently.
+                    %   c) Aggregation: Prevents OOM errors for large N.
+                    %
+                    % RNG Strategy:
+                    %   - Preserves bit-perfect sequences via column-wise randi generation.
 
-                             if is_delta
-                                 boot_stats(b) = HERA.stats.cliffs_delta(bx(valid), by(valid), delta_mat_limit);
-                             else
-                                 boot_stats(b) = HERA.stats.relative_difference(bx(valid), by(valid));
-                             end
-                         end
+                    % --- Fast path: Analyze memory requirements ---
+                    bytes_per_sample = num_probanden * 8; % Double precision
+                    
+                    % Dynamic batch sizing based on memory configuration.
+                    if isfield(config, 'system') && isfield(config.system, 'target_memory')
+                         TARGET_MEMORY_LOC = config.system.target_memory;
+                         if numel(TARGET_MEMORY_LOC) > 1, TARGET_MEMORY_LOC = TARGET_MEMORY_LOC(1); end
+                    else
+                         TARGET_MEMORY_LOC = 200;
                     end
                     
-                    % Ensure row vector
-                    boot_stats = boot_stats(:)'; 
-
+                    effective_memory_loc = TARGET_MEMORY_LOC;
+                    total_memory_needed = (double(B_ci_current) * double(bytes_per_sample)) / (1024^2);
+                    
+                    if total_memory_needed <= double(effective_memory_loc)
+                         BATCH_SIZE_LOC = double(B_ci_current);
+                    else
+                         BATCH_SIZE_LOC = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
+                    end
+                    
+                    num_batches_loc = double(ceil(double(B_ci_current) ./ BATCH_SIZE_LOC));
+                    
+                    % Initialize accumulation vectors
+                    boot_stats = zeros(1, B_ci_current);
+                    
+                    for b_loc = 1:num_batches_loc
+                         start_idx_loc = (b_loc - 1) * BATCH_SIZE_LOC + 1;
+                         end_idx_loc = min(b_loc * BATCH_SIZE_LOC, B_ci_current);
+                         current_n_loc = end_idx_loc - start_idx_loc + 1;
+                    
+                         % Generate bootstrap indices for this batch [N x Batch]
+                         boot_indices = randi(s_worker, num_probanden, [num_probanden, current_n_loc]);
+                         
+                         % Direct indexing 
+                         boot_x = data_x_orig(boot_indices);
+                         boot_y = data_y_orig(boot_indices);
+                         
+                         % --- Robust Handling of Missing Data (NaN) ---
+                         has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+                         
+                         if ~has_nans
+                             % FAST PATH: No NaNs present.
+                             if is_delta
+                                 batch_res = HERA.stats.cliffs_delta(boot_x, boot_y, delta_mat_limit);
+                             else
+                                 batch_res = HERA.stats.relative_difference(boot_x, boot_y);
+                             end
+                         else
+                             % ROBUST PATH: NaNs present.
+                             batch_res = zeros(1, current_n_loc);
+                             for b_sub = 1:current_n_loc
+                                 bx = boot_x(:, b_sub); 
+                                 by = boot_y(:, b_sub);
+                                 valid = ~isnan(bx) & ~isnan(by);
+    
+                                 if is_delta
+                                     batch_res(b_sub) = HERA.stats.cliffs_delta(bx(valid), by(valid), delta_mat_limit);
+                                 else
+                                     batch_res(b_sub) = HERA.stats.relative_difference(bx(valid), by(valid));
+                                 end
+                             end
+                         end
+                         
+                         boot_stats(start_idx_loc:end_idx_loc) = batch_res;
+                    end
+                    
                     % Calculate BCa correction factors (z0 for bias).
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
                     if ~isfinite(z0), z0 = 0; end 

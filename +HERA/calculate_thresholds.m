@@ -275,9 +275,51 @@ else
                 s_worker = s;
                 s_worker.Substream = (m - 1) * 1000 + t;
                 
-                % Percentile bootstrap
-                boot_indices = randi(s_worker, n_vals, [n_vals, B_current]);
-                bootstat = median(vals(boot_indices), 1);
+                % Workflow (Memory Safety):
+                %   a) Memory-aware batch sizing: Splits B into chunks if RAM is tight.
+                %   b) Vectorized Bootstrap: Each batch computed efficiently.
+                %   c) Aggregation: Prevents OOM errors for large N.
+                %
+                % RNG Strategy:
+                %   - Preserves bit-perfect sequences via column-wise randi generation.
+
+                % --- Fast path: Analyze memory requirements ---
+                bytes_per_sample = n_vals * 8; % Double precision
+                
+                % Dynamic batch sizing based on memory configuration.
+                if isfield(config, 'system') && isfield(config.system, 'target_memory')
+                     TARGET_MEMORY_LOC = config.system.target_memory;
+                     if numel(TARGET_MEMORY_LOC) > 1, TARGET_MEMORY_LOC = TARGET_MEMORY_LOC(1); end
+                else
+                     TARGET_MEMORY_LOC = 200;
+                end
+                
+                effective_memory_loc = TARGET_MEMORY_LOC;
+                
+                total_memory_needed = (double(B_current) * double(bytes_per_sample)) / (1024^2);
+                
+                if total_memory_needed <= double(effective_memory_loc)
+                     BATCH_SIZE_LOC = double(B_current);
+                else
+                     BATCH_SIZE_LOC = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
+                end
+                
+                num_batches_loc = double(ceil(double(B_current) ./ BATCH_SIZE_LOC));
+                
+                % Initialize accumulation vector
+                bootstat = zeros(1, B_current);
+                
+                for b_loc = 1:num_batches_loc
+                     start_idx_loc = (b_loc - 1) * BATCH_SIZE_LOC + 1;
+                     end_idx_loc = min(b_loc * BATCH_SIZE_LOC, B_current);
+                     current_n_loc = end_idx_loc - start_idx_loc + 1;
+                     
+                     % Generate indices for this batch [N x Batch]
+                     boot_indices = randi(s_worker, n_vals, [n_vals, current_n_loc]);
+                     
+                     % Calculate stats
+                     bootstat(start_idx_loc:end_idx_loc) = median(vals(boot_indices), 1);
+                end
                 
                 % Estimate threshold (Lower CI bound)
                 ci_tmp = quantile(bootstat, [alpha_level / 2, 1 - alpha_level / 2]);
