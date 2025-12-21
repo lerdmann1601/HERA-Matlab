@@ -719,7 +719,7 @@ If you use HERA in your research, please cite:
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking
            Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.0.1},
+  version = {1.0.2},
   year = {2025}
 }
 ```
