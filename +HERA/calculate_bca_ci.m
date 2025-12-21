@@ -174,30 +174,81 @@ else
     % Dimensions: [num_pairs, num_metrics * 2] (Delta 1..M, Rel 1..M)
     precalc_a = zeros(num_pairs, num_metrics * 2);
     
-    for m_pre = 1:(num_metrics * 2)
-        is_delta_pre = m_pre <= num_metrics;
-        actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
-        
-        for k_pre = 1:num_pairs
-            idx1 = p_pair_idx_all(k_pre, 1); 
-            idx2 = p_pair_idx_all(k_pre, 2);
-            data_x = p_all_data{actual_metric_pre}(:, idx1); 
-            data_y = p_all_data{actual_metric_pre}(:, idx2);
+    % --- Optimization for Jackknife Calculation ---
+    % Empirical benchmark (M1 MBP,Dec 2025) determined N ~ 300-400 as the crossover point
+    % where parallel execution becomes faster than serial execution on typical systems.
+    % Setting a conservative threshold to ensure overhead does not degrade performance
+    % on low-core machines.
+    if isfield(config, 'system') && isfield(config.system, 'jack_parfor_thr')
+        MIN_N_FOR_PARFOR = config.system.jack_parfor_thr;
+    else
+        MIN_N_FOR_PARFOR = 300;
+    end
+    
+    % --- Pre-compute data and Jackknife for all pairs ---
+    % Hybrid Parallelization Strategy:
+    % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
+    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins) 
+    
+    if num_probanden > MIN_N_FOR_PARFOR
+         % --- Parallel Execution (High Scaling) ---
+         parfor m_pre = 1:(num_metrics * 2)
+            is_delta_pre = m_pre <= num_metrics;
+            actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
             
-            % Check for valid data (min 3 points for Jackknife skewness)
-            valid = ~isnan(data_x) & ~isnan(data_y);
-            if sum(valid) < 3
-                precalc_a(k_pre, m_pre) = 0;
-                continue;
-            end
+            col_a = zeros(num_pairs, 1);
             
-            % Compute 'a' only
-            if is_delta_pre
-               [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
-            else
-               [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+            for k_pre = 1:num_pairs
+                idx1 = p_pair_idx_all(k_pre, 1); 
+                idx2 = p_pair_idx_all(k_pre, 2);
+                data_x = p_all_data{actual_metric_pre}(:, idx1); 
+                data_y = p_all_data{actual_metric_pre}(:, idx2);
+                
+                % Pairwise NaN exclusion.
+                valid = ~isnan(data_x) & ~isnan(data_y);
+                if sum(valid) < 3
+                    col_a(k_pre) = 0;
+                    continue;
+                end
+                
+                % Pre-compute Jackknife + Acceleration.
+                if is_delta_pre
+                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
+                else
+                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+                end
+                 col_a(k_pre) = a_val;
             end
-            precalc_a(k_pre, m_pre) = a_val;
+            precalc_a(:, m_pre) = col_a;
+         end
+
+    else
+        % --- Serial Execution (Low Overhead) ---
+        for m_pre = 1:(num_metrics * 2)
+            is_delta_pre = m_pre <= num_metrics;
+            actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
+            
+            for k_pre = 1:num_pairs
+                idx1 = p_pair_idx_all(k_pre, 1); 
+                idx2 = p_pair_idx_all(k_pre, 2);
+                data_x = p_all_data{actual_metric_pre}(:, idx1); 
+                data_y = p_all_data{actual_metric_pre}(:, idx2);
+                
+                % Pairwise NaN exclusion.
+                valid = ~isnan(data_x) & ~isnan(data_y);
+                if sum(valid) < 3
+                    precalc_a(k_pre, m_pre) = 0;
+                    continue;
+                end
+                
+                % Pre-compute Jackknife + Acceleration (using updated API).
+                if is_delta_pre
+                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
+                else
+                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+                end
+                precalc_a(k_pre, m_pre) = a_val;
+            end
         end
     end
 
