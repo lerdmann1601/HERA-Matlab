@@ -170,13 +170,44 @@ else
     % temp vector is now sized
     temp_stability_ci_vector = zeros(1, num_metrics * 2);
     
+    % Pre-calculate Jackknife 'a' values for all pairs and metrics to avoid redundancy in B-loop.
+    % Dimensions: [num_pairs, num_metrics * 2] (Delta 1..M, Rel 1..M)
+    precalc_a = zeros(num_pairs, num_metrics * 2);
+    
+    for m_pre = 1:(num_metrics * 2)
+        is_delta_pre = m_pre <= num_metrics;
+        actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
+        
+        for k_pre = 1:num_pairs
+            idx1 = p_pair_idx_all(k_pre, 1); 
+            idx2 = p_pair_idx_all(k_pre, 2);
+            data_x = p_all_data{actual_metric_pre}(:, idx1); 
+            data_y = p_all_data{actual_metric_pre}(:, idx2);
+            
+            % Check for valid data (min 3 points for Jackknife skewness)
+            valid = ~isnan(data_x) & ~isnan(data_y);
+            if sum(valid) < 3
+                precalc_a(k_pre, m_pre) = 0;
+                continue;
+            end
+            
+            % Compute 'a' only
+            if is_delta_pre
+               [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
+            else
+               [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+            end
+            precalc_a(k_pre, m_pre) = a_val;
+        end
+    end
+
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector_ci)
         B_ci_current = B_vector_ci(i);
         fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
         % Reset temp vector for each B value
         temp_stability_ci_vector(:) = 0; 
-
+        
         % --- Parallel Worker Limit ---
         % Limits the number of workers if config.num_workers is set, otherwise utilizes the full pool.
         pool = gcp('nocreate');
@@ -204,25 +235,8 @@ else
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
                 
-                % --- Jackknife Statistics (Sequential) ---
-                % Must be calculated HERE, outside the parfor, to avoid redundancy.
-                
-                jack_d = []; jack_r = [];
-                % We only need to compute Jackknife for the relevant metric (d or r)
-                if is_delta
-                   jack_d = HERA.stats.jackknife(data_x_orig, data_y_orig, 'delta', jack_vec_limit);
-                   mean_jack = mean(jack_d);
-                   jack_vals = jack_d;
-                else
-                   jack_r = HERA.stats.jackknife(data_x_orig, data_y_orig, 'rel', jack_vec_limit);
-                   mean_jack = mean(jack_r);
-                   jack_vals = jack_r;
-                end
-                
-                a_num = sum((mean_jack - jack_vals).^3);
-                a_den = 6 * (sum((mean_jack - jack_vals).^2)).^(3/2);
-                if a_den == 0, a = 0; else, a = a_num / a_den; end
-                if ~isfinite(a), a = 0; end
+                % Retrieve pre-calculated 'a'
+                a = precalc_a(k, metric_idx);
             
                 % Pre-calculate values needed for inner loop to avoid overhead
                 % Access effect size using dynamic index

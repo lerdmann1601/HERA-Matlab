@@ -173,45 +173,73 @@ else
             s_worker.Substream = t_b;
             rank_tmp_b = zeros(num_datasets_b, Br_b);
             
-            % Inner loop: Performs the bootstrap process Br_b times to generate one rank distribution for one trial.
-            for bb_b = 1:Br_b
-                % Perform a cluster bootstrap: Subjects (clusters) are drawn with replacement.
-                boot_indices = randi(s_worker, n_subj_b, [n_subj_b, 1]);
-                
-                % Effect sizes are completely recalculated for the new bootstrap sample.
-                num_pairs = size(pair_idx_all, 1);
-                bootstrap_d_vals_all = zeros(num_pairs, num_metrics);
-                bootstrap_rel_vals_all = zeros(num_pairs, num_metrics);
-                
-                % Loop through all pairwise comparisons to calculate effect sizes.
+            % Inner loop: Vectorized Bootstrap + Ranking
+            % Generate all bootstrap samples at once [N x B]
+            boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, Br_b]);
+            
+            % Pre-allocate 3D arrays for effect sizes [Pairs x Metrics x B]
+            num_pairs = size(pair_idx_all, 1);
+            d_vals_3d = zeros(num_pairs, num_metrics, Br_b);
+            rel_vals_3d = zeros(num_pairs, num_metrics, Br_b);
+            
+            % Check NaN status for this trial's data context (checking original data once is enough)
+             has_nans = false;
+             for col = 1:num_datasets_b
+                for mid = 1:num_metrics
+                    if any(isnan(all_data{mid}(:, col)))
+                        has_nans = true; break;
+                    end
+                end
+                if has_nans, break; end
+             end
+             
+             if ~has_nans
+                % Fast path: Vectorized calculation
                 for p_idx = 1:num_pairs
                     i = pair_idx_all(p_idx, 1);
                     j = pair_idx_all(p_idx, 2);
                     for metric_idx = 1:num_metrics
-                        % Access original data directly via indices.
-                        boot_col_i = all_data{metric_idx}(boot_indices, i);
-                        boot_col_j = all_data{metric_idx}(boot_indices, j);
-
-                        % Find valid (non-NaN) rows within the bootstrap sample for this specific pair.
-                        valid_boot_rows = ~isnan(boot_col_i) & ~isnan(boot_col_j);
-                        x = boot_col_i(valid_boot_rows);
-                        y = boot_col_j(valid_boot_rows);
-                        n_valid = size(x, 1);
-        
-                        if n_valid > 0
-                            bootstrap_d_vals_all(p_idx, metric_idx) = HERA.stats.cliffs_delta(x, y, delta_mat_limit);
-                            bootstrap_rel_vals_all(p_idx, metric_idx) = HERA.stats.relative_difference(x, y);
-                        else
-                            bootstrap_d_vals_all(p_idx, metric_idx) = NaN;
-                            bootstrap_rel_vals_all(p_idx, metric_idx) = NaN;
-                        end
+                         data_i = all_data{metric_idx}(:, i);
+                         data_j = all_data{metric_idx}(:, j);
+                         x_mat = data_i(boot_indices_block);
+                         y_mat = data_j(boot_indices_block);
+                         
+                         d_vals_3d(p_idx, metric_idx, :) = HERA.stats.cliffs_delta(x_mat, y_mat, delta_mat_limit);
+                         rel_vals_3d(p_idx, metric_idx, :) = HERA.stats.relative_difference(x_mat, y_mat);
                     end
                 end
-                bootstrap_effect_sizes = struct('d_vals_all', bootstrap_d_vals_all, 'rel_vals_all', bootstrap_rel_vals_all);
-                
-                % The complete ranking algorithm is run on the bootstrapped effect sizes.
+            else
+                % Robust path: Loop-based calculation for NaNs
+                for k = 1:Br_b
+                     current_indices = boot_indices_block(:, k);
+                     for p_idx = 1:num_pairs
+                        i = pair_idx_all(p_idx, 1);
+                        j = pair_idx_all(p_idx, 2);
+                        for metric_idx = 1:num_metrics
+                            col_i = all_data{metric_idx}(current_indices, i);
+                            col_j = all_data{metric_idx}(current_indices, j);
+                            valid = ~isnan(col_i) & ~isnan(col_j);
+                            x = col_i(valid); y = col_j(valid);
+                            
+                            if ~isempty(x)
+                                d_vals_3d(p_idx, metric_idx, k) = HERA.stats.cliffs_delta(x, y, delta_mat_limit);
+                                rel_vals_3d(p_idx, metric_idx, k) = HERA.stats.relative_difference(x, y);
+                            else
+                                d_vals_3d(p_idx, metric_idx, k) = NaN;
+                                rel_vals_3d(p_idx, metric_idx, k) = NaN;
+                            end
+                        end
+                     end
+                end
+            end
+            
+            % Calculate Ranking for each B
+            for bb_b = 1:Br_b
+                 es_struct = struct('d_vals_all', d_vals_3d(:, :, bb_b), ...
+                                    'rel_vals_all', rel_vals_3d(:, :, bb_b));
+                                
                 [~, bootstrap_rank] = HERA.calculate_ranking(...
-                    all_data, bootstrap_effect_sizes, thresholds, config, dataset_names, pair_idx_all, boot_indices);
+                    all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb_b));
                 
                 rank_tmp_b(:, bb_b) = bootstrap_rank;
             end
