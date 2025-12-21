@@ -14,8 +14,8 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %
 % Workflow:
 %   1.  Dynamic search for the optimal number of bootstrap samples (B): 
-%       Analyzes the stability of the rank confidence intervals over multiple trials and an increasing number of B-values. 
-%       Stability is quantified using the maximum Interquartile Range (IQR) of the confidence interval widths.
+%       Analyzes stability over multiple trials using parallelized (`parfor`) execution with 
+%       memory-aware batch sizing. Stability is quantified using the maximum Interquartile Range (IQR).
 %   2.  Selection of the final B-value ('selected_B_final'): 
 %       The optimal B is determined either when stability converges (i.e., the relative improvement falls below a tolerance) - 
 %       or, if convergence is not reached, through an "elbow analysis" of the stability curve.
@@ -86,6 +86,11 @@ end
 delta_mat_limit = [];
 if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
+end
+
+min_batch_size = 100;
+if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
+    min_batch_size = config.system.min_batch_size;
 end
 
 %% 1. Initialization and Convergence Check for Optimal B
@@ -192,7 +197,7 @@ else
         if total_memory_needed <= double(effective_memory_loc)
              BATCH_SIZE_PAR = double(Br_b);
         else
-             BATCH_SIZE_PAR = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(mem_per_iter_bytes)), 20000));
+             BATCH_SIZE_PAR = max(min_batch_size, min(floor((double(effective_memory_loc) * 1024^2) / double(mem_per_iter_bytes)), 20000));
         end
         num_batches_par = double(ceil(double(Br_b) ./ BATCH_SIZE_PAR));
         
@@ -419,7 +424,7 @@ total_memory_needed = (double(selected_B_final) * double(mem_per_iter_bytes)) / 
 if total_memory_needed <= double(effective_memory)
     BATCH_SIZE = double(selected_B_final);
 else
-    BATCH_SIZE = max(1, floor((double(effective_memory) * 1024^2) / double(mem_per_iter_bytes)));
+    BATCH_SIZE = max(min_batch_size, floor((double(effective_memory) * 1024^2) / double(mem_per_iter_bytes)));
 end
 num_batches = double(ceil(double(selected_B_final) ./ BATCH_SIZE));
 if numel(num_batches) > 1

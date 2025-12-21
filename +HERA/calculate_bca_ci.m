@@ -18,8 +18,8 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 % Workflow:
 %   1. Dynamic determination of the bootstrap count (B): 
 %      Iterates over B-values sequentially. For each B, stability trials are 
-%      executed in parallel (`parfor`) to efficiently determine convergence using
-%      `HERA.stats.check_convergence` or `HERA.stats.find_elbow_point`.
+%      executed in parallel (`parfor`) with memory-aware batch sizing.
+%      checks convergence via `check_convergence` or `find_elbow_point`.
 %   2. Creation of the convergence plot: 
 %      Calls `HERA.plot.bca_convergence` to generate global and detailed stability plots.
 %   3. Final calculation of BCa confidence intervals: 
@@ -90,6 +90,11 @@ end
 delta_mat_limit = [];
 if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
+end
+
+min_batch_size = 100;
+if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
+    min_batch_size = config.system.min_batch_size;
 end
 
 %% 1. Dynamic determination of the optimal bootstrap count (B)
@@ -320,7 +325,7 @@ else
                 if total_memory_needed <= double(effective_memory_loc)
                      BATCH_SIZE_PAR = double(B_ci_current);
                 else
-                     BATCH_SIZE_PAR = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
+                     BATCH_SIZE_PAR = max(min_batch_size, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
                 end
                 num_batches_par = double(ceil(double(B_ci_current) ./ BATCH_SIZE_PAR));
 
@@ -642,7 +647,7 @@ for metric_idx = 1:num_metrics
     if total_memory_needed <= double(effective_memory)
         BATCH_SIZE = double(B_ci);
     else
-        BATCH_SIZE = max(100, floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)));
+        BATCH_SIZE = max(min_batch_size, floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)));
     end
     
     num_batches = double(ceil(double(B_ci) ./ BATCH_SIZE));

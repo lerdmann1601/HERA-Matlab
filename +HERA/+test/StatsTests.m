@@ -15,6 +15,7 @@ classdef StatsTests < matlab.unittest.TestCase
     %   - BCA Parallel Logic: Verifies that switching between serial and parallel (parfor) pre-computation
     %     in calculate_bca_ci produces identical results.
     %   - Fallback Logic: Verifies that missing configuration fields trigger correct internal defaults.
+    %   - Safety Batching: Verifies that memory-aware batching produces results identical to vectorized execution.
     %
     % Author: Lukas von Erdmannsdorff
     
@@ -164,6 +165,110 @@ classdef StatsTests < matlab.unittest.TestCase
              testCase.verifyEqual(ci_d_par, ci_d_ser, 'AbsTol', 1e-10, 'Parallel CI differs from Serial CI');
              testCase.verifyEqual(z0_d_par, z0_d_ser, 'AbsTol', 1e-10, 'Parallel z0 differs from Serial z0');
              testCase.verifyEqual(a_d_par, a_d_ser, 'AbsTol', 1e-10, 'Parallel acceleration differs from Serial acceleration');
+        end
+        
+        function test_batching(testCase)
+            % Verify that memory-aware batching produces identical results to full vectorization
+            % for all three core functions: calculate_thresholds, calculate_bca_ci, bootstrap_ranking.
+            % This ensures the "Safety Batching" logic is mathematically equivalent to the fast path.
+            
+            import HERA.calculate_thresholds
+            import HERA.calculate_bca_ci
+            import HERA.bootstrap_ranking
+            
+            % 1. Setup Data & Common Resources
+            % Small dataset: N=50.
+            n = 50; 
+            rng(1001);
+            
+            % Data for calculate_thresholds / calculate_bca_ci (Cell of matrices)
+            d1 = randn(n, 1);
+            d2 = randn(n, 1) + 0.5;
+            all_data = { [d1, d2] };
+            
+            % Data for bootstrap_ranking (Matrix: subjects x methods)
+            % 4 ranking candidates to make ranking interesting
+            ranking_mat = randn(n, 4);
+            all_data_rank = { ranking_mat }; % 1 Metric
+            
+            % Dummies / Common Args
+            d_vals_all = [0.5]; 
+            rel_vals_all = [0.1];
+            pair_idx_all = [1, 2];
+            metric_names = {'M1'};
+            dataset_names = {'MethA', 'MethB', 'MethC', 'MethD'}; 
+            final_rank = [1, 2, 3, 4];
+            pair_idx_rank = nchoosek(1:4, 2);
+            
+            graphics_dir = testCase.tempDir;
+            csv_dir = testCase.tempDir;
+            manual_B = 100; % Small fixed B
+            
+            % Shared RNG Stream
+            s = RandStream('mlfg6331_64', 'Seed', 9999);
+            base_name = 'BatchTest';
+            
+            % 2. Setup Configs
+            % cfg_batch: Target memory ~0 MB -> Forces Loops (Batch Size ~100)
+            cfg_batch = HERA.default();
+            cfg_batch.timestamp = '20250101_000000';
+            cfg_batch.system.target_memory = 0.000001; 
+            cfg_batch.bootstrap_ci.n_trials = 2;
+            cfg_batch.bootstrap_ci.B_start = 5000; % Ensure B is large enough to trigger batching
+            cfg_batch.bootstrap_ci.B_end = 5000;
+            cfg_batch.metric_names = metric_names; % Sync metric names with data
+            
+            % cfg_vec: Target memory 10 GB -> Forces Vectorized (Batch Size = B)
+            cfg_vec = cfg_batch;
+            cfg_vec.system.target_memory = 10000;
+            
+            % --- Test 1: calculate_thresholds ---
+            % Call twice, resetting stream in between
+            % Signature: [d_thresh, rel_thresh, ...] = calculate_thresholds(all_data, num_probanden, config, graphics_dir, manual_B, s, styles, lang)
+            
+            s.reset();
+            T_batch = evalc(['[d_t_b, r_t_b] = HERA.calculate_thresholds(' ...
+                'all_data, n, cfg_batch, graphics_dir, manual_B, s, testCase.styles, testCase.lang);']);
+            
+            s.reset();
+            T_vec   = evalc(['[d_t_v, r_t_v] = HERA.calculate_thresholds(' ...
+                'all_data, n, cfg_vec, graphics_dir, manual_B, s, testCase.styles, testCase.lang);']);
+            
+            % Compare scalars/vectors
+            testCase.verifyEqual(d_t_b, d_t_v, 'AbsTol', 1e-10, 'Thresholds (Delta) differ between Batch and Vector modes');
+            testCase.verifyEqual(r_t_b, r_t_v, 'AbsTol', 1e-10, 'Thresholds (Rel) differ between Batch and Vector modes');
+            
+            % --- Test 2: calculate_bca_ci ---
+            % Signature: [B_ci, ci_d_all, ...] = calculate_bca_ci(all_data, d_vals_all, rel_vals_all, pair_idx_all, num_probanden, config, metric_names, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
+            s.reset();
+            T_batch_bca = evalc(['[~, ci_batch, ~, z0_batch, a_batch] = HERA.calculate_bca_ci(' ...
+                 'all_data, d_vals_all, rel_vals_all, pair_idx_all, n, ' ...
+                 'cfg_batch, metric_names, graphics_dir, csv_dir, manual_B, s, testCase.styles, testCase.lang, base_name);']);
+             
+            s.reset();
+            T_vec_bca   = evalc(['[~, ci_vec, ~, z0_vec, a_vec] = HERA.calculate_bca_ci(' ...
+                 'all_data, d_vals_all, rel_vals_all, pair_idx_all, n, ' ...
+                 'cfg_vec, metric_names, graphics_dir, csv_dir, manual_B, s, testCase.styles, testCase.lang, base_name);']);
+                 
+            testCase.verifyEqual(ci_batch, ci_vec, 'AbsTol', 1e-10, 'BCA CI differs between Batch and Vector modes');
+            testCase.verifyEqual(z0_batch, z0_vec, 'AbsTol', 1e-10, 'BCA z0 differs between Batch and Vector modes');
+            
+            % --- Test 3: bootstrap_ranking ---
+            % Signature: [final_bootstrap_ranks, ...] = bootstrap_ranking(all_data, thresholds, config, dataset_names, final_rank, pair_idx_all, num_probanden, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
+            
+            % Dummy thresholds
+            dummy_thresh.d_thresh = 0.5;
+            dummy_thresh.rel_thresh = 0.5;
+            
+            s.reset();
+            T_batch_rank = evalc(['[rank_dist_b] = HERA.bootstrap_ranking(' ...
+                'all_data_rank, dummy_thresh, cfg_batch, dataset_names, final_rank, pair_idx_rank, n, graphics_dir, csv_dir, manual_B, s, testCase.styles, testCase.lang, base_name);']);
+            
+            s.reset();
+            T_vec_rank = evalc(['[rank_dist_v] = HERA.bootstrap_ranking(' ...
+                'all_data_rank, dummy_thresh, cfg_vec, dataset_names, final_rank, pair_idx_rank, n, graphics_dir, csv_dir, manual_B, s, testCase.styles, testCase.lang, base_name);']);
+                
+            testCase.verifyEqual(rank_dist_b, rank_dist_v, 'AbsTol', 1e-10, 'Ranking distribution differs');
         end
         
         function test_defaults_fallback(testCase)

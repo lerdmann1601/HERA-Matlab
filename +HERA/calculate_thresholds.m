@@ -17,8 +17,8 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %   2. SEM-based Minimum Threshold: 
 %      Determines a dynamic lower limit for the relative difference based on the SEM (for 1, 2, or 3 metrics).
 %   3. Dynamic Determination of Stable Bootstrap Thresholds (for B): 
-%      Iteratively checks stability and delegates convergence checks to `HERA.stats.check_convergence` 
-%      and elbow detection to `HERA.stats.find_elbow_point`.
+%      Iteratively checks stability using parallelized trials (`parfor`) with memory-aware 
+%      batch sizing. Checks convergence via `check_convergence` or `find_elbow_point`.
 %   4. Final Threshold Calculation: 
 %      Computes the final thresholds with the optimal B, where the relative threshold is capped by the SEM value.
 %   5. Visualization:
@@ -65,6 +65,11 @@ end
 delta_mat_limit = [];
 if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
+end
+
+min_batch_size = 100;
+if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
+    min_batch_size = config.system.min_batch_size;
 end
 
 %% 1. Initialization and Calculation of Initial Statistics
@@ -288,7 +293,7 @@ else
             if total_memory_needed <= double(effective_memory_loc)
                  BATCH_SIZE_PAR = double(B_current);
             else
-                 BATCH_SIZE_PAR = max(100, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
+                 BATCH_SIZE_PAR = max(min_batch_size, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
             end
             num_batches_par = double(ceil(double(B_current) ./ BATCH_SIZE_PAR));
 

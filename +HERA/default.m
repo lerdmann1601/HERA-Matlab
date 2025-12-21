@@ -55,6 +55,7 @@ function defaults = default()
     defaults.system.jack_parfor_thr = 300;     % Min N to trigger parallel execution
     defaults.system.jack_vec_limit = 150;      % Max N for vectorized Jackknife
     defaults.system.delta_mat_limit = 30000;   % Max N*M product for matrix Cliff's Delta
+    defaults.system.min_batch_size = 100;      % Min batch size for parfor
 
     %% Bootstrap Configuration
     % Manual Bootstrap Defaults (Empty = Automatic Mode)

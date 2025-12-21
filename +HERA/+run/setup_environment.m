@@ -166,12 +166,24 @@ function [userInput, setupData] = setup_environment(userInput)
     config_path = fullfile(output_dir, "configuration.json"); 
     try
         userInputToSave = userInput;
-        if isfield(userInputToSave, 'system') && isfield(userInputToSave.system, 'target_memory')
-            userInputToSave.system = rmfield(userInputToSave.system, 'target_memory');
+        heuristic_fields = {'target_memory', 'min_batch_size', 'jack_parfor_thr', 'jack_vec_limit', 'delta_mat_limit'};
+        
+        % Clean root system struct
+        if isfield(userInputToSave, 'system')
+            for hf = heuristic_fields
+                if isfield(userInputToSave.system, hf{1})
+                    userInputToSave.system = rmfield(userInputToSave.system, hf{1});
+                end
+            end
         end
-        % Also check config.system if it exists separately
-        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system') && isfield(userInputToSave.config.system, 'target_memory')
-            userInputToSave.config.system = rmfield(userInputToSave.config.system, 'target_memory');
+        
+        % Clean nested config.system struct
+        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system')
+            for hf = heuristic_fields
+                if isfield(userInputToSave.config.system, hf{1})
+                    userInputToSave.config.system = rmfield(userInputToSave.config.system, hf{1});
+                end
+            end
         end
         
         data_to_save = struct('userInput', userInputToSave);
