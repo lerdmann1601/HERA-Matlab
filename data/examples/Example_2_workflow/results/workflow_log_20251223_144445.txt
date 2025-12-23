@@ -1,0 +1,52 @@
+[Info] Logging started. Output saved to: /HERA-Matlab/data/examples/Example_2_workflow/results/workflow_log_20251223_144445.txt
+
+--- Starting Processing Loop ---
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_50/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_45/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_40/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_35/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_30/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_25/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_20/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_15/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_10/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_5/config.json
+ -> Using pre-calculated CIs from JSON.
+ -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_0/config.json
+ -> Using pre-calculated CIs from JSON.
+
+--- Pruning and Plotting ---
+ -> Transition Point detected at Alpha 0.2
+ [Delete] Alpha 0.5 (Stable, Redundant)
+ [Delete] Alpha 0.45 (Stable, Redundant)
+ [Delete] Alpha 0.4 (Stable, Redundant)
+ [Delete] Alpha 0.35 (Stable, Redundant)
+ [Delete] Alpha 0.3 (Stable, Redundant)
+ [Delete] Alpha 0.25 (Stable, Redundant)
+ [Keep] Alpha 0.2 (Overlap: False)
+ [Keep] Alpha 0.15 (Overlap: True)
+ [Keep] Alpha 0.1 (Overlap: True)
+ [Keep] Alpha 0.05 (Overlap: True)
+ [Keep] Alpha 0.0 (Overlap: True)
+ -> Optimization Curve saved to: /HERA-Matlab/data/examples/Example_2_workflow/results/stability_curve.png
+Total analysis duration: 11 min 49 sec

@@ -42,7 +42,7 @@ import subprocess
 import platform
 import glob
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Tuple, Union
+from typing import Any
 
 import pandas as pd
 import numpy as np
@@ -54,7 +54,6 @@ BASE_DIR = Path(__file__).parent.resolve()
 DATA_DIR = BASE_DIR / "data"
 RESULTS_DIR = BASE_DIR / "results"
 # Determine OS-specific defaults
-import platform
 current_os = platform.system()
 
 if current_os == "Darwin":
@@ -89,6 +88,21 @@ MANUAL_BOOTSTRAP = {
     "manual_B_rank": 500
 }
 
+class Logger:
+    def __init__(self, file_path: Path | str) -> None:
+        self.terminal = sys.stdout
+        self.log = open(file_path, "a")
+
+    def write(self, message: str) -> None:
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()  
+
+    def flush(self):
+        # needed for python 3 compatibility
+        self.terminal.flush()
+        self.log.flush()
+
 class HERAWorkflow:
     """
     Main controller for the HERA analysis workflow.
@@ -117,8 +131,18 @@ class HERAWorkflow:
         if not self.results_dir.exists():
             print(f"[Info] Creating Results Directory: {self.results_dir}")
             self.results_dir.mkdir(parents=True)
+
+        # --- Logging Setup ---
+        # Generate timestamp
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        log_file_name = f"workflow_log_{timestamp}.txt"
+        log_path = self.results_dir / log_file_name
+        
+        # Redirect stdout
+        sys.stdout = Logger(log_path)
+        print(f"[Info] Logging started. Output saved to: {log_path}")
                  
-    def create_hera_config(self, input_path: Path, output_path: Path) -> Dict[str, Any]:
+    def create_hera_config(self, input_path: Path, output_path: Path) -> dict[str, Any]:
         """
         3. Creates the JSON configuration structure for HERA.
         
@@ -129,7 +153,7 @@ class HERAWorkflow:
             output_path (Path): Path where results should be saved.
 
         Returns:
-            Dict[str, Any]: A dictionary containing the 'userInput' configuration.
+            dict[str, Any]: A dictionary containing the 'userInput' configuration.
         """
         config = {
             "userInput": {
@@ -150,12 +174,12 @@ class HERAWorkflow:
         }
         return config
 
-    def find_executable(self) -> Optional[Union[Path, str]]:
+    def find_executable(self) -> Path | str | None:
         """
         Helper: Searches for the HERA executable in likely locations.
         
         Returns:
-            Optional[Union[Path, str]]: The path to the executable (Path object), "matlab" (str) if using local MATLAB, 
+            Path | str | None: The path to the executable (Path object), "matlab" (str) if using local MATLAB, 
                                         or None if not found.
         """
         # 1. Check Environment Variable
@@ -277,7 +301,7 @@ class HERAWorkflow:
                 print(f"[Error] MATLAB subprocess error: {e}")
                 return False
 
-    def get_latest_result_json(self, result_folder: Path) -> Optional[Path]:
+    def get_latest_result_json(self, result_folder: Path) -> Path | None:
         """
         Helper: Finds the latest JSON output in the results folder.
 
@@ -285,7 +309,7 @@ class HERAWorkflow:
             result_folder (Path): The folder containing HERA results.
 
         Returns:
-            Optional[Path]: Path to the latest result JSON file, or None if not found.
+            Path | None: Path to the latest result JSON file, or None if not found.
         """
         if not result_folder.exists():
             return None
@@ -306,7 +330,7 @@ class HERAWorkflow:
             
         return jsons[0]
 
-    def analyze_results(self, json_path: Path) -> Dict[str, Any]:
+    def analyze_results(self, json_path: Path) -> dict[str, Any]:
         """
         5. Analysis: Reads ranking info and calculates CIs from bootstrap ranks.
         
@@ -316,13 +340,13 @@ class HERAWorkflow:
             json_path (Path): Path to the HERA result JSON.
 
         Returns:
-            Dict[str, Any]: A dictionary containing rank and CI statistics for each method.
+            dict[str, Any]: A dictionary containing rank and CI statistics for each method.
         """
         with open(json_path, 'r') as f:
             data = json.load(f)
             
-        results: Dict[str, Any] = data.get('results', {})
-        dataset_names: List[str] = data.get('dataset_names', [])
+        results: dict[str, Any] = data.get('results', {})
+        dataset_names: list[str] = data.get('dataset_names', [])
         
         final_ranks = results.get('final_rank', [])
         
@@ -359,7 +383,7 @@ class HERAWorkflow:
                  ci_lower = final_ranks
                  ci_upper = final_ranks
 
-        rank_map: Dict[str, Dict[str, Any]] = {}
+        rank_map: dict[str, dict[str, Any]] = {}
         for i, name in enumerate(dataset_names):
             rank_map[name] = {
                 "rank": final_ranks[i],
@@ -380,9 +404,7 @@ class HERAWorkflow:
         4. handing off to pruning/plotting.
         """
         self.setup_directories()
-
-
-        
+ 
         # Find all Alpha_XX folders in python_experiments/data
         alpha_folders = [d for d in self.data_dir.iterdir() if d.is_dir() and d.name.startswith("Alpha_")]
         
@@ -390,7 +412,7 @@ class HERAWorkflow:
         def parse_alpha(p):
             try:
                 return int(p.name.split("_")[-1])
-            except:
+            except (ValueError, IndexError):
                 return -1
                 
         alpha_folders.sort(key=parse_alpha, reverse=True)
@@ -442,7 +464,7 @@ class HERAWorkflow:
             
         self.prune_and_plot(aggregated_results)
 
-    def prune_and_plot(self, results: List[Dict[str, Any]]) -> None:
+    def prune_and_plot(self, results: list[dict[str, Any]]) -> None:
         """
         6. Pruning and Plotting Logic.
         
@@ -454,7 +476,7 @@ class HERAWorkflow:
           3. Delete all others (Stable results).
           
         Args:
-            results (List[Dict[str, Any]]): List of result dictionaries from `process_data`.
+            results (list[dict[str, Any]]): List of result dictionaries from `process_data`.
         """
         if not results:
             return
@@ -520,16 +542,16 @@ class HERAWorkflow:
         # Plotting
         self.plot_curve(final_plot_data, first_overlap_index=first_overlap_index, all_results=results)
 
-    def plot_curve(self, data: List[Dict[str, Any]], first_overlap_index: int = -1, all_results: Optional[List[Dict[str, Any]]] = None) -> None:
+    def plot_curve(self, data: list[dict[str, Any]], first_overlap_index: int = -1, all_results: list[dict[str, Any]] | None = None) -> None:
         """
         7. Plots Rank G vs B with CIs.
         
         Generates the stability analysis plot and saves it to the results directory.
         
         Args:
-            data (List[Dict[str, Any]]): Filtered list of results to be plotted.
+            data (list[dict[str, Any]]): Filtered list of results to be plotted.
             first_overlap_index (int): Index where overlap was first detected (for vertical line).
-            all_results (Optional[List[Dict[str, Any]]]): Full list of results for transition point lookup.
+            all_results (list[dict[str, Any]] | None): Full list of results for transition point lookup.
         """
         if not data:
             print("[Info] No data to plot.")
@@ -570,7 +592,7 @@ class HERAWorkflow:
              plt.plot(df["Alpha"], df["Rank_D"], label="Method D", color="red", marker="^", linestyle=":")
              plt.fill_between(df["Alpha"], df["CI_Min_D"], df["CI_Max_D"], color="red", alpha=0.15)
              
-        # Optimization: Add Overlap Line and Alpha Explanation
+        # Add Overlap Line and Alpha Explanation
         if all_results and first_overlap_index >= 0:
              # Get the alpha value where overlap STARTS (the first index in the original sorted list that overlapped)
              # Note: results are sorted High Alpha -> Low Alpha. 
