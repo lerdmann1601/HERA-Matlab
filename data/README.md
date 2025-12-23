@@ -79,7 +79,7 @@ This matrix visualizes the pairwise comparisons between methods. Green indicates
 
 We began evaluating the initial images from Method D, Method F, and Method B. Although Method D appears to offer the best overall image quality, we observed that its contrast enhancement occasionally leads to an over-representation of the Region of Interest (ROI). Conversely, the Contrast and Image Quality of Method B seem to depict the ROI size more accurately. Consequently, we sought to determine the optimal setting where Method D remains superior to Method B without excessive contrast enhancement that could compromise SNR as well.
 
-To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 5 minutes to 2 minutes on my M1 MBP.
+To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 5 minutes to 1 minute for each analysis step on my M1 MBP.
 
 ### Interpreting the results 2
 
