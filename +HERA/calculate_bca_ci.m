@@ -380,11 +380,17 @@ else
                          boot_stats(start_idx_loc:end_idx_loc) = batch_res;
                     end
                     
-                    % Calculate BCa correction factors (z0 for bias).
+                    % Calculate BCa correction factors (z0 for bias):
+                    % If z0 is non-finite (e.g., all bootstrap values are greater or less than theta_hat), set z0 = 0. 
+                    % This effectively disables bias correction, causing BCa to fall back to the standard percentile bootstrap 
+                    % (since z0=0, a=0 implies BCa = Percentile).
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
                     if ~isfinite(z0), z0 = 0; end 
     
-                    % Calculate BCa interval limits as percentiles.
+                    % Calculate BCa interval limits as percentiles:
+                    % If a1 or a2 become NaN (due to division by near-zero in the BCa formula),
+                    % fall back to the standard percentile quantiles (alpha/2 and 1-alpha/2).
+                    % This ensures numerical stability without crashing the analysis.
                     z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
                     a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
                     a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
@@ -749,9 +755,11 @@ for metric_idx = 1:num_metrics
         a_d = pair_a_d(k);
         a_r = pair_a_r(k);
         
-        % BCa for Cliff's Delta.
+        % BCa for Cliff's Delta:
+        % If z0 is non-finite, set z0 = 0 (no bias correction -> Fallback to Percentile).
         z0_d = norminv(sum(boot_d < theta_hat_d) / B_ci);
         if ~isfinite(z0_d), z0_d = 0; end
+        % If a1_d or a2_d are NaN -> Fallback to standard percentile quantiles.
         a1_d = normcdf(z0_d + (z0_d + z1) / (1 - a_d * (z0_d + z1)));
         a2_d = normcdf(z0_d + (z0_d + z2) / (1 - a_d * (z0_d + z2)));
         if isnan(a1_d), a1_d = alpha_level / 2; end
@@ -761,9 +769,11 @@ for metric_idx = 1:num_metrics
         temp_z0_d(k) = z0_d;
         temp_a_d(k) = a_d;
         
-        % BCa for Relative Difference.
+        % BCa for Relative Difference:
+        % If z0 is non-finite, set z0 = 0 (no bias correction -> Fallback to Percentile).
         z0_r = norminv(sum(boot_r < theta_hat_r) / B_ci);
         if ~isfinite(z0_r), z0_r = 0; end
+        % If a1_r or a2_r are NaN -> Fallback to standard percentile quantiles.
         a1_r = normcdf(z0_r + (z0_r + z1) / (1 - a_r * (z0_r + z1)));
         a2_r = normcdf(z0_r + (z0_r + z2) / (1 - a_r * (z0_r + z2)));
         if isnan(a1_r), a1_r = alpha_level / 2; end
