@@ -180,7 +180,6 @@ If you are new to HERA, this is the recommended mode.
 At any point, you can exit the interface by typing `exit` or `quit` or `q`.
 
 ```matlab
-import HERA.start_ranking
 HERA.start_ranking()
 ```
 
@@ -189,7 +188,6 @@ HERA.start_ranking()
 For automated analysis or reproducible research, use a JSON configuration file.
 
 ```matlab
-import HERA.start_ranking
 HERA.start_ranking('configFile', 'config.json')
 ```
 
@@ -290,8 +288,6 @@ HERA-Matlab/
 * **Format**: CSV or Excel (`.xlsx`).
 * **Organization**: One file per metric.
 * **Filename**: Must match `metric_names` (e.g., `Accuracy.csv`).
-* **Format**: CSV or Excel (`.xlsx`).
-* **Organization**: One file per metric.
 * **Dimensions**: Rows = Subjects (*N*), Columns = Methods (*M*).
 * **Consistency**: All files must have identical dimensions.
 
@@ -540,8 +536,8 @@ variance or flat likelihood landscapes may fail to converge within
     as per literature recommendations.
 
 > **Reproducibility Note:** Visual inspection of convergence plots is strongly recommended
-> for final reporting! All procedures should use the same fixed random seed for full
-> reproducibility.
+> for final reporting! All procedures should use the same fixed random seed for
+> full reproducibility.
 
 </details>
 
