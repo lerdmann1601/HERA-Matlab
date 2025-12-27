@@ -36,7 +36,7 @@ We prioritize Optical Contrast (OC) as the primary metric, given its strong corr
 
 ### Interpreting the results 1
 
-The hole analysis took about 4 Minitues to complete on my Laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM). The final report PDF provides guidance on interpreting the results. Detailed Statistics are provided in the Ranking Report PDF. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
+The whole analysis took about 4 Minutes to complete on my Laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM). The final report PDF provides guidance on interpreting the results. Detailed Statistics are provided in the Ranking Report PDF. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
 
 The Sankey Diagram reveals that Method F's ranking is largely driven by its high SNR. The rank distribution under resampling conditions indicates that Method F frequently achieves a higher rank than Method A. Analysis of the Win-Loss Matrix and the CSV log file suggests that Method A outranks Method F partly due to a win in SNR against Method E, albeit with only 50% power.
 

@@ -2,9 +2,8 @@ classdef ScientificSuite < matlab.unittest.TestCase
     % SCIENTIFICSUITE - Master Test Suite for HERA Scientific Validation
     %
     % Description:
-    %   This class orchestrates the execution of 19 complex scientific validation
-    %   tests. Each test corresponds to a specific logic requirement or math
-    %   boundary case in the HERA ranking algorithm.
+    %   This class orchestrates the execution of 19 complex scientific validation tests. 
+    %   Each test corresponds to a specific logic requirement or math boundary case in the HERA.
     %
     % Architecture:
     %   - Delegates internal logic to: +HERA/+test/+cases/tXX_*.m
