@@ -273,6 +273,9 @@ if num_metrics >= 2 && (strcmp(ranking_mode, 'M1_M2') || strcmp(ranking_mode, 'M
     end
     
     if iteration_count >= max_iterations
+        % Cycle Detection:
+        % If the sorting loop does not converge (cycle), revert to the stable ranking 
+        % from the previous stage to ensure determinism.
         warning('Ranking stopped at max iterations. Cycle detected. Reverting to initial order.');
         final_order = backup_order_m2;
         swap_count_metric2 = 0;
@@ -385,6 +388,9 @@ elseif num_metrics == 3 && strcmp(ranking_mode, 'M1_M2_M3')
     end
     
     if iteration_count >= max_iterations
+        % Cycle Detection:
+        % If the sorting loop does not converge (cycle), revert to the stable ranking 
+        % from the previous stage to ensure determinism.
         warning('Ranking stopped at max iterations. Cycle detected. Reverting to previous order.');
         final_order = backup_order_3b;
         swap_count_metric3b = 0;

@@ -98,10 +98,10 @@ classdef SystemTests < matlab.unittest.TestCase
             testCase.verifyTrue(isfield(results, 'd_vals_all'), 'Results missing d_vals_all');
             
             % Verify internal logic worked (M1 should dictate order due to strong signal)
-            expected_order = [5, 4, 3, 2, 1]; % Descending means (5 is best/highest in Data Gen?) 
-            % Wait, standard HERA logic logic assumes higher is better? 
-            % Actually, HERA defaults depend on logic. Let's just check valid output first.
+            expected_order = [5, 4, 3, 2, 1];
+            % Verify internal logic: Strong M1 signal dictates order (M2 is noise)
             testCase.verifyEqual(length(results.final_rank), 5, 'Rank length mismatch');
+            testCase.verifyEqual(results.final_rank(:), expected_order(:), 'Final rank order does not match expected hierarchy');
         end
         
         function test_BatchMode(testCase)
