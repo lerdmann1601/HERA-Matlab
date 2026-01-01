@@ -19,6 +19,10 @@ function rel_diff = relative_difference(x, y)
 %
 % Author: Lukas von Erdmannsdorff
 
+    % Force column vectors if input is a simple row vector
+    if isrow(x) && isvector(x), x = x(:); end
+    if isrow(y) && isvector(y), y = y(:); end
+
     % Calculate means (assumes data is clean, NaN handling is caller's responsibility)
     mx = mean(x, 1);
     my = mean(y, 1);

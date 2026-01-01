@@ -43,6 +43,11 @@ function d = cliffs_delta(x, y, mat_limit)
 % Author: Lukas von Erdmannsdorff
 
     % Check for Matrix (Vectorized) Mode
+    
+    % Force column vectors if input is a simple row vector
+    if isrow(x) && isvector(x), x = x(:); end
+    if isrow(y) && isvector(y), y = y(:); end
+
     % If both inputs are matrices with same number of columns > 1, treat as B independent pairs
     [rx, cx] = size(x);
     [ry, cy] = size(y);
