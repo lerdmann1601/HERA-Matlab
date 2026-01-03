@@ -7,7 +7,7 @@ Description:
   1. Sets up the necessary directory structure.
   2. Iterates through data folders (sorted by alpha).
   3. Runs the HERA analysis (via compiled runtime or local script).
-  4. Analyzes the results, specifically calculating Confidence Intervals (CIs) from bootstrap ranks.
+  4. Analyzes the results, calculating Confidence Intervals (CIs) from bootstrap ranks of not using pre-calculated CIs from JSON.
   5. Prunes the results to retain only the transition point and stable regions where methods overlap.
   6. Generates a stability curve plot.
 
@@ -144,7 +144,7 @@ class HERAWorkflow:
                  
     def create_hera_config(self, input_path: Path, output_path: Path) -> dict[str, Any]:
         """
-        3. Creates the JSON configuration structure for HERA.
+        2. Creates the JSON configuration structure for HERA.
         
         Constructs the dictionary expected by the HERA runtime.
 
@@ -225,7 +225,7 @@ class HERAWorkflow:
 
     def run_hera(self, config_path: Path) -> bool:
         """
-        4. Executes HERA using the compiled runtime/launcher.
+        3. Executes HERA using the compiled runtime/launcher.
         
         Locates the executable and runs it with the provided configuration.
 
@@ -332,7 +332,7 @@ class HERAWorkflow:
 
     def analyze_results(self, json_path: Path) -> dict[str, Any]:
         """
-        5. Analysis: Reads ranking info and calculates CIs from bootstrap ranks.
+        4. Analysis: Reads ranking info and calculates CIs from bootstrap ranks.
         
         Specific logic to extract bootstrap distributions and compute percentiles.
 
@@ -466,7 +466,7 @@ class HERAWorkflow:
 
     def prune_and_plot(self, results: list[dict[str, Any]]) -> None:
         """
-        6. Pruning and Plotting Logic.
+        5. Pruning and Plotting Logic.
         
         Applies pruning rules to the aggregated results and triggers plotting.
         
@@ -544,7 +544,7 @@ class HERAWorkflow:
 
     def plot_curve(self, data: list[dict[str, Any]], first_overlap_index: int = -1, all_results: list[dict[str, Any]] | None = None) -> None:
         """
-        7. Plots Rank G vs B with CIs.
+        6. Plots Rank G vs B with CIs.
         
         Generates the stability analysis plot and saves it to the results directory.
         

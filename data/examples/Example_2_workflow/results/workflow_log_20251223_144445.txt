@@ -1,38 +1,38 @@
 [Info] Logging started. Output saved to: /HERA-Matlab/data/examples/Example_2_workflow/results/workflow_log_20251223_144445.txt
 
 --- Starting Processing Loop ---
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_50/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_50/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_45/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_45/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_40/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_40/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_35/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_35/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_30/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_30/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_25/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_25/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_20/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_20/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_15/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_15/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_10/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_10/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_5/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_5/config.json
  -> Using pre-calculated CIs from JSON.
- -> Running HERA using: /Users/lukasvonerdmannsdorff/HERA-Matlab/deploy/output/run_HERA_Runtime.sh
- -> Config: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_0/config.json
+ -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
+ -> Config: HERA-Matlab/data/examples/Example_2_workflow/results/Alpha_0/config.json
  -> Using pre-calculated CIs from JSON.
 
 --- Pruning and Plotting ---
