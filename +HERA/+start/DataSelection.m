@@ -50,6 +50,11 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
             folder_prompt = sprintf(lang.prompts.select_folder, userInput.fileType);
             folderPath = uigetdir(pwd, folder_prompt); % Open folder selection dialog.
             
+            if isequal(folderPath, 0)
+                fprintf('%s\n', lang.errors.selection_cancelled); 
+                return; % clean exit
+            end
+            
             [isValid, error_msg, files] = ConfigValidator.validate_folder_content(folderPath, userInput.fileType, lang);
             
             if isValid
@@ -57,7 +62,6 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
                 break; % Exit the loop.
             else
                 fprintf('%s\n', error_msg);
-                if isequal(folderPath, 0), return; end % Exit if cancelled (handled by caller? check return)
             end
         end
         % Extract metric names from the filenames.
