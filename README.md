@@ -662,12 +662,14 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 
 HERA generates a timestamped directory containing:
 
-* **`Output/results.csv`**: Final ranking table (Mean ± SD).
-* **`Output/analysis_data.json`**: Complete analysis record (Inputs, Config,
-  Stats, Results) for matlab independent processing.
-* **`Output/log.csv`**: Detailed log of pairwise comparisons and logic.
+* **`Output/*_results.csv`**: Final ranking table (Mean ± SD).
+* **`Output/*_data.json`**: Complete analysis record (Inputs, Config,
+  Stats, Results) for matlab independent processing and AI training.
+* **`Output/*_log.csv`**: Detailed log of pairwise comparisons and logic.
 * **`Graphics/`**: High-res PNGs (Win-Loss Matrices, Sankey Diagrams).
 * **`PDF/`**: Compiled reports (Ranking Report, Convergence Report).
+* **`Ranking_*.txt`**: Complete console log of the session.
+* **`configuration.json`**: Reusable configuration file to reproduce the run.
 
 ---
 

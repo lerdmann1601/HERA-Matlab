@@ -134,10 +134,29 @@ function [userInput, setupData] = setup_environment(userInput)
 
     %% 2. Environment Initialization
     % Create a unique output folder name using the current timestamp.
-    timestamp_folder = string(datetime('now'), 'yyyyMMdd_HHmmss');
-    output_dir_name = "Ranking_" + timestamp_folder;
-    output_dir = fullfile(userInput.output_dir, output_dir_name);
-    mkdir(output_dir);
+    base_ts = string(datetime('now'), 'yyyyMMdd_HHmmss');
+    
+    % Try-Create loop to ensure unique folder names (safe for parallel processing)
+    counter = 0;
+    while true
+        if counter == 0
+            timestamp_folder = base_ts;
+        else
+            timestamp_folder = base_ts + "_" + counter;
+        end
+        
+        output_dir_name = "Ranking_" + timestamp_folder;
+        output_dir = fullfile(userInput.output_dir, output_dir_name);
+        
+        % Try to create directory
+        [status, ~, msgID] = mkdir(output_dir);
+        
+        % Success if we created it (msgID is empty). If msgID is 'DirectoryExists', retry.
+        if status == 1 && isempty(msgID)
+            break; 
+        end
+        counter = counter + 1;
+    end
 
     % Create subdirectories for organized output.
     % The 'Graphics' folder is always created to store diagnostic convergence plots.
