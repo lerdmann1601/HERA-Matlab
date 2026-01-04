@@ -112,11 +112,9 @@ num_datasets_b = size(all_data{1}, 2);
 n_subj_b = num_probanden;
 num_metrics = numel(all_data); % Get dynamic number of metrics
 
-% Create a dedicated subfolder for the ranking stability plots.
+% Create a dedicated subfolder for the bootstrap_ranking plots.
 subfolder_ranking = fullfile(graphics_dir, 'Ranking');
-if ~exist(subfolder_ranking, 'dir')
-    mkdir(subfolder_ranking);
-end
+
 % Initialize output arrays for figure handles to prevent errors if no plots are generated.
 h_figs_rank = gobjects(0);
 h_fig_hist_rank = gobjects(0); 
@@ -368,6 +366,7 @@ else
 
     if isgraphics(h_fig_rank)
          % Save graphic.
+        if ~exist(subfolder_ranking, 'dir'); mkdir(subfolder_ranking); end
         [~, fName, fExt] = fileparts(lang.files.convergence_rank_stability);
         filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
         exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
@@ -542,6 +541,7 @@ if isfield(config, 'create_reports') && config.create_reports
 
     if isgraphics(h_fig_hist_rank)
         % Save the complete histogram figure to a file.
+        if ~exist(subfolder_ranking, 'dir'); mkdir(subfolder_ranking); end
         [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_ranks);
         filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
         exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
