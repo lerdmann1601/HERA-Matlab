@@ -287,9 +287,15 @@ HERA-Matlab/
 
 * **Format**: CSV or Excel (`.xlsx`).
 * **Organization**: One file per metric.
-* **Filename**: Must match `metric_names` (e.g., `Accuracy.csv`).
-* **Dimensions**: Rows = Subjects (*N*), Columns = Methods (*M*).
-* **Consistency**: All files must have identical dimensions.
+* **Filename**: The filename (excluding extension) must strictly match the
+    corresponding entry in `metric_names` (e.g., `Accuracy.csv` for metric
+    `Accuracy`).
+* **Dimensions**: Rows = Observations (*n*, e.g., Subjects), Columns =
+    Datasets (*N*, e.g., Methods).
+* **Consistency**: All files must have identical dimensions. Uneven sample sizes
+    (missing data) are handled by automatic `NaN` padding (empty cells) to
+    ensure a uniform matrix size, and pairwise deletion is applied during
+    analysis.
 
 </details>
 <!-- markdownlint-enable MD033 -->
@@ -315,6 +321,12 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
     from FWER corrections makes detecting true differences unlikely. However,
     it is possible to use HERA with *N* > 15 and you can just give it a try.
 
+> **Visual Limit (*N* ≤ 20)**: While HERA should technically compute rankings
+> for any *N* (exported to CSV/JSON), the generated plots (e.g. Win-Loss Matrix,
+> Final Summary) visually degrade beyond *N* = 20. For *N* > 20, I recommend
+> relying on the machine-readable and text-based outputs. You can disable plots
+> (`create_reports: false`) to save runtime.
+
 **Sample Size (*n*):**
 A balance between statistical stability and computational feasibility is
 required.
@@ -332,6 +344,26 @@ required.
 
 > **Recommendation:** Perform an *a priori* power analysis to estimate the
 > required *n* for your chosen *N*.
+
+**Missing Data Handling (NaN):**
+HERA is robust against missing data (`NaN`) but handling it comes with trade-offs:
+
+* **Pairwise Deletion**: HERA employs pairwise deletion to maximize data
+    usage without requiring complex imputation. While this assumes data is missing
+    completely at random (MCAR), it remains methodologically robust: By relying
+    on discrete, independent pairwise comparisons, the algorithm avoids the
+    mathematical inconsistencies (e.g., non-positive definite matrices) that
+    typically compromise pairwise deletion in global multivariate statistics.
+* **Robust Bootstrapping**: If `NaN`s are detected, HERA automatically switches
+    to a "Robust Path". This dynamically filters invalid data for each bootstrap
+    resample to ensure correctness, which **significantly increases runtime**
+    especially for large sample sizes (*n*).
+* **Automatic Warning**: A warning is issued if valid data drops below 80% for
+    any comparison however it is not a strict requirement.
+
+> **Recommendation**: Minimize `NaN`s to preserve statistical power and
+> performance. For critical analyses with substantial data loss, use
+> validated imputation methods (e.g., MICE) *before* running HERA.
 
 </details>
 <!-- markdownlint-enable MD033 -->
@@ -461,7 +493,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `system.jack_vec_limit` | int | `150` | Max N for vectorized Jackknife calculations. |
 | | `system.delta_mat_limit` | int | `30000` | Max N*M product for matrix-based Cliff's Delta. |
 | | `system.min_batch_size` | int | `100` | Min batch size for parallel processing. |
-| **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. |
+| **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. If `false`, only essential convergence and diagnostics plots are saved. |
 | | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
 | | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |

@@ -128,6 +128,9 @@ function [userInput, setupData] = setup_environment(userInput)
     if isfield(userInput, 'ranking_mode')
         userInput.config.ranking_mode = userInput.ranking_mode;
     end
+    
+    % Ensure create_reports is synced to config for deep functions
+    userInput.config.create_reports = userInput.create_reports;
 
     %% 2. Environment Initialization
     % Create a unique output folder name using the current timestamp.

@@ -535,15 +535,18 @@ final_bootstrap_ranks = [rank_batches{:}];
 HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, selected_B_final, lang, csv_dir, ts);
 
 %% 6. Create and save the histogram distribution of the final ranks
-h_fig_hist_rank = HERA.plot.rank_histograms(final_bootstrap_ranks, dataset_names, ...
-                                            final_rank, selected_B_final, styles, lang);
+% Only create this plot if reports are enabled
+if isfield(config, 'create_reports') && config.create_reports
+    h_fig_hist_rank = HERA.plot.rank_histograms(final_bootstrap_ranks, dataset_names, ...
+                                                final_rank, selected_B_final, styles, lang);
 
-if isgraphics(h_fig_hist_rank)
-    % Save the complete histogram figure to a file.
-    [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_ranks);
-    filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-    exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
-    fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
+    if isgraphics(h_fig_hist_rank)
+        % Save the complete histogram figure to a file.
+        [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_ranks);
+        filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
+        exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
+        fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
+    end
 end
 
 %% 7. Calculate Rank Confidence Intervals

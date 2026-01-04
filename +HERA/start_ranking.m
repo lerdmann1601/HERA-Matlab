@@ -395,7 +395,7 @@ while true
             case lang.general.start_char
                 fprintf([lang.prompts.starting_analysis '\n\n']);
                 try
-                    % Sanitize configuration (Simulate JSON trip to fix R2025b parfor issues in Manual Mode, this was a realy annoing bug!!!)
+                    % Sanitize configuration to ensure data integrity.
                     % Also handles string-to-number conversion for manual entries.
                     userInput = Utils.clean_struct(userInput);
                    
