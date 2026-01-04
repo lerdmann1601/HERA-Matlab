@@ -662,12 +662,21 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 
 HERA generates a timestamped directory containing:
 
-* **`Output/*_results.csv`**: Final ranking table (Mean ± SD).
-* **`Output/*_data.json`**: Complete analysis record (Inputs, Config,
+* **`Output/results_*.csv`**: Final ranking table (Mean ± SD of metrics
+  and rank CI).
+* **`Output/data_*.json`**: Complete analysis record (Inputs, Config,
   Stats, Results) for matlab independent processing and AI training.
-* **`Output/*_log.csv`**: Detailed log of pairwise comparisons and logic.
-* **`Graphics/`**: High-res PNGs (Win-Loss Matrices, Sankey Diagrams).
-* **`PDF/`**: Compiled reports (Ranking Report, Convergence Report).
+* **`Output/log_*.csv`**: Detailed log of pairwise comparisons and logic.
+* **`Output/sensitivity_details_*.csv`**: Results of the Borda sensitivity analysis.
+* **`Output/BCa_Correction_Factors_*.csv`**: Correction factors (Bias/Skewness)
+  for BCa CIs.
+* **`Output/bootstrap_rank_*.csv`**: Complete distribution of bootstrapped ranks.
+* **`Output/Final_Ranking_*.png`**: Summary graphic of ranking result.
+* **`Output/Final_Report_*.pdf`**: Consolidated graphical report of the main results.
+* **`Graphics/`**: High-res PNGs organized in subfolders (`Ranking/`, `Detail_Comparison/`,
+  `CI_Histograms/`, `Threshold_Analysis/`).
+* **`PDF/`**: Specialized reports (`Ranking_Report.pdf`, `Convergence_Report.pdf`,
+  `Bootstrap_Report.pdf`).
 * **`Ranking_*.txt`**: Complete console log of the session.
 * **`configuration.json`**: Reusable configuration file to reproduce the run.
 
