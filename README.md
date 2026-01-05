@@ -313,7 +313,7 @@ but should not be taken as strict requirements.
 Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 *N*(*N*-1)/2), which reduces statistical power due to strict corrections.
 
-* **Minimum (*N*=3)**: Required for a meaningful ranking. (*N*=2 is just a
+* **Minimum (*N* = 3)**: Required for a meaningful ranking. (*N* = 2 is just a
     simple comparison).
 * **Optimal (*N* ≈ 8–10)**: Balances ranking depth with statistical
     power (28–45 comparisons).
@@ -338,7 +338,7 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 A balance between statistical stability and computational feasibility is
 required.
 
-* **Minimum (*n*=16)**: Required for the Wilcoxon test to use the Normal
+* **Minimum (*n* = 16)**: Required for the Wilcoxon test to use the Normal
     Approximation in Matlab.
 * **Robust Min (*n* ≈ 25–30)**: Necessary for stable BCa confidence
     intervals and Jackknife estimates (Although it automatically switches
