@@ -326,6 +326,13 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 > Final Summary) visually degrade beyond *N* = 20. For *N* > 20, I recommend
 > relying on the machine-readable and text-based outputs. You can disable plots
 > (`create_reports: false`) to save runtime.
+>
+> **Recommendation:**
+> If you have a large pool of candidates (*N* >> 15), it could be a good idea to
+> apply a global screening method (e.g., **Friedman Test** followed by Nemenyi post-hoc)
+> to identify the top tier of algorithms. Ranking the entire set with HERA may be
+> overly strict; instead, select the top performing subset (e.g., the best 10-15)
+> and use HERA for the final ranking of the best candidates.
 
 **Sample Size (*n*):**
 A balance between statistical stability and computational feasibility is
@@ -364,6 +371,25 @@ HERA is robust against missing data (`NaN`) but handling it comes with trade-off
 > **Recommendation**: Minimize `NaN`s to preserve statistical power and
 > performance. For critical analyses with substantial data loss, use
 > validated imputation methods (e.g., MICE) *before* running HERA.
+
+**Number of Metrics (*M* ≤ 3):**
+HERA is designed for a maximum of 3 hierarchical metrics to maintain methodological
+robustness. This limit is inherent to the hierarchical-compensatory design and is
+based on the following methodological considerations:
+
+* **Loss of Interpretability**: With every additional hierarchical level, the causal
+    chain of the ranking decision becomes opaque and increasingly difficult to trace.
+    Limiting the depth to 3 levels ensures that the ranking logic remains transparent
+    and empirically justifiable.
+* **Increased Risk of Collinearity**: Adding more metrics increases the probability
+    of introducing redundant criteria (e.g., two metrics measuring valid features
+    of the same underlying property). In a sequential logic, these correlates
+    would be falsely treated as independent evidence, distorting the ranking.
+* **Functional Saturation**: The hierarchical-compensatory logic is fully saturated
+    by three levels (Sorting, Correction, Finalization). Adding a fourth metric
+    yields diminishing margins of utility, as the probability of meaningful rank
+    adjustments approaches zero, while the complexity of the decision model
+    increases disproportionately.
 
 </details>
 <!-- markdownlint-enable MD033 -->
