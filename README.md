@@ -734,7 +734,6 @@ You can run the test suite in three ways:
     file.
 
     ```matlab
-    import HERA.run_unit_test
     HERA.run_unit_test()
     ```
 
