@@ -494,7 +494,10 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 
 </details>
 
-**Parameter Dictionary:**
+</details>
+
+<details>
+<summary><strong>Parameter Dictionary</strong></summary>
 
 <!-- markdownlint-disable MD013 MD060 -->
 | Category | Parameter | Type | Default | Description |
