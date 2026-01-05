@@ -531,7 +531,10 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `bootstrap_ci` | struct | (See Below) | Config for CI convergence. |
 | | `bootstrap_ranks` | struct | (See Below) | Config for Rank Stability convergence. |
 
-**Detailed Bootstrap Configuration (Auto-Convergence):**
+</details>
+
+<details>
+<summary><strong>Bootstrap Configuration (Auto-Convergence)</strong></summary>
 
 The `bootstrap_*` structs (e.g., `bootstrap_thresholds`) support the following
 nested parameters to control the convergence algorithm:
