@@ -703,9 +703,7 @@ Ranking_<Timestamp>/
 │   ├── log_*.csv                     % Detailed log of pairwise comparisons and logic
 │   ├── sensitivity_details_*.csv     % Results of the Borda sensitivity analysis
 │   ├── BCa_Correction_Factors_*.csv  % Correction factors (Bias/Skewness) for BCa CIs
-│   ├── bootstrap_rank_*.csv          % Complete distribution of bootstrapped ranks
-│   ├── Final_Ranking_*.png           % Summary graphic of ranking result
-│   └── Final_Report_*.pdf            % Consolidated graphical report of the main results
+│   └── bootstrap_rank_*.csv          % Complete distribution of bootstrapped ranks
 ├── Graphics/                         % High-res PNGs organized in subfolders
 │   ├── Ranking/
 │   ├── Detail_Comparison/
@@ -715,6 +713,8 @@ Ranking_<Timestamp>/
 │   ├── Ranking_Report.pdf
 │   ├── Convergence_Report.pdf
 │   └── Bootstrap_Report.pdf
+├── Final_Ranking_*.png               % Summary graphic of ranking result
+├── Final_Report_*.pdf                % Consolidated graphical report of the main results
 ├── Ranking_*.txt                     % Complete console log of the session
 └── configuration.json                % Reusable configuration file to reproduce the run
 ```
