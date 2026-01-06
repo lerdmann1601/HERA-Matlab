@@ -599,9 +599,11 @@ variance or flat likelihood landscapes may fail to converge within
     use fixed high *B* values (e.g., `manual_B_ci = 15000`, `manual_B_thr = 2000`)
     as per literature recommendations.
 
-> **Reproducibility Note:** Visual inspection of convergence plots is strongly recommended
-> for final reporting! All procedures should use the same fixed random seed for
-> full reproducibility.
+> **Reproducibility Note:** Visual inspection of convergence plots is strongly
+> recommended for final reporting! If the automated check finds convergence too
+> early (e.g., in robust mode), you can make the parameters stricter (e.g.,
+> decrease `convergence_tolerance` or increase `B_step` and/or `B_start`). All
+> procedures should use the same fixed random seed for full reproducibility.
 
 </details>
 
