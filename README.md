@@ -694,23 +694,31 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 
 HERA generates a timestamped directory containing:
 
-* **`Output/results_*.csv`**: Final ranking table (Mean ± SD of metrics
-  and rank CI).
-* **`Output/data_*.json`**: Complete analysis record (Inputs, Config,
-  Stats, Results) for matlab independent processing and AI training.
-* **`Output/log_*.csv`**: Detailed log of pairwise comparisons and logic.
-* **`Output/sensitivity_details_*.csv`**: Results of the Borda sensitivity analysis.
-* **`Output/BCa_Correction_Factors_*.csv`**: Correction factors (Bias/Skewness)
-  for BCa CIs.
-* **`Output/bootstrap_rank_*.csv`**: Complete distribution of bootstrapped ranks.
-* **`Output/Final_Ranking_*.png`**: Summary graphic of ranking result.
-* **`Output/Final_Report_*.pdf`**: Consolidated graphical report of the main results.
-* **`Graphics/`**: High-res PNGs organized in subfolders (`Ranking/`, `Detail_Comparison/`,
-  `CI_Histograms/`, `Threshold_Analysis/`).
-* **`PDF/`**: Specialized reports (`Ranking_Report.pdf`, `Convergence_Report.pdf`,
-  `Bootstrap_Report.pdf`).
-* **`Ranking_*.txt`**: Complete console log of the session.
-* **`configuration.json`**: Reusable configuration file to reproduce the run.
+<!-- markdownlint-disable MD013 -->
+```text
+Ranking_<Timestamp>/
+├── Output/
+│   ├── results_*.csv                 % Final ranking table (Mean ± SD of metrics and rank CI)
+│   ├── data_*.json                   % Complete analysis record (Inputs, Config, Stats, Results)
+│   ├── log_*.csv                     % Detailed log of pairwise comparisons and logic
+│   ├── sensitivity_details_*.csv     % Results of the Borda sensitivity analysis
+│   ├── BCa_Correction_Factors_*.csv  % Correction factors (Bias/Skewness) for BCa CIs
+│   ├── bootstrap_rank_*.csv          % Complete distribution of bootstrapped ranks
+│   ├── Final_Ranking_*.png           % Summary graphic of ranking result
+│   └── Final_Report_*.pdf            % Consolidated graphical report of the main results
+├── Graphics/                         % High-res PNGs organized in subfolders
+│   ├── Ranking/
+│   ├── Detail_Comparison/
+│   ├── CI_Histograms/
+│   └── Threshold_Analysis/
+├── PDF/                              % Specialized reports
+│   ├── Ranking_Report.pdf
+│   ├── Convergence_Report.pdf
+│   └── Bootstrap_Report.pdf
+├── Ranking_*.txt                     % Complete console log of the session
+└── configuration.json                % Reusable configuration file to reproduce the run
+```
+<!-- markdownlint-enable MD013 -->
 
 ---
 
