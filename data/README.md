@@ -24,7 +24,7 @@ You can use the datasets in `examples/` to run HERA. Please use enough CPU cores
 This directory contains synthetic datasets used for testing and validating the HERA toolbox. These datasets are synthetic but based on characteristics of real MRI Images. The original datasets are not included in this repository and results with these will be published in a future paper. As an example for quality metrics to objectively evaluate image quality, we use Optical Contrast (OC), Signal-to-Noise Ratio (SNR) and Contrast-to-Noise Ratio (CNR). These metrics and the way they were calculated and prioritized for the HERA analysis are based on the concept and results of Noeth et al., NMR Biomed. 2015; 28: 818-830.
 
 > [!NOTE]
-> The results shown in this repository may differ slightly from those obtained when running the current version of the toolbox. This is due to numerical instabilities inherent in statistical processes such as bootstrapping. Some functions have been modified since the original test results were generated. For didactic purposes, the original results are preserved as-is.
+> The results shown in this repository will differ from those obtained when running the current version of HERA. This is due to several functions that have been modified since the original test results were generated. This leeds to numerical instabilities inherent in statistical processes such as bootstrapping. For didactic purposes, the original results are preserved as-is. However if you run the current HERA version using the provided datasets it should produce the same output regardless of the hardware and OS. 
 
 <!-- markdownlint-disable MD033 -->
 <details>
