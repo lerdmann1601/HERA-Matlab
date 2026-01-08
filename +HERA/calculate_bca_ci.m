@@ -310,24 +310,11 @@ else
                 % RNG Strategy:
                 %   - Preserves bit-perfect sequences via column-wise randi generation.
                 
-                % Dynamic batch sizing based on memory configuration.
-                if isfield(config, 'system') && isfield(config.system, 'target_memory')
-                     TARGET_MEMORY_LOC = config.system.target_memory;
-                     if numel(TARGET_MEMORY_LOC) > 1, TARGET_MEMORY_LOC = TARGET_MEMORY_LOC(1); end
-                else
-                     TARGET_MEMORY_LOC = 200;
-                end
-                
-                effective_memory_loc = TARGET_MEMORY_LOC;
+                % Dynamic batch sizing
                 bytes_per_sample = num_probanden * 8; % Double precision
-                total_memory_needed = (double(B_ci_current) * double(bytes_per_sample)) / (1024^2);
                 
-                if total_memory_needed <= double(effective_memory_loc)
-                     BATCH_SIZE_PAR = double(B_ci_current);
-                else
-                     BATCH_SIZE_PAR = max(min_batch_size, min(floor((double(effective_memory_loc) * 1024^2) / double(bytes_per_sample)), 20000));
-                end
-                num_batches_par = double(ceil(double(B_ci_current) ./ BATCH_SIZE_PAR));
+                % Use helper to determine batch size
+                [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, B_ci_current, bytes_per_sample);
 
                 % --- Inner Parallel Loop (Trials) ---
                 % Parallelizes the bootstrap trials to ensure maximum core utilization.
@@ -530,30 +517,6 @@ a_d_all = NaN(num_pairs, num_metrics);
 z0_r_all = NaN(num_pairs, num_metrics);
 a_r_all = NaN(num_pairs, num_metrics);
 
-
-% Dynamic batch sizing based on memory configuration.
-if isfield(config, 'system') && isfield(config.system, 'target_memory')
-     TARGET_MEMORY = config.system.target_memory;
-     if numel(TARGET_MEMORY) > 1
-         TARGET_MEMORY = TARGET_MEMORY(1);
-     end
-else
-     TARGET_MEMORY = 200;
-end
-
-% Get worker count for memory estimation (parfor broadcasts data to all workers).
-if isfield(config, 'num_workers') && isnumeric(config.num_workers)
-    num_workers = config.num_workers;
-    if numel(num_workers) > 1
-        num_workers = num_workers(1);
-    end
-else
-    num_workers = feature('numcores');
-end
-
-% Effective memory per batch accounts for parfor broadcast overhead.
-effective_memory = TARGET_MEMORY / max(1, num_workers);
-
 % Use substream offset to avoid overlap with stability analysis phase.
 OFFSET_BASE_CI = 1000;
 
@@ -647,24 +610,9 @@ for metric_idx = 1:num_metrics
     max_n_valid = max(pair_n_valid);
     if max_n_valid < 2, max_n_valid = 2; end
     bytes_per_sample = max_n_valid * 8 * 2;  % x and y bootstrap samples
-    % Smart batching: Use one batch if total memory fits, otherwise split.
-    total_memory_needed = (double(B_ci) * double(bytes_per_sample)) / (1024^2);
     
-    if total_memory_needed <= double(effective_memory)
-        BATCH_SIZE = double(B_ci);
-    else
-        BATCH_SIZE = max(min_batch_size, floor((double(effective_memory) * 1024^2) / double(bytes_per_sample)));
-    end
-    
-    num_batches = double(ceil(double(B_ci) ./ BATCH_SIZE));
-    if numel(num_batches) > 1
-         num_batches = num_batches(1);
-    end
-    % EXTRA SAFETY for parfor
-    if isempty(num_batches) || any(isnan(num_batches)) || any(isinf(num_batches))
-        num_batches = 1;
-    end
-    num_batches = double(int32(round(num_batches)));
+    % Use helper to determine batch size (Final Phase)
+    [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, B_ci, bytes_per_sample);
     
     % Unique offset for this metric to avoid substream collisions.
     metric_offset = OFFSET_BASE_CI + (metric_idx - 1) * (num_batches + 100);
