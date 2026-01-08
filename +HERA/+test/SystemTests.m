@@ -167,5 +167,72 @@ classdef SystemTests < matlab.unittest.TestCase
                 fprintf('\n[DEBUG] Captured Output from start_ranking:\n%s\n', T);
             end
         end
+        
+        function NaN_Robustness(testCase)
+            % Test 3: NaN Robustness (Developer Mode)
+            % Verifies that the pipeline handles missing data (NaNs) gracefully
+            % and produces the expected ranking despite data gaps. This ensures
+            % the entire stack (bootstrap, effect sizes, ranking) works with dirty data.
+            
+            fprintf('\n[SystemTest] NaN Robustness Check...\n');
+            
+            % 1. Prepare Mock Data (1 Metric, 3 Methods)
+            rng(999);
+            n = 50;
+            
+            % Method A: Strong Signal (Mean +5), Valid Data -> Rank 1
+            mA = randn(n, 1) + 5;
+            
+            % Method B: Medium Signal (Mean +2), 20% NaNs -> Rank 2
+            mB = randn(n, 1) + 2;
+            idx_nan = randperm(n, round(n * 0.2));
+            mB(idx_nan) = NaN;
+            
+            % Method C: Noise (Mean 0), Valid Data -> Rank 3
+            mC = randn(n, 1);
+            
+            % Combine into [Subjects x Methods] matrix
+            data_mat = [mA, mB, mC];
+            custom_data = {data_mat}; % Cell array for metrics
+            
+            % 2. Setup User Input
+            userInput = struct();
+            userInput.custom_data = custom_data;
+            userInput.metric_names = {'SignalMetric'};
+            userInput.dataset_names = {'MethodA', 'MethodB', 'MethodC'};
+            userInput.ranking_mode = 'M1_M2_M3'; % Use full logic to stress test all components
+            userInput.output_dir = fullfile(testCase.tempDir, 'NaNOutput');
+            userInput.create_reports = false;
+            userInput.reproducible = true;
+            userInput.seed = 123;
+            userInput.language = 'en';
+            
+            % 3. Run Ranking (Capture output)
+            originalLog = get(0, 'DiaryFile'); % Save diary state
+            originalState = get(0, 'Diary');
+            
+            try
+                [~, results] = evalc('HERA.run_ranking(userInput);');
+            catch ME
+                testCase.verifyFail(['Ranking failed with NaNs: ' ME.message]);
+                return; % Exit if crashed
+            end
+            
+            % Restore diary
+            if strcmp(originalState, 'on')
+                diary(originalLog);
+            end
+            
+            % 4. Verify Results
+            % Expected Order: MethodA (1), MethodB (2), MethodC (3)
+            expected_order = [1; 2; 3];
+            
+            testCase.verifyEqual(results.final_rank(:), expected_order, 'Ranking order incorrect despite signal strength (NaN handling issue?)');
+            
+            % Verify that NaN warnings were triggered/handled (indirectly via success)
+            % Verify internal calculations didn't propagate NaNs to final effect sizes
+            % (HERA typically filters NaNs before calc, so effect sizes should be numeric)
+            testCase.verifyFalse(any(isnan(results.d_vals_all(:))), 'Final effect sizes contain NaNs');
+        end
     end
 end
