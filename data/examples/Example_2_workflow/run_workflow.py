@@ -188,12 +188,16 @@ class HERAWorkflow:
              if custom_path.exists():
                  return custom_path
         
-        # 2. Check Standard Release/Deploy Paths
+        # 2. Check Release/Deploy and Standard Installation Paths
         potential_dirs = [
             BASE_DIR.parent.parent.parent / "release" / "macos",   # Release structure (Mac)
             BASE_DIR.parent.parent.parent / "release" / "windows", # Release structure (Win)
             BASE_DIR.parent.parent.parent / "release" / "linux",   # Release structure (Linux)
             BASE_DIR.parent.parent.parent / "deploy" / "output",   # Local Build
+            Path("/Applications/HERA_Runtime/application"),               # MacOS Default
+            Path("C:/Program Files/HERA_Runtime/application"),            # Windows Default
+            Path(f"{Path.home()}/Applications/HERA_Runtime/application"), # MacOS/Linux User Local
+            Path("/usr/local/HERA_Runtime/application"),                  # Linux System Default
         ]
         
         target_name = HERA_EXECUTABLE_NAME_ENV or DEFAULT_EXE_NAME
