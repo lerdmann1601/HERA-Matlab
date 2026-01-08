@@ -168,7 +168,7 @@ classdef SystemTests < matlab.unittest.TestCase
             end
         end
         
-        function NaN_Robustness(testCase)
+        function test_NaN_Robustness(testCase)
             % Test 3: NaN Robustness (Developer Mode)
             % Verifies that the pipeline handles missing data (NaNs) gracefully
             % and produces the expected ranking despite data gaps. This ensures
