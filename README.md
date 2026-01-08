@@ -727,19 +727,20 @@ Ranking_<Timestamp>/
 ## Testing
 
 HERA includes a comprehensive validation framework (`run_unit_test.m`)
-comprising **32 test cases** organized into four suites:
+comprising **46 test cases** organized into four suites:
 
-1. **Unit Tests** (6 cases): Checks individual components and helper functions
-    to ensure specific parts of the code work correctly.
+1. **Unit Tests** (19 cases): Checks individual components, helper functions, and
+    execution logic (Run/Start packages) to ensure specific parts of the code work
+    correctly.
 2. **Statistical Tests** (5 cases): Verifies the core mathematical functions
     (e.g., Jackknife, Cliff's Delta) and ensures the performance optimizations
     (hybrid switching) work as intended.
 3. **Scientific Tests** (19 cases): Comprehensive validation of ranking logic,
     statistical accuracy, and robustness against edge cases (e.g., zero
     variance, outliers).
-4. **System Tests** (2 cases): Runs the entire HERA pipeline from start to
-    finish to ensure that the JSON configuration (batch) and Developer API are
-    working correctly.
+4. **System Tests** (3 cases): Runs the entire HERA pipeline from start to
+    finish to ensure that the JSON configuration (batch), Developer API and NaN
+    Data handling are working correctly.
 
 ### Running Tests
 
