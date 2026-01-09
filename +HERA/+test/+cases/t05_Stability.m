@@ -44,24 +44,66 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
     ds_names = {'D1', 'D2', 'D3'}; 
     
     try
-        % Run ranking
-        [final_order_z, ~] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2));
+        % Run ranking with full output capture (suppress internal logs)
+        [~] = evalc('[final_order_z, ~, all_sig_z, ~, p_vals_z] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2));');
+        
+        % --- Assertion 1: Effect Sizes must be Zero/Negligible ---
+        % For identical zero-variance data, Cliff's Delta and RelDiff must be 0
+        d_vals_zero = eff_zero.d_vals_all;
+        r_vals_zero = eff_zero.rel_vals_all;
+        
+        effects_are_zero = all(abs(d_vals_zero(:)) < 1e-12) && all(abs(r_vals_zero(:)) < 1e-12);
+        
+        % --- Assertion 2: No Significance Flags ---
+        % With zero variance, no comparison can be significant
+        no_significant_wins = ~any(all_sig_z{1}(:));
+        
+        % --- Assertion 3: No NaNs in P-Values ---
+        % Algorithm must handle division-by-zero gracefully
+        p_mat = p_vals_z{1};
+        no_nans_in_pvals = ~any(isnan(p_mat(:)));
+        
+        % --- Assertion 4: Valid Permutation Output ---
+        % Result must be a valid permutation of [1,2,3]
+        is_valid_permutation = isequal(sort(final_order_z(:)'), [1 2 3]);
+        
+        % --- Assertion 5: Deterministic Result ---
+        % Re-run should produce identical output (suppress internal logs)
+        [~] = evalc('[final_order_z2, ~] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2));');
+        is_deterministic = isequal(final_order_z, final_order_z2);
         
         % Result Table
         fprintf('\n[Result]\n');
-        h_res = {'Outcome', 'Fallback Order'}; 
-        d_align = {'l', 'l'};
-        h_align = {'c', 'c'};
+        h_res = {'Check', 'Value', 'Expected', 'Status'}; 
+        d_align = {'l', 'l', 'l', 'c'};
+        h_align = {'c', 'c', 'c', 'c'};
         
         table_data = {
-            'No Crash', mat2str(final_order_z)
+            'Effect Sizes', sprintf('d=%.2e, r=%.2e', max(abs(d_vals_zero(:))), max(abs(r_vals_zero(:)))), '~0', char(string(effects_are_zero));
+            'Significance Flags', sprintf('%d wins', sum(all_sig_z{1}(:))), '0', char(string(no_significant_wins));
+            'NaN in P-Values', sprintf('%d NaNs', sum(isnan(p_mat(:)))), '0', char(string(no_nans_in_pvals));
+            'Valid Permutation', mat2str(final_order_z(:)'), '[1 2 3] or perm.', char(string(is_valid_permutation));
+            'Deterministic', char(string(is_deterministic)), 'true', char(string(is_deterministic))
         };
         TestHelper.print_auto_table(h_res, table_data, d_align, h_align);
         
-        fprintf('\n[Status] PASS: Stability Check successful.\n');
-        tests_passed = tests_passed + 1;
+        % Final Verdict
+        all_checks_passed = effects_are_zero && no_significant_wins && no_nans_in_pvals && is_valid_permutation && is_deterministic;
+        
+        if all_checks_passed
+            fprintf('\n[Status] PASS: All stability assertions verified.\n');
+            tests_passed = tests_passed + 1;
+        else
+            fprintf('\n[Status] FAIL: Stability assertions failed.\n');
+            if ~effects_are_zero, fprintf('    - Effect sizes not zero.\n'); end
+            if ~no_significant_wins, fprintf('    - Unexpected significance flags.\n'); end
+            if ~no_nans_in_pvals, fprintf('    - NaNs detected in P-values.\n'); end
+            if ~is_valid_permutation, fprintf('    - Invalid output permutation.\n'); end
+            if ~is_deterministic, fprintf('    - Non-deterministic result.\n'); end
+        end
     catch ME
         fprintf('\n[Status] FAIL: Crash detected: %s\n', ME.message);
+        fprintf('[Diag] %s at line %d\n', ME.stack(1).file, ME.stack(1).line);
     end
     
     if tests_passed == 1
