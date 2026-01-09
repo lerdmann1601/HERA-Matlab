@@ -2,9 +2,11 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, ~)
 % T01_SMALLSAMPLE - Test Case 1: Small Sample Size Boundary (Exact Wilcoxon N=10)
 %
 % Description:
-%   Verifies exact p-value calculation for N < 15.
-%   Hypothesis: For N=10, MATLAB's signrank should perform an exact calculation
-%   instead of the asymptotic normal approximation used for larger N.
+% Description:
+%   Verifies exact p-value calculation, signal detection, and ranking correctness 
+%   for small sample sizes (N < 15).
+%   Hypothesis: For N=10, the algorithm must detect a strong signal correctly
+%   (High Effect Size, Low P-Value) using the exact Wilcoxon method.
 %
 % Inputs:
 %   default_config - (struct) Base HERA configuration
@@ -28,7 +30,7 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, ~)
     config = default_config;
     
     n_small = 10;
-    fprintf('[Test] Verifying exact p-value calculation for N < 15.\n');
+    fprintf('[Test] Verifying exact p-value calculation, signal detection, and ranking correctness for N < 15.\n');
     fprintf('[Setup] Using N=%d. Generating Signal (Mean 10) vs Noise (Mean 0).\n', n_small);
     
     % Data Generation

@@ -88,7 +88,7 @@ function passed = t13_PathologicalData(default_config, thresholds, n_subj, ~, ~)
         'Valid Permutation', mat2str(final_order(:)'), '[1 2 3 4] perm.', char(string(is_valid_permutation));
         'M1 Fallback Applied', mat2str(final_order(:)'), '[1 2 3 4]', char(string(is_m1_fallback));
         'Cliff''s Delta (M2)', sprintf('A>B: %.2f, D>A: %.2f', d_m2(1), d_m2(3)), '+, -', char(string(has_cycle_signature));
-        'Rel. Diff (M2)', sprintf('A>B: %.1f%%, D>A: %.1f%%', r_m2(1)*100, r_m2(3)*100), 'N/A', '-';
+        'Rel. Diff (M2)', sprintf('A>B: %.2f, D>A: %.2f', r_m2(1), r_m2(3)), 'N/A', '-';
         'Algorithm Terminated', 'Yes', 'Yes', char(string(did_not_hang))
     };
     TestHelper.print_auto_table(h_res, table_data, d_align, h_align);

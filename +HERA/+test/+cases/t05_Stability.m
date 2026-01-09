@@ -3,8 +3,10 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
 %
 % Description:
 %   Tests algorithm stability when absolute zero-variance inputs are provided.
-%   Hypothesis: The algorithm must not crash or produce NaNs when comparing 
-%   two completely identical, zero-variance datasets (Singularity Check).
+%   Tests algorithm stability when absolute zero-variance inputs are provided.
+%   Hypothesis: The algorithm must not crash and must produce a consistent,
+%   deterministic output. NaNs in p-values are expected (singularity) but
+%   should not trigger significance flags.
 %
 % Inputs:
 %   default_config - (struct) Base configuration
@@ -82,8 +84,8 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
         table_data = {
             'Effect Sizes', sprintf('d=%.2e, r=%.2e', max(abs(d_vals_zero(:))), max(abs(r_vals_zero(:)))), '~0', char(string(effects_are_zero));
             'Significance Flags', sprintf('%d wins', sum(all_sig_z{1}(:))), '0', char(string(no_significant_wins));
-            'P-Values Safe', sprintf('%d NaNs', sum(isnan(p_mat(:)))), 'NaN/Valid', char(string(p_values_safe));
-            'Valid Permutation', mat2str(final_order_z(:)'), '[1 2 3] or perm.', char(string(is_valid_permutation));
+            'P-Values Safe', sprintf('%d NaNs', sum(isnan(p_mat(:)))), 'NaN or [0,1]', char(string(p_values_safe));
+            'Valid Permutation', mat2str(final_order_z(:)'), 'Any permutation', char(string(is_valid_permutation));
             'Deterministic', char(string(is_deterministic)), 'true', char(string(is_deterministic))
         };
         TestHelper.print_auto_table(h_res, table_data, d_align, h_align);
