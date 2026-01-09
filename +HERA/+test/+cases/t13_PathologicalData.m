@@ -67,14 +67,11 @@ function passed = t13_PathologicalData(default_config, thresholds, n_subj, ~, ~)
     
     % --- Assertion 3: M2 Shows Non-Transitivity ---
     % The M2 effect sizes should show cyclic dominance pattern
-    % Extract pairwise deltas for M2
+    % Extract pairwise deltas and relative differences for M2
     d_m2 = eff_efron.d_vals_all(:, 2);
+    r_m2 = eff_efron.rel_vals_all(:, 2);
     
     % In Efron's dice: A>B, B>C, C>D, D>A. Check that sign pattern exists.
-    % Pair ordering: (1,2), (1,3), (1,4), (2,3), (2,4), (3,4)
-    % A vs B (idx 1): A > B -> positive
-    % B vs C (idx 4): B > C -> should show in A<C when looking at pair (1,3)
-    % D vs A (idx 3): D > A -> negative (A loses to D)
     has_cycle_signature = (d_m2(1) > 0) && (d_m2(3) < 0); % A>B but D>A
     
     % --- Assertion 4: Algorithm Did Not Hang ---
@@ -90,7 +87,8 @@ function passed = t13_PathologicalData(default_config, thresholds, n_subj, ~, ~)
     table_data = {
         'Valid Permutation', mat2str(final_order(:)'), '[1 2 3 4] perm.', char(string(is_valid_permutation));
         'M1 Fallback Applied', mat2str(final_order(:)'), '[1 2 3 4]', char(string(is_m1_fallback));
-        'Cycle Signature (M2)', sprintf('A>B: %.2f, D>A: %.2f', d_m2(1), d_m2(3)), '+, -', char(string(has_cycle_signature));
+        'Cliff''s Delta (M2)', sprintf('A>B: %.2f, D>A: %.2f', d_m2(1), d_m2(3)), '+, -', char(string(has_cycle_signature));
+        'Rel. Diff (M2)', sprintf('A>B: %.1f%%, D>A: %.1f%%', r_m2(1)*100, r_m2(3)*100), 'N/A', '-';
         'Algorithm Terminated', 'Yes', 'Yes', char(string(did_not_hang))
     };
     TestHelper.print_auto_table(h_res, table_data, d_align, h_align);
