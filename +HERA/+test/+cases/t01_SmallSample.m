@@ -95,7 +95,7 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, ~)
         all_checks_passed = p_is_valid && p_is_small && d_is_large && order_is_correct && is_flagged_significant;
         
         if all_checks_passed
-            fprintf('\n[Status] PASS: Small sample test with strong signal passed all assertions.\n');
+            fprintf('\n[Status] PASS: Exact Wilcoxon test confirmed: Strong signal detected (P<0.01, Effect>0.8) and ranked correctly.\n');
             tests_passed = tests_passed + 1;
         else
             fprintf('\n[Status] FAIL: Small sample test assertions failed.\n');
