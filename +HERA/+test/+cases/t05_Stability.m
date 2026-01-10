@@ -94,7 +94,7 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
         all_checks_passed = effects_are_zero && no_significant_wins && p_values_safe && is_valid_permutation && is_deterministic;
         
         if all_checks_passed
-            fprintf('\n[Status] PASS: All stability assertions verified.\n');
+            fprintf('\n[Status] PASS: Stability verified: Deterministic output and safe handling of singularities (NaNs allowed but no significance).\n');
             tests_passed = tests_passed + 1;
         else
             fprintf('\n[Status] FAIL: Stability assertions failed.\n');
