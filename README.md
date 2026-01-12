@@ -391,6 +391,17 @@ based on the following methodological considerations:
     adjustments approaches zero, while the complexity of the decision model
     increases disproportionately.
 
+> **Recommendation:**
+> If you wish is to consider more than 3 metrics, it is recommended to first
+> perform a check for collinearity (e.g., using a correlation matrix).
+> Strongly correlated metrics could be aggregated into a common factor
+> (e.g., via Principal Component Analysis (PCA)) before running the HERA analysis.
+>
+> If your study design requires the **simultaneous integration** of a large number
+> of metrics ($M \gg 3$) HERA is not feasible and compensatory or outranking MCDA
+> methods are methodologically more appropriate. In this case, approaches like
+> **TOPSIS** or **PROMETHEE** might be a better choice.
+
 </details>
 <!-- markdownlint-enable MD033 -->
 
