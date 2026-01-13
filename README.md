@@ -392,10 +392,11 @@ based on the following methodological considerations:
     increases disproportionately.
 
 > **Recommendation:**
-> If you wish is to consider more than 3 metrics, it is recommended to first
+> If you want to consider more than 3 metrics and use HERA you could first
 > perform a check for collinearity (e.g., using a correlation matrix).
 > Strongly correlated metrics could be aggregated into a common factor
-> (e.g., via Principal Component Analysis (PCA)) before running the HERA analysis.
+> (e.g., via Principal Component Analysis (PCA)) before running the HERA 
+> analysis with up to 3 metrics.
 >
 > If your study design requires the **simultaneous integration** of a large number
 > of metrics ($M \gg 3$) HERA is not feasible and compensatory or outranking MCDA
