@@ -68,6 +68,15 @@ ranking system.
 
 ### Setup
 
+#### Option A: MATLAB Toolbox (Recommended)
+
+1. Download the latest `HERA_vX.Y.Z.mltbx` from the
+   [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
+2. Double-click the file to install it.
+3. Done! HERA is now available as a command (`HERA.start_ranking`) in MATLAB.
+
+#### Option B: Git Clone (for Developers)
+
 1. **Clone the repository:**
 
     ```bash
@@ -164,6 +173,120 @@ The workflow performs the following steps:
    system (macOS/Linux/Windows) using the `deploy/build_hera.m` script.
 3. **Artifact Upload**: Uploads the compiled installer and application as build
    artifacts, which can be downloaded from the GitHub Actions run page.
+
+</details>
+<!-- markdownlint-enable MD033 -->
+
+<!-- markdownlint-disable MD033 -->
+</details>
+<!-- markdownlint-enable MD033 -->
+
+<!-- markdownlint-disable MD033 -->
+<details>
+<summary><strong>Python Integration</strong></summary>
+
+HERA provides a compiled Python interface that allows seamless integration into
+Python-based data science pipelines. This package wraps the MATLAB functions and
+provides them as native Python objects.
+
+> **Note:** The package utilizes the **MATLAB Runtime**. The provided installer
+> automates the setup of this dependency.
+
+#### 1. Installation (For End Users)
+
+The easiest way to install the package is via `pip` after installing the
+MATLAB Runtime.
+
+##### Step 1: Install MATLAB Runtime
+
+Download and install the **MATLAB Runtime (R2025b)** for your operating system
+from the [MathWorks Website](https://www.mathworks.com/products/compiler/matlab-runtime.html).
+
+##### Step 2: Install Package
+
+Navigate to the `hera_matlab` folder (provided in the release or build output)
+and run:
+
+```bash
+pip install .
+```
+
+> **Note:** If an automated installer (`hera_matlab_Installer`) is provided for
+your specific OS, you can run it to handle both steps automatically.
+
+#### 2. Usage Modes
+
+**A. Standard Pipeline (File-Based)**
+This mode replicates the MATLAB batch processing workflow.
+It runs the complete analysis based on a JSON configuration file and
+automatically generates all PDF reports and plots on disk.
+
+> **Note:** The interactive command-line interface (CLI) is **not supported**
+in the Python package. You must use a configuration file.
+
+```python
+import hera_matlab
+
+# Initialize Runtime
+hera = hera_matlab.initialize()
+
+# Run with JSON configuration
+# Outputs (PDFs, Images) will be saved to the 'output_dir' defined in the config
+hera.start_ranking('configFile', 'analysis_config.json', nargout=0)
+
+hera.terminate()
+```
+
+**B. Direct Data Integration (NumPy/Pandas)**
+This mode allows you to use HERA as a computational engine within your Python
+scripts (e.g., Jupyter Notebooks). You can pass data directly from NumPy/Pandas
+and receive the ranking results as a Python dictionary, enabling seamless
+integration into larger data science pipelines.
+
+```python
+import hera_matlab
+import matlab
+
+# Initialize
+hera = hera_matlab.initialize()
+
+# Prepare Data (Convert NumPy arrays to MATLAB types)
+# Example: 2 Subjects x 2 Methods
+data_m1 = matlab.double([[0.1, 0.5], [0.2, 0.4]])
+data_m2 = matlab.double([[1.0, 3.0], [1.2, 2.9]])
+
+# Configure Analysis
+config = {
+    'custom_data': [data_m1, data_m2],
+    'metric_names': ['Runtime', 'Accuracy'],
+    'dataset_names': ['Method A', 'Method B'],
+    'ranking_mode': 'M1_M2',
+    'output_dir': 'my_hera_results' # Optional: Specify output folder
+}
+
+# Execute Ranking and retrieve Dictionary
+results = hera.run_ranking(config, nargout=1)
+
+# Access Results
+# See "Results Structure Reference" below for a complete list of available fields
+print(f"Final Ranks: {results['final_rank']}")
+print(f"Effect Sizes (Cliff's Delta): {results['d_vals_all']}")
+print(f"Effect Sizes (Rel Diff): {results['rel_vals_all']}")
+print(f"P-Values: {results['p_vals_all']}")
+
+hera.terminate()
+```
+
+#### 3. Build Instructions (For Maintainers)
+
+To generate the installer and Python package from source (requires MATLAB Compiler SDK):
+
+```matlab
+cd deploy
+build_hera_python
+```
+
+The output will be generated in `deploy/output/python`.
 
 </details>
 <!-- markdownlint-enable MD033 -->
@@ -395,7 +518,7 @@ based on the following methodological considerations:
 > If you want to consider more than 3 metrics and use HERA you could first
 > perform a check for collinearity (e.g., using a correlation matrix).
 > Strongly correlated metrics could be aggregated into a common factor
-> (e.g., via Principal Component Analysis (PCA)) before running the HERA 
+> (e.g., via Principal Component Analysis (PCA)) before running the HERA
 > analysis with up to 3 metrics.
 >
 > If your study design requires the **simultaneous integration** of a large number
@@ -683,6 +806,7 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `final_bootstrap_ranks` | `[N x B]` | Bootstrapped rank distribution for stability analysis. |
 | `ci_lower_rank` | `[N x 1]` | Lower bound of Rank Confidence Interval. |
 | `ci_upper_rank` | `[N x 1]` | Upper bound of Rank Confidence Interval. |
+| `thresholds` | struct | Thresholds for Cliff's Delta and RelDiff. |
 | **Statistics** | | |
 | `d_vals_all` | `[Pairs x M]` | Cliff's Delta effect sizes for all pairs/metrics. |
 | `rel_vals_all` | `[Pairs x M]` | Relative Mean Differences. |
@@ -809,7 +933,8 @@ If you use HERA in your research, please cite:
 ```bibtex
 @software{HERA_Matlab,
   author = {von Erdmannsdorff, Lukas},
-  title = {HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation},
+  title = {HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric
+  Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.0.3},
   year = {2026}

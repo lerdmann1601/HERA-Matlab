@@ -37,13 +37,14 @@ jobs:
         with:
           command: run('tests/run_HERA_tests.m')
 
-      - name: Build HERA Runtime
+      - name: Build HERA Runtime and Toolbox
         if: env.MATLAB_LICENSE != ''
         uses: matlab-actions/run-command@v2
         with:
           command: |
             addpath('deploy');
             build_hera();
+            package_HERA_toolbox();
 
 
       - name: Archive Artifacts
@@ -52,7 +53,9 @@ jobs:
         with:
 
           name: HERA_Installer_${{ matrix.os }}
-          path: deploy/output/
+          path: |
+            deploy/output/
+            deploy/output/*.mltbx
 
       - name: Release
         uses: softprops/action-gh-release@v2

@@ -111,9 +111,15 @@ function [userInput, setupData] = setup_environment(userInput)
         userInput.alphas = repmat(userInput.alphas(1), 1, num_metrics);
     end
 
-    % Ensure Permutations exist if Sensitivity is on
-    if userInput.run_sensitivity_analysis && isempty(userInput.selected_permutations)
-        userInput.selected_permutations = perms(1:num_metrics);
+    % Ensure Permutations exist
+    if isempty(userInput.selected_permutations)
+        if userInput.run_sensitivity_analysis
+            % Full permutations for sensitivity analysis
+            userInput.selected_permutations = perms(1:num_metrics);
+        else
+            % Only primary hierarchy if sensitivity is disabled
+            userInput.selected_permutations = 1:num_metrics;
+        end
     end
 
     % Ensure compatibility for direct calls. If input has no .config, wrap it to match expected structure.

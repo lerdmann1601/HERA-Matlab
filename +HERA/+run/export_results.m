@@ -58,6 +58,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     % Aggregate all analysis results into a single 'results' struct.
     % We pull fields from analysis_results
     results = struct();
+    results.thresholds = analysis_results.thresholds;
     results.final_rank = analysis_results.final_rank;
     results.ci_lower_rank = analysis_results.ci_lower_rank;
     results.ci_upper_rank = analysis_results.ci_upper_rank;
