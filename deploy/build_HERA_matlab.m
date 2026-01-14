@@ -20,7 +20,7 @@ function build_hera()
 %   None
 %
 % Outputs:
-%   The compiled application and installer are saved in 'deploy/output'.
+%   The compiled application and installer are saved in 'deploy/output/matlab'.
 %   Console output indicates build progress and status.
 %
 % Author: Lukas von Erdmannsdorff
@@ -45,7 +45,7 @@ clc
     end
     
     % Define and create the output directory.
-    outputDir = fullfile(projectRoot, 'deploy', 'output');
+    outputDir = fullfile(projectRoot, 'deploy', 'output', 'matlab');
     if ~exist(outputDir, 'dir')
         mkdir(outputDir);
     end

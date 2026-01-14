@@ -12,13 +12,13 @@ function package_HERA_toolbox()
 % Workflow:
 %   1.  Initialization: Detects the project root and sets up output directories.
 %   2.  Configuration: Defines toolbox metadata (Version, Name, Author, etc.) and included files.
-%   3.  Packaging: Generates the .mltbx file in 'deploy/output'.
+%   3.  Packaging: Generates the .mltbx file in 'deploy/output/toolbox'.
 %
 % Inputs:
 %   None
 %
 % Outputs:
-%   The .mltbx file is saved in 'deploy/output'.
+%   The .mltbx file is saved in 'deploy/output/toolbox'.
 %   Console output indicates packaging progress.
 %
 % Author: Lukas von Erdmannsdorff
@@ -42,7 +42,7 @@ function package_HERA_toolbox()
     end
     
     % Define and create the output directory.
-    outputDir = fullfile(projectRoot, 'deploy', 'output');
+    outputDir = fullfile(projectRoot, 'deploy', 'output', 'toolbox');
     if ~exist(outputDir, 'dir')
         mkdir(outputDir);
     end

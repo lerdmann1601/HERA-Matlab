@@ -115,10 +115,10 @@ Compiler** toolbox.
 
    ```matlab
    cd deploy
-   build_hera
+   build_HERA_matlab
    ```
 
-3. The artifacts (Installer + ZIP) will be generated in `deploy/output`.
+3. The artifacts (Installer + ZIP) will be generated in `deploy/output/matlab`.
 
 #### Installation and Usage
 
@@ -170,7 +170,7 @@ The workflow performs the following steps:
 1. **Unit Testing**: Runs the full test suite (`HERA.run_unit_test`) to ensure
    code integrity.
 2. **Compilation**: Builds the standalone application for the target operating
-   system (macOS/Linux/Windows) using the `deploy/build_hera.m` script.
+   system (macOS/Linux/Windows) using the `deploy/build_HERA_matlab.m` script.
 3. **Artifact Upload**: Uploads the compiled installer and application as build
    artifacts, which can be downloaded from the GitHub Actions run page.
 
@@ -283,7 +283,7 @@ To generate the installer and Python package from source
 
 ```matlab
 cd deploy
-build_hera_python
+build_HERA_python
 ```
 
 The output will be generated in `deploy/output/python`.
