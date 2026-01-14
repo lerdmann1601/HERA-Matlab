@@ -197,12 +197,12 @@ provides them as native Python objects.
 The easiest way to install the package is via `pip` after installing the
 MATLAB Runtime.
 
-##### Step 1: Install MATLAB Runtime
+#### Step 1: Install MATLAB Runtime
 
 Download and install the **MATLAB Runtime (R2025b)** for your operating system
 from the [MathWorks Website](https://www.mathworks.com/products/compiler/matlab-runtime.html).
 
-##### Step 2: Install Package
+#### Step 2: Install Package
 
 Navigate to the `hera_matlab` folder (provided in the release or build output)
 and run:
@@ -216,7 +216,8 @@ your specific OS, you can run it to handle both steps automatically.
 
 #### 2. Usage Modes
 
-**A. Standard Pipeline (File-Based)**
+#### A. Standard Pipeline (File-Based)
+
 This mode replicates the MATLAB batch processing workflow.
 It runs the complete analysis based on a JSON configuration file and
 automatically generates all PDF reports and plots on disk.
@@ -237,7 +238,8 @@ hera.start_ranking('configFile', 'analysis_config.json', nargout=0)
 hera.terminate()
 ```
 
-**B. Direct Data Integration (NumPy/Pandas)**
+#### B. Direct Data Integration (NumPy/Pandas)
+
 This mode allows you to use HERA as a computational engine within your Python
 scripts (e.g., Jupyter Notebooks). You can pass data directly from NumPy/Pandas
 and receive the ranking results as a Python dictionary, enabling seamless
