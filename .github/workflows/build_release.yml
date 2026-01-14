@@ -45,6 +45,7 @@ jobs:
             addpath('deploy');
             build_hera();
             package_HERA_toolbox();
+            build_hera_python();
 
 
       - name: Archive Artifacts

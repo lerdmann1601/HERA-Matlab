@@ -8,7 +8,8 @@ function build_hera_python()
 %   This script automates the creation of a Python package for HERA using 
 %   the 'compiler.build.pythonPackage' workflow.
 %   It allows HERA to be installed via pip and used in Python environments,
-%   provided the MATLAB Runtime is installed.
+%   MATLAB Runtime should be installed manually via 
+%   https://www.mathworks.com/products/compiler/matlab-runtime.html.
 %
 % Workflow:
 %   1.  Initialization: Detects the project root and sets up output directories.
@@ -98,27 +99,26 @@ clc
         fprintf('1. Compiling Python Package (may take a few minutes)...\n');
         buildResults = compiler.build.pythonPackage(buildOpts);
         
-        % Step 2: Create the Installer (Packaging)
-        fprintf('\n2. Creating Installer with Auto-Runtime Download...\n');
-        
-        installerName = [pkgName '_Installer_' version_str];
-        
-        compiler.package.installer(buildResults, ...
-            'InstallerName', installerName, ...
-            'OutputDir', outputDir, ...
-            'RuntimeDelivery', 'web');
+    % Step 2: Create the Installer (Optional - Currently Disabled)
+    % We focus on PyPI distribution where the user installs the Runtime manually.
+    % fprintf('\n2. Creating Installer with Auto-Runtime Download...\n');
+    % installerName = [pkgName '_Installer_' version_str];
+    % compiler.package.installer(buildResults, ...
+    %     'InstallerName', installerName, ...
+    %     'OutputDir', outputDir, ...
+    %     'RuntimeDelivery', 'web');
 
-        % Success Message
-        fprintf('========================================\n');
-        fprintf('SUCCESS!\n');
-        fprintf('1. Python Package: %s\n', fullfile(outputDir, pkgName));
-        fprintf('2. Installer:      %s\n', fullfile(outputDir, installerName));
-        fprintf('----------------------------------------\n');
-        fprintf('To install:\n');
-        fprintf('  1. Run the Installer (%s) to setup the Runtime.\n', installerName);
-        fprintf('  2. cd "%s"\n', fullfile(outputDir, pkgName));
-        fprintf('  3. pip install .\n');
-        fprintf('========================================\n');
+    % Success Message
+    fprintf('========================================\n');
+    fprintf('SUCCESS!\n');
+    % fprintf('1. Python Package: %s\n', fullfile(outputDir, pkgName));
+    % fprintf('2. Installer:      %s\n', fullfile(outputDir, installerName));
+    fprintf('Python Package generated at:\n%s\n', fullfile(outputDir, pkgName));
+    fprintf('----------------------------------------\n');
+    fprintf('To release:\n');
+    fprintf('1. Verify: cd %s && pip install .\n', fullfile(outputDir, pkgName));
+    fprintf('2. Upload: twine upload dist/* (inside the package folder)\n');
+    fprintf('========================================\n');
         
     catch ME
         % Error Handling

@@ -189,8 +189,8 @@ HERA provides a compiled Python interface that allows seamless integration into
 Python-based data science pipelines. This package wraps the MATLAB functions and
 provides them as native Python objects.
 
-> **Note:** The package utilizes the **MATLAB Runtime**. The provided installer
-> automates the setup of this dependency.
+> **Note:** The package utilizes the **MATLAB Runtime**. It must be installed separately
+> as described below.
 
 #### 1. Installation (For End Users)
 
@@ -210,9 +210,6 @@ and run:
 ```bash
 pip install .
 ```
-
-> **Note:** If an automated installer (`hera_matlab_Installer`) is provided for
-your specific OS, you can run it to handle both steps automatically.
 
 #### 2. Usage Modes
 
@@ -281,7 +278,8 @@ hera.terminate()
 
 #### 3. Build Instructions (For Maintainers)
 
-To generate the installer and Python package from source (requires MATLAB Compiler SDK):
+To generate the installer and Python package from source
+(requires MATLAB Compiler SDK):
 
 ```matlab
 cd deploy
