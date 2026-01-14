@@ -190,11 +190,9 @@ Ranking_<Timestamp>/
 │   ├── Convergence_Report.pdf
 │   └── Bootstrap_Report.pdf
 ├── Final_Ranking_*.png               % Summary graphic of ranking result
-├── Final_Report_*.pdf                % Consolidated graphical report of the
-main results
+├── Final_Report_*.pdf                % Consolidated graphical report of the main results
 ├── Ranking_*.txt                     % Complete console log of the session
-└── configuration.json                % Reusable configuration file to reproduce
-the run
+└── configuration.json                % Reusable configuration file to reproduce the run
 ```
 
 ---
