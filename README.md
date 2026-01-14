@@ -174,15 +174,11 @@ HERA generates a timestamped directory containing:
 ```text
 Ranking_<Timestamp>/
 ├── Output/
-│   ├── results_*.csv                 % Final ranking table (Mean ± SD of 
-metrics and rank CI)
-│   ├── data_*.json                   % Complete analysis record (Inputs, 
-Config, Stats, Results)
-│   ├── log_*.csv                     % Detailed log of pairwise comparisons and
-logic
+│   ├── results_*.csv                 % Final ranking table (Mean ± SD of metrics and rank CI)
+│   ├── data_*.json                   % Complete analysis record (Inputs, Config, Stats, Results)
+│   ├── log_*.csv                     % Detailed log of pairwise comparisons and logic
 │   ├── sensitivity_details_*.csv     % Results of the Borda sensitivity analysis
-│   ├── BCa_Correction_Factors_*.csv  % Correction factors (Bias/Skewness) for
-BCa CIs
+│   ├── BCa_Correction_Factors_*.csv  % Correction factors (Bias/Skewness) for BCa CIs
 │   └── bootstrap_rank_*.csv          % Complete distribution of bootstrapped ranks
 ├── Graphics/                         % High-res PNGs organized in subfolders
 │   ├── Ranking/
