@@ -64,7 +64,7 @@ function package_HERA_toolbox()
     
     % Metadata
     opts.ToolboxName = 'HERA'; % The display name
-    opts.ToolboxVersion = version_str;
+    opts.ToolboxVersion = replace(version_str, 'v', '');
     opts.AuthorName = 'Lukas von Erdmannsdorff';
     opts.AuthorEmail = ''; % Optional: Leave empty or fill if known
     
@@ -88,14 +88,20 @@ function package_HERA_toolbox()
     };
 
     % Filter to ensuring they exist before adding
-    opts.ToolboxFiles = {};
+    validFiles = {};
     for i = 1:length(includedPaths)
         if exist(includedPaths{i}, 'file') || exist(includedPaths{i}, 'dir')
-             opts.ToolboxFiles{end+1} = includedPaths{i};
+             validFiles{end+1} = includedPaths{i};
         else
              fprintf('Warning: Resource not found, skipping: %s\n', includedPaths{i});
         end
     end
+    
+    if isempty(validFiles)
+        error('No valid files found to include in the toolbox.');
+    end
+    
+    opts.ToolboxFiles = validFiles;
 
     % MATLAB Path Setup
     % By default, the root of the installed toolbox is added to the path.

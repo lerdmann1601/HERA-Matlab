@@ -53,7 +53,7 @@ clc
     pkgName = 'hera_matlab';
     
     % Get Version
-    version_str = HERA.get_version();
+    version_str = replace(HERA.get_version(), 'v', '');
     fprintf('Detected Version: %s\n', version_str);
 
     % Define Resources to Include
@@ -99,7 +99,7 @@ clc
         buildResults = compiler.build.pythonPackage(buildOpts);
         
         % Step 2: Create the Installer (Packaging)
-        fprintf('2. Creating Installer with Auto-Runtime Download...\n');
+        fprintf('\n2. Creating Installer with Auto-Runtime Download...\n');
         
         installerName = [pkgName '_Installer_' version_str];
         
@@ -109,7 +109,7 @@ clc
             'RuntimeDelivery', 'web');
 
         % Success Message
-        fprintf('\n========================================\n');
+        fprintf('========================================\n');
         fprintf('SUCCESS!\n');
         fprintf('1. Python Package: %s\n', fullfile(outputDir, pkgName));
         fprintf('2. Installer:      %s\n', fullfile(outputDir, installerName));
