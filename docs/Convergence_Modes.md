@@ -24,7 +24,7 @@
 
 While the automated check should work for most datasets, "difficult" data with high
 variance or flat likelihood landscapes may fail to converge within
-*B_end*. In this case, you can try the following:
+`B_end`. In this case, you can try the following:
 
 1. **Check the Elbow**: Inspect the generated stability plots. If you see a
     clear "elbow" where the curve flattens but fluctuates slightly above the
