@@ -16,12 +16,33 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download Release Assets
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install build tools
+        run: pip install build setuptools wheel
+
+      - name: Download and Repackage with Metadata
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "Downloading assets for tag: ${{ github.ref_name }}"
-          gh release download ${{ github.ref_name }} --pattern "*.whl" --pattern "*.tar.gz" --dir dist
+          # 1. Download source distribution
+          echo "Downloading source for tag: ${{ github.ref_name }}"
+          mkdir original_dist
+          gh release download ${{ github.ref_name }} --pattern "*.tar.gz" --dir original_dist
+          
+          # 2. Extract
+          tar -xzf original_dist/*.tar.gz
+          
+          # 3. Run preparation script (Inject Metadata)
+          python .github/scripts/prepare_pypi.py
+          
+          # 4. Build new artifacts
+          # Find the directory name again for the build command
+          DIR_NAME=$(ls -d hera_matlab-*/ | head -n 1)
+          python -m build "$DIR_NAME" --outdir dist/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
