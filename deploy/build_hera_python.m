@@ -1,4 +1,4 @@
-function build_hera_python()
+function build_HHERA_python()
 % BUILD_HERA_PYTHON - Compiles HERA into a Python Package.
 %
 % Syntax:
