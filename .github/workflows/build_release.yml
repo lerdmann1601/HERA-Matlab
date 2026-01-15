@@ -2,8 +2,8 @@ name: Build HERA Runtime
 
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  # release:
+  #   types: [published] # Disabled due to missing license on runner. Uncomment if you have a license and want auto-builds on release.
 
 permissions:
   contents: write

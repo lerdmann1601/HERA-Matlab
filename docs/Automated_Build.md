@@ -15,7 +15,9 @@ MATLAB license:
 ## Running the Build
 
 This workflow is set to **manual execution** (`workflow_dispatch`) to save
-resources but will be triggered once if a new version tag is pushed to the repository.
+resources. It is currently configured **not** to trigger automatically on new tags because I, the repository owner, do not have a MATLAB license for the GitHub runner.
+
+> **Note for Forks:** If you have a valid MATLAB license configured, you can re-enable automatic builds by uncommenting the `release` trigger in `.github/workflows/build_release.yml`.
 
 1. Navigate to the **Actions** tab in the repository.
 2. Select **Build HERA Runtime** from the sidebar.
