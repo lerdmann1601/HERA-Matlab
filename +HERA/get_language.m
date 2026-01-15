@@ -27,19 +27,57 @@ function lang = get_language()
     language_code = 'en';
 
 %% 2. Determine Application Base Path
-    % This block identifies the root directory of the application, which is
-    % crucial for locating the 'language' folder reliably.
-    if isdeployed
-        % WHEN COMPILED: Get the root directory of the deployed application.
-        base_path = mcr.runtime.getApplicationRoot;
-    else
-        % WHEN RUNNING IN MATLAB IDE: Get the directory of this .m file.
-        base_path = fileparts(mfilename('fullpath'));
+    % Strategy: Locate the 'language' folder using a prioritized search.
+    % This logic supports three execution environments:
+    %   1. MATLAB IDE & Unit Tests (Relative Path)
+    %   2. Python/Shared Runtime (CTF Root)
+    %   3. Standalone Application (Application Root)
+    
+    current_file_dir = fileparts(mfilename('fullpath'));
+    
+    % Attempt 1: Relative Path (Preferred)
+    % Works standardly in MATLAB and when Runtime preserves folder structure (often the case).
+    language_folder = fullfile(current_file_dir, 'language');
+    
+    % Fallback Strategy for Deployed Mode
+    if ~exist(language_folder, 'dir') && isdeployed
+        % We probing multiple locations suitable for different Runtime types.
+        % Errors during probing are suppressed intentionally; we check for success at the end.
+        
+        % Attempt 2: Check CTF Root (Standard for Python/Shared Libraries)
+        try
+            root = ctfroot();
+            path_at_root = fullfile(root, 'language');
+            path_in_package = fullfile(root, '+HERA', 'language');
+            
+            if exist(path_at_root, 'dir')
+                language_folder = path_at_root;
+            elseif exist(path_in_package, 'dir')
+                language_folder = path_in_package;
+            end
+        catch
+            % 'ctfroot' might fail in some older runtimes or strict standalone modes. Continue to next attempt.
+        end
+        
+        % Attempt 3: Check Application Root (Standard for Standalone EXE/APP)
+        % This ensures backward compatibility with traditional compiled apps.
+        if ~exist(language_folder, 'dir')
+            try
+                app_root = mcr.runtime.getApplicationRoot();
+                path_at_app = fullfile(app_root, 'language');
+                if exist(path_at_app, 'dir')
+                    language_folder = path_at_app;
+                end
+            catch
+                % 'mcr.runtime' fails if not in a specific standalone context. 
+                % Final validation (Section 4) will report the fatal error if no folder was found.
+            end
+        end
     end
-
+    
 %% 3. Construct Path to Language File
     % Builds the full path to the folder and the specific 'en.json' file.
-    language_folder = fullfile(base_path, 'language');
+    % language_folder is now determined in section 2.
     file_path = fullfile(language_folder, [language_code, '.json']);
 
 %% 4. Validate File Existence and Load JSON

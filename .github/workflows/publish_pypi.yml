@@ -1,0 +1,27 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write 
+
+jobs:
+  publish-to-pypi:
+    name: Publish to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Download Release Assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "Downloading assets for tag: ${{ github.ref_name }}"
+          gh release download ${{ github.ref_name }} --pattern "*.whl" --pattern "*.tar.gz" --dir dist
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

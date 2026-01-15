@@ -33,5 +33,41 @@ The workflow performs the following steps:
 `package_HERA_toolbox.m`.
 4. **Python Build**: Compiles the Python interface using `build_HERA_python.m`.
 5. **Artifact Upload**: Uploads the compiled installer, toolbox, and Python
-package as build artifacts, which can be downloaded from the GitHub Actions
-run page.
+   package as build artifacts, which can be downloaded from the GitHub Actions
+   run page.
+
+## Publishing to PyPI
+
+To publish the Python package to PyPI, follow this **manual workflow** (since the GitHub Runner cannot build the package due to licensing):
+
+### Prerequisites
+
+1. **PyPI Trusted Publishing**: Configure GitHub Actions as a trusted publisher in your PyPI account settings.
+   - Owner: `lerdmann1601`
+   - Repository: `HERA-Matlab`
+   - Workflow name: `publish_pypi.yml`
+   - Environment: `pypi`
+2. **Local Environment**: Ensure you have MATLAB and `python`, `pip` installed locally.
+
+### Release Steps
+
+1. **Prepare Artifacts**:
+   Run the helper script locally to build the package and generate the distribution files:
+
+   ```bash
+   ./deploy/build_and_prep_pypi.sh
+   ```
+
+   This will create a `deploy/dist` folder containing `.whl` and `.tar.gz` files.
+
+2. **Create Release**:
+   - Go to GitHub -> Releases -> **Draft a new release**.
+   - Choose a text tag (e.g., `v1.2.0`).
+   - **Upload** the files from `deploy/dist/` to the release.
+   - Publish the release.
+
+3. **Publish**:
+   - Go to the **Actions** tab in GitHub.
+   - Select **Publish to PyPI**.
+   - Click **Run workflow**.
+   - The action will download the files from your release and upload them to PyPI.

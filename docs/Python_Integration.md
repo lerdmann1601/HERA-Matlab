@@ -26,6 +26,41 @@ and run:
 pip install .
 ```
 
+### Step 3: macOS Specifics (Critical)
+
+On macOS, you cannot use the standard `python` interpreter to import the package, as it will likely fail with a library loading error. Instead, you must use the `mwpython` wrapper provided by the MATLAB Runtime.
+
+**Location of mwpython:**
+Typically found at:
+`/Applications/MATLAB/MATLAB_Runtime/R2025b/bin/mwpython`
+
+**Usage:**
+Instead of running `python script.py`, run:
+
+```bash
+/Applications/MATLAB/MATLAB_Runtime/R2025b/bin/mwpython script.py
+```
+
+You may want to add this to your PATH variable for easier access.
+
+> [!WARNING]
+> **Python Version Compatibility:**
+> HERA (via MATLAB Runtime) currently supports **Python 3.9, 3.10, 3.11, and 3.12**.
+> **Python 3.13 is NOT supported.**
+>
+> If you have Python 3.13 installed, `mwpython` will fail to load your packages.
+> **Solution:** Create and activate a Virtual Environment with Python 3.12 before running `mwpython`.
+>
+> ```bash
+> # Example using brew to install python 3.12
+> brew install python@3.12
+> /opt/homebrew/bin/python3.12 -m venv .venv_hera
+> source .venv_hera/bin/activate
+> pip install .
+> # Now mwpython will automatically use this environment
+> mwpython script.py
+> ```
+
 ## 2. Usage Modes
 
 ### A. Standard Pipeline (File-Based)
@@ -103,3 +138,23 @@ build_HERA_python
 ```
 
 The output will be generated in `deploy/output/python`.
+
+## 4. Running the Test Suite
+
+You can execute the internal HERA verification and test suite (Scientific, System, and Unit tests) directly from Python to ensure the installation is valid and mathematically correct.
+
+```python
+import hera_matlab
+
+# Initialize
+hera = hera_matlab.initialize()
+
+# Launch Test Mode
+# Arguments: 'runtest', 'true'
+# This will execute all tests and print the results to standard output/log files.
+hera.start_ranking('runtest', 'true', nargout=0)
+
+hera.terminate()
+```
+
+This is useful for verifying deployments on new machines (e.g., CI/CD).
