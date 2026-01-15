@@ -82,7 +82,6 @@ config = {
 results = hera.run_ranking(config, nargout=1)
 
 # Access Results
-# See [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md) for a complete list of available fields
 print(f"Final Ranks: {results['final_rank']}")
 print(f"Effect Sizes (Cliff's Delta): {results['d_vals_all']}")
 print(f"Effect Sizes (Rel Diff): {results['rel_vals_all']}")
@@ -90,6 +89,8 @@ print(f"P-Values: {results['p_vals_all']}")
 
 hera.terminate()
 ```
+
+See [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md) for a complete list of available fields
 
 ## 3. Build Instructions (For Maintainers)
 
