@@ -40,3 +40,5 @@ results = HERA.run_ranking(userInput);
 * `.d_vals_all`: Effect sizes (Cliff's Delta).
 * `.p_vals_all`: Raw p-values.
 * `.ci_d_all`: Confidence intervals.
+
+For the full reference of the `results` struct, see [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md).
