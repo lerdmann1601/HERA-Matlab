@@ -57,6 +57,8 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
              dist_dir = deploy_dir
         else:
             print("Error: No distribution directory found.")
+            print(f"Current working directory: {os.getcwd()}")
+            print(f"Contents: {os.listdir('.')}")
             sys.exit(1)
             
     print(f"Target Directory: {dist_dir}")
