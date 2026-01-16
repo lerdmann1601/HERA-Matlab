@@ -99,6 +99,10 @@ def prepare_distribution():
     
     setup_dict['classifiers'] = [
         'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering',
@@ -107,6 +111,9 @@ def prepare_distribution():
         'Intended Audience :: Science/Research',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
+
+    # Python Version Constraint
+    setup_dict['python_requires'] = '>=3.9, <3.13'
     # --- INJECTED METADATA END ---
     
     setup(**setup_dict)
