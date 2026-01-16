@@ -5,8 +5,7 @@ authors:
   given-names: "Lukas"
   orcid: "https://orcid.org/0009-0009-3758-7363"
   affiliation: "Institute of Neuroradiology, Goethe University Frankfurt"
-title: "HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric
-  Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation"
+title: "HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation"
 version: 1.1.0
 doi: 10.5281/zenodo.18274871 
 date-released: 2026-01-15
@@ -21,8 +20,5 @@ keywords:
   - effect size
   - multi-criteria decision making
 abstract: >-
-  HERA (Hierarchical-Compensatory, Effect-Size Driven Ranking Algorithm) is a MATLAB toolbox 
-  designed to automate the objective comparison of algorithms, experimental conditions, or datasets across multiple quality metrics. 
-  It implements a hierarchical-compensatory logic integrating non-parametric significance testing, 
-  robust effect size estimation (Cliff's Delta and Relative Difference), and bootstrapping to produce 
-  statistically robust rankings.
+  HERA (Hierarchical-Compensatory, Effect-Size Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across multiple quality metrics. 
+  It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff's Delta and Relative Difference), and bootstrapping to produce statistically robust rankings.
