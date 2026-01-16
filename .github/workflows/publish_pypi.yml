@@ -48,7 +48,7 @@ jobs:
           
           # 4. Build new artifacts
           # Find the directory name again for the build command
-          DIR_NAME=$(ls -d hera_matlab-*/ | head -n 1)
+          DIR_NAME=$(ls -d hera_matlab* | head -n 1)
           python -m build "$DIR_NAME" --outdir dist/
 
       - name: Publish to PyPI
