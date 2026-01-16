@@ -78,6 +78,13 @@ def prepare_distribution():
     setup_dict['author'] = 'Lukas von Erdmannsdorff'
     setup_dict['license'] = 'MIT'
     
+    # Keywords for discovery
+    setup_dict['keywords'] = [
+        'ranking', 'benchmarking', 'statistics', 'effect-size', 
+        'bootstrapping', 'significance-testing', 'matlab-interface', 
+        'hierarchical-compensatory', 'scientific-computing'
+    ]
+
     # Dynamic URL handling based on CI environment
     repo_url = 'https://github.com/lerdmann1601/HERA-Matlab' # Fallback
     if 'GITHUB_REPOSITORY' in os.environ:
@@ -87,6 +94,7 @@ def prepare_distribution():
     setup_dict['project_urls'] = {
         'Bug Tracker': f"{repo_url}/issues",
         'Source Code': repo_url,
+        'Documentation': f"{repo_url}/tree/main/docs",
     }
     
     setup_dict['classifiers'] = [
@@ -94,7 +102,10 @@ def prepare_distribution():
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Mathematics',
+        'Topic :: Scientific/Engineering :: Bio-Informatics',
         'Intended Audience :: Science/Research',
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ]
     # --- INJECTED METADATA END ---
     
