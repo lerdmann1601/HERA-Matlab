@@ -1,70 +1,114 @@
 """
-PREPARE_PYPI - Prepares the Python distribution for PyPI publication.
+Prepares the HERA-Matlab Python distribution for PyPI publication.
 
-Syntax:
-  python .github/scripts/prepare_pypi.py
+This script patches the auto-generated MATLAB ``setup.py`` and ``__init__.py`` files
+to ensure they meet PyPI metadata standards and include runtime safety checks.
+It is intended to be run as part of the CI/CD pipeline.
 
-Description:
-  This script is part of the Continuous Integration (CI) pipeline for publishing to PyPI.
-  It works around limitations of the auto-generated MATLAB setup.py by:
-  1.  Injecting the correct project 'README.md' as the long description.
-  2.  Setting the correct 'url' metadata to point to the GitHub repository.
-  3.  Ensuring all metadata is compliant with modern PyPI standards.
+Typical usage example:
 
-Workflow:
-  1.  Distribution Discovery: Find the extracted source distribution directory.
-  2.  Asset Integration: Copy 'README.md' from the repository root into the package source.
-  3.  Metadata Injection: Patch 'setup.py' to dynamicall load the README and repository URL.
-
-Author: Lukas von Erdmannsdorff
+    python .github/scripts/prepare_pypi.py [dist_dir]
 """
 
-import os
-import sys
-import shutil
 import glob
+import os
+import shutil
+import sys
+from typing import Optional
 
-def prepare_distribution():
+
+def prepare_distribution(target_dir: Optional[str] = None) -> None:
+    """
+    Main entry point for preparing the distribution.
+
+    Locates the distribution directory, injects necessary assets (README, LICENSE),
+    patches ``setup.py`` with enhanced metadata, and modifies ``__init__.py`` to
+    include runtime availability checks.
+
+    Args:
+        target_dir: Optional path to the distribution directory. If not provided,
+            the script attempts to auto-discover the directory.
+
+    Raises:
+        SystemExit: If the distribution directory cannot be found or if required
+            files (like setup.py) are missing.
+    """
+    print("Pre-PyPI Distribution Preparation")
+
+    # -------------------------------------------------------------------------
     # 1. Distribution Discovery
-    # Find the directory extracted from the source tarball (e.g., 'hera_matlab-25.2/').
-    dirs = [d for d in glob.glob("hera_matlab-*/") if os.path.isdir(d)]
-    if not dirs:
-        print("Error: No distribution directory found.")
-        sys.exit(1)
+    # -------------------------------------------------------------------------
+    dist_dir = ""
     
-    dist_dir = dirs[0]
-    print(f"Found distribution directory: {dist_dir}")
+    if target_dir:
+        if os.path.isdir(target_dir):
+            dist_dir = target_dir
+        else:
+            print(f"Error: Provided directory '{target_dir}' does not exist.")
+            sys.exit(1)
+    else:
+        # Attempt to find the distribution directory using glob patterns or default paths.
+        dirs = [d for d in glob.glob("hera_matlab-*/") if os.path.isdir(d)]
+        deploy_dir = "deploy/output/python"
+        
+        if dirs:
+             dist_dir = dirs[0]
+        elif os.path.isdir(deploy_dir) and os.path.exists(os.path.join(deploy_dir, "setup.py")):
+             dist_dir = deploy_dir
+        else:
+            print("Error: No distribution directory found.")
+            sys.exit(1)
+            
+    print(f"Target Directory: {dist_dir}")
 
+    # -------------------------------------------------------------------------
     # 2. Asset Integration
-    # Copy main project files (README.md, LICENSE) into the distribution folder.
-    files_to_copy = ["README.md", "LICENSE"]
+    # -------------------------------------------------------------------------
+    print("Integrating Assets...")
+    
+    # Copy standard project files to the distribution root.
+    files_to_copy = ["README.md", "LICENSE", "CITATION.cff"]
     for filename in files_to_copy:
         if os.path.exists(filename):
-            print(f"Copying {filename}...")
+            print(f"  - Copying {filename}...")
             shutil.copy(filename, dist_dir)
         else:
-            print(f"Warning: No {filename} found in root.")
+            print(f"  - Warning: {filename} not found in root.")
 
+    # Inject the runtime helper script into the package.
+    runtime_script_source = "deploy/python_assets/install_runtime.py"
+    if os.path.exists(runtime_script_source):
+        # Locate the inner package directory (e.g., dist_dir/hera_matlab).
+        pkg_inner_dir = os.path.join(dist_dir, "hera_matlab")
+        if not os.path.isdir(pkg_inner_dir):
+             print(f"  - Error: Package directory {pkg_inner_dir} not found.")
+        else:
+            runtime_script_dest = os.path.join(pkg_inner_dir, "install_runtime.py")
+            print(f"  - Injecting {runtime_script_source} -> {runtime_script_dest}")
+            shutil.copy(runtime_script_source, runtime_script_dest)
+    else:
+        print(f"  - Warning: {runtime_script_source} missing. Runtime check CLI will be unavailable.")
+
+    # -------------------------------------------------------------------------
     # 3. Metadata Injection
-    # Locate the setup.py file that needs to be modified.
+    # -------------------------------------------------------------------------
+    print("Patching setup.py...")
     setup_path = os.path.join(dist_dir, "setup.py")
     if not os.path.exists(setup_path):
-        print("Error: setup.py not found.")
+        print("  - Error: setup.py not found.")
         sys.exit(1)
 
-    print(f"Patching {setup_path}...")
     with open(setup_path, "r") as f:
         content = f.read()
 
-    # Define the Python code block to be injected into setup.py.
-    # This code runs at install time to load the README and set the URL.
+    # Code block to be injected into setup.py to enhance metadata.
     injection_code = """
     # --- INJECTED METADATA START ---
     try:
         import os
         here = os.path.abspath(os.path.dirname(__file__))
         
-        # Load Long Description
+        # Load Long Description from README.md
         readme_path = os.path.join(here, 'README.md')
         if os.path.exists(readme_path):
             with open(readme_path, 'r', encoding='utf-8') as f:
@@ -78,14 +122,14 @@ def prepare_distribution():
     setup_dict['author'] = 'Lukas von Erdmannsdorff'
     setup_dict['license'] = 'MIT'
     
-    # Keywords for discovery
+    # Keywords for PyPI discovery
     setup_dict['keywords'] = [
         'ranking', 'benchmarking', 'statistics', 'effect-size', 
         'bootstrapping', 'significance-testing', 'matlab-interface', 
         'hierarchical-compensatory', 'scientific-computing'
     ]
 
-    # Dynamic URL handling based on CI environment
+    # Dynamic URL handling based on GitHub Actions environment
     repo_url = 'https://github.com/lerdmann1601/HERA-Matlab' # Fallback
     if 'GITHUB_REPOSITORY' in os.environ:
          repo_url = f"https://github.com/{os.environ['GITHUB_REPOSITORY']}"
@@ -119,16 +163,79 @@ def prepare_distribution():
     setup(**setup_dict)
     """
 
-    # Apply the patch by replacing the original setup() call with our injected logic.
-    if "setup(**setup_dict)" in content:
+    if "INJECTED METADATA START" in content:
+        print("  - Metadata already injected. Skipping setup.py patch.")
+    elif "setup(**setup_dict)" in content:
         new_content = content.replace("setup(**setup_dict)", injection_code)
-        
         with open(setup_path, "w") as f:
             f.write(new_content)
-        print("Successfully patched setup.py")
+        print("  - Success: setup.py patched.")
     else:
-        print("Error: Could not find 'setup(**setup_dict)' in setup.py to patch.")
-        sys.exit(1)
+        print("  - Error: Could not find anchor point 'setup(**setup_dict)' in setup.py.")
+
+    # -------------------------------------------------------------------------
+    # 4. Runtime Safety Injection
+    # -------------------------------------------------------------------------
+    print("Patching __init__.py for Runtime Safety...")
+    init_path = os.path.join(dist_dir, "hera_matlab", "__init__.py")
+    if os.path.exists(init_path):
+        with open(init_path, "r") as f:
+            init_content = f.read()
+            
+        if "INJECTED RUNTIME CHECK" in init_content:
+             print("  - Runtime check already injected. Skipping __init__.py patch.")
+        else:
+            # The pattern generated by MATLAB's setup.
+            strict_init_pattern = """_pir = _PathInitializer()
+_pir.get_paths_from_os()
+_pir.update_paths()
+_pir.import_cppext()
+_pir.import_matlab_pysdk_runtime()
+_pir.import_matlab()"""
+
+            # The robust block that catches initialization errors.
+            robust_init_block = """
+# --- INJECTED RUNTIME CHECK ---
+_initialization_error = None
+try:
+    _pir = _PathInitializer()
+    _pir.get_paths_from_os()
+    _pir.update_paths()
+    _pir.import_cppext()
+    _pir.import_matlab_pysdk_runtime()
+    _pir.import_matlab()
+except (RuntimeError, ImportError, EnvironmentError) as e:
+    _initialization_error = e
+    pass
+# --- INJECTED RUNTIME CHECK END ---
+"""
+            
+            init_func_pattern = "def initialize():"
+            init_check_code = """def initialize():
+    if _initialization_error:
+        print(f"Error: Failed to initialize MATLAB Runtime.")
+        print(f"Details: {str(_initialization_error)}")
+        print("")
+        print("Run the following command to diagnose and fix the issue:")
+        print("    python -m hera_matlab.install_runtime")
+        raise _initialization_error
+"""
+
+            if strict_init_pattern in init_content:
+                init_content = init_content.replace(strict_init_pattern, robust_init_block)
+                init_content = init_content.replace(init_func_pattern, init_check_code)
+                with open(init_path, "w") as f:
+                    f.write(init_content)
+                print("  - Success: __init__.py patched.")
+            else:
+                 print("  - Warning: Could not find strict initialization block in __init__.py.")
+    else:
+        print(f"  - Error: {init_path} not found.")
+
+    print("Preparation Complete.")
 
 if __name__ == "__main__":
-    prepare_distribution()
+    target = None
+    if len(sys.argv) > 1:
+        target = sys.argv[1]
+    prepare_distribution(target)

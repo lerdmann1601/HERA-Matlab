@@ -46,7 +46,6 @@ else
 fi
 
 # 2. Verification
-# Verify output exists
 # Verify output exists (look for setup.py which indicates the package root)
 if [ ! -f "$BUILD_OUTPUT_DIR/setup.py" ]; then
     echo "Error: 'setup.py' not found in $BUILD_OUTPUT_DIR"
@@ -57,6 +56,15 @@ fi
 PKG_DIR="$BUILD_OUTPUT_DIR"
 
 echo "Found package root at: $PKG_DIR"
+
+# 2b. Preparation & Metadata Injection
+# Run the preparation script to correct metadata and inject runtime checks
+echo "Running pre-PyPI preparation script..."
+if [ -f "$PROJECT_ROOT/.github/scripts/prepare_pypi.py" ]; then
+    python3 "$PROJECT_ROOT/.github/scripts/prepare_pypi.py" "$PKG_DIR"
+else
+    echo "Warning: Preparation script not found at .github/scripts/prepare_pypi.py"
+fi
 
 # 3. Distribution
 # Build Python Distribution

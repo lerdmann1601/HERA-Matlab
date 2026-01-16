@@ -9,22 +9,24 @@ provides them as native Python objects.
 
 ## 1. Installation (For End Users)
 
-The easiest way to install the package is via `pip` after installing the
-MATLAB Runtime.
+The easiest way to install the package is via `pip` from PyPI.
 
-### Step 1: Install MATLAB Runtime
-
-Download and install the **MATLAB Runtime (R2025b)** for your operating system
-from the [MathWorks Website](https://www.mathworks.com/products/compiler/matlab-runtime.html).
-
-### Step 2: Install Package
-
-Navigate to the `hera_matlab` folder (provided in the release or build output)
-and run:
+### Step 1: Install Package
 
 ```bash
-pip install .
+pip install hera-matlab
 ```
+
+### Step 2: Install MATLAB Runtime
+
+HERA requires the **MATLAB Runtime R2025b (v25.2)**.
+After installing the package, run the following command to check if you have the correct runtime installed or to get the direct download link:
+
+```bash
+python -m hera_matlab.install_runtime
+```
+
+Follow the instructions provided by this command to download and install the runtime if it is missing.
 
 ### Step 3: macOS Specifics (Critical)
 
@@ -56,7 +58,7 @@ You may want to add this to your PATH variable for easier access.
 > brew install python@3.12
 > /opt/homebrew/bin/python3.12 -m venv .venv_hera
 > source .venv_hera/bin/activate
-> pip install .
+> pip install hera-matlab
 > # Now mwpython will automatically use this environment
 > mwpython script.py
 > ```
@@ -129,15 +131,19 @@ See [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/bl
 
 ## 3. Build Instructions (For Maintainers)
 
-To generate the installer and Python package from source
-(requires MATLAB Compiler SDK):
+To generate the installer and Python package from source (requires MATLAB Compiler SDK):
 
-```matlab
-cd deploy
-build_HERA_python
-```
+1. **Run the Build Helper:**
 
-The output will be generated in `deploy/output/python`.
+   ```bash
+   ./deploy/build_and_prep_pypi.sh
+   ```
+
+   This script compiles the MATLAB code, injects the runtime checks, and prepares
+   the distribution artifacts (`.whl`, `.tar.gz`) in `deploy/dist`.
+
+2. **Distribution:**
+   Upload the generated artifacts from `deploy/dist` to PyPI or GitHub Releases.
 
 ## 4. Running the Test Suite
 
