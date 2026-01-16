@@ -104,6 +104,15 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
         content = f.read()
 
     # Code block to be injected into setup.py to enhance metadata.
+    
+    # 3a. Force Package Name Correction
+    # Even if verified/patched before, we ensure the name is 'hera-matlab'
+    # to match the PyPI Pending Publisher configuration.
+    if "hera_matlab-R2025b" in content:
+        print("  - Enforcing correct package name 'hera-matlab'...")
+        content = content.replace("hera_matlab-R2025b", "hera-matlab")
+        with open(setup_path, "w") as f:
+            f.write(content)
     injection_code = """
     # --- INJECTED METADATA START ---
     try:
