@@ -11,6 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18274871.svg)](https://doi.org/10.5281/zenodo.18274871)
 
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0009--3758--7363-green.svg)](https://orcid.org/0009-0009-3758-7363)
 
@@ -271,6 +272,7 @@ If you use HERA in your research, please cite:
   Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.1.0},
+  doi = {10.5281/zenodo.18274871},
   year = {2026}
 }
 ```
