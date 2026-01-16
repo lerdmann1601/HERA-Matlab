@@ -111,8 +111,20 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     if "hera_matlab-R2025b" in content:
         print("  - Enforcing correct package name 'hera-matlab'...")
         content = content.replace("hera_matlab-R2025b", "hera-matlab")
-        with open(setup_path, "w") as f:
-            f.write(content)
+
+    # 3b. Sync Version with GitHub Tag
+    # MATLAB defaults to '25.2' (R2025b).
+    # We overwrite this with the actual release tag (e.g., v1.1.0 -> 1.1.0).
+    tag_name = os.environ.get('GITHUB_REF_NAME')
+    if tag_name and tag_name.startswith('v'):
+        new_version = tag_name[1:] # Strip 'v'
+        print(f"  - Syncing version to GitHub Tag: {new_version}")
+        import re
+        # Replace version='25.2' with version='1.1.0'
+        content = re.sub(r"version\s*=\s*['\"][\d\.]+['\"]", f"version='{new_version}'", content)
+
+    with open(setup_path, "w") as f:
+        f.write(content)
     injection_code = """
     # --- INJECTED METADATA START ---
     try:
