@@ -48,7 +48,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
             sys.exit(1)
     else:
         # Attempt to find the distribution directory using glob patterns or default paths.
-        dirs = [d for d in glob.glob("hera_matlab-*/") if os.path.isdir(d)]
+        dirs = [d for d in glob.glob("hera_matlab*") if os.path.isdir(d)]
         deploy_dir = "deploy/output/python"
         
         if dirs:
@@ -119,6 +119,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
         print(f'Warning: Could not inject README: {e}')
 
     # Enhanced Metadata
+    setup_dict['name'] = 'hera-matlab'
     setup_dict['author'] = 'Lukas von Erdmannsdorff'
     setup_dict['license'] = 'MIT'
     
