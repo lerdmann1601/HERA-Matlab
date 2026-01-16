@@ -1,4 +1,4 @@
-function build_hera()
+function build_HERA_matlab()
 % BUILD_HERA - Compiles HERA and creates an Installer with auto-runtime download.
 %
 % Syntax:
