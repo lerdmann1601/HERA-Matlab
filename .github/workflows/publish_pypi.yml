@@ -2,6 +2,11 @@ name: Publish to PyPI
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release Tag (e.g., v1.0.0)'
+        required: true
+        default: ''
 
 permissions:
   contents: read
@@ -27,11 +32,13 @@ jobs:
       - name: Download and Repackage with Metadata
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
           # 1. Download source distribution
-          echo "Downloading source for tag: ${{ github.ref_name }}"
+          TAG_NAME="${RELEASE_TAG:-${{ github.ref_name }}}"
+          echo "Downloading source for tag: $TAG_NAME"
           mkdir original_dist
-          gh release download ${{ github.ref_name }} --pattern "*.tar.gz" --dir original_dist
+          gh release download "$TAG_NAME" --pattern "*.tar.gz" --dir original_dist
           
           # 2. Extract
           tar -xzf original_dist/*.tar.gz
