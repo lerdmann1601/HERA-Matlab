@@ -44,7 +44,7 @@ jobs:
           tar -xzf original_dist/*.tar.gz
           
           # 3. Run preparation script (Inject Metadata)
-          python .github/scripts/prepare_pypi.py
+          GITHUB_REF_NAME="$TAG_NAME" python .github/scripts/prepare_pypi.py
           
           # 4. Build new artifacts
           # Find the directory name again for the build command
