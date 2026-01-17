@@ -12,79 +12,63 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Configure Git Credentials
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: 3.x
 
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV 
-
-      - uses: actions/cache@v4
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
-
       - name: Install dependencies
-        run: pip install mkdocs-material
-
-      - name: Prepare Index
         run: |
-          # Copy README.md to docs/index.md
+          pip install mkdocs-material
+          sudo apt-get update
+          sudo apt-get install -y pandoc
+
+      - name: Prepare Documentation
+        run: |
+          # 1. Prepare Landing Page (README -> index.md)
+          # We use the repository README as the documentation homepage.
           cp README.md docs/index.md
           
-          # Copy assets into docs folder so MkDocs can find them
-          # This results in docs/assets/
+          # 2. Setup Assets
+          # Copy general assets (logos, badges) to the docs folder for local referencing
           cp -r assets docs/
           
-          # Fix image paths:
-          # In README (GitHub), images are absolute URLs or relative paths.
-          # We want them to point to the local "assets/" folder we just copied into docs/.
-          # This sed replaces the long github raw URL with just "assets/"
+          # 3. Path & Layout Adjustments
+          # Fix image paths: Replace absolute GitHub URLs with local relative paths Use local assets
           sed -i 's|src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/|src="assets/|g' docs/index.md
           
-          # Also fix local relative paths if any (e.g. src="assets/img.png")
-          # Since we contain assets/ inside docs/, "assets/" is the correct relative path from index.md
-          
-          # CRITICAL FIX 1: Fix Centering of Header/Logo
-          # We originally stripped the <div>, which made it left-aligned.
-          # Now we keep the <div> but add 'markdown="1"' so MkDocs parses the content inside.
-          # We need to enable 'md_in_html' extension in mkdocs.yml for this to work.
+          # Fix Alignment: Enable Markdown parsing inside the centering div for the logo/header
           sed -i 's|<div align="center">|<div align="center" markdown="1">|g' docs/index.md
-          
-          # CRITICAL FIX 2: Fix GitHub Alerts (Warning/Note)
-          # GitHub uses "> [!WARNING]", but MkDocs uses "!!! warning".
-          # We simply convert the header line. The > characters in following lines
-          # will make it render as a blockquote inside the warning, which looks fine.
-          # We do this for all md files in docs/
+
+          # 4. Standardize Alerts
+          # Convert GitHub-style alerts (> [!WARNING]) to MkDocs Material Admonitions (!!! warning)
           sed -i 's|> \[!WARNING\]|!!! warning|g' docs/*.md
           sed -i 's|> \[!NOTE\]|!!! note|g' docs/*.md
           sed -i 's|> \[!IMPORTANT\]|!!! tip|g' docs/*.md
-          
-          # PAPER INTEGRATION:
-          # Copy the paper content to be "Methodological Background"
-          cp paper/paper.md docs/Methodology.md
-          
-          # Copy paper images to docs/images so they are found
-          # (paper.md references "images/foo.png", so we need docs/images/foo.png)
-          cp -r paper/images/* docs/images/ 2>/dev/null || true
-          # Note: If docs/images doesn't exist, we should mkdir it, but "cp -r assets docs/" 
-          # generated docs/assets. The paper uses "images/". 
-          # We need to make sure 'docs/images' exists.
+
+          # 5. Integrate Theoretical Background (Paper)
+          # Prepare images for the methodology section
           mkdir -p docs/images
-          cp -r paper/images/* docs/images/
-          
-          # Strip the YAML frontmatter (JOSS metadata) from the top of the paper
-          # (Lines 1-21 roughly, between the --- blocks)
-          # We delete from line 1 until the second ---
-          sed -i '1,/^---$/d' docs/Methodology.md
+          cp -r paper/images/* docs/images/ 2>/dev/null || true
+
+          # Convert Paper to Documentation Page
+          # Uses Pandoc to:
+          # - Resolve citations from paper.bib ([@Auth2025] -> (Auth, 2025))
+          # - Append bibliography
+          # - Convert to GitHub Flavored Markdown
+          pandoc paper/paper.md \
+            -o docs/Methodology.md \
+            --from markdown --to gfm \
+            --citeproc \
+            --bibliography paper/paper.bib
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force

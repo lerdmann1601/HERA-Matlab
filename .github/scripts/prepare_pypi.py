@@ -164,7 +164,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     setup_dict['project_urls'] = {
         'Bug Tracker': f"{repo_url}/issues",
         'Source Code': repo_url,
-        'Documentation': f"{repo_url}/tree/main/docs",
+        'Documentation': 'https://lerdmann1601.github.io/HERA-Matlab/',
     }
     
     setup_dict['classifiers'] = [
