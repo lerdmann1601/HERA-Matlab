@@ -120,8 +120,8 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
         new_version = tag_name[1:] # Strip 'v'
         print(f"  - Syncing version to GitHub Tag: {new_version}")
         import re
-        # Replace version='25.2' with version='1.1.0'
-        content = re.sub(r"version\s*=\s*['\"][\d\.]+['\"]", f"version='{new_version}'", content)
+        # Regex replacement to handle 'version': '25.2' inside the dictionary
+        content = re.sub(r"['\"]version['\"]\s*:\s*['\"][\d\.]+['\"]", f"'version': '{new_version}'", content)
 
     with open(setup_path, "w") as f:
         f.write(content)
