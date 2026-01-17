@@ -42,11 +42,26 @@ jobs:
 
       - name: Prepare Index
         run: |
-          # Copy README.md to docs/index.md and fix image paths
+          # Copy README.md to docs/index.md
           cp README.md docs/index.md
-          sed -i 's|src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/|src="../assets/|g' docs/index.md
-          # Also fix local asset links if they exist in a simple way
-          # For now, simplistic replacement is fine as the README uses absolute raw links mostly for safety
+          
+          # Copy assets into docs folder so MkDocs can find them
+          # This results in docs/assets/
+          cp -r assets docs/
+          
+          # Fix image paths:
+          # In README (GitHub), images are absolute URLs or relative paths.
+          # We want them to point to the local "assets/" folder we just copied into docs/.
+          # This sed replaces the long github raw URL with just "assets/"
+          sed -i 's|src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/|src="assets/|g' docs/index.md
+          
+          # Also fix local relative paths if any (e.g. src="assets/img.png")
+          # Since we contain assets/ inside docs/, "assets/" is the correct relative path from index.md
+          
+          # CRITICAL FIX: Remove <div align="center"> and </div> tags.
+          # MkDocs Material often fails to parse Markdown inside raw HTML blocks.
+          sed -i 's|<div align="center">||g' docs/index.md
+          sed -i 's|</div>||g' docs/index.md
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
