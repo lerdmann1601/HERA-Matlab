@@ -69,8 +69,6 @@ jobs:
           # Enable link-citations in the YAML metadata
           sed -i 's/bibliography: paper.bib/bibliography: paper.bib\nlink-citations: true/' paper/paper_clean.md
           
-          # Append References header
-          printf "\n\n# References\n\n" >> paper/paper_clean.md
 
           # Convert Paper to Documentation Page
           # Uses Pandoc to:
@@ -80,10 +78,13 @@ jobs:
           # - Use APA style to enforce inclusion of DOIs/URLs
           pandoc paper/paper_clean.md \
             -o docs/Methodology.md \
-            --from markdown --to gfm \
+            --from markdown --to html \
             --citeproc \
             --csl https://www.zotero.org/styles/apa \
             --bibliography paper/paper.bib
+
+          # Image Paths in generated HTML
+          sed -i 's|src="images/|src="../images/|g' docs/Methodology.md
 
 
       - name: Deploy to GitHub Pages
