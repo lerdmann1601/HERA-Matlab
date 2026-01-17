@@ -42,17 +42,20 @@ markdown_extensions:
 nav:
   - Home: index.md
   - User Guide:
+    - Theoretical Background: Methodology.md
     - Ranking Modes: Ranking_Modes_Explained.md
     - Input Specification: Input_Data_Specification.md
-    - Configuration: Configuration_Reference.md
-    - Convergence & Stopping: Convergence_Modes.md
+    - Configuration & Parameters: Configuration_&_Parameters.md
     - Bootstrap Settings: Bootstrap_Configuration.md
+    - Convergence Modes: Convergence_Modes.md
     - Methodological Guidelines: Methodological_Guidelines_&_Limitations.md
-  - Advanced Topics:
     - Python Integration: Python_Integration.md
     - Standalone Runtime: Standalone_Runtime.md
-    - Developer Mode: Advanced_Usage.md
     - Automated Build: Automated_Build.md
-  - References:
+    - Developer Mode: Advanced_Usage.md
     - Results Structure: Results_Structure_Reference.md
-    - Repository Structure: Repository_Structure.md
+
+
+
+
+

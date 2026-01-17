@@ -154,7 +154,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 
 👉 [Methodological Guidelines & Limitations](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Methodological_Guidelines_&_Limitations.md)
 
-👉 [Configuration Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Configuration_Reference.md)
+👉 [Configuration & Parameters](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Configuration_&_Parameters.md)
 
 👉 [Bootstrap Configuration](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Bootstrap_Configuration.md)
 

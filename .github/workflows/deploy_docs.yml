@@ -67,6 +67,24 @@ jobs:
           sed -i 's|> \[!WARNING\]|!!! warning|g' docs/*.md
           sed -i 's|> \[!NOTE\]|!!! note|g' docs/*.md
           sed -i 's|> \[!IMPORTANT\]|!!! tip|g' docs/*.md
+          
+          # PAPER INTEGRATION:
+          # Copy the paper content to be "Methodological Background"
+          cp paper/paper.md docs/Methodology.md
+          
+          # Copy paper images to docs/images so they are found
+          # (paper.md references "images/foo.png", so we need docs/images/foo.png)
+          cp -r paper/images/* docs/images/ 2>/dev/null || true
+          # Note: If docs/images doesn't exist, we should mkdir it, but "cp -r assets docs/" 
+          # generated docs/assets. The paper uses "images/". 
+          # We need to make sure 'docs/images' exists.
+          mkdir -p docs/images
+          cp -r paper/images/* docs/images/
+          
+          # Strip the YAML frontmatter (JOSS metadata) from the top of the paper
+          # (Lines 1-21 roughly, between the --- blocks)
+          # We delete from line 1 until the second ---
+          sed -i '1,/^---$/d' docs/Methodology.md
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
