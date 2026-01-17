@@ -63,22 +63,28 @@ jobs:
           cp paper/paper.md paper/paper_clean.md
           
           # Remove Pandoc image attributes (e.g., {height=85%}) to force standard Markdown output
-          # This ensures MkDocs handles the relative paths correctly.
-          sed -i 's/{height=[^}]*}//g' paper/paper_clean.md
+          # We use a robust regex to catch {height=...} with optional spaces
+          sed -i -E 's/\{[[:space:]]*height=[^}]*\}[[:space:]]*//g' paper/paper_clean.md
 
           # Enable link-citations in the YAML metadata
           sed -i 's/bibliography: paper.bib/bibliography: paper.bib\nlink-citations: true/' paper/paper_clean.md
+          
+          # Append References header
+          printf "\n\n# References\n\n" >> paper/paper_clean.md
 
           # Convert Paper to Documentation Page
           # Uses Pandoc to:
           # - Resolve citations from paper.bib ([@Auth2025] -> (Auth, 2025))
           # - Append bibliography
-          # - Convert to GitHub Flavored Markdown
+          # - Convert to HTML (safer for complex DOIs and styling)
+          # - Use APA style to enforce inclusion of DOIs/URLs
           pandoc paper/paper_clean.md \
             -o docs/Methodology.md \
-            --from markdown --to gfm \
+            --from markdown --to html \
             --citeproc \
+            --csl https://www.zotero.org/styles/apa \
             --bibliography paper/paper.bib
+
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force

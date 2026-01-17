@@ -11,7 +11,11 @@
 }
 
 /* Bibliography styling */
-.csl-entry {
+#refs {
+    font-size: 0.9em;
+}
+
+#refs div {
     margin-bottom: 0.5em;
     margin-left: 2em;
     text-indent: -2em;
