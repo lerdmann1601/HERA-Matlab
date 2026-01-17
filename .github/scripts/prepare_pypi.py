@@ -125,6 +125,11 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
 
     with open(setup_path, "w") as f:
         f.write(content)
+
+    print(f"  [DEBUG] setup.py modified. Verifying content at {setup_path}:")
+    with open(setup_path, "r") as f:
+        print(f.read())
+    print("  [DEBUG] Verification complete.")
     injection_code = """
     # --- INJECTED METADATA START ---
     try:
