@@ -1,13 +1,8 @@
 name: Deploy Documentation
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'docs/**'
-      - 'mkdocs.yml'
-      - 'README.md'
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -58,10 +53,20 @@ jobs:
           # Also fix local relative paths if any (e.g. src="assets/img.png")
           # Since we contain assets/ inside docs/, "assets/" is the correct relative path from index.md
           
-          # CRITICAL FIX: Remove <div align="center"> and </div> tags.
-          # MkDocs Material often fails to parse Markdown inside raw HTML blocks.
-          sed -i 's|<div align="center">||g' docs/index.md
-          sed -i 's|</div>||g' docs/index.md
+          # CRITICAL FIX 1: Fix Centering of Header/Logo
+          # We originally stripped the <div>, which made it left-aligned.
+          # Now we keep the <div> but add 'markdown="1"' so MkDocs parses the content inside.
+          # We need to enable 'md_in_html' extension in mkdocs.yml for this to work.
+          sed -i 's|<div align="center">|<div align="center" markdown="1">|g' docs/index.md
+          
+          # CRITICAL FIX 2: Fix GitHub Alerts (Warning/Note)
+          # GitHub uses "> [!WARNING]", but MkDocs uses "!!! warning".
+          # We simply convert the header line. The > characters in following lines
+          # will make it render as a blockquote inside the warning, which looks fine.
+          # We do this for all md files in docs/
+          sed -i 's|> \[!WARNING\]|!!! warning|g' docs/*.md
+          sed -i 's|> \[!NOTE\]|!!! note|g' docs/*.md
+          sed -i 's|> \[!IMPORTANT\]|!!! tip|g' docs/*.md
 
       - name: Deploy to GitHub Pages
         run: mkdocs gh-deploy --force
