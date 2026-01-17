@@ -21,9 +21,23 @@
     text-indent: -2em;
 }
 
-/* Fix Pandoc MathJax/HTML math rendering */
+/* Pandoc MathJax/HTML math rendering */
 span.math.inline {
     display: inline !important;
     float: none !important;
     margin: 0 !important;
+}
+
+/* Automatic Figure Numbering */
+.md-content__inner {
+    counter-reset: fig-count;
+}
+
+figure {
+    counter-increment: fig-count;
+}
+
+figcaption::before {
+    content: "Fig. " counter(fig-count) ": ";
+    font-weight: bold;
 }
