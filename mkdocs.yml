@@ -1,0 +1,57 @@
+site_name: HERA
+site_description: HERA is a MATLAB toolbox for robust, statistical benchmarking and ranking of algorithms using hierarchical logic, effect sizes, and bootstrapping.
+site_url: https://lerdmann1601.github.io/HERA-Matlab/
+repo_url: https://github.com/lerdmann1601/HERA-Matlab
+repo_name: lerdmann1601/HERA-Matlab
+
+theme:
+  name: material
+  logo: assets/hera_logo.svg
+  favicon: assets/hera_logo.svg
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+  palette:
+    - scheme: default
+      primary: white
+      accent: deep purple 
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: grey
+      accent: deep purple
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Home: index.md
+  - User Guide:
+    - Ranking Modes: Ranking_Modes_Explained.md
+    - Input Specification: Input_Data_Specification.md
+    - Configuration: Configuration_Reference.md
+    - Convergence & Stopping: Convergence_Modes.md
+    - Bootstrap Settings: Bootstrap_Configuration.md
+    - Methodological Guidelines: Methodological_Guidelines_&_Limitations.md
+  - Advanced Topics:
+    - Python Integration: Python_Integration.md
+    - Standalone Runtime: Standalone_Runtime.md
+    - Developer Mode: Advanced_Usage.md
+    - Automated Build: Automated_Build.md
+  - References:
+    - Results Structure: Results_Structure_Reference.md
+    - Repository Structure: Repository_Structure.md
