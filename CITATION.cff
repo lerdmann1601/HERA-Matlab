@@ -6,7 +6,7 @@ authors:
   orcid: "https://orcid.org/0009-0009-3758-7363"
   affiliation: "Institute of Neuroradiology, Goethe University Frankfurt"
 title: "HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation"
-version: 1.1.0
+version: 1.1.1
 doi: 10.5281/zenodo.18274871 
 date-released: 2026-01-15
 url: "https://github.com/lerdmann1601/HERA-Matlab"
