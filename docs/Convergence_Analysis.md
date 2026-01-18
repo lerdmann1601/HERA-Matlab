@@ -32,10 +32,10 @@ These were held constant because the three parameters we *did* test (regarding d
 We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties.
 
 **Data Scenarios:**
-![Scenario Parameters](Robustness_Report_20251214_233500/Graphics/Param_Scenarios_20251214_233500.png)
+![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Param_Scenarios_20251214_233500.png)
 
 **Method Configurations:**
-![Method Parameters](Robustness_Report_20251214_233500/Graphics/Param_Methods_20251214_233500.png)
+![Method Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Param_Methods_20251214_233500.png)
 
 ### Analysis Scope
 
@@ -72,13 +72,13 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
 ### Global Results Summary
 
 **Ranking Convergence:**
-![Ranking Summary](Robustness_Report_20251214_233500/Graphics/Global_Summary_Ranking_20251214_233500.png)
+![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_Ranking_20251214_233500.png)
 
 **BCa Confidence Interval Convergence:**
-![BCa Summary](Robustness_Report_20251214_233500/Graphics/Global_Summary_BCa_20251214_233500.png)
+![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_BCa_20251214_233500.png)
 
 **Threshold Calculations:**
-![Thresholds Summary](Robustness_Report_20251214_233500/Graphics/Global_Summary_Thresholds_20251214_233500.png)
+![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_Thresholds_20251214_233500.png)
 
 ## Discussion: Convergence Modes
 
@@ -87,7 +87,10 @@ Based on these results, we can discuss the theoretical implications of the diffe
 * **Relaxed**: Prioritizes speed. While significantly faster, it carries a higher risk of terminating before true stability is reached, especially in complex scenarios and BCa confidence intervals.
 * **Strict**: Prioritizes guaranteed stability. It enforces rigorous checks that may lead to very high iteration counts. While safer, this can be computationally expensive and potentially overkill for well-behaved datasets where the Default mode would suffice. Also it could lead to non-convergence in some cases for the desired tolerance.
 * **Default**: Designed to balance efficiency and reliability, it seems to be the best option for general usage. Interestingly, in some tested scenarios it provides higher accuracy for the BCa confidence intervals compared to stricter settings when comparing to the reference values. This is likely because stricter settings with more iterations can occasionally include rare extreme bootstrap samples that increase variance without improving the central estimate.
-  * **Conclusion**: Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in >99.7% of tested Ranking cases and virtually 100% of other cases, while maintaining high accuracy against reference standards.
+
+## Conclusion
+
+Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in >99.7% of tested Ranking cases and virtually 100% of other cases, while maintaining high accuracy against reference standards.
   
 ## Computational Note
 
@@ -97,4 +100,4 @@ The complete analysis (7 scenarios × 50 independent simulations, comprising 2,1
 
 For a comprehensive look at the data, including specific breakdowns for each distribution type, please refer to the generated PDF report:
 
-[**Download Full Combined Report (PDF)**](Robustness_Report_20251214_233500/Full_Combined_Report_20251214_233500.pdf)
+[**Download Full Combined Report (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Full_Combined_Report_20251214_233500.pdf)

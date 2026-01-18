@@ -133,7 +133,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
 > **Note:** Example use cases with synthetic datasets and results are
-> provided in the `data/examples` directory. See [data/README.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/data/README.md) for a
+> provided in the `data/examples` directory. See [docs/Example_Analysis.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md) for a
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
 >
@@ -162,9 +162,13 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 
 👉 [Convergence Modes](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Modes.md)
 
+👉 [Convergence Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Analysis.md)
+
 👉 [Advanced Usage (Developer Mode)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Advanced_Usage.md)
 
 👉 [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md)
+
+👉 [Example Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md)
 
 ---
 

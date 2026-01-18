@@ -18,7 +18,7 @@
 > Convergence failures using the elbow method were rare (0.3% of cases,
 > exclusively in Ranking). Simple Convergence Mode was not assessed in this analysis!
 > For detailed results, see
-> [tests/Convergence_Analysis.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/tests/Convergence_Analysis.md).
+> [docs/Convergence_Analysis.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Analysis.md).
 
 ## Troubleshooting Convergence
 
