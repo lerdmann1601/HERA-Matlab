@@ -148,13 +148,15 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 
 👉 [Repository Structure](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Repository_Structure.md)
 
+👉 [Theoretical Background](https://github.com/lerdmann1601/HERA-Matlab/blob/main/paper/paper.pdf)
+
 👉 [Ranking Modes Explained](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Ranking_Modes_Explained.md)
 
 👉 [Input Data Specification](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Input_Data_Specification.md)
 
-👉 [Methodological Guidelines & Limitations](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Methodological_Guidelines_&_Limitations.md)
+👉 [Example Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md)
 
-👉 [Theoretical Background](https://github.com/lerdmann1601/HERA-Matlab/blob/main/paper/paper.pdf)
+👉 [Methodological Guidelines & Limitations](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Methodological_Guidelines_&_Limitations.md)
 
 👉 [Configuration & Parameters](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Configuration_&_Parameters.md)
 
@@ -167,8 +169,6 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 👉 [Advanced Usage (Developer Mode)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Advanced_Usage.md)
 
 👉 [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md)
-
-👉 [Example Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md)
 
 ---
 

@@ -55,14 +55,14 @@ nav:
     - Theoretical Background: Methodology.md
     - Ranking Modes: Ranking_Modes_Explained.md
     - Input Specification: Input_Data_Specification.md
+    - Example Analysis: Example_Analysis.md
+    - Methodological Guidelines: Methodological_Guidelines_&_Limitations.md
     - Configuration & Parameters: Configuration_&_Parameters.md
     - Bootstrap Settings: Bootstrap_Configuration.md
     - Convergence Modes: Convergence_Modes.md
     - Convergence Analysis: Convergence_Analysis.md
-    - Example Analysis: Example_Analysis.md
-    - Methodological Guidelines: Methodological_Guidelines_&_Limitations.md
+    - Advanced Usage: Advanced_Usage.md
+    - Results Structure: Results_Structure_Reference.md
     - Python Integration: Python_Integration.md
     - Standalone Runtime: Standalone_Runtime.md
     - Automated Build: Automated_Build.md
-    - Developer Mode: Advanced_Usage.md
-    - Results Structure: Results_Structure_Reference.md
