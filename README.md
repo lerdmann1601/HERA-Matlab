@@ -288,7 +288,7 @@ If you use HERA in your research, please cite:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/lerdmann1601/HERA-Matlab/blob/main/LICENSE) file
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/lerdmann1601/HERA-Matlab/blob/main/license.txt) file
 for details.
 
 ---
