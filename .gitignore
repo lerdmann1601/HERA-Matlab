@@ -27,6 +27,7 @@ Ranking_*/
 
 # Build Artifacts
 deploy/output/
+deploy/dist/
 release/
 data/examples/Example_2_workflow/results/Alpha_*
 

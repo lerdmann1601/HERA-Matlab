@@ -70,4 +70,5 @@ To publish the Python package to PyPI, follow this **manual workflow** (since th
    - Go to the **Actions** tab in GitHub.
    - Select **Publish to PyPI**.
    - Click **Run workflow**.
-   - The action will download the files from your release and upload them to PyPI.
+   - The action will download the files from your release, patch them with the correct version/metadata, and upload them to PyPI.
+   - **Recommended:** After the action completes, download the *final* artifacts from PyPI (or the Action run) and **replace** the manually uploaded files in your GitHub Release. This ensures the Release artifacts match the PyPI version exactly (including the correct version number and metadata).
