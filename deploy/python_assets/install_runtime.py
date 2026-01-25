@@ -7,7 +7,7 @@ If the runtime is missing, it provides platform-specific instructions for instal
 
 Typical usage example:
 
-    python -m hera_matlab.install_runtime
+    python3 -m hera_matlab.install_runtime
 """
 
 import os

@@ -27,7 +27,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install build tools
-        run: pip install build setuptools wheel
+        run: pip3 install build setuptools wheel
 
       - name: Download and Repackage with Metadata
         env:
@@ -44,12 +44,12 @@ jobs:
           tar -xzf original_dist/*.tar.gz
           
           # 3. Run preparation script (Inject Metadata)
-          GITHUB_REF_NAME="$TAG_NAME" python .github/scripts/prepare_pypi.py
+          GITHUB_REF_NAME="$TAG_NAME" python3 .github/scripts/prepare_pypi.py
           
           # 4. Build new artifacts
           # Find the directory name again for the build command
           DIR_NAME=$(ls -d hera_matlab* | head -n 1)
-          python -m build "$DIR_NAME" --outdir dist/
+          python3 -m build "$DIR_NAME" --outdir dist/
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1

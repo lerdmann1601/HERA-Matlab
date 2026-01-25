@@ -243,7 +243,7 @@ except (RuntimeError, ImportError, EnvironmentError) as e:
         print(f"Details: {str(_initialization_error)}")
         print("")
         print("Run the following command to diagnose and fix the issue:")
-        print("    python -m hera_matlab.install_runtime")
+        print("    python3 -m hera_matlab.install_runtime")
         raise _initialization_error
 """
 

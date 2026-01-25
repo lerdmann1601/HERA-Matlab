@@ -14,7 +14,7 @@ The easiest way to install the package is via `pip` from PyPI.
 ### Step 1: Install Package
 
 ```bash
-pip install hera-matlab
+pip3 install hera-matlab
 ```
 
 ### Step 2: Install MATLAB Runtime
@@ -23,7 +23,7 @@ HERA requires the **MATLAB Runtime R2025b (v25.2)**.
 After installing the package, run the following command to check if you have the correct runtime installed or to get the direct download link:
 
 ```bash
-python -m hera_matlab.install_runtime
+python3 -m hera_matlab.install_runtime
 ```
 
 Follow the instructions provided by this command to download and install the runtime if it is missing.
@@ -37,7 +37,7 @@ Typically found at:
 `/Applications/MATLAB/MATLAB_Runtime/R2025b/bin/mwpython`
 
 **Usage:**
-Instead of running `python script.py`, run:
+Instead of running `python3 script.py`, run:
 
 ```bash
 /Applications/MATLAB/MATLAB_Runtime/R2025b/bin/mwpython script.py
