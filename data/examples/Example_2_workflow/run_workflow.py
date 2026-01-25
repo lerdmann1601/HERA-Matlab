@@ -24,7 +24,7 @@ Workflow:
      - Plot the optimization curve.
 
 Usage:
-    $ pip install -r requirements.txt
+    $ pip3 install -r requirements.txt
     $ python3 run_workflow.py
 
 Author: Lukas von Erdmannsdorff
@@ -188,7 +188,7 @@ class HERAWorkflow:
             pass
 
         # Package not found. Check if user opted out of auto-install.
-        # Usage: HERA_NO_INSTALL=1 python run_workflow.py
+        # Usage: HERA_NO_INSTALL=1 python3 run_workflow.py
         if os.environ.get("HERA_NO_INSTALL"):
             print("[Info] HERA Python package not found and auto-install disabled.")
             return False

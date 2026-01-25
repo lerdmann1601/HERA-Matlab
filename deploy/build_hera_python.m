@@ -115,7 +115,7 @@ clc
     fprintf('Python Package generated at:\n%s\n', fullfile(outputDir, pkgName));
     fprintf('----------------------------------------\n');
     fprintf('To release:\n');
-    fprintf('1. Verify: cd %s && pip install .\n', fullfile(outputDir, pkgName));
+    fprintf('1. Verify: cd %s && pip3 install .\n', fullfile(outputDir, pkgName));
     fprintf('2. Upload: twine upload dist/* (inside the package folder)\n');
     fprintf('========================================\n');
         

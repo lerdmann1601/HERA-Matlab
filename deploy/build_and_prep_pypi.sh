@@ -14,7 +14,7 @@ set -e
 # Workflow:
 #   1.  MATLAB Build: Triggers 'build_HERA_python' if MATLAB is available.
 #   2.  Verification: Checks if the package was generated correctly.
-#   3.  Distribution: Runs 'python -m build' to generate distribution artifacts.
+#   3.  Distribution: Runs 'python3 -m build' to generate distribution artifacts.
 #
 # Inputs:
 #   None (Relies on 'build_HERA_python.m' in the same directory)
@@ -82,7 +82,7 @@ source "$VENV_DIR/bin/activate"
 
 # Ensure build tool is installed in the venv
 echo "Installing 'build' tool in virtual environment..."
-pip install --upgrade build
+pip3 install --upgrade build
 
 # Build
 echo "Building package..."

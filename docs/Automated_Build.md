@@ -47,7 +47,7 @@ To publish the Python package to PyPI, follow this **manual workflow** (since th
    - Repository: `HERA-Matlab`
    - Workflow name: `publish_pypi.yml`
    - Environment: `pypi`
-2. **Local Environment**: Ensure you have MATLAB and `python`, `pip` installed locally.
+2. **Local Environment**: Ensure you have MATLAB and `python3`, `pip3` installed locally.
 
 ### Release Steps
 
