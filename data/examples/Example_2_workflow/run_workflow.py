@@ -40,6 +40,7 @@ import platform
 import glob
 from pathlib import Path
 from typing import Any, Optional, Dict, List
+import logging
 
 import pandas as pd
 import numpy as np
@@ -85,23 +86,24 @@ MANUAL_BOOTSTRAP = {
     "manual_B_rank": 500
 }
 
-
-class Logger:
-    """Redirects stdout to both terminal and a log file."""
+# Configure Logging
+def setup_logging(results_dir: Path) -> None:
+    """Configures the standard logging module.
     
-    def __init__(self, file_path: Path | str) -> None:
-        self.terminal = sys.stdout
-        self.log = open(file_path, "a", encoding="utf-8")
-
-    def write(self, message: str) -> None:
-        self.terminal.write(message)
-        self.log.write(message)
-        self.log.flush()
-
-    def flush(self) -> None:
-        self.terminal.flush()
-        self.log.flush()
-
+    Logs are written to both the terminal (INFO+) and a file (DEBUG+) in the results directory.
+    """
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    log_file = results_dir / f"workflow_log_{timestamp}.txt"
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(message)s",
+        handlers=[
+            logging.FileHandler(log_file, encoding='utf-8'),
+            logging.StreamHandler(sys.stdout)
+        ]
+    )
+    logging.info(f"[Info] Logging started. Output saved to: {log_file}")
 
 class HERAWorkflow:
     """Main controller for the HERA analysis workflow.
@@ -121,25 +123,16 @@ class HERAWorkflow:
         """1. Ensures the directory structure exists.
         
         Checks for data and result directories and creates them if missing.
-        Also initializes the logging mechanism.
         """
         # 1. Setup Data Directory
         if not self.data_dir.exists():
-            print(f"[Info] Creating Data Directory: {self.data_dir}")
+            logging.info(f"[Info] Creating Data Directory: {self.data_dir}")
             self.data_dir.mkdir(parents=True)
             
         # 2. Setup Results Directory
         if not self.results_dir.exists():
-            print(f"[Info] Creating Results Directory: {self.results_dir}")
+            logging.info(f"[Info] Creating Results Directory: {self.results_dir}")
             self.results_dir.mkdir(parents=True)
-
-        # --- Logging Setup ---
-        timestamp = time.strftime("%Y%m%d_%H%M%S")
-        log_file_name = f"workflow_log_{timestamp}.txt"
-        log_path = self.results_dir / log_file_name
-        
-        sys.stdout = Logger(log_path)
-        print(f"[Info] Logging started. Output saved to: {log_path}")
 
     def create_hera_config(self, input_path: Path, output_path: Path) -> Dict[str, Any]:
         """2. Creates the JSON configuration structure for HERA.
@@ -188,43 +181,66 @@ class HERAWorkflow:
             pass
 
         # Package not found. Check if user opted out of auto-install.
-        # Usage: HERA_NO_INSTALL=1 python3 run_workflow.py
         if os.environ.get("HERA_NO_INSTALL"):
-            print("[Info] HERA Python package not found and auto-install disabled.")
+            logging.info("[Info] HERA Python package not found and auto-install disabled.")
             return False
 
-        print("[Info] 'hera_matlab' package not found. Attempting to install...")
+        logging.info("[Info] 'hera_matlab' package not found. Attempting auto-install...")
 
-        # Look for wheels in the project deploy/dist directory
-        # Path relative to this script: ../../../deploy/dist
+        # 1. Try installing from PyPI
+        logging.info(" -> Attempting to install from PyPI...")
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "hera-matlab"])
+            
+            # If successful, check for Runtime
+            logging.info(" -> Checking Runtime installation...")
+            try:
+                subprocess.check_call([sys.executable, "-m", "hera_matlab.install_runtime"])
+            except subprocess.CalledProcessError:
+                logging.error("\n[Action Required] MATLAB Runtime is missing or not configured correctly.")
+                logging.error(" -> Please follow the instructions above to download/install the Runtime.")
+                logging.error(" -> Once installed, restart this script.")
+                return False
+            
+            # Retry import
+            import hera_matlab
+            self._hera_package = hera_matlab
+            logging.info("[Success] 'hera_matlab' installed via PyPI and imported successfully.")
+            return True
+        except subprocess.CalledProcessError:
+            logging.warning(" -> PyPI installation failed. Trying local distribution...")
+        except ImportError:
+            logging.warning(" -> PyPI install seemed successful but import failed.")
+        
+        # 2. Fallback: Look for wheels in the project deploy/dist directory
         project_root = BASE_DIR.parent.parent.parent
         dist_dir = project_root / "deploy" / "dist"
 
         if not dist_dir.exists():
-            print(f"[Warning] Distribution directory not found at {dist_dir}. Cannot auto-install.")
+            logging.warning(f"[Warning] Distribution directory not found at {dist_dir}. Cannot auto-install.")
             return False
 
         wheels = list(dist_dir.glob("hera_matlab*.whl"))
         if not wheels:
-            print(f"[Warning] No .whl files found in {dist_dir}. Cannot auto-install.")
+            logging.warning(f"[Warning] No .whl files found in {dist_dir}. Cannot auto-install.")
             return False
 
         # Sort by modification time to get the latest build
         latest_wheel = sorted(wheels, key=lambda p: p.stat().st_mtime)[-1]
         
-        print(f" -> Installing {latest_wheel.name}...")
+        logging.info(f" -> Installing local wheel: {latest_wheel.name}...")
         try:
             subprocess.check_call([sys.executable, "-m", "pip", "install", str(latest_wheel)])
             
             # Retry import after install
             import hera_matlab
             self._hera_package = hera_matlab
-            print("[Success] 'hera_matlab' installed and imported successfully.")
+            logging.info("[Success] Local 'hera_matlab' installed and imported successfully.")
             return True
         except subprocess.CalledProcessError as e:
-            print(f"[Error] Failed to install package: {e}")
+            logging.error(f"[Error] Failed to install package: {e}")
         except ImportError:
-            print("[Error] Package installed but import failed.")
+            logging.error("[Error] Package installed but import failed.")
         
         return False
 
@@ -296,7 +312,7 @@ class HERAWorkflow:
         """
         # --- Priority 1: Python Package ---
         if self._ensure_hera_package_installed():
-            print(" -> Running HERA via Python Package (hera_matlab)...")
+            logging.info(" -> Running HERA via Python Package (hera_matlab)...")
             try:
                 # Initialize runtime if this is the first run
                 # Note: creating a new instance per run is usually okay,
@@ -304,32 +320,31 @@ class HERAWorkflow:
                 # However, for robustness in this loop, we'll initialize fresh or rely on the package.
                 hera = self._hera_package.initialize()
                 
-                # The Matlab compiled function signature translates to Python arguments.
-                # 'start_ranking' is the function name.
-                # We need to pass arguments. MATLAB varargin usually maps to direct args.
-                # usage: hera.start_ranking('configFile', str(config_path), nargout=0)
+                # Using nargout=0 to suppress return value, but console output 
+                # (stdout/stderr) from MATLAB/Runtime is automatically printed to terminal.
+                # This is handled by the MATLAB Engine API.
                 hera.start_ranking('configFile', str(config_path), nargout=0)
                 
                 hera.terminate() # Clean up resources
                 return True
-            except Exception as e:
-                print(f"[Error] Python Package Execution Failed: {e}")
-                print(" -> Falling back to Executable/MATLAB...")
+            except Exception as e: # Catching broad Exception from MATLAB Engine API is often necessary as they differ
+                logging.error(f"[Error] Python Package Execution Failed: {e}")
+                logging.info(" -> Falling back to Executable/MATLAB...")
         
         # --- Priority 2 & 3: Executable or MATLAB ---
         hera_cmd = self.find_executable()
         mcr_path = HERA_MCR_PATH_ENV or DEFAULT_MCR_PATH
 
         if not hera_cmd:
-             print(f"\n[Error] HERA executable NOT found and MATLAB is NOT in the system path!")
-             print(f"  To fix this, either:")
-             print(f"  1. Install the 'hera_matlab' Python package.")
-             print(f"  2. Build the project using 'deploy/build_hera.m'")
-             print(f"  3. Ensure 'matlab' is accessible from the terminal.")
+             logging.error(f"\n[Error] HERA executable NOT found and MATLAB is NOT in the system path!")
+             logging.info(f"  To fix this, either:")
+             logging.info(f"  1. Install the 'hera_matlab' Python package.")
+             logging.info(f"  2. Build the project using 'deploy/build_hera.m'")
+             logging.info(f"  3. Ensure 'matlab' is accessible from the terminal.")
              return False
 
-        print(f" -> Running HERA using: {hera_cmd}")
-        print(f" -> Config: {config_path}")
+        logging.info(f" -> Running HERA using: {hera_cmd}")
+        logging.info(f" -> Config: {config_path}")
         
         is_matlab = str(hera_cmd).endswith("matlab") or str(hera_cmd) == "matlab"
 
@@ -337,14 +352,17 @@ class HERAWorkflow:
             # Compiled Executable
             cmd = [str(hera_cmd), mcr_path, "configFile", str(config_path)]
             try:
+                # Use check_output to capture stdout/stderr, only printing on error if desired,
+                # OR stream it if we simply want it to pass through to the console.
+                # To suppress output unless error, we capture it.
                 result = subprocess.run(cmd, capture_output=True, text=True)
                 if result.returncode != 0:
-                    print("[Error] HERA Runtime Failed!")
-                    print(result.stderr)
+                    logging.error("[Error] HERA Runtime Failed!")
+                    logging.error(result.stderr) # Log stderr on failure
                     return False
                 return True
-            except Exception as e:
-                print(f"[Error] Execution Exception: {e}")
+            except OSError as e: # Catch specific OS error for subprocess
+                logging.error(f"[Error] Execution Exception: {e}")
                 return False
         else:
             # Local MATLAB
@@ -355,13 +373,13 @@ class HERAWorkflow:
             try:
                 result = subprocess.run(cmd, cwd=repo_root, capture_output=True, text=True)
                 if result.returncode != 0:
-                     print("[Error] MATLAB Execution Failed!")
-                     print(result.stderr)
-                     print(result.stdout)
+                     logging.error("[Error] MATLAB Execution Failed!")
+                     logging.error(result.stderr)
+                     # logging.info(result.stdout) # Optional: uncomment to debug stdout
                      return False
                 return True
-            except Exception as e:
-                print(f"[Error] MATLAB subprocess error: {e}")
+            except OSError as e:
+                logging.error(f"[Error] MATLAB subprocess error: {e}")
                 return False
 
     def get_latest_result_json(self, result_folder: Path) -> Path | None:
@@ -415,7 +433,7 @@ class HERAWorkflow:
         ci_upper = results.get('ci_upper_rank', [])
         
         if ci_lower and ci_upper and len(ci_lower) == len(dataset_names):
-             print(f" -> Using pre-calculated CIs from JSON.")
+             logging.info(f" -> Using pre-calculated CIs from JSON.")
         else:
             # Fallback: Calculate from bootstrap ranks
             bootstrap_ranks = results.get('final_bootstrap_ranks', [])
@@ -431,13 +449,13 @@ class HERAWorkflow:
                     # Calculate 95% CI (2.5th and 97.5th percentiles)
                     ci_lower = np.percentile(bs_data, 2.5, axis=1)
                     ci_upper = np.percentile(bs_data, 97.5, axis=1)
-                    print(f" -> Calculated CIs from {bs_data.shape[1]} bootstrap samples.")
-                except Exception as e:
-                    print(f"[Warning] Error calculating CIs from bootstrap ranks: {e}")
+                    logging.info(f" -> Calculated CIs from {bs_data.shape[1]} bootstrap samples.")
+                except Exception as e: # Catching broad exception for math/numpy errors here is acceptable as fallback exists
+                    logging.warning(f"[Warning] Error calculating CIs from bootstrap ranks: {e}")
                     ci_lower = final_ranks
                     ci_upper = final_ranks
             else:
-                 print(f"[Warning] Bootstrap ranks missing or shape mismatch in {json_path.name}")
+                 logging.warning(f"[Warning] Bootstrap ranks missing or shape mismatch in {json_path.name}")
                  ci_lower = final_ranks
                  ci_upper = final_ranks
 
@@ -474,12 +492,12 @@ class HERAWorkflow:
         alpha_folders.sort(key=parse_alpha, reverse=True)
         
         if not alpha_folders:
-            print("[Info] No data folders found to process.")
+            logging.info("[Info] No data folders found to process.")
             return
 
         aggregated_results = []
 
-        print("\n--- Starting Processing Loop ---")
+        logging.info("\n--- Starting Processing Loop ---")
         for data_folder in alpha_folders:
             alpha_str = data_folder.name
             alpha_val = parse_alpha(data_folder)
@@ -498,13 +516,13 @@ class HERAWorkflow:
             # Run HERA
             success = self.run_hera(config_path)
             if not success:
-                print(f"[Skip] Failed to process {alpha_str}")
+                logging.warning(f"[Skip] Failed to process {alpha_str}")
                 continue
                 
             # Analyze Result
             json_path = self.get_latest_result_json(result_target_dir)
             if not json_path:
-                print(f"[Skip] No output JSON found for {alpha_str}")
+                logging.warning(f"[Skip] No output JSON found for {alpha_str}")
                 continue
                 
             stats = self.analyze_results(json_path)
@@ -535,7 +553,7 @@ class HERAWorkflow:
         if not results:
             return
             
-        print("\n--- Pruning and Plotting ---")
+        logging.info("\n--- Pruning and Plotting ---")
         # Sort results by Alpha Descending (High -> Low)
         results.sort(key=lambda x: x["Alpha"], reverse=True)
         # Identify Overlaps
@@ -547,7 +565,7 @@ class HERAWorkflow:
             b_stats = res["Stats"].get("Method B", {})
             # Ensure both methods exist and have CI data
             if not (g_stats and b_stats and "ci_min" in g_stats and "ci_max" in g_stats and "ci_min" in b_stats and "ci_max" in b_stats):
-                print(f" [Warning] Skipping overlap check for Alpha {res['Alpha']} due to missing Method G or B stats.")
+                logging.warning(f" [Warning] Skipping overlap check for Alpha {res['Alpha']} due to missing Method G or B stats.")
                 continue
 
             # Check overlap: max(min_A, min_B) <= min(max_A, max_B)
@@ -565,11 +583,11 @@ class HERAWorkflow:
         # If we found an overlap at index N, we also want to keep N-1 (Result just before overlap).    
         if first_overlap_index > 0:
              to_keep_indices.add(first_overlap_index - 1)
-             print(f" -> Transition Point detected at Alpha {results[first_overlap_index - 1]['Alpha']}")
+             logging.info(f" -> Transition Point detected at Alpha {results[first_overlap_index - 1]['Alpha']}")
         elif first_overlap_index == 0:
-             print(" -> Overlap starts immediately from highest alpha.")
+             logging.info(" -> Overlap starts immediately from highest alpha.")
         else:
-             print(" -> No overlap detected in any dataset.")
+             logging.info(" -> No overlap detected in any dataset.")
              if results:
                 to_keep_indices.add(len(results) - 1)
              
@@ -578,13 +596,13 @@ class HERAWorkflow:
         for i, res in enumerate(results):
             if i in to_keep_indices:
                 final_plot_data.append(res)
-                print(f" [Keep] Alpha {res['Alpha']} (Overlap: {res.get('Is_Overlap', 'N/A')})")
+                logging.info(f" [Keep] Alpha {res['Alpha']} (Overlap: {res.get('Is_Overlap', 'N/A')})")
             else:
-                print(f" [Delete] Alpha {res['Alpha']} (Stable, Redundant)")
+                logging.info(f" [Delete] Alpha {res['Alpha']} (Stable, Redundant)")
                 try:
                     shutil.rmtree(res["Folder"])
-                except Exception as e:
-                    print(f"    Error deleting {res['Folder']}: {e}")
+                except OSError as e: # Catching specific OS/IO error
+                    logging.error(f"    Error deleting {res['Folder']}: {e}")
 
         self.plot_curve(final_plot_data, first_overlap_index=first_overlap_index, all_results=results)
 
@@ -599,7 +617,7 @@ class HERAWorkflow:
             all_results (Optional[List[Dict[str, Any]]]): Full list of results for transition point lookup.
         """
         if not data:
-            print("[Info] No data to plot.")
+            logging.info("[Info] No data to plot.")
             return
           # Convert to DataFrame for easier plotting              
         rows = []
@@ -662,9 +680,15 @@ class HERAWorkflow:
         
         save_path = self.results_dir / "stability_curve.png"
         plt.savefig(save_path, dpi=300)
-        print(f" -> Optimization Curve saved to: {save_path}")
+        logging.info(f" -> Optimization Curve saved to: {save_path}")
 
 if __name__ == "__main__":
+    # Ensure results directory exists for the log file
+    if not RESULTS_DIR.exists():
+        RESULTS_DIR.mkdir(parents=True)
+        
+    setup_logging(RESULTS_DIR)
+    
     start_time = time.time()
     workflow = HERAWorkflow()
     workflow.process_data()
@@ -672,13 +696,13 @@ if __name__ == "__main__":
     duration = end_time - start_time
     
     if duration < 60:
-        print(f"Total analysis duration: {duration:.2f} seconds")
+        logging.info(f"Total analysis duration: {duration:.2f} seconds")
     elif duration < 3600:
         minutes = int(duration // 60)
         seconds = duration % 60
-        print(f"Total analysis duration: {minutes} min {seconds:.0f} sec")
+        logging.info(f"Total analysis duration: {minutes} min {seconds:.0f} sec")
     else:
         hours = int(duration // 3600)
         minutes = int((duration % 3600) // 60)
         seconds = duration % 60
-        print(f"Total analysis duration: {hours} h {minutes} min {seconds:.0f} sec")
+        logging.info(f"Total analysis duration: {hours} h {minutes} min {seconds:.0f} sec")

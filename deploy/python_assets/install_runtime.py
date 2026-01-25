@@ -125,6 +125,8 @@ def check_runtime() -> None:
         if system == 'Darwin':
              print("")
              print(f"Note for macOS: SIP might clear DYLD_LIBRARY_PATH. Try running with 'mwpython'.")
+        
+        sys.exit(1)
 
 if __name__ == "__main__":
     check_runtime()
