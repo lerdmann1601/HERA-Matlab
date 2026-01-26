@@ -138,13 +138,26 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
         print("  - Enforcing correct package name 'hera-matlab'...")
         content = re.sub(r"hera_matlab-R20\d{2}[ab]", "hera-matlab", content)
 
-    # 3b. Sync Version with GitHub Tag
+    # 3b. Sync Version with GitHub Tag or Local Tag
     # MATLAB defaults to '25.2' (R2025b).
     # We overwrite this with the actual release tag (e.g., v1.1.0 -> 1.1.0).
     tag_name = os.environ.get('GITHUB_REF_NAME')
+    
+    # Fallback for local execution
+    if not tag_name:
+        try:
+            import subprocess
+            # Get the latest tag from git
+            result = subprocess.run(['git', 'describe', '--tags', '--abbrev=0'], 
+                                    capture_output=True, text=True, check=True)
+            tag_name = result.stdout.strip()
+            print(f"  - Detected local git tag: {tag_name}")
+        except Exception as e:
+            print(f"  - Warning: Could not detect git tag ({e}). Using default version.")
+
     if tag_name and tag_name.startswith('v'):
         new_version = tag_name[1:] # Strip 'v'
-        print(f"  - Syncing version to GitHub Tag: {new_version}")
+        print(f"  - Syncing version to Tag: {new_version}")
         import re
         # Regex replacement to handle 'version': '25.2' inside the dictionary
         content = re.sub(r"['\"]version['\"]\s*:\s*['\"][\d\.]+['\"]", f"'version': '{new_version}'", content)

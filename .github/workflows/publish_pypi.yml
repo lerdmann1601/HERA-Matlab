@@ -34,22 +34,38 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.release_tag }}
         run: |
-          # 1. Download source distribution
+          # 1. Try to download Pre-Built Artifacts (Wheel + Sdist)
           TAG_NAME="${RELEASE_TAG:-${{ github.ref_name }}}"
-          echo "Downloading source for tag: $TAG_NAME"
-          mkdir original_dist
-          gh release download "$TAG_NAME" --pattern "*.tar.gz" --dir original_dist
+          echo "Target Release: $TAG_NAME"
           
-          # 2. Extract
-          tar -xzf original_dist/*.tar.gz
+          mkdir -p dist
+          # Attempt download, suppress error if not found (we have fallback)
+          gh release download "$TAG_NAME" --pattern "*.whl" --dir dist || true
+          gh release download "$TAG_NAME" --pattern "*.tar.gz" --dir dist || true
           
-          # 3. Run preparation script (Inject Metadata)
-          GITHUB_REF_NAME="$TAG_NAME" python3 .github/scripts/prepare_pypi.py
-          
-          # 4. Build new artifacts
-          # Find the directory name again for the build command
-          DIR_NAME=$(ls -d hera_matlab* | head -n 1)
-          python3 -m build "$DIR_NAME" --outdir dist/
+          # 2. Check if we have a Wheel
+          if ls dist/*.whl 1> /dev/null 2>&1; then
+              echo "SUCCESS: Found pre-built artifacts. Skipping build process."
+              ls -l dist/
+          else
+              echo "NOTICE: No pre-built artifacts found. Building from source..."
+              
+              # Clear dist to be safe
+              rm -rf dist/*
+              
+              # 3. Standard Build Process (Fallback)
+              mkdir original_dist
+              gh release download "$TAG_NAME" --pattern "*.tar.gz" --dir original_dist
+              
+              tar -xzf original_dist/*.tar.gz
+              DIR_NAME=$(ls -d hera_matlab* | head -n 1)
+              
+              # Run prep script
+              GITHUB_REF_NAME="$TAG_NAME" python3 .github/scripts/prepare_pypi.py
+              
+              # Build
+              python3 -m build "$DIR_NAME" --outdir dist/
+          fi
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
