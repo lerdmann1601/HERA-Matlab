@@ -16,6 +16,7 @@ import shutil
 import sys
 from typing import Optional
 import textwrap
+import re
 
 
 def prepare_distribution(target_dir: Optional[str] = None) -> None:
@@ -92,6 +93,30 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     else:
         print(f"  - Warning: {runtime_script_source} missing. Runtime check CLI will be unavailable.")
 
+    # Inject Type Stubs
+    type_stub_source = "deploy/python_assets/__init__.pyi"
+    if os.path.exists(type_stub_source):
+        # Locate the inner package directory (e.g., dist_dir/hera_matlab).
+        pkg_inner_dir = os.path.join(dist_dir, "hera_matlab")
+        if os.path.isdir(pkg_inner_dir):
+            type_stub_dest = os.path.join(pkg_inner_dir, "__init__.pyi")
+            print(f"  - Injecting {type_stub_source} -> {type_stub_dest}")
+            shutil.copy(type_stub_source, type_stub_dest)
+    else:
+         print(f"  - Warning: {type_stub_source} missing. IntelliSense will be limited.")
+
+    # Inject Smart Wrapper
+    wrapper_source = "deploy/python_assets/runtime_wrapper.py"
+    if os.path.exists(wrapper_source):
+        # Locate the inner package directory (e.g., dist_dir/hera_matlab).
+        pkg_inner_dir = os.path.join(dist_dir, "hera_matlab")
+        if os.path.isdir(pkg_inner_dir):
+            wrapper_dest = os.path.join(pkg_inner_dir, "runtime_wrapper.py")
+            print(f"  - Injecting {wrapper_source} -> {wrapper_dest}")
+            shutil.copy(wrapper_source, wrapper_dest)
+    else:
+         print(f"  - Warning: {wrapper_source} missing. Smart NumPy conversion will be unavailable.")
+
     # -------------------------------------------------------------------------
     # 3. Metadata Injection
     # -------------------------------------------------------------------------
@@ -109,9 +134,9 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     # 3a. Force Package Name Correction
     # Even if verified/patched before, we ensure the name is 'hera-matlab'
     # to match the PyPI Pending Publisher configuration.
-    if "hera_matlab-R2025b" in content:
+    if re.search(r"hera_matlab-R20\d{2}[ab]", content):
         print("  - Enforcing correct package name 'hera-matlab'...")
-        content = content.replace("hera_matlab-R2025b", "hera-matlab")
+        content = re.sub(r"hera_matlab-R20\d{2}[ab]", "hera-matlab", content)
 
     # 3b. Sync Version with GitHub Tag
     # MATLAB defaults to '25.2' (R2025b).
@@ -248,6 +273,10 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                         print("Run the following command to diagnose and fix the issue:")
                         print("    python3 -m hera_matlab.install_runtime")
                         raise _initialization_error
+                    
+                    # Return Smart Wrapper
+                    from .runtime_wrapper import HeraSmartWrapper
+                    return HeraSmartWrapper(_pir.get_matlab_instance())
                 """)
 
             if strict_init_pattern in init_content:
