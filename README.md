@@ -278,7 +278,7 @@ If you use HERA in your research, please cite:
   title = {HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric
   Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.1.1},
+  version = {1.1.2},
   doi = {10.5281/zenodo.18274871},
   year = {2026}
 }

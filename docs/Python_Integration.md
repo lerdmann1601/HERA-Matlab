@@ -58,7 +58,7 @@ You may want to add this to your PATH variable for easier access.
 > brew install python@3.12
 > /opt/homebrew/bin/python3.12 -m venv .venv_hera
 > source .venv_hera/bin/activate
-> pip install hera-matlab
+> pip3 install hera-matlab
 > # Now mwpython will automatically use this environment
 > mwpython script.py
 > ```
