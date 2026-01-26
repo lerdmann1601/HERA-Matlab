@@ -51,6 +51,34 @@ function package_HERA_toolbox()
     version_str = HERA.get_version();
     fprintf('Detected Version: %s\n', version_str);
 
+    % Clean up problematic files before packaging
+    % These files can cause File Exchange upload validation to fail
+    fprintf('Cleaning up temporary/unwanted files...\n');
+    
+    % Patterns to delete (relative to projectRoot)
+    cleanupPatterns = {'**/__pycache__', '**/*.pyc', '**/.DS_Store'};
+    
+    totalDeleted = 0;
+    for i = 1:length(cleanupPatterns)
+        pattern = cleanupPatterns{i};
+        files = dir(fullfile(projectRoot, pattern));
+        for j = 1:length(files)
+            itemPath = fullfile(files(j).folder, files(j).name);
+            try
+                if files(j).isdir
+                    rmdir(itemPath, 's');
+                else
+                    delete(itemPath);
+                end
+                totalDeleted = totalDeleted + 1;
+                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+            catch
+                fprintf('  Warning: Could not remove %s\n', itemPath);
+            end
+        end
+    end
+    fprintf('Cleanup complete. Removed %d items.\n', totalDeleted);
+
     %% 2. Toolbox Configuration
     fprintf('Configuring Toolbox Options...\n');
     

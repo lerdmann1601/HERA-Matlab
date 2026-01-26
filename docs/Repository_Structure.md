@@ -17,6 +17,7 @@ HERA-Matlab/
 │   ├── calculate_bca_ci.m     % BCa Confidence Intervals
 │   ├── calculate_ranking.m    % Core Ranking Logic
 │   ├── calculate_thresholds.m % Threshold Calculation
+│   ├── Contents.m             % Toolbox Documentation (ver, help)
 │   ├── default.m              % Global Defaults
 │   ├── design.m               % Style & Design Definitions
 │   ├── generate_output.m      % Output Generation Controller
