@@ -14,6 +14,12 @@ try:
 except ImportError:
     HAS_MATLAB = False
 
+try:
+    import pandas as pd
+    HAS_PANDAS = True
+except ImportError:
+    HAS_PANDAS = False
+
 class HeraSmartWrapper:
     """
     A smart wrapper around the MATLAB Runtime instance.
@@ -76,7 +82,14 @@ class HeraSmartWrapper:
             return {k: self._convert_numpy_to_matlab(v) for k, v in data.items()}
         elif isinstance(data, list):
             return [self._convert_numpy_to_matlab(v) for v in data]
-        elif isinstance(data, np.ndarray):
+        
+        # Handle Pandas Types
+        if HAS_PANDAS and isinstance(data, (pd.DataFrame, pd.Series)):
+            # Extract underlying NumPy array and process it
+            return self._convert_numpy_to_matlab(data.to_numpy())
+
+        # Handle NumPy Arrays
+        if HAS_NUMPY and isinstance(data, np.ndarray):
             # Check for numeric type
             if np.issubdtype(data.dtype, np.number):
                 try:
@@ -86,5 +99,5 @@ class HeraSmartWrapper:
                     return data
             else:
                 return data
-        else:
-            return data
+        
+        return data
