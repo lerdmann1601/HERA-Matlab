@@ -24,7 +24,6 @@ def run_ranking(userInput: Dict[str, Any]) -> None:
         userInput: Configuration dictionary containing the analysis parameters.
         
     Example:
-    Example:
         # Direct Injection Mode (NumPy arrays are automatically converted)
         config = {
             "userInput": {
