@@ -12,7 +12,7 @@
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
 [![PyPI Downloads](https://static.pepy.tech/personalized-badge/hera-matlab?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=PyPI%20Downloads)](https://pepy.tech/projects/hera-matlab)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18274871-blue.svg)](https://doi.org/10.5281/zenodo.18274870)
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18274870-blue.svg)](https://doi.org/10.5281/zenodo.18274870)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0009--3758--7363-green.svg)](https://orcid.org/0009-0009-3758-7363)
 
 **Made for Scientific Benchmarking**
