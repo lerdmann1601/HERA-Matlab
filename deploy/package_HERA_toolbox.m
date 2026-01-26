@@ -64,6 +64,16 @@ function package_HERA_toolbox()
         files = dir(fullfile(projectRoot, pattern));
         for j = 1:length(files)
             itemPath = fullfile(files(j).folder, files(j).name);
+            
+            % Skip .venv, .git, deploy/output, deploy/dist, and release folders
+            if contains(itemPath, fullfile(projectRoot, '.venv')) || ...
+               contains(itemPath, fullfile(projectRoot, '.git')) || ...
+               contains(itemPath, fullfile(projectRoot, 'deploy', 'output')) || ...
+               contains(itemPath, fullfile(projectRoot, 'deploy', 'dist')) || ...
+               contains(itemPath, fullfile(projectRoot, 'release'))
+               continue;
+            end
+
             try
                 if files(j).isdir
                     rmdir(itemPath, 's');
@@ -71,9 +81,12 @@ function package_HERA_toolbox()
                     delete(itemPath);
                 end
                 totalDeleted = totalDeleted + 1;
-                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+                % Only print if it's a file inside project sources to reduce noise
+                if ~contains(itemPath, '.venv')
+                    fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+                end
             catch
-                fprintf('  Warning: Could not remove %s\n', itemPath);
+                % Suppress warnings for expected conflicts
             end
         end
     end

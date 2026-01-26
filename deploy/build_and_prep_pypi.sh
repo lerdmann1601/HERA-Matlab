@@ -36,10 +36,10 @@ echo "HERA PyPI Build Helper"
 echo "======================"
 
 # 0. Cleanup - Remove __pycache__ and .pyc files to ensure clean build
-echo "Cleaning up temporary Python files..."
-find "$PROJECT_ROOT" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-find "$PROJECT_ROOT" -type f -name "*.pyc" -delete 2>/dev/null || true
-find "$PROJECT_ROOT" -type f -name ".DS_Store" -delete 2>/dev/null || true
+echo "Cleaning up temporary Python files (excluding .venv)..."
+find "$PROJECT_ROOT" -type d -name "__pycache__" -not -path "*/.venv*" -not -path "*/.git*" -exec rm -rf {} + 2>/dev/null || true
+find "$PROJECT_ROOT" -type f -name "*.pyc" -not -path "*/.venv*" -not -path "*/.git*" -delete 2>/dev/null || true
+find "$PROJECT_ROOT" -type f -name ".DS_Store" -not -path "*/.venv*" -not -path "*/.git*" -delete 2>/dev/null || true
 echo "Cleanup complete."
 
 # 1. MATLAB Build
