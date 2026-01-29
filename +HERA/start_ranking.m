@@ -5,8 +5,13 @@ function start_ranking(varargin)
 % Syntax:
 %   HERA.start_ranking()                                    1. Interactive Mode
 %   HERA.start_ranking('configFile', 'path/to/config.json') 2. Batch/Server Mode
-%   HERA.start_ranking('runtest', 'true')                   3. Unit Test Mode (Auto Log)
-%   HERA.start_ranking('runtest', 'true', 'logPath', '...') 4. Unit Test Mode (Custom Log)
+%   HERA.start_ranking('runtest', 'true')                                   3. Unit Test Mode (Default Log Path)
+%   HERA.start_ranking('runtest', 'true', 'logPath', 'interactive')         4. Unit Test Mode (Select Log Path Interactively)
+%   HERA.start_ranking('runtest', 'true', 'logPath', 'path/to/log')         5. Unit Test Mode (Custom Log Path)
+%   HERA.start_ranking('convergence', 'true')                               6. Convergence Analysis (Default Log Path)
+%   HERA.start_ranking('convergence', 'true', 'logPath', 'interactive')     7. Convergence Analysis (Select Log Path Interactively)
+%   HERA.start_ranking('convergence', 'true', 'logPath', 'path/to/log')     8. Convergence Analysis (Custom Log Path)
+%   HERA.start_ranking('convergence', 'true', 'sims', 50)                   9. Convergence Analysis (Custom Sims)
 
 % Description:
 %   This function serves as the primary interface for configuring and starting the ranking process.
@@ -274,9 +279,39 @@ else
         end
     end
     
-    % Safety catch: If we are here, neither struct, nor configFile, nor runtest was valid.
+    %% Convergence Analysis Mode
+    % Check if the 'convergence' flag is set
+    if args.convergence ~= ""
+        fprintf('=======================\n');
+        fprintf('Starting HERA Convergence Analysis\n');
+        fprintf('=======================\n');
+        
+        try
+            % Call the analysis function.
+            % logPath can be "", "interactive", or a custom path string.
+            HERA.analysis.convergence_analysis(args.sims, args.logPath);
+            
+            fprintf('\nConvergence Analysis completed.\n');
+            exit_code = 0; % Success
+        catch ME
+            % Handle and report any errors during analysis
+            fprintf('\nCritical Error during Convergence Analysis:\n%s\n', ME.message);
+            fprintf('In file: %s (Line %d)\n', ME.stack(1).file, ME.stack(1).line);
+            exit_code = 1; % Error
+        end
+        
+        % Determine environment and exit accordingly
+        if isdeployed
+            % In compiled runtime: Quit application with status code
+            quit(exit_code);
+        else
+            % In MATLAB Editor: Just return to prevent running the main app
+            return;
+        end
+    end
+     % Safety catch: If we are here, neither struct, configFile, runtest, nor convergence was valid.
     if nargin > 0
-        error('Invalid arguments. Please provide a userInput struct, ''configFile'', or ''runtest''.');
+        error('Invalid arguments. Please provide a userInput struct, ''configFile'', ''runtest'', or ''convergence''.');
     end
 end
 
@@ -434,6 +469,8 @@ function args = parse_args(options)
         options.configFile (1,1) string = ""
         options.runtest (1,1) string = ""
         options.logPath (1,1) string = ""
+        options.convergence (1,1) string = ""
+        options.sims (1,1) double = 15
     end
     args = options;
 end
