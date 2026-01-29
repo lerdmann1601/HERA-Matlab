@@ -31,8 +31,5 @@ deploy/dist/
 release/
 data/examples/Example_2_workflow/results/Alpha_*
 
-# Analysis
-+HERA/+analysis/
-
 # Zenodo
 .zenodo.json
