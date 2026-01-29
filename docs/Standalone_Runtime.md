@@ -53,6 +53,7 @@ For advanced usage, you can run the application directly from the terminal using
 #### 1. Batch Processing (Non-Interactive)
 
 Run a full ranking analysis using a configuration file, skipping the UI.
+For more details on configuration parameters, see [Configuration & Parameters](Configuration_&_Parameters.md).
 
 ```bash
 ./HERA_Launcher.command configFile "/absolute/path/to/config.json"
@@ -61,6 +62,7 @@ Run a full ranking analysis using a configuration file, skipping the UI.
 #### 2. Run Unit Tests
 
 Execute the internal test suite to verify the integrity of the installation.
+For more details on the test suite, see the [Testing](../README.md#testing) section in the main documentation.
 
 ```bash
 ./HERA_Launcher.command runtest true
