@@ -148,7 +148,7 @@ To generate the installer and Python package from source (requires MATLAB Compil
 ## 4. Running the Test Suite
 
 You can execute the internal HERA verification and test suite (Scientific, System, and Unit tests) directly from Python to ensure the installation is valid and mathematically correct.
-For more details on the test suite, see the [Testing](../README.md#testing) section in the main documentation.
+For more details on the test suite, see the [Testing](https://lerdmann1601.github.io/HERA-Matlab/#testing) section in the main documentation.
 
 ```python
 import hera_matlab

@@ -62,7 +62,7 @@ For more details on configuration parameters, see [Configuration & Parameters](C
 #### 2. Run Unit Tests
 
 Execute the internal test suite to verify the integrity of the installation.
-For more details on the test suite, see the [Testing](../README.md#testing) section in the main documentation.
+For more details on the test suite, see the [Testing](https://lerdmann1601.github.io/HERA-Matlab/#testing) section in the main documentation.
 
 ```bash
 ./HERA_Launcher.command runtest true
