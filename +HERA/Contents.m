@@ -22,7 +22,7 @@
 %   start_ranking        - Main entry point for the HERA ranking CLI.
 %
 % Packages
-%   analysis             - Analysis modules.
+%   analysis             - Convergence analysis (robust mode default values).
 %   language             - Localization files (JSON).
 %   output               - Output generation modules.
 %   plot                 - Plotting functions.

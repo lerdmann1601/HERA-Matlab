@@ -36,3 +36,4 @@ data/examples/Example_2_workflow/results/Alpha_*
 
 # Temporary files
 .tmp.driveupload
+.tmp.drivedownload

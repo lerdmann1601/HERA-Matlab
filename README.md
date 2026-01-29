@@ -132,6 +132,18 @@ HERA.start_ranking('runtest', 'true')
 HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ```
 
+### 4. Convergence Analysis
+
+Perform a robust scientific validation of the default convergence parameters.
+
+```matlab
+% Run analysis and save log to default location
+HERA.start_ranking('convergence', 'true')
+
+% Run analysis and save log to a specific folder
+HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
+```
+
 > **Note:** Example use cases with synthetic datasets and results are
 > provided in the `data/examples` directory. See [docs/Example_Analysis.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md) for a
 > walkthrough of the example use cases and visual examples of the ranking

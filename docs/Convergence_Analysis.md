@@ -101,3 +101,44 @@ The complete analysis (7 scenarios × 50 independent simulations, comprising 2,1
 For a comprehensive look at the data, including specific breakdowns for each distribution type, please refer to the generated PDF report:
 
 [**Download Full Combined Report (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Full_Combined_Report_20251214_233500.pdf)
+
+## Running Your Own Analysis
+
+You can perform this analysis yourself to verify the robustness of your own changes or to test different parameter configurations. The analysis is integrated directly into the `start_ranking` command.
+
+### Syntax
+
+```matlab
+HERA.start_ranking('convergence', 'true', [options])
+```
+
+### Options
+
+* `'logPath'`: (Optional) Specifies where the results and reports should be saved.
+  * `'interactive'`: Opens a folder selection dialog.
+  * `'path/to/folder'`: Uses the specified path.
+  * `''` (default): Automatically saves to `Documents/HERA_convergence_Log`.
+* `'sims'`: (Optional) Number of simulations per scenario (Default: 15). Higher values (e.g., 50-100) provide more robust statistics but take longer to run.
+
+### Examples
+
+**1. Run with Default Settings:**
+This runs the standard analysis (15 sims/scenario) and saves to the default Documents folder.
+
+```matlab
+HERA.start_ranking('convergence', 'true')
+```
+
+**2. Select Output Folder Interactively:**
+This prompts you to choose where to save the reports.
+
+```matlab
+HERA.start_ranking('convergence', 'true', 'logPath', 'interactive')
+```
+
+**3. Run a High-Precision Study:**
+Run 50 simulations per scenario for higher statistical power.
+
+```matlab
+HERA.start_ranking('convergence', 'true', 'sims', 50)
+```

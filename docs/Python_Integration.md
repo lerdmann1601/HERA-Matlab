@@ -164,3 +164,22 @@ hera.terminate()
 ```
 
 This is useful for verifying deployments on new machines (e.g., CI/CD).
+
+## 5. Running Convergence Analysis
+
+You can also trigger the robust convergence analysis directly from Python. This is identical to the MATLAB `HERA.start_ranking('convergence', 'true')` command. For more details on the analysis and its parameters, see [Convergence Analysis](Convergence_Analysis.md).
+
+```python
+import hera_matlab
+
+# Initialize
+hera = hera_matlab.initialize()
+
+# Run Convergence Analysis
+# Arguments: 'convergence', 'true'
+# Optional: 'sims', 50 (for higher precision)
+# Optional: 'logPath', '/path/to/log' (or 'interactive')
+hera.start_ranking('convergence', 'true', nargout=0)
+
+hera.terminate()
+```
