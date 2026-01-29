@@ -14,4 +14,4 @@ nested parameters to control the convergence algorithm:
 | `convergence_streak_needed` | int | `3` / `3` / `3` | Consecutive steps required to pass tolerance. |
 | `min_steps_for_convergence_check` | int | `1` | Minimum steps before checking convergence. |
 
-👉 [Convergence Modes and Troubleshooting](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Modes.md)
+👉 [Convergence Modes and Troubleshooting](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes)

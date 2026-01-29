@@ -91,11 +91,11 @@ ranking system.
     setup_HERA
     ```
 
-👉 [Standalone Runtime](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Standalone_Runtime.md)
+👉 [Standalone Runtime](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime)
 
-👉 [Python Integration](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Python_Integration.md)
+👉 [Python Integration](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration)
 
-👉 [Automated Build (GitHub Actions)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Automated_Build.md)
+👉 [Automated Build (GitHub Actions)](https://lerdmann1601.github.io/HERA-Matlab/Automated_Build)
 
 ---
 
@@ -115,7 +115,7 @@ HERA.start_ranking()
 ### 2. Batch Mode (Reproducible / Server)
 
 For automated analysis or reproducible research, use a JSON configuration file.
-For more details on configuration parameters, see [Configuration & Parameters](docs/Configuration_&_Parameters.md).
+For more details on configuration parameters, see [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters).
 
 ```matlab
 HERA.start_ranking('configFile', 'config.json')
@@ -137,7 +137,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ### 4. Convergence Analysis
 
 Perform a robust scientific validation of the default convergence parameters.
-For more details, see [Convergence Analysis](docs/Convergence_Analysis.md).
+For more details, see [Convergence Analysis](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Analysis).
 
 ```matlab
 % Run analysis and save log to default location
@@ -148,7 +148,7 @@ HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
 ```
 
 > **Note:** Example use cases with synthetic datasets and results are
-> provided in the `data/examples` directory. See [docs/Example_Analysis.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md) for a
+> provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
 >
@@ -161,29 +161,29 @@ HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
 
 ## Documentation
 
-👉 [Repository Structure](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Repository_Structure.md)
+👉 [Repository Structure](https://lerdmann1601.github.io/HERA-Matlab/Repository_Structure)
 
-👉 [Theoretical Background](https://github.com/lerdmann1601/HERA-Matlab/blob/main/paper/paper.pdf)
+👉 [Theoretical Background](https://lerdmann1601.github.io/HERA-Matlab/Methodology)
 
-👉 [Ranking Modes Explained](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Ranking_Modes_Explained.md)
+👉 [Ranking Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained)
 
-👉 [Input Data Specification](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Input_Data_Specification.md)
+👉 [Input Data Specification](https://lerdmann1601.github.io/HERA-Matlab/Input_Data_Specification)
 
-👉 [Example Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md)
+👉 [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis)
 
-👉 [Methodological Guidelines & Limitations](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Methodological_Guidelines_&_Limitations.md)
+👉 [Methodological Guidelines & Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations)
 
-👉 [Configuration & Parameters](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Configuration_&_Parameters.md)
+👉 [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters)
 
-👉 [Bootstrap Configuration](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Bootstrap_Configuration.md)
+👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
 
-👉 [Convergence Modes](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Modes.md)
+👉 [Convergence Modes](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes)
 
-👉 [Convergence Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Convergence_Analysis.md)
+👉 [Convergence Analysis](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Analysis)
 
-👉 [Advanced Usage (Developer Mode)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Advanced_Usage.md)
+👉 [Advanced Usage (Developer Mode)](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage)
 
-👉 [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md)
+👉 [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference)
 
 ---
 

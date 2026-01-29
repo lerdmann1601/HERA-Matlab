@@ -26,4 +26,4 @@ You can use the datasets in `examples/` to run HERA. Please use enough CPU cores
 
 ## Example Walkthrough of HERA Results
 
-👉 [HERA Example Analysis](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Example_Analysis.md)
+👉 [HERA Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis)

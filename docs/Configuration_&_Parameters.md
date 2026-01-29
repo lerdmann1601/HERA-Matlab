@@ -124,4 +124,4 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `bootstrap_ci` | struct | (See Below) | Config for CI convergence. |
 | | `bootstrap_ranks` | struct | (See Below) | Config for Rank Stability convergence. |
 
-👉 [Bootstrap Configuration (Auto-Convergence)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Bootstrap_Configuration.md)
+👉 [Bootstrap Configuration (Auto-Convergence)](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)

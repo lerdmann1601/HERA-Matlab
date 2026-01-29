@@ -41,4 +41,4 @@ results = HERA.run_ranking(userInput);
 * `.p_vals_all`: Raw p-values.
 * `.ci_d_all`: Confidence intervals.
 
-For the full reference of the `results` struct, see [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md).
+For the full reference of the `results` struct, see [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference).

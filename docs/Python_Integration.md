@@ -127,7 +127,7 @@ print(f"P-Values: {results['p_vals_all']}")
 hera.terminate()
 ```
 
-See [Results Structure Reference](https://github.com/lerdmann1601/HERA-Matlab/blob/main/docs/Results_Structure_Reference.md) for a complete list of available fields
+See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference) for a complete list of available fields
 
 ## 3. Build Instructions (For Maintainers)
 
