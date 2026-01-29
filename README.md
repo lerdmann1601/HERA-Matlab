@@ -115,6 +115,7 @@ HERA.start_ranking()
 ### 2. Batch Mode (Reproducible / Server)
 
 For automated analysis or reproducible research, use a JSON configuration file.
+For more details on configuration parameters, see [Configuration & Parameters](docs/Configuration_&_Parameters.md).
 
 ```matlab
 HERA.start_ranking('configFile', 'config.json')
@@ -123,6 +124,7 @@ HERA.start_ranking('configFile', 'config.json')
 ### 3. Unit Test Mode
 
 Run the built-in validation suite to ensure HERA is working correctly on your system.
+For more details, see the [Testing](#testing) section.
 
 ```matlab
 % Run tests and save log to default location
@@ -135,6 +137,7 @@ HERA.start_ranking('runtest', 'true', 'logPath', '/path/to/logs')
 ### 4. Convergence Analysis
 
 Perform a robust scientific validation of the default convergence parameters.
+For more details, see [Convergence Analysis](docs/Convergence_Analysis.md).
 
 ```matlab
 % Run analysis and save log to default location
