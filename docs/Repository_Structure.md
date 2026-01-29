@@ -1,5 +1,8 @@
 # Repository Structure
 
+The codebase is organized as a MATLAB package (`+HERA`) to ensure namespace isolation.
+
+```text
 HERA-Matlab/
 ├── +HERA/                         % Main Package Namespace
 │   ├── +output/                   % Report Generation (PDF, JSON, CSV)
@@ -42,5 +45,4 @@ HERA-Matlab/
 ├── CONTRIBUTING.md                % Contribution Guidelines
 ├── LICENSE                        % License File
 └── README.md                      % Global Documentation
-
 ```
