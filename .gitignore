@@ -33,3 +33,6 @@ data/examples/Example_2_workflow/results/Alpha_*
 
 # Zenodo
 .zenodo.json
+
+# Temporary files
+.tmp.driveupload
