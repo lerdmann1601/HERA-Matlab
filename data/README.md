@@ -1,5 +1,7 @@
 # Directory Structure
 
+This directory contains synthetic datasets used for testing and validating the HERA toolbox. These datasets are based on characteristics of real MRI Images. The original datasets are not included in this repository.
+
 ```text
 data/
 └── examples/                  % Synthetic example datasets
