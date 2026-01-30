@@ -158,7 +158,6 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     if tag_name and tag_name.startswith('v'):
         new_version = tag_name[1:] # Strip 'v'
         print(f"  - Syncing version to Tag: {new_version}")
-        import re
         # Regex replacement to handle 'version': '25.2' inside the dictionary
         content = re.sub(r"['\"]version['\"]\s*:\s*['\"][\d\.]+['\"]", f"'version': '{new_version}'", content)
 
