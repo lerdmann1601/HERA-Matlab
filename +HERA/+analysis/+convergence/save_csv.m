@@ -118,6 +118,8 @@ function save_csv(results, modes, out_dir, ts_str)
             end
             
             fclose(fileID);
+        end
+        
         % Close Global CSV
         if global_fid ~= -1
             fclose(global_fid);
