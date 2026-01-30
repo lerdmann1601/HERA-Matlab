@@ -27,6 +27,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 %      - Resets random seeds before every step to ensure strict reproducibility.
 %   5. Reporting:
 %      - Generates scientific plots for every scenario.
+%      - Exports detailed simulation results to structured CSV files.
 %      - Compiles a global summary PDF report.
 %
 % Inputs:
@@ -154,8 +155,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         % Run Simulation
         results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, n_datasets);
 
-        % Save Detailed CSV Results
-        save_csv(results, modes, dir_csv, ts_str);
+
 
         %% 5. Reporting
         fprintf('All simulations completed. Generating global summary...\n');
@@ -182,7 +182,17 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         end
         
         % Note: diary is automatically closed by cleanupDiary (onCleanup)
-        fprintf('Log saved to: %s\n', log_filename);
+        % --- Final Summary of Saved Files ---
+        fprintf('\n');
+        fprintf('==================================\n');
+        fprintf('   Study Completed Successfully\n');
+        fprintf('==================================\n');
+        fprintf('Summary Report (PDF):  %s\n', pdf_full);
+        fprintf('Global Data (CSV):     %s\n', fullfile(out_dir, ['Global_Summary_' char(ts_str) '.csv']));
+        fprintf('Detailed Results:      %s\n', fullfile(final_out_dir, 'CSV', ['Results_' char(ts_str)]));
+        fprintf('Graphics Folder:       %s\n', dir_graphics);
+        fprintf('PDF Folder:            %s\n', dirty_pdfs);
+        fprintf('Log File:              %s\n', log_filename);
 
     catch ME
         % Note: diary is automatically closed by cleanupDiary (onCleanup)

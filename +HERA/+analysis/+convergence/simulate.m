@@ -276,8 +276,13 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         % Incremental Plotting
         try
             HERA.analysis.convergence.plot('scientific_reports', [scenario_res(sc_idx)], modes, styles, refs, limits, params, final_out_dir, 'Incremental', ts_str);
+            
+            % Incremental CSV Saving
+            % Ensure CSV directory matches what is expected in save_csv
+            csv_dir = fullfile(final_out_dir, 'CSV');
+            HERA.analysis.convergence.save_csv([scenario_res(sc_idx)], modes, csv_dir, ts_str);
         catch ME
-            fprintf('Warning: Incremental reporting failed: %s\n', ME.message);
+            fprintf('Warning: Incremental reporting/saving failed: %s\n', ME.message);
         end
     end
     

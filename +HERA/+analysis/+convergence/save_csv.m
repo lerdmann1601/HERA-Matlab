@@ -24,9 +24,6 @@ function save_csv(results, modes, out_dir, ts_str)
         ts_str (1,1) string
     end
 
-    % Inform the user about the CSV saving process.
-    fprintf('\nSaving Analysis Results to CSV...\n');
-    
     % Ensure base output directory exists
     if ~exist(out_dir, 'dir'), mkdir(out_dir); end
     
@@ -38,12 +35,18 @@ function save_csv(results, modes, out_dir, ts_str)
     % 2. Create Global Summary CSV (Aggregated)
     % This file will stay in the main CSV folder for easy access
     global_filename = fullfile(out_dir, sprintf('Global_Summary_%s.csv', ts_str));
-    global_fid = fopen(global_filename, 'w');
+    
+    % Check if file exists to determine if we need a header
+    write_header = ~exist(global_filename, 'file');
+    
+    global_fid = fopen(global_filename, 'a'); % Open in Append mode
     if global_fid ~= -1
-        % Header for Aggregated Data
-        fprintf(global_fid, 'Scenario,Metric,Mode,Mean_Error_Percent,Std_Error,Mean_Cost_B,Failure_Rate_Percent\n');
+        if write_header
+            % Header for Aggregated Data
+            fprintf(global_fid, 'Scenario,Metric,Mode,Mean_Error_Percent,Std_Error,Mean_Cost_B,Failure_Rate_Percent\n');
+        end
     else
-        warning('Could not create Global Summary CSV: %s', global_filename);
+        warning('Could not create/open Global Summary CSV: %s', global_filename);
     end
 
     metric_names = {'Thresholds', 'BCa', 'Ranking'};
@@ -115,13 +118,9 @@ function save_csv(results, modes, out_dir, ts_str)
             end
             
             fclose(fileID);
-            fprintf('  CSV saved: %s\n', filename);
-        end
-        
         % Close Global CSV
         if global_fid ~= -1
             fclose(global_fid);
-            fprintf('  Global Summary saved: %s\n', global_filename);
         end
         
     catch ME
