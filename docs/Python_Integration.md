@@ -129,6 +129,44 @@ hera.terminate()
 
 See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference) for a complete list of available fields
 
+### C. Automatic Data Conversion (v1.2.0+)
+
+Starting with version 1.2.0, the package includes a smart wrapper that performs **bidirectional** conversion:
+
+1. **Input:** Automatically converts **NumPy arrays** and **Pandas DataFrames** to the required MATLAB types.
+2. **Output:** Automatically converts returned MATLAB data (e.g., `matlab.double`) back into **NumPy arrays** for easy processing in Python.
+
+This eliminates the need for manual conversion in both directions.
+
+```python
+import hera_matlab
+import numpy as np
+
+# Initialize
+hera = hera_matlab.initialize()
+
+# Option 1: Using NumPy Arrays
+data_m1 = np.array([[0.1, 0.5], [0.2, 0.4]])
+data_m2 = np.array([[1.0, 3.0], [1.2, 2.9]])
+
+# (Option 2: Pandas DataFrames are also supported)
+
+config = {
+    'custom_data': [data_m1, data_m2],
+    'metric_names': ['Runtime', 'Accuracy'],
+    'dataset_names': ['Method A', 'Method B'],
+    'ranking_mode': 'M1_M2',
+    'output_dir': 'hera_numpy_results'
+}
+
+# The wrapper automatically converts the data before calling MATLAB
+results = hera.run_ranking(config, nargout=1)
+
+print(f"Final Ranks: {results['final_rank']}")
+```
+
+> **Note:** Explicit termination (`hera.terminate()`) is not required in scripts, as the package handles cleanup automatically.
+
 ## 3. Build Instructions (For Maintainers)
 
 To generate the installer and Python package from source (requires MATLAB Compiler SDK):

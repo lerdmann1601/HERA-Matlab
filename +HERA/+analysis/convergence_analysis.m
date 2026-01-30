@@ -110,6 +110,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     if ~exist(dir_graphics, 'dir'), mkdir(dir_graphics); end
     if ~exist(dirty_pdfs, 'dir'), mkdir(dirty_pdfs); end
     
+    dir_csv = fullfile(final_out_dir, 'CSV');
+    if ~exist(dir_csv, 'dir'), mkdir(dir_csv); end
+    
     % Start logging terminal output to file
     log_filename = fullfile(final_out_dir, ['conv_log_', char(ts_str), '.txt']);
     diary(log_filename);
@@ -150,6 +153,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 
         % Run Simulation
         results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, n_datasets);
+
+        % Save Detailed CSV Results
+        save_csv(results, modes, dir_csv, ts_str);
 
         %% 5. Reporting
         fprintf('All simulations completed. Generating global summary...\n');

@@ -72,7 +72,33 @@ class HeraSmartWrapper:
             # We only attempt conversion if both libs are present
             userInput = self._convert_numpy_to_matlab(userInput)
         
-        return self._hera.run_ranking(userInput, **kwargs)
+        result = self._hera.run_ranking(userInput, **kwargs)
+
+        if HAS_NUMPY and HAS_MATLAB:
+            return self._convert_matlab_to_python(result)
+        
+        return result
+
+    def _convert_matlab_to_python(self, data: Any) -> Any:
+        """
+        Recursively converts MATLAB types back to Python/NumPy types.
+        """
+        if isinstance(data, dict):
+            return {k: self._convert_matlab_to_python(v) for k, v in data.items()}
+        elif isinstance(data, list):
+            return [self._convert_matlab_to_python(v) for v in data]
+        
+        # Convert MATLAB arrays to NumPy
+        if HAS_MATLAB and HAS_NUMPY:
+             # Check for matlab numerical types (double, single, intX, uintX)
+             # The easiest way is trying to convert to numpy if it's a matlab object
+             if hasattr(data, '_is_matlab_array') or type(data).__module__ == 'matlab':
+                 try:
+                     return np.array(data)
+                 except Exception:
+                     pass
+        
+        return data
 
     def _convert_numpy_to_matlab(self, data: Any) -> Any:
         """
