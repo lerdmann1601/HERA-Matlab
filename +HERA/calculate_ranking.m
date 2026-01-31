@@ -214,10 +214,14 @@ while swapped
             if ~isempty(row_idx)
                 d_val = effect_sizes.d_vals_all(row_idx, 1);               
                 % Swap if j stochastically dominates i.
-                if (i == idx1 && d_val < 0) || (j == idx1 && d_val > 0)
+                % Define epsilon for floating point comparison associated with zero
+                d_epsilon = 1e-9;
+                
+                % Swap if j stochastically dominates i (beyond epsilon).
+                if (i == idx1 && d_val < -d_epsilon) || (j == idx1 && d_val > d_epsilon)
                     should_swap = true;
-                % Swap if Cliffs d is identical (d=0) but j has a higher mean.
-                elseif d_val == 0 && mean_metric1(j) > mean_metric1(i)
+                % Swap if Cliffs d is practically identical (within epsilon) but j has a higher mean.
+                elseif abs(d_val) <= d_epsilon && mean_metric1(j) > mean_metric1(i)
                      should_swap = true;
                 end
             end
