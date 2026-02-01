@@ -5,7 +5,7 @@
 
 # HERA: Hierarchical-Compensatory, Effect-Size-Driven and Non-Parametric Ranking Algorithm
 
-[![MATLAB](https://img.shields.io/badge/MATLAB-R2024a%2B-orange.svg)](https://www.mathworks.com/products/matlab.html)
+[![MATLAB](https://img.shields.io/badge/MATLAB-R2025b-orange.svg)](https://www.mathworks.com/products/matlab.html)
 [![Statistics Toolbox](https://img.shields.io/badge/Toolbox-Statistics_and_Machine_Learning-blue.svg)](https://www.mathworks.com/products/statistics.html)
 [![Parallel Computing Toolbox](https://img.shields.io/badge/Toolbox-Parallel_Computing-blue.svg)](https://www.mathworks.com/products/parallel-computing.html)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -60,7 +60,7 @@ ranking system.
 
 ### Requirements
 
-* **MATLAB** (R2024a or later Required)
+* **MATLAB** (R2020a or later Required)
 * **Statistics and Machine Learning Toolbox** (Required)
 * **Parallel Computing Toolbox** (Required for performance)
 
