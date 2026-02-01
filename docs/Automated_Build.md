@@ -62,7 +62,7 @@ To publish the Python package to PyPI, follow this **manual workflow** (since th
 
 2. **Create Release**:
    - Go to GitHub -> Releases -> **Draft a new release**.
-   - Choose a text tag (e.g., `v1.2.0`).
+   - Choose a text tag (e.g., `v1.2.1`).
    - **Upload** the files from `deploy/dist/` to the release.
    - Publish the release.
 
