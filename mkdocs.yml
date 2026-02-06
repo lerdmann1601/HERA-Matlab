@@ -51,7 +51,7 @@ extra_css:
 
 nav:
   - Home: index.md
-  - Readme: README.md
+  - Overview: README.md
   - User Guide:
     - Theoretical Background: Methodology.md
     - Ranking Modes: Ranking_Modes_Explained.md
