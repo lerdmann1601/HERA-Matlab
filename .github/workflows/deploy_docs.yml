@@ -33,9 +33,9 @@ jobs:
 
       - name: Prepare Documentation
         run: |
-          # 1. Prepare Landing Page (README -> index.md)
-          # We use the repository README as the documentation homepage.
-          cp README.md docs/index.md
+          # 1. Prepare Landing Page (Header + README -> index.md)
+          # Concatenate unique SEO header with repository README for the documentation homepage.
+          cat docs/landing_header.md README.md > docs/index.md
           
           # 2. Setup Assets
           # Copy general assets (logos, badges) to the docs folder for local referencing
