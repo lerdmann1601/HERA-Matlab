@@ -36,7 +36,7 @@ jobs:
           # 1. Prepare Landing Page & Readme
           # Separate landing header (Home) and README
           cp docs/landing_header.md docs/index.md
-          cp README.md docs/README.md
+          cp README.md docs/overview.md
           
           # 2. Setup Assets
           # Copy general assets (logos, badges) to the docs folder for local referencing
@@ -44,10 +44,10 @@ jobs:
           
           # 3. Path & Layout Adjustments
           # Fix image paths: Replace absolute GitHub URLs with local relative paths Use local assets
-          sed -i 's|src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/|src="assets/|g' docs/index.md docs/README.md
+          sed -i 's|src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/|src="assets/|g' docs/index.md docs/overview.md
           
           # Fix Alignment: Enable Markdown parsing inside the centering div for the logo/header
-          sed -i 's|<div align="center">|<div align="center" markdown="1">|g' docs/index.md docs/README.md
+          sed -i 's|<div align="center">|<div align="center" markdown="1">|g' docs/index.md docs/overview.md
 
           # 4. Standardize Alerts
           # Convert GitHub-style alerts (> [!WARNING]) to MkDocs Material Admonitions (!!! warning)
