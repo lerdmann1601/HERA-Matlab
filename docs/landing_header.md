@@ -12,6 +12,6 @@ While the [source code](https://github.com/lerdmann1601/HERA-Matlab) contains th
 You can download the latest version of the toolbox directly:
 
 * **GitHub Releases**: [Download .mltbx or Source](https://github.com/lerdmann1601/HERA-Matlab/releases/latest)
-* **MATLAB File Exchange**: [Download Toolbox](https://www.mathworks.com/matlabcentral/fileexchange/178657-hera)
+* **MATLAB File Exchange**: [Download Toolbox](https://de.mathworks.com/matlabcentral/fileexchange/183089-hera)
 
 ---

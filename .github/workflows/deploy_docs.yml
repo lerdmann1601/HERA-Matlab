@@ -37,6 +37,9 @@ jobs:
           # Separate landing header (Home) and README
           cp docs/landing_header.md docs/index.md
           cp README.md docs/overview.md
+
+          # Remove HERA logo from Overview (it's already in the header/site config)
+          sed -i '/<img src="https:\/\/raw.githubusercontent.com\/lerdmann1601\/HERA-Matlab\/main\/assets\/hera_logo.svg"/d' docs/overview.md
           
           # 2. Setup Assets
           # Copy general assets (logos, badges) to the docs folder for local referencing
