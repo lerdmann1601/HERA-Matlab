@@ -32,10 +32,10 @@ These were held constant because the three parameters we *did* test (regarding d
 We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties.
 
 **Data Scenarios:**
-![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Param_Scenarios_20251214_233500.png)
+![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Param_Scenarios_Example.png)
 
 **Method Configurations:**
-![Method Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Param_Methods_20251214_233500.png)
+![Method Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Param_Methods_Example.png)
 
 ### Analysis Scope
 
@@ -72,13 +72,13 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
 ### Global Results Summary
 
 **Ranking Convergence:**
-![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_Ranking_20251214_233500.png)
+![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_Ranking_Example.png)
 
 **BCa Confidence Interval Convergence:**
-![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_BCa_20251214_233500.png)
+![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_BCa_Example.png)
 
 **Threshold Calculations:**
-![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Graphics/Global_Summary_Thresholds_20251214_233500.png)
+![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_Thresholds_Example.png)
 
 ## Discussion: Convergence Modes
 
@@ -100,7 +100,7 @@ The complete analysis (7 scenarios × 50 independent simulations, comprising 2,1
 
 For a comprehensive look at the data, including specific breakdowns for each distribution type, please refer to the generated PDF report:
 
-[**Download Full Combined Report (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_20251214_233500/Full_Combined_Report_20251214_233500.pdf)
+[**Download Full Combined Report (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Full_Combined_Report_Example.pdf)
 
 ## Running Your Own Analysis
 
