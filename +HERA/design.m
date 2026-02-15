@@ -36,6 +36,7 @@ if is_dark_theme
     % Dark Mode
     styles.colors.background = [0 0 0];
     styles.colors.text = [1 1 1];
+    styles.colors.convergence = [0.8500 0.3250 0.0980];
     styles.colors.sem_threshold = [0.98, 0.75, 0.2];
     %  Colors 
     styles.colors.p_significant = [0.0, 0.45, 0.74];     % Rich Blue
@@ -54,12 +55,14 @@ if is_dark_theme
     styles.colors.kde_line = [0.9, 0.9, 0.9];
     styles.colors.red_marker = [1 0.1 0.1];
     styles.colors.blue_marker = [0.3 0.6 1.0];
+    styles.colors.borda = [0.8, 0.8, 0.8];
 
 %% Light Theme
 else
     % Light Mode
     styles.colors.background = [1 1 1];
     styles.colors.text = [0 0 0];
+    styles.colors.convergence = [0.8500 0.3250 0.0980];
     styles.colors.sem_threshold = [0.9290 0.6940 0.1250];
     styles.colors.p_significant = [0.0, 0.45, 0.74];     % Rich Blue
     styles.colors.p_nonsignificant = [0.85, 0.85, 0.85]; % Light Gray
@@ -77,6 +80,7 @@ else
     styles.colors.kde_line = [0.2 0.2 0.2];
     styles.colors.red_marker = [1 0 0];
     styles.colors.blue_marker = [0 0.4470 0.7410];
+    styles.colors.borda = [0.8, 0.8, 0.8];
 end
 
 %% General Design

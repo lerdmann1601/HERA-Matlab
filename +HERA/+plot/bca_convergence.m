@@ -90,7 +90,7 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
         % Re-calculate smoothing for visualization using same window
         smoothed_curve = movmean(overall_stability, smoothing_window_global, 'omitnan');
         
-        p2_global = plot(ax_global, B_vector, smoothed_curve * 100, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
+        p2_global = plot(ax_global, B_vector, smoothed_curve * 100, '-', 'LineWidth', 1.5, 'Color', styles.colors.convergence);
         
         lgd_global = legend(ax_global, [p1_global, p2_global], {lang.plots.legend.unsmoothed, lang.plots.legend.smoothed}, ...
             'Location', 'best', 'FontSize', styles.font.small_text);
@@ -136,7 +136,7 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
 
     num_effect_types = 2;
     effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
-    color_local_elbow = [0.8500 0.3250 0.0980];
+    color_local_elbow = styles.colors.convergence;
 
     % Iterate: Effect Type (Rows) x Metric (Cols)
     for es_type = 1:num_effect_types

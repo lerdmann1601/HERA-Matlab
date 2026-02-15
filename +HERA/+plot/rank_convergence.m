@@ -57,7 +57,7 @@ function h_fig_rank = rank_convergence(B_vector, stability_vector, selected_B, c
     if use_robust_convergence
         smoothing_window = cfg_rank.smoothing_window;
         smoothed_stability = movmean(stability_vector, smoothing_window, 'omitnan');
-        p2 = plot(ax, B_vector, smoothed_stability, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
+        p2 = plot(ax, B_vector, smoothed_stability, '-', 'LineWidth', 1.5, 'Color', styles.colors.convergence);
         handles_to_legend(end+1) = p2;
         names_to_legend{end+1} = lang.plots.legend.smoothed;
     end
@@ -80,7 +80,7 @@ function h_fig_rank = rank_convergence(B_vector, stability_vector, selected_B, c
             y_local = stability_vector(local_elbow_idx);
             
             % Define the color for the local elbow (same as smoothed curve)
-            color_local_elbow = [0.8500 0.3250 0.0980]; 
+            color_local_elbow = styles.colors.convergence; 
     
              % Plot as a filled circle with a dashed line style for legend
             p_elbow = plot(ax, x_local, y_local, ':o', ... 

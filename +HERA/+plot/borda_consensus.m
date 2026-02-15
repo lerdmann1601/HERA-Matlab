@@ -46,7 +46,7 @@ if isfield(results, 'borda_results') && ~isempty(results.borda_results)
     for i = 1:num_datasets
         y_pos = i;
         % Draw the lollipop stem.
-        plot(ax_lollipop, [0, sorted_scores(i)], [y_pos, y_pos], '-', 'Color', [0.8 0.8 0.8], 'LineWidth', 1.5);
+        plot(ax_lollipop, [0, sorted_scores(i)], [y_pos, y_pos], '-', 'Color', styles.colors.borda, 'LineWidth', 1.5);
         % Draw the main marker for the Borda score.
         scatter(ax_lollipop, sorted_scores(i), y_pos, 100, styles.colors.p_significant, 'filled', 'MarkerEdgeColor', styles.colors.marker_edge, 'LineWidth', 1);
         % Add a text label for the score.

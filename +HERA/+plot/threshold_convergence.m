@@ -81,7 +81,7 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     if use_robust_convergence_thr
         smoothing_window = config.bootstrap_thresholds.smoothing_window;
         smoothed_curve_plotted_global = movmean(overall_stability_thr_plotted, smoothing_window, 'omitnan');
-        p2_global = plot(ax_global, B_vector, smoothed_curve_plotted_global * 100, '-', 'LineWidth', 1.5, 'Color', [0.8500 0.3250 0.0980]);
+        p2_global = plot(ax_global, B_vector, smoothed_curve_plotted_global * 100, '-', 'LineWidth', 1.5, 'Color', styles.colors.convergence);
         lgd_global = legend(ax_global, [p1_global, p2_global], {lang.plots.legend.unsmoothed, lang.plots.legend.smoothed}, 'Location', 'best', ...
             'FontSize', styles.font.small_text);
         set(lgd_global, 'Color', styles.colors.background, 'TextColor', styles.colors.text, 'EdgeColor', styles.colors.text);
@@ -137,7 +137,7 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     num_effect_types = 2;
     effect_type_names = {'Cliff''s Delta', 'Rel Diff'};
     % Define the color for the local elbow (same as smoothed curve in global plot)
-    color_local_elbow = [0.8500 0.3250 0.0980]; 
+    color_local_elbow = styles.colors.convergence; 
 
     % Loop through effect types (rows) and metrics (columns).
     for es_type = 1:num_effect_types
