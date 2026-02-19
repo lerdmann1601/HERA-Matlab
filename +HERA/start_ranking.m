@@ -178,11 +178,11 @@ if ~isdeployed
     end
 
     if ~isempty(missing_toolboxes)
-        error_msg = sprintf('HERA requires the following missing toolboxes:\n');
+        error_msg = sprintf(lang.load_data.toolboxes_missing_header);
         for i = 1:length(missing_toolboxes)
             error_msg = sprintf('%s - %s\n', error_msg, missing_toolboxes{i});
         end
-        error('%s\nPlease install them via the Add-On Explorer.', error_msg);
+        error(['%s' lang.load_data.toolboxes_install_instruction], error_msg);
     end
 end
 
@@ -198,7 +198,7 @@ else
     if args.configFile ~= ""
         % Check if the specified configuration file exists.
         if exist(args.configFile, 'file')
-            fprintf('Loading configuration from: %s\n', args.configFile);
+            fprintf([lang.start_ranking.loading_config_file '\n'], args.configFile);
             try
                 % Read the entire content of the JSON file into a string.
                 json_text = fileread(args.configFile); 
@@ -247,7 +247,7 @@ else
     % Check if the 'runtest' flag is set 
     if args.runtest ~= ""
         fprintf('=======================\n');
-        fprintf('Starting HERA Unit Test\n');
+        fprintf([lang.start_ranking.header_unit_test '\n']);
         fprintf('=======================\n');
         
         try
@@ -260,12 +260,12 @@ else
                 run_unit_test(); 
             end
             
-            fprintf('\nAll unit tests completed.\n');
+            fprintf(['\n' lang.start_ranking.unit_test_complete '\n']);
             exit_code = 0; % Success
         catch ME
             % Handle and report any errors during testing
-            fprintf('\nCritical Error during Unit Test:\n%s\n', ME.message);
-            fprintf('In file: %s (Line %d)\n', ME.stack(1).file, ME.stack(1).line);
+            fprintf(['\n' lang.start_ranking.unit_test_error '\n'], ME.message);
+            fprintf([lang.start_ranking.unit_test_file_line '\n'], ME.stack(1).file, ME.stack(1).line);
             exit_code = 1; % Error
         end
         
@@ -283,7 +283,7 @@ else
     % Check if the 'convergence' flag is set
     if args.convergence ~= ""
         fprintf('=======================\n');
-        fprintf('Starting HERA Convergence Analysis\n');
+        fprintf([lang.start_ranking.header_convergence '\n']);
         fprintf('=======================\n');
         
         try
@@ -291,12 +291,12 @@ else
             % logPath can be "", "interactive", or a custom path string.
             HERA.analysis.convergence_analysis(args.sims, args.logPath);
             
-            fprintf('\nConvergence Analysis completed.\n');
+            fprintf(['\n' lang.start_ranking.convergence_complete '\n']);
             exit_code = 0; % Success
         catch ME
             % Handle and report any errors during analysis
-            fprintf('\nCritical Error during Convergence Analysis:\n%s\n', ME.message);
-            fprintf('In file: %s (Line %d)\n', ME.stack(1).file, ME.stack(1).line);
+            fprintf(['\n' lang.start_ranking.convergence_error '\n'], ME.message);
+            fprintf([lang.start_ranking.unit_test_file_line '\n'], ME.stack(1).file, ME.stack(1).line);
             exit_code = 1; % Error
         end
         
@@ -311,7 +311,7 @@ else
     end
      % Safety catch: If we are here, neither struct, configFile, runtest, nor convergence was valid.
     if nargin > 0
-        error('Invalid arguments. Please provide a userInput struct, ''configFile'', ''runtest'', or ''convergence''.');
+        error(lang.errors.invalid_start_arguments);
     end
 end
 
@@ -325,7 +325,7 @@ while true
     fprintf('=====================\n');
     fprintf('%s\n', lang.start_ranking.main_title);
     fprintf('=====================\n');
-    fprintf('Version: %s\n', HERA.get_version());
+    fprintf([lang.start_ranking.version_info '\n'], HERA.get_version());
     pause(0.5);
     
     % Initialize structures to hold the user's configuration.

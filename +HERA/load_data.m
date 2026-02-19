@@ -53,19 +53,19 @@ end
     %% Check for In-Memory Data 
     % Allows calling the toolbox directly with matrices instead of files.
     if isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data)
-        fprintf('\nDetected in-memory data input. Skipping file load.\n');
+        fprintf(['\n' lang.load_data.in_memory_detected '\n']);
         
         try
             all_data = userInput.custom_data;
             
             % Validate structure (must be cell array of matrices)
             if ~iscell(all_data) || ~all(cellfun(@isnumeric, all_data))
-                error('Input "custom_data" must be a cell array of numeric matrices.');
+                error(lang.load_data.error_custom_data_format);
             end
             
             % Validate metric count matches config
             if numel(all_data) ~= numel(userInput.metric_names)
-                error('Mismatch: %d metrics provided in data, but %d names configured.', ...
+                error(lang.load_data.error_metric_mismatch, ...
                       numel(all_data), numel(userInput.metric_names));
             end
             
@@ -76,19 +76,19 @@ end
             if isfield(userInput, 'dataset_names') && ~isempty(userInput.dataset_names)
                 dataset_names = userInput.dataset_names;
                 if numel(dataset_names) ~= num_datasets
-                    error('Length of "dataset_names" does not match number of columns.');
+                    error(lang.load_data.error_dataset_names_length);
                 end
             else
                 % Generate generic names (D1, D2...)
                 dataset_names = arrayfun(@(x) sprintf('D%d', x), 1:num_datasets, 'UniformOutput', false);
-                fprintf('Note: No dataset names provided. Generated: %s\n', strjoin(dataset_names, ', '));
+                fprintf([lang.load_data.note_generated_names '\n'], strjoin(dataset_names, ', '));
             end
             
             % Validate consistency across metrics (same dimensions)
             for m = 2:numel(all_data)
                 [r, c] = size(all_data{m});
                 if r ~= num_probanden || c ~= num_datasets
-                    error('Inconsistent dimensions in metric %d. Expected [%d x %d].', ...
+                    error(lang.load_data.error_inconsistent_dimensions, ...
                           m, num_probanden, num_datasets);
                 end
             end
@@ -98,7 +98,7 @@ end
             % Note: is_valid is not set to true here yet, it will be set at the very end of the function
             
         catch ME
-            fprintf('\nError processing in-memory data: %s\n', ME.message);
+            fprintf(['\n' lang.load_data.error_processing_in_memory '\n'], ME.message);
             is_valid = false;
             return;
         end
@@ -245,7 +245,7 @@ end
             elseif (effective_n / num_probanden) < min_n_threshold
                 % Generate and store a low-N warning message
                 warning_msg = sprintf([' -> ' lang.load_data.warning_low_n], ...
-                    dataset_names{i}, dataset_names{j}, effective_n, num_probanden, (effective_n / num_probanden)*100);
+                    dataset_names{i}, dataset_names{j}, effective_n, num_probanden, (effective_n / num_probanden)*100, min_n_threshold * 100);
                 fprintf('%s\n', warning_msg);
                 low_n_pairs_warnings{end+1} = warning_msg;
             end

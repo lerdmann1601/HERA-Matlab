@@ -163,6 +163,6 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
         if exist('fileID', 'var') && fileID ~= -1
             fclose(fileID);
         end
-        fprintf('Error saving bootstrap rank CSV: %s\n', ME.message);
+        fprintf([lang.errors.save_bootstrap_rank_error '\n'], ME.message);
     end
 end

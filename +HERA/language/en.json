@@ -43,7 +43,16 @@
         "metric_logic_2_prompt": "Select logic",
         "batch_defaults_filled": "Configuration filled with default values. Starting ranking...",
         "config_loaded_from_file": "Configuration loaded from file.",
-        "files_changed_warning": "Additional hierarchies could not be displayed. Files in the folder may have changed."
+        "files_changed_warning": "Additional hierarchies could not be displayed. Files in the folder may have changed.",
+        "loading_config_file": "Loading configuration from: %s",
+        "header_unit_test": "Starting HERA Unit Test",
+        "unit_test_complete": "All unit tests completed.",
+        "unit_test_error": "Critical Error during Unit Test:\n%s",
+        "unit_test_file_line": "In file: %s (Line %d)",
+        "header_convergence": "Starting HERA Convergence Analysis",
+        "convergence_complete": "Convergence Analysis completed.",
+        "convergence_error": "Critical Error during Convergence Analysis:\n%s",
+        "version_info": "Version: %s"
     },
     "prompts": {
         "reproducible": "Make analysis reproducible?",
@@ -134,7 +143,9 @@
         "integer_or_auto": "ERROR: Please enter a positive integer or '%s'.",
         "b_end_error": "ERROR: B_end must be greater than B_start (%d).",
         "json_save_error": "Could not open or write JSON file: %s",
-        "json_save_error_details": "ERROR saving JSON file: %s"
+        "json_save_error_details": "ERROR saving JSON file: %s",
+        "invalid_start_arguments": "Invalid arguments. Please provide a userInput struct, 'configFile', 'runtest', or 'convergence'.",
+        "save_bootstrap_rank_error": "Error saving bootstrap rank CSV: %s"
     },
     "warnings": {
         "incomplete_config": "WARNING: Paths and metrics are missing in the loaded file.\nThese must now be set interactively.",
@@ -235,7 +246,7 @@
         "checking_completeness": "Checking completeness for each pairwise comparison:",
         "metric_label": "Metric: %s",
         "warning_critical": "CRITICAL: %s vs. %s has 0 valid pairs!",
-        "warning_low_n": "WARNING: %s vs. %s is based on only %d of %d subjects (%.1f%%).",
+        "warning_low_n": "WARNING: %s vs. %s is based on only %d of %d subjects (%.1f%% < %.0f%%).",
         "summary_header": "Summary:",
         "error_critical_warning": "ERROR: At least one comparison has no valid data. Analysis cannot proceed.",
         "note_pairwise_deletion": "Note: If you proceed, comparisons with missing data will only include subjects with complete data pairs (pairwise deletion).",
@@ -244,7 +255,16 @@
         "analysis_continuing": "Analysis will proceed.",
         "analysis_aborted": "Analysis aborted by user.",
         "error_invalid_input": "ERROR: Invalid input. Please enter only '%s' or '%s'.",
-        "validation_success": "All data validated for analysis."
+        "validation_success": "All data validated for analysis.",
+        "in_memory_detected": "Detected in-memory data input. Skipping file load.",
+        "error_custom_data_format": "Input \"custom_data\" must be a cell array of numeric matrices.",
+        "error_metric_mismatch": "Mismatch: %d metrics provided in data, but %d names configured.",
+        "error_dataset_names_length": "Length of \"dataset_names\" does not match number of columns.",
+        "note_generated_names": "Note: No dataset names provided. Generated: %s",
+        "error_inconsistent_dimensions": "Inconsistent dimensions in metric %d. Expected [%d x %d].",
+        "error_processing_in_memory": "Error processing in-memory data: %s",
+        "toolboxes_missing_header": "HERA requires the following missing toolboxes:\n",
+        "toolboxes_install_instruction": "\nPlease install them via the Add-On Explorer."
     },
     "thresholds": {
         "manual_b_info": "Manual Percentile-Bootstrap count B = %d is used for thresholds.",
