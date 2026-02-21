@@ -309,7 +309,7 @@ Test 13: Pathological Data (Efron's Dice)
    ----------------------------------------------------------------------------
    |Structure Valid       |[1 2 3 4]              |Contains all IDs  |  true  |
    |M1 Fallback Applied   |[1 2 3 4]              |[1 2 3 4]         |  true  |
-   |Cliff's Delta (M2)    |A>B: 0.36, D>A: -0.08  |+, -              |  true  |
+   |Cliff's Delta (M2)    |A>B: 0.36, D>A: 0.08   |+, +              |  true  |
    |Rel. Diff (M2)        |A>B: 0.10, D>A: 0.18   |N/A               |   -    |
    |Algorithm Terminated  |Yes                    |Yes               |  true  |
 
