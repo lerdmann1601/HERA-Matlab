@@ -28,7 +28,8 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     config = default_config;
     
     fprintf('[Test] Win condition = (p < alpha) AND (|d| > d_thr) AND (r > r_thr).\n');
-    fprintf('[Setup] Generating synthetic edge cases to test partial criteria matches.\n');
+    fprintf('[Setup] N=4 Candidates, n=%d Subjects, Fixed Thresholds (B=N/A).\n', n_subj);
+    fprintf('        Generating synthetic edge cases to test partial criteria matches.\n');
     
     % Case 1: High Delta, but trivial RelDiff (Microscopic difference with 0 variance)
     d1_micro = ones(n_subj, 1) * 1.001;

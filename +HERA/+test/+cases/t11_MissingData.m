@@ -43,7 +43,7 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
     d_align = {'l', 'l'}; 
     h_align = {'c', 'c'};
     table_data = {
-        'Data Structure', sprintf('5 Datasets (D1-D5), N=%d per group', n_test11);
+        'Data Structure', sprintf('5 Candidates (D1-D5), n=%d per group', n_test11);
         'Missing Data Levels', '20%, 40%, 60%, 80%'
     };
     TestHelper.print_auto_table(h_set, table_data, d_align, h_align);

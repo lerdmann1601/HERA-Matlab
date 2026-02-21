@@ -32,6 +32,11 @@ classdef ScientificSuite < matlab.unittest.TestCase
     %
     % Author: Lukas von Erdmannsdorff
 
+    % Terminology Note:
+    %   - 'n' refers to the sample size (number of subjects/observations per dataset).
+    %   - 'N' refers to the number of datasets (candidates/conditions) being compared.
+    %   Unless otherwise specified, n = 50.
+
     properties
         config
         thresholds
@@ -98,6 +103,11 @@ classdef ScientificSuite < matlab.unittest.TestCase
     methods (Test)
         
         function t01_SmallSample(testCase)
+            fprintf('GENERAL NOTICE FOR ALL SCIENTIFIC TESTS:\n');
+            fprintf(' - ''n'' denotes the sample size (subjects/observations) per candidate.\n');
+            fprintf(' - ''N'' denotes the number of candidates (datasets) being compared.\n');
+            fprintf(' - Unless specified otherwise, operations use the default sample size n=%d.\n', testCase.n_subj);
+            
             import HERA.test.cases.t01_SmallSample
             passed = t01_SmallSample(testCase.config, testCase.thresholds, testCase.n_subj, testCase.styles, testCase.lang);
             testCase.verifyTrue(passed, "Test 01 (Small Sample) Failed");

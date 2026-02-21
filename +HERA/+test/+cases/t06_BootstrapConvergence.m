@@ -52,7 +52,7 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     d_align = {'l', 'l'}; 
     h_align = {'c', 'c'}; 
     table_data = {
-        'Sample Size (N)', num2str(n_conv);
+        'Sample Size (n)', num2str(n_conv);
         'Means', '[10, 15]';
         'SD', '3'
     };
@@ -79,13 +79,24 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     test_methods(2).name = 'BCa';        test_methods(2).cfg = bs_bca; test_methods(2).lang_sec = 'bca';
     test_methods(3).name = 'Ranking';    test_methods(3).cfg = bs_rank; test_methods(3).lang_sec = 'ranking';
 
+    fprintf('\n[Bootstrap Configurations]\n');
+    h_cfg = {'Algorithm', 'B_{start}', 'B_{step}', 'B_{end}', 'Trials', 'Min. Steps', 'Window', 'Streak', 'Tolerance'}; 
+    d_cfg = {'l', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'}; 
+    h_cfg_a = {'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'}; 
+    t_cfg = {
+        'Thresholds', num2str(bs_thr.B_start), num2str(bs_thr.B_step), num2str(bs_thr.B_end), num2str(bs_thr.n_trials), num2str(bs_thr.min_steps_for_convergence_check), num2str(bs_thr.smoothing_window), num2str(bs_thr.convergence_streak_needed), sprintf('%.1f%%', bs_thr.convergence_tolerance*100);
+        'BCa CI', num2str(bs_bca.B_start), num2str(bs_bca.B_step), num2str(bs_bca.B_end), num2str(bs_bca.n_trials), num2str(bs_bca.min_steps_for_convergence_check), num2str(bs_bca.smoothing_window), num2str(bs_bca.convergence_streak_needed), sprintf('%.1f%%', bs_bca.convergence_tolerance*100);
+        'Ranking', num2str(bs_rank.B_start), num2str(bs_rank.B_step), num2str(bs_rank.B_end), num2str(bs_rank.n_trials), num2str(bs_rank.min_steps_for_convergence_check), num2str(bs_rank.smoothing_window), num2str(bs_rank.convergence_streak_needed), sprintf('%.1f%%', bs_rank.convergence_tolerance*100)
+    };
+    TestHelper.print_auto_table(h_cfg, t_cfg, d_cfg, h_cfg_a);
+
     % Result Table Header
     fprintf('\n[Result]\n');
-    header_parts = {'Method', 'Mode', 'Configuration', 'Result', 'Status', 'Logic Check'};
-    d_align = {'l', 'l', 'l', 'l', 'c', 'l'}; 
-    h_align = {'c', 'c', 'c', 'c', 'c', 'c'};
+    header_parts = {'Method', 'Mode', 'Result', 'Status', 'Logic Check'};
+    d_align = {'l', 'l', 'l', 'c', 'l'}; 
+    h_align = {'c', 'c', 'c', 'c', 'c'};
     
-    table_data = cell(9, 6); % 3 methods * 3 modes
+    table_data = cell(9, 5); % 3 methods * 3 modes
     row_idx = 0;
 
     seed_boot = 999;
@@ -212,10 +223,10 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
                 end
                 
                 % Store Data Row
-                table_data(row_idx, :) = {curr_method, mode_name, config_str, res_txt, stat, logic_msg};
+                table_data(row_idx, :) = {curr_method, mode_name, res_txt, stat, logic_msg};
                 
             catch ME
-                table_data(row_idx, :) = {curr_method, mode_name, 'CRASH', 'ERR', 'FAIL', ME.message};
+                table_data(row_idx, :) = {curr_method, mode_name, 'ERR', 'FAIL', ME.message};
                 test6_all_passed = false;
             end
         end

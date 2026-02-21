@@ -26,7 +26,7 @@ function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     
     % PART A: Basic Functionality (N=5 Datasets)
-    fprintf('[Test] Checking dynamic alpha adaptation for N=5 datasets (10 pairs).\n');
+    fprintf('[Test] Checking dynamic alpha adaptation for N=5 candidates (10 pairs).\n');
     n_ds = 5;
     ds_names_hb = {'D1', 'D2', 'D3', 'D4', 'D5'};
     
@@ -49,7 +49,7 @@ function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
     d_align = {'l', 'l'};
     h_align = {'c', 'c'};
     table_data = {
-        'Datasets', num2str(n_ds);
+        'Candidates (N)', num2str(n_ds);
         'Comparisons (Pairs)', num2str(n_pairs_hb);
         'Base Alpha', sprintf('%.2f', config_hb.alphas(1))
     };

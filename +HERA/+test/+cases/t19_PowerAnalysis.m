@@ -70,7 +70,7 @@ function passed = t19_PowerAnalysis(default_config, thresholds, ~, ~, lang)
     alpha_disp = all_alphas_pwr{1}(1,2);
 
     table_data = {
-        'Subjects (N)', num2str(n_pwr), 'Resampling Size';
+        'Subjects (n)', num2str(n_pwr), 'Resampling Size';
         'Simulations', num2str(n_sims), 'Bootstrap Iterations';
         'Alpha Limit', sprintf('%.3f', alpha_disp), 'Significant if p < Alpha';
         'Effect Limit', sprintf('d > %.2f, r > %.2f', d_thr_disp, r_thr_disp), 'Relevant if Eff > Limit'

@@ -28,6 +28,7 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
     config = default_config;
     
     fprintf('[Test] Algorithm stability with absolute zero-variance inputs.\n');
+    fprintf('[Setup] N=3 Candidates, n=%d Subjects, Fixed Thresholds (B=N/A).\n', n_subj);
     
     data_zero = zeros(n_subj, 3); 
     eff_zero = TestHelper.calculate_real_effects({data_zero}, 1);

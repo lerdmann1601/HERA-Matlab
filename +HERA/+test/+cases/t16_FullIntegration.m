@@ -22,7 +22,7 @@ function passed = t16_FullIntegration(default_config, ~, n_subj, styles, lang)
     passed = false;
     tests_passed = 0;
     
-    title_str = 'Test 16: Full System Integration (15 Datasets + Auto-Thresholds)';
+    title_str = 'Test 16: Full System Integration (15 Candidates (N) + Auto-Thresholds)';
     fprintf('\n%s\n', title_str);
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     
@@ -39,7 +39,7 @@ function passed = t16_FullIntegration(default_config, ~, n_subj, styles, lang)
     
     % Input Table 
     fprintf('[Input: Tiers & Logic Targets]\n');
-    h_in = {'Tier', 'Datasets', 'Target Logic'}; 
+    h_in = {'Tier', 'Candidates', 'Target Logic'}; 
     d_align = {'l', 'l', 'l'};
     h_align = {'c', 'c', 'c'};
     table_data = {
@@ -68,7 +68,7 @@ function passed = t16_FullIntegration(default_config, ~, n_subj, styles, lang)
         
         % Result Table 
         fprintf('\n[Result]\n');
-        header_parts = {'Rank', 'Dataset', 'M1 Mean', 'M2 Mean', 'M3 Mean'};
+        header_parts = {'Rank', 'Candidate', 'M1 Mean', 'M2 Mean', 'M3 Mean'};
         d_align = {'c', 'c', 'c', 'c', 'c'}; 
         h_align = {'c', 'c', 'c', 'c', 'c'};
         

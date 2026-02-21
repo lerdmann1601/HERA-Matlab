@@ -26,6 +26,7 @@ function passed = t04_MathValidation(default_config, ~, ~, styles, lang)
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     
     fprintf('[Test] Validation of mathematical corner cases (Zero Variance, SEM Logic, BCa Factors).\n');
+    fprintf('[Setup] N=2 Candidates, n=20 Subjects, Fixed B=50.\n');
     
     % Setup: Simple data for math check
     % D1: Zero variance (all 0) -> Should trigger safety mechanisms (NaN protection)
