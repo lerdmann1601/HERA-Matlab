@@ -32,7 +32,7 @@ function passed = t08_ModeM1M2(default_config, thresholds, n_subj, ~, ~)
     % Metric 2 acts as a correction layer: if a lower-ranked dataset significantly 
     % beats a higher-ranked one in M2, they swap places.
     
-    fprintf('[Test] Verifying M2 Correction Swap logic.\n');
+    fprintf('[Test] Verifying M2 Correction Swap logic using fixed thresholds.\n');
     fprintf('[Setup] M1 Order: D1 > D2 > D3. M2 Signal: D2 > D1 (Contradiction).\n');
     
     % M1: D1 wins (10 > 5 > 0)

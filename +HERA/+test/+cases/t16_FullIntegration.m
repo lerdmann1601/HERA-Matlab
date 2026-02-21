@@ -27,7 +27,7 @@ function passed = t16_FullIntegration(default_config, ~, n_subj, styles, lang)
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     
     fprintf('[Test] Validating the full logic chain (M2 correction, M3A tie-break, M3B sort).\n');
-    fprintf('[Setup] Re-generating "Waterfall" data (same profile as Test 15) to test Dynamic Thresholds.\n');
+    fprintf('[Setup] Re-generating "Waterfall" data (same profile as Test 15) to test the ranking is determined correctly with calculated thresholds.\n');
     
     % Scenario for full logic chain validation (same as T15 but with calculated thresholds)
     [m1_data, m2_data, m3_data, ds_names_full] = TestHelper.generate_waterfall_data(n_subj);

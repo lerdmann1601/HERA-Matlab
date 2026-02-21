@@ -37,7 +37,7 @@ function passed = t14_DynamicCycle(default_config, ~, n_subj, styles, lang)
     myStream = RandStream('mlfg6331_64', 'Seed', 123);
     
     fprintf('[Test] Full pipeline execution with dynamic thresholds on cycle data.\n');
-    fprintf('[Setup] 1. Calculate Thresholds -> 2. Run Ranking (M1_M2). This test uses the same Efron Data as in Test 13.\n');
+    fprintf('[Setup] 1. Calculate Thresholds (B=50) -> 2. Run Ranking (M1_M2). This test uses the same Efron Data as in Test 13.\n');
     
     try
         % Step 1: Calculate dynamic thresholds based on the data
