@@ -79,16 +79,29 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     test_methods(2).name = 'BCa';        test_methods(2).cfg = bs_bca; test_methods(2).lang_sec = 'bca';
     test_methods(3).name = 'Ranking';    test_methods(3).cfg = bs_rank; test_methods(3).lang_sec = 'ranking';
 
-    fprintf('\n[Bootstrap Configurations]\n');
-    h_cfg = {'Algorithm', 'B_{start}', 'B_{step}', 'B_{end}', 'Trials', 'Min. Steps', 'Window', 'Streak', 'Tolerance'}; 
-    d_cfg = {'l', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'}; 
-    h_cfg_a = {'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'}; 
-    t_cfg = {
-        'Thresholds', num2str(bs_thr.B_start), num2str(bs_thr.B_step), num2str(bs_thr.B_end), num2str(bs_thr.n_trials), num2str(bs_thr.min_steps_for_convergence_check), num2str(bs_thr.smoothing_window), num2str(bs_thr.convergence_streak_needed), sprintf('%.1f%%', bs_thr.convergence_tolerance*100);
-        'BCa CI', num2str(bs_bca.B_start), num2str(bs_bca.B_step), num2str(bs_bca.B_end), num2str(bs_bca.n_trials), num2str(bs_bca.min_steps_for_convergence_check), num2str(bs_bca.smoothing_window), num2str(bs_bca.convergence_streak_needed), sprintf('%.1f%%', bs_bca.convergence_tolerance*100);
-        'Ranking', num2str(bs_rank.B_start), num2str(bs_rank.B_step), num2str(bs_rank.B_end), num2str(bs_rank.n_trials), num2str(bs_rank.min_steps_for_convergence_check), num2str(bs_rank.smoothing_window), num2str(bs_rank.convergence_streak_needed), sprintf('%.1f%%', bs_rank.convergence_tolerance*100)
+    % --- Table 1: Estimator Search Grid ---
+    fprintf('\n[Bootstrap Search Grid (per Estimator)]\n');
+    h_grid = {'Estimator', 'B_{start}', 'B_{step}', 'B_{end}', 'Trials'}; 
+    d_grid = {'l', 'c', 'c', 'c', 'c'}; 
+    h_grid_a = {'c', 'c', 'c', 'c', 'c'}; 
+    t_grid = {
+        'Thresholds', num2str(bs_thr.B_start), num2str(bs_thr.B_step), num2str(bs_thr.B_end), num2str(bs_thr.n_trials);
+        'BCa CI',     num2str(bs_bca.B_start), num2str(bs_bca.B_step), num2str(bs_bca.B_end), num2str(bs_bca.n_trials);
+        'Ranking',    num2str(bs_rank.B_start), num2str(bs_rank.B_step), num2str(bs_rank.B_end), num2str(bs_rank.n_trials)
     };
-    TestHelper.print_auto_table(h_cfg, t_cfg, d_cfg, h_cfg_a);
+    TestHelper.print_auto_table(h_grid, t_grid, d_grid, h_grid_a);
+    
+    % --- Table 2: Convergence Mode Parameters ---
+    fprintf('\n[Convergence Mode Parameters]\n');
+    h_mode = {'Mode', 'Tolerance', 'Min. Steps', 'Window', 'Streak'}; 
+    d_mode = {'l', 'c', 'c', 'c', 'c'}; 
+    h_mode_a = {'c', 'c', 'c', 'c', 'c'}; 
+    t_mode = {
+        'Simple', sprintf('%.1f%%', bs_thr.convergence_tolerance*100), num2str(bs_thr.min_steps_for_convergence_check), '-', '-';
+        'Robust', sprintf('%.1f%%', bs_thr.convergence_tolerance*100), num2str(bs_thr.min_steps_for_convergence_check), num2str(bs_thr.smoothing_window), num2str(bs_thr.convergence_streak_needed);
+        'Elbow',  'N/A (Forced)', '-', '-', '-'
+    };
+    TestHelper.print_auto_table(h_mode, t_mode, d_mode, h_mode_a);
 
     % Result Table Header
     fprintf('\n[Result]\n');
