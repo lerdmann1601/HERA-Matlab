@@ -1,4 +1,3 @@
-Log File: /home/runner/work/HERA-Matlab/HERA-Matlab/tests/logs/HERA_Validation_20260110_172655.txt (Documents (Persistent))
 [System] Starting Parallel Pool...
 Starting parallel pool (parpool) using the 'Processes' profile ...
 Connected to parallel pool with 2 workers.
@@ -15,6 +14,10 @@ Done HERA.test.StatsTests
 __________
 
 Running HERA.test.ScientificSuite
+GENERAL NOTICE FOR ALL SCIENTIFIC TESTS:
+ - 'n' denotes the sample size (subjects/observations) per candidate.
+ - 'N' denotes the number of candidates (datasets) being compared.
+ - Unless specified otherwise, operations use the default sample size n=50.
 
 Test 1: Small Sample Size Boundary (Exact Wilcoxon N=10)
 --------------------------------------------------------
@@ -40,12 +43,12 @@ Test 1: Small Sample Size Boundary (Exact Wilcoxon N=10)
 .
 Test 2: Statistical Rigor (Holm-Bonferroni Correction)
 ------------------------------------------------------
-[Test] Checking dynamic alpha adaptation for N=5 datasets (10 pairs).
+[Test] Checking dynamic alpha adaptation for N=5 candidates (10 pairs).
 [Setup] Generating random noise data. Alpha Base = 0.05.
 [Input]
    |      Parameter      | Value |
    -------------------------------
-   |Datasets             |5      |
+   |Candidates (N)       |5      |
    |Comparisons (Pairs)  |10     |
    |Base Alpha           |0.05   |
 
@@ -62,7 +65,8 @@ Test 2: Statistical Rigor (Holm-Bonferroni Correction)
 Test 3: Outlier Robustness & Threshold Logic (Divergence Check)
 ---------------------------------------------------------------
 [Test] Win condition = (p < alpha) AND (|d| > d_thr) AND (r > r_thr).
-[Setup] Generating synthetic edge cases to test partial criteria matches.
+[Setup] N=4 Candidates, n=50 Subjects, Fixed Thresholds (B=N/A).
+        Generating synthetic edge cases to test partial criteria matches.
 [Input]
    |    Comparison    |                Scenario                 | Target Failure |
    -------------------------------------------------------------------------------
@@ -81,6 +85,7 @@ Test 3: Outlier Robustness & Threshold Logic (Divergence Check)
 Test 4: Mathematical Validation (Thresholds/SEM/BCa)
 ----------------------------------------------------
 [Test] Validation of mathematical corner cases (Zero Variance, SEM Logic, BCa Factors).
+[Setup] N=2 Candidates, n=20 Subjects, Fixed B=50.
 [Setup]
    | Metric Name |  Data Characteristics  |      Expected Behavior       |
    -----------------------------------------------------------------------
@@ -106,6 +111,7 @@ Test 4: Mathematical Validation (Thresholds/SEM/BCa)
 Test 5: Stability Check (Identical Data / Zero Variance)
 --------------------------------------------------------
 [Test] Algorithm stability with absolute zero-variance inputs.
+[Setup] N=3 Candidates, n=50 Subjects, Fixed Thresholds (B=N/A).
 [Input]
    |  Data Type  | Size | Content |
    --------------------------------
@@ -129,22 +135,29 @@ Test 6: Bootstrap Convergence Algorithms (Global Verification)
 [Input]
    |    Parameter    |  Value   |
    ------------------------------
-   |Sample Size (N)  |30        |
+   |Sample Size (n)  |30        |
    |Means            |[10, 15]  |
    |SD               |3         |
 
+[Bootstrap Configurations]
+   | Algorithm  | B_{start} | B_{step} | B_{end} | Trials | Min. Steps | Window | Streak | Tolerance |
+   ---------------------------------------------------------------------------------------------------
+   |Thresholds  |    100    |   100    |  5000   |   25   |     3      |   3    |   3    |   1.0%    |
+   |BCa CI      |    100    |   200    |  15000  |   30   |     3      |   3    |   3    |   5.0%    |
+   |Ranking     |    50     |    25    |  1000   |   15   |     3      |   3    |   3    |   0.5%    |
+
 [Result]
-   |   Method   |  Mode  |           Configuration            |  Result  | Status |    Logic Check     |
-   -----------------------------------------------------------------------------------------------------
-   |Thresholds  |Simple  |Tol=1.0%, (No Smooth/Streak)        |B = 300   |  PASS  |Converged (Simple)  |
-   |Thresholds  |Robust  |Tol=1.0%, Sm=3, St=3                |B = 800   |  PASS  |Converged (Robust)  |
-   |Thresholds  |Elbow   |Tol=-1.0, B_max=5000 (Force Fail)   |B = 100   |  PASS  |Elbow detected      |
-   |BCa         |Simple  |Tol=5.0%, (No Smooth/Streak)        |B = 2500  |  PASS  |Converged (Simple)  |
-   |BCa         |Robust  |Tol=5.0%, Sm=3, St=3                |B = 2900  |  PASS  |Converged (Robust)  |
-   |BCa         |Elbow   |Tol=-1.0, B_max=15000 (Force Fail)  |B = 2100  |  PASS  |Elbow detected      |
-   |Ranking     |Simple  |Tol=0.5%, (No Smooth/Streak)        |B = 100   |  PASS  |Converged (Simple)  |
-   |Ranking     |Robust  |Tol=0.5%, Sm=3, St=3                |B = 225   |  PASS  |Converged (Robust)  |
-   |Ranking     |Elbow   |Tol=-1.0, B_max=1000 (Force Fail)   |B = 50    |  PASS  |Elbow detected      |
+   |   Method   |  Mode  |  Result  | Status |    Logic Check     |
+   ----------------------------------------------------------------
+   |Thresholds  |Simple  |B = 300   |  PASS  |Converged (Simple)  |
+   |Thresholds  |Robust  |B = 800   |  PASS  |Converged (Robust)  |
+   |Thresholds  |Elbow   |B = 100   |  PASS  |Elbow detected      |
+   |BCa         |Simple  |B = 2500  |  PASS  |Converged (Simple)  |
+   |BCa         |Robust  |B = 2900  |  PASS  |Converged (Robust)  |
+   |BCa         |Elbow   |B = 2100  |  PASS  |Elbow detected      |
+   |Ranking     |Simple  |B = 100   |  PASS  |Converged (Simple)  |
+   |Ranking     |Robust  |B = 225   |  PASS  |Converged (Robust)  |
+   |Ranking     |Elbow   |B = 50    |  PASS  |Elbow detected      |
 
 [Status] PASS: All convergence algorithms behave correct.
 .
@@ -252,10 +265,10 @@ Test 11: Systematic Missing Data (NaN) Handling
 -----------------------------------------------
 [Test] Algorithm can handle systematic missing data (NaN).
 [Setup]
-   |      Parameter      |             Description             |
-   -------------------------------------------------------------
-   |Data Structure       |5 Datasets (D1-D5), N=200 per group  |
-   |Missing Data Levels  |20%, 40%, 60%, 80%                   |
+   |      Parameter      |              Description              |
+   ---------------------------------------------------------------
+   |Data Structure       |5 Candidates (D1-D5), n=200 per group  |
+   |Missing Data Levels  |20%, 40%, 60%, 80%                     |
 
 [Input]
    |     Parameter     |           Description            |
@@ -305,13 +318,13 @@ Test 13: Pathological Data (Efron's Dice)
    |M2      |A>B (2/3), B>C (2/3), C>D (2/3), D>A (2/3)  |
 
 [Result]
-   |        Check         |         Value         |     Expected     | Status |
-   ----------------------------------------------------------------------------
-   |Structure Valid       |[1 2 3 4]              |Contains all IDs  |  true  |
-   |M1 Fallback Applied   |[1 2 3 4]              |[1 2 3 4]         |  true  |
-   |Cliff's Delta (M2)    |A>B: 0.36, D>A: 0.08   |+, +              |  true  |
-   |Rel. Diff (M2)        |A>B: 0.10, D>A: 0.18   |N/A               |   -    |
-   |Algorithm Terminated  |Yes                    |Yes               |  true  |
+   |        Check         |        Value         |     Expected     | Status |
+   ---------------------------------------------------------------------------
+   |Structure Valid       |[1 2 3 4]             |Contains all IDs  |  true  |
+   |M1 Fallback Applied   |[1 2 3 4]             |[1 2 3 4]         |  true  |
+   |Cliff's Delta (M2)    |A>B: 0.36, D>A: 0.08  |+, +              |  true  |
+   |Rel. Diff (M2)        |A>B: 0.10, D>A: 0.18  |N/A               |   -    |
+   |Algorithm Terminated  |Yes                   |Yes               |  true  |
 
 [Status] PASS: Cycle detected, M1 fallback correctly applied.
 .
@@ -353,36 +366,36 @@ Test 15: Global System Test (Static Thresholds)
 
 [Status] PASS: Full Hierarchy respected (M2 > M1 > M3).
 .
-Test 16: Full System Integration (15 Datasets + Auto-Thresholds)
-----------------------------------------------------------------
+Test 16: Full System Integration (15 Candidates (N) + Auto-Thresholds)
+----------------------------------------------------------------------
 [Test] Validating the full logic chain (M2 correction, M3A tie-break, M3B sort).
 [Setup] Re-generating "Waterfall" data (same profile as Test 15) to test Dynamic Thresholds.
 [Input: Tiers & Logic Targets]
-   |  Tier  | Datasets |              Target Logic              |
-   --------------------------------------------------------------
-   |Tier 1  |D1-D5     |Base Rank (Mid) -> Displaced by Tier 2  |
-   |Tier 2  |D6-D10    |Correction (Top) -> Wins via M2         |
-   |Tier 3  |D11-D12   |Tie-Break -> Logic 3A (M3 Swap)         |
-   |Tier 4  |D13-D15   |Sorting -> Logic 3B (M3 Gradient)       |
+   |  Tier  | Candidates |              Target Logic              |
+   ----------------------------------------------------------------
+   |Tier 1  |D1-D5       |Base Rank (Mid) -> Displaced by Tier 2  |
+   |Tier 2  |D6-D10      |Correction (Top) -> Wins via M2         |
+   |Tier 3  |D11-D12     |Tie-Break -> Logic 3A (M3 Swap)         |
+   |Tier 4  |D13-D15     |Sorting -> Logic 3B (M3 Gradient)       |
 
 [Result]
-   | Rank | Dataset | M1 Mean | M2 Mean | M3 Mean |
-   ------------------------------------------------
-   |  1   |   D6    |  100.0  |  120.0  |  100.0  |
-   |  2   |   D7    |  100.0  |  120.0  |  100.0  |
-   |  3   |   D8    |  100.0  |  120.0  |  100.0  |
-   |  4   |   D9    |  100.0  |  120.0  |  100.0  |
-   |  5   |   D10   |  100.0  |  120.0  |  100.0  |
-   |  6   |   D3    |  120.0  |  100.0  |  100.0  |
-   |  7   |   D2    |  120.0  |  100.0  |  100.0  |
-   |  8   |   D4    |  120.0  |  100.0  |  100.0  |
-   |  9   |   D1    |  120.0  |  100.0  |  100.0  |
-   |  10  |   D5    |  120.0  |  100.0  |  100.0  |
-   |  11  |   D12   |  80.0   |  100.0  |  105.0  |
-   |  12  |   D11   |  80.0   |  100.0  |  95.0   |
-   |  13  |   D15   |  60.0   |  100.0  |  110.0  |
-   |  14  |   D14   |  60.0   |  100.0  |  100.0  |
-   |  15  |   D13   |  60.0   |  100.0  |  90.0   |
+   | Rank | Candidate | M1 Mean | M2 Mean | M3 Mean |
+   --------------------------------------------------
+   |  1   |    D6     |  100.0  |  120.0  |  100.0  |
+   |  2   |    D7     |  100.0  |  120.0  |  100.0  |
+   |  3   |    D8     |  100.0  |  120.0  |  100.0  |
+   |  4   |    D9     |  100.0  |  120.0  |  100.0  |
+   |  5   |    D10    |  100.0  |  120.0  |  100.0  |
+   |  6   |    D3     |  120.0  |  100.0  |  100.0  |
+   |  7   |    D2     |  120.0  |  100.0  |  100.0  |
+   |  8   |    D4     |  120.0  |  100.0  |  100.0  |
+   |  9   |    D1     |  120.0  |  100.0  |  100.0  |
+   |  10  |    D5     |  120.0  |  100.0  |  100.0  |
+   |  11  |    D12    |  80.0   |  100.0  |  105.0  |
+   |  12  |    D11    |  80.0   |  100.0  |  95.0   |
+   |  13  |    D15    |  60.0   |  100.0  |  110.0  |
+   |  14  |    D14    |  60.0   |  100.0  |  100.0  |
+   |  15  |    D13    |  60.0   |  100.0  |  90.0   |
 
 [Status] PASS: Full System Validation Successful.
 .
@@ -450,7 +463,7 @@ Test 19: Post-Hoc Power Analysis (Sanity Check)
 [Input]
    |  Parameter   |       Value        |        Condition         |
    ----------------------------------------------------------------
-   |Subjects (N)  |20                  |Resampling Size           |
+   |Subjects (n)  |20                  |Resampling Size           |
    |Simulations   |100                 |Bootstrap Iterations      |
    |Alpha Limit   |0.050               |Significant if p < Alpha  |
    |Effect Limit  |d > 0.15, r > 0.05  |Relevant if Eff > Limit   |
@@ -481,49 +494,49 @@ Test Results Summary:
                                 Name                                Passed    Failed    Incomplete    Duration      Details   
     ____________________________________________________________    ______    ______    __________    ________    ____________
 
-    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.25354    {1×1 struct}
-    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.008428    {1×1 struct}
-    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.035806    {1×1 struct}
-    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007462    {1×1 struct}
-    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.014401    {1×1 struct}
-    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false         0.1091    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.010896    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.006855    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.009285    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.016502    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.004666    {1×1 struct}
-    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false       0.029037    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.021243    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false       0.018011    {1×1 struct}
-    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.001891    {1×1 struct}
-    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004473    {1×1 struct}
-    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.002961    {1×1 struct}
-    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.011393    {1×1 struct}
-    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false       0.009686    {1×1 struct}
-    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11258    {1×1 struct}
-    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false        0.02022    {1×1 struct}
-    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         24.558    {1×1 struct}
-    {'HERA.test.StatsTests/test_batching'                      }    true      false       false         40.224    {1×1 struct}
-    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false         9.8272    {1×1 struct}
-    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.3721    {1×1 struct}
-    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false       0.077656    {1×1 struct}
-    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.037456    {1×1 struct}
-    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         17.965    {1×1 struct}
-    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.056262    {1×1 struct}
-    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         178.81    {1×1 struct}
-    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false        0.06761    {1×1 struct}
-    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.044581    {1×1 struct}
-    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.019577    {1×1 struct}
-    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.029698    {1×1 struct}
-    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.057652    {1×1 struct}
-    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false       0.024359    {1×1 struct}
-    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.024975    {1×1 struct}
-    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.3508    {1×1 struct}
-    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false       0.065829    {1×1 struct}
-    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.7589    {1×1 struct}
-    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false         9.7836    {1×1 struct}
-    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.016532    {1×1 struct}
-    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false        0.10867    {1×1 struct}
-    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false         35.153    {1×1 struct}
-    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false         45.727    {1×1 struct}
-    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false          38.05    {1×1 struct}
+    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.24453    {1×1 struct}
+    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.008608    {1×1 struct}
+    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.036294    {1×1 struct}
+    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007586    {1×1 struct}
+    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.015013    {1×1 struct}
+    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false        0.11198    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.011889    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.007333    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.010068    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.018026    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.005252    {1×1 struct}
+    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false        0.03115    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.022949    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false        0.01985    {1×1 struct}
+    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.002292    {1×1 struct}
+    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004871    {1×1 struct}
+    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.003116    {1×1 struct}
+    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.012044    {1×1 struct}
+    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false       0.010614    {1×1 struct}
+    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11479    {1×1 struct}
+    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false       0.021522    {1×1 struct}
+    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         24.375    {1×1 struct}
+    {'HERA.test.StatsTests/test_batching'                      }    true      false       false          41.37    {1×1 struct}
+    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false         10.192    {1×1 struct}
+    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.4012    {1×1 struct}
+    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false       0.085187    {1×1 struct}
+    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.040735    {1×1 struct}
+    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         18.636    {1×1 struct}
+    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.055518    {1×1 struct}
+    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         181.83    {1×1 struct}
+    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false        0.07033    {1×1 struct}
+    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.033559    {1×1 struct}
+    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.019524    {1×1 struct}
+    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.028841    {1×1 struct}
+    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.054372    {1×1 struct}
+    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false        0.02392    {1×1 struct}
+    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.023517    {1×1 struct}
+    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.3586    {1×1 struct}
+    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false        0.08643    {1×1 struct}
+    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.6534    {1×1 struct}
+    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false         9.7756    {1×1 struct}
+    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.016089    {1×1 struct}
+    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false        0.11199    {1×1 struct}
+    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false          35.78    {1×1 struct}
+    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false         46.296    {1×1 struct}
+    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false          38.71    {1×1 struct}
