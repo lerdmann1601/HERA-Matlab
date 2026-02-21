@@ -27,8 +27,10 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     config = default_config;
     
+    alpha_val = config.alphas(1);
+    
     fprintf('[Test] Win condition = (p < alpha) AND (|d| > d_thr) AND (r > r_thr).\n');
-    fprintf('[Setup] N=4 Candidates, n=%d Subjects, Fixed Thresholds (B=N/A).\n', n_subj);
+    fprintf('[Setup] N=4 Candidates, n=%d Subjects, Fixed Thresholds (alpha=%.2f, d_thr=%.2f, r_thr=%.2f).\n', n_subj, alpha_val, 0.20, 0.05);
     fprintf('        Generating synthetic edge cases to test partial criteria matches.\n');
     
     % Case 1: High Delta, but trivial RelDiff (Microscopic difference with 0 variance)
@@ -73,7 +75,10 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     r_p2 = eff_robust.rel_vals_all(6, 1);
     
     % Run Ranking
-    [~, ~, all_sig_rob, ~, ~] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2));
+    [~, ~, all_sig_rob, ~, all_p_value_matrices] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2));
+    
+    p_p1 = all_p_value_matrices{1}(1, 2);
+    p_p2 = all_p_value_matrices{1}(3, 4);
     
     % Check Results: Did any pair register a "Win"?
     win_micro = all_sig_rob{1}(1, 2) || all_sig_rob{1}(2, 1);
@@ -81,13 +86,13 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     
     % Result Table
     fprintf('\n[Result]\n');
-    h_res = {'Pair', 'Delta', 'RelDiff', 'Win (Exp: 0)'}; 
-    d_align = {'l', 'c', 'c', 'c'}; 
-    h_align = {'c', 'c', 'c', 'c'};
+    h_res = {'Pair', 'p-value', 'Delta', 'RelDiff', 'Win (Exp: 0)'}; 
+    d_align = {'l', 'c', 'c', 'c', 'c'}; 
+    h_align = {'c', 'c', 'c', 'c', 'c'};
         
     table_data = {
-        'Micro1 vs Micro2', sprintf('%.2f', abs(d_p1)), sprintf('%.4f', r_p1), sprintf('%d', win_micro);
-        'Noise vs Outlier', sprintf('%.2f', abs(d_p2)), sprintf('%.2f', r_p2), sprintf('%d', win_outlier)
+        'Micro1 vs Micro2', sprintf('%.3f', p_p1), sprintf('%.2f', abs(d_p1)), sprintf('%.4f', r_p1), sprintf('%d', win_micro);
+        'Noise vs Outlier', sprintf('%.3f', p_p2), sprintf('%.2f', abs(d_p2)), sprintf('%.2f', r_p2), sprintf('%d', win_outlier)
     };
     TestHelper.print_auto_table(h_res, table_data, d_align, h_align);
     
