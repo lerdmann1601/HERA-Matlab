@@ -1,3 +1,4 @@
+Log File: /home/runner/work/HERA-Matlab/HERA-Matlab/tests/logs/HERA_Validation_20260221_183820.txt (Documents (Persistent))
 [System] Starting Parallel Pool...
 Starting parallel pool (parpool) using the 'Processes' profile ...
 Connected to parallel pool with 2 workers.
@@ -65,7 +66,7 @@ Test 2: Statistical Rigor (Holm-Bonferroni Correction)
 Test 3: Outlier Robustness & Threshold Logic (Divergence Check)
 ---------------------------------------------------------------
 [Test] Win condition = (p < alpha) AND (|d| > d_thr) AND (r > r_thr).
-[Setup] N=4 Candidates, n=50 Subjects, Fixed Thresholds (B=N/A).
+[Setup] N=4 Candidates, n=50 Subjects, Fixed Thresholds (alpha=0.05, d_thr=0.20, r_thr=0.05).
         Generating synthetic edge cases to test partial criteria matches.
 [Input]
    |    Comparison    |                Scenario                 | Target Failure |
@@ -75,10 +76,10 @@ Test 3: Outlier Robustness & Threshold Logic (Divergence Check)
    |Thresholds        |Delta > 0.20, RelDiff > 0.05             |-               |
 
 [Result]
-   |       Pair       | Delta | RelDiff | Win (Exp: 0) |
-   -----------------------------------------------------
-   |Micro1 vs Micro2  | 1.00  | 0.0010  |      0       |
-   |Noise vs Outlier  | 0.01  |  2.03   |      0       |
+   |       Pair       | p-value | Delta | RelDiff | Win (Exp: 0) |
+   ---------------------------------------------------------------
+   |Micro1 vs Micro2  |  0.000  | 1.00  | 0.0010  |      0       |
+   |Noise vs Outlier  |  1.000  | 0.01  |  2.03   |      0       |
 
 [Status] PASS: Partial criteria matches correctly rejected.
 .
@@ -139,12 +140,19 @@ Test 6: Bootstrap Convergence Algorithms (Global Verification)
    |Means            |[10, 15]  |
    |SD               |3         |
 
-[Bootstrap Configurations]
-   | Algorithm  | B_{start} | B_{step} | B_{end} | Trials | Min. Steps | Window | Streak | Tolerance |
-   ---------------------------------------------------------------------------------------------------
-   |Thresholds  |    100    |   100    |  5000   |   25   |     3      |   3    |   3    |   1.0%    |
-   |BCa CI      |    100    |   200    |  15000  |   30   |     3      |   3    |   3    |   5.0%    |
-   |Ranking     |    50     |    25    |  1000   |   15   |     3      |   3    |   3    |   0.5%    |
+[Bootstrap Search Grid (per Estimator)]
+   | Estimator  | B_{start} | B_{step} | B_{end} | Trials |
+   --------------------------------------------------------
+   |Thresholds  |    100    |   100    |  5000   |   25   |
+   |BCa CI      |    100    |   200    |  15000  |   30   |
+   |Ranking     |    50     |    25    |  1000   |   15   |
+
+[Convergence Mode Parameters]
+   |  Mode  |  Tolerance   | Min. Steps | Window | Streak |
+   --------------------------------------------------------
+   |Simple  |     1.0%     |     3      |   -    |   -    |
+   |Robust  |     1.0%     |     3      |   3    |   3    |
+   |Elbow   | N/A (Forced) |     -      |   -    |   -    |
 
 [Result]
    |   Method   |  Mode  |  Result  | Status |    Logic Check     |
@@ -208,7 +216,7 @@ Test 7: Initial Sorting Logic (Dominance, Delta, Mean)
 .
 Test 8: Mode M1_M2 (Rank Correction Swap)
 -----------------------------------------
-[Test] Verifying M2 Correction Swap logic.
+[Test] Verifying M2 Correction Swap logic using fixed thresholds.
 [Setup] M1 Order: D1 > D2 > D3. M2 Signal: D2 > D1 (Contradiction).
 [Input]
    | Metric | Signal Structure |         Implication         |
@@ -331,7 +339,7 @@ Test 13: Pathological Data (Efron's Dice)
 Test 14: Dynamic Cycle Handling (Efron's Dice + Auto-Thresholds)
 ----------------------------------------------------------------
 [Test] Full pipeline execution with dynamic thresholds on cycle data.
-[Setup] 1. Calculate Thresholds -> 2. Run Ranking (M1_M2). This test uses the same Efron Data as in Test 13.
+[Setup] 1. Calculate Thresholds (B=50) -> 2. Run Ranking (M1_M2). This test uses the same Efron Data as in Test 13.
 [Input: Calculated Thresholds]
    |   Metric   | Delta Thr | RelDiff Thr |
    ----------------------------------------
@@ -369,7 +377,7 @@ Test 15: Global System Test (Static Thresholds)
 Test 16: Full System Integration (15 Candidates (N) + Auto-Thresholds)
 ----------------------------------------------------------------------
 [Test] Validating the full logic chain (M2 correction, M3A tie-break, M3B sort).
-[Setup] Re-generating "Waterfall" data (same profile as Test 15) to test Dynamic Thresholds.
+[Setup] Re-generating "Waterfall" data (same profile as Test 15) to test the ranking is determined correctly with calculated thresholds.
 [Input: Tiers & Logic Targets]
    |  Tier  | Candidates |              Target Logic              |
    ----------------------------------------------------------------
@@ -494,49 +502,49 @@ Test Results Summary:
                                 Name                                Passed    Failed    Incomplete    Duration      Details   
     ____________________________________________________________    ______    ______    __________    ________    ____________
 
-    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.24453    {1×1 struct}
-    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.008608    {1×1 struct}
-    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.036294    {1×1 struct}
-    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007586    {1×1 struct}
-    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.015013    {1×1 struct}
-    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false        0.11198    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.011889    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.007333    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.010068    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.018026    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.005252    {1×1 struct}
-    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false        0.03115    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.022949    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false        0.01985    {1×1 struct}
-    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.002292    {1×1 struct}
-    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004871    {1×1 struct}
-    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.003116    {1×1 struct}
-    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.012044    {1×1 struct}
-    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false       0.010614    {1×1 struct}
-    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11479    {1×1 struct}
-    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false       0.021522    {1×1 struct}
-    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         24.375    {1×1 struct}
-    {'HERA.test.StatsTests/test_batching'                      }    true      false       false          41.37    {1×1 struct}
-    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false         10.192    {1×1 struct}
-    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.4012    {1×1 struct}
-    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false       0.085187    {1×1 struct}
-    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.040735    {1×1 struct}
-    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         18.636    {1×1 struct}
-    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.055518    {1×1 struct}
-    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         181.83    {1×1 struct}
-    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false        0.07033    {1×1 struct}
-    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.033559    {1×1 struct}
-    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.019524    {1×1 struct}
-    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.028841    {1×1 struct}
-    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.054372    {1×1 struct}
-    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false        0.02392    {1×1 struct}
-    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.023517    {1×1 struct}
-    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.3586    {1×1 struct}
-    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false        0.08643    {1×1 struct}
-    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.6534    {1×1 struct}
-    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false         9.7756    {1×1 struct}
-    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.016089    {1×1 struct}
-    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false        0.11199    {1×1 struct}
-    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false          35.78    {1×1 struct}
-    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false         46.296    {1×1 struct}
-    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false          38.71    {1×1 struct}
+    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.23405    {1×1 struct}
+    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.008386    {1×1 struct}
+    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.034558    {1×1 struct}
+    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007439    {1×1 struct}
+    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.015105    {1×1 struct}
+    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false        0.10912    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.011075    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.007177    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.010209    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.017798    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.005481    {1×1 struct}
+    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false       0.029606    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.022266    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false       0.019093    {1×1 struct}
+    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.002185    {1×1 struct}
+    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004746    {1×1 struct}
+    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.003026    {1×1 struct}
+    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.011959    {1×1 struct}
+    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false       0.010429    {1×1 struct}
+    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11497    {1×1 struct}
+    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false        0.02054    {1×1 struct}
+    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         23.666    {1×1 struct}
+    {'HERA.test.StatsTests/test_batching'                      }    true      false       false         40.965    {1×1 struct}
+    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false         9.8827    {1×1 struct}
+    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.3162    {1×1 struct}
+    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false        0.07936    {1×1 struct}
+    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.042381    {1×1 struct}
+    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         18.297    {1×1 struct}
+    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.054395    {1×1 struct}
+    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         178.74    {1×1 struct}
+    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false       0.068272    {1×1 struct}
+    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.033775    {1×1 struct}
+    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.020246    {1×1 struct}
+    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.029198    {1×1 struct}
+    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.059216    {1×1 struct}
+    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false       0.025235    {1×1 struct}
+    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.024837    {1×1 struct}
+    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.3702    {1×1 struct}
+    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false       0.068038    {1×1 struct}
+    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.7391    {1×1 struct}
+    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false          9.686    {1×1 struct}
+    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.017997    {1×1 struct}
+    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false       0.096723    {1×1 struct}
+    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false         35.292    {1×1 struct}
+    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false         46.087    {1×1 struct}
+    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false         38.039    {1×1 struct}
