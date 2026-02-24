@@ -116,7 +116,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `system.delta_mat_limit` | int | `30000` | Max N*M product for matrix-based Cliff's Delta. |
 | | `system.min_batch_size` | int | `100` | Min batch size for parallel processing. |
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. If `false`, only essential convergence and diagnostics plots are saved. |
-| | `plot_theme` | string | `"light"` | `"light"` or `"dark"`. |
+| | `plot_theme` | string | `"light"` | `"light"`, `"dark"`, `"colourblind light"`, or `"colourblind dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
 | | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |
 | | `manual_B_rank` | int | `500` | Iterations for Rank Stability (empty = auto). |
