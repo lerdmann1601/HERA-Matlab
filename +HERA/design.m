@@ -29,7 +29,8 @@ function styles = design(plot_theme, num_datasets, has_power_results)
 % Author: Lukas von Erdmannsdorff
 
 styles = struct();
-is_dark_theme = strcmp(plot_theme, 'dark');
+is_dark_theme = contains(plot_theme, 'dark');
+is_colourblind = contains(plot_theme, 'colourblind');
 
 %% Dark Theme
 if is_dark_theme
@@ -116,5 +117,50 @@ end
 
 % Specific settings for Sankey diagram
 styles.sankey.colors = hsv(num_datasets);
+
+%% Colourblind Theme Override
+styles.is_colourblind = is_colourblind;
+
+if is_colourblind
+    if is_dark_theme
+        % Override using Okabe-Ito colorblind-friendly palette (Optimized for Dark Background)
+        styles.colors.p_significant = [0.34, 0.71, 0.91];     % Sky Blue
+        styles.colors.holm_threshold = [0.90, 0.62, 0.0];     % Orange
+        styles.colors.win = [0.34, 0.71, 0.91];               % Sky Blue
+        styles.colors.loss = [0.90, 0.62, 0.0];               % Orange
+        styles.colors.delta_face = [0.34, 0.71, 0.91];        
+        styles.colors.bar_face = [0.34, 0.71, 0.91];          
+        styles.colors.red_marker = [0.90, 0.62, 0.0];         
+        styles.colors.blue_marker = [0.34, 0.71, 0.91];       
+        styles.colors.convergence = [0.95, 0.90, 0.25];       % Yellow
+        styles.colors.rel_face = [0.95, 0.90, 0.25];          
+        
+        styles.win_loss.intensities = [0.5, 0.7, 0.85, 1.0];
+        styles.win_loss.gray_values = [0.3, 0.5, 0.7, 0.9];
+    else
+        % Override using Okabe-Ito colorblind-friendly palette (Optimized for Light Background)
+        styles.colors.p_significant = [0.0, 0.45, 0.70];      % Blue
+        styles.colors.holm_threshold = [0.84, 0.37, 0.0];     % Vermilion
+        styles.colors.win = [0.0, 0.45, 0.70];                % Blue
+        styles.colors.loss = [0.84, 0.37, 0.0];               % Vermilion
+        styles.colors.delta_face = [0.0, 0.45, 0.70];         
+        styles.colors.bar_face = [0.0, 0.45, 0.70];           
+        styles.colors.red_marker = [0.84, 0.37, 0.0];         
+        styles.colors.blue_marker = [0.0, 0.45, 0.70];        
+        styles.colors.convergence = [0.90, 0.62, 0.0];        % Orange
+        styles.colors.rel_face = [0.90, 0.62, 0.0];           
+        
+        styles.win_loss.intensities = [0.4, 0.6, 0.8, 1.0];
+        styles.win_loss.gray_values = [0.2, 0.4, 0.6, 0.8];
+    end
+    
+    % Adjust contrast for win-loss matrix to maintain optimal readability
+    if ~has_power_results
+        styles.win_loss.intensities = [1, 1, 1, 1];
+        styles.win_loss.gray_values = [0, 0, 0, 0];
+    end
+    styles.win_loss.legend_intensities = styles.win_loss.intensities;
+    styles.win_loss.legend_gray_values = styles.win_loss.gray_values;
+end
 
 end

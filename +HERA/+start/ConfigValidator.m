@@ -423,14 +423,21 @@ classdef ConfigValidator
                 return;
             end
             
-            if strcmpi(user_input, lang.general.dark_char)
+            clean_input = lower(strtrim(user_input));
+            if any(strcmp(clean_input, {lang.general.dark_char, 'dark'}))
                 value = 'dark';
                 isValid = true;
-            elseif strcmpi(user_input, lang.general.light_char)
+            elseif any(strcmp(clean_input, {lang.general.light_char, 'light'}))
                 value = 'light';
                 isValid = true;
+            elseif any(strcmp(clean_input, {lang.general.cb_light_char, 'colourblind light', 'colourblind_light'}))
+                value = 'colourblind light';
+                isValid = true;
+            elseif any(strcmp(clean_input, {lang.general.cb_dark_char, 'colourblind dark', 'colourblind_dark'}))
+                value = 'colourblind dark';
+                isValid = true;
             else
-                error_msg = sprintf(lang.errors.invalid_input_dl, lang.general.dark_char, lang.general.light_char);
+                error_msg = sprintf(lang.errors.invalid_input_theme, lang.general.light_char, lang.general.dark_char, lang.general.cb_light_char, lang.general.cb_dark_char);
             end
         end
         

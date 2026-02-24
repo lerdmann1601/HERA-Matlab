@@ -68,8 +68,8 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
             fprintf('%s\n', lang.prompts.graphics_theme);
             while true
                 % Prompt for theme choice.
-                theme_prompt = sprintf('%s (%s/%s) [%s]: ', ...
-                    lang.prompts.theme_choice, lang.general.dark_char, lang.general.light_char, lang.general.light_char);
+                theme_prompt = sprintf('%s (%s/%s/%s/%s) [%s]: ', ...
+                    lang.prompts.theme_choice, lang.general.dark_char, lang.general.light_char, lang.general.cb_light_char, lang.general.cb_dark_char, lang.general.light_char);
                 user_input = input(theme_prompt, 's');
                 HERA.start.UserInterface.check_exit_command(user_input, lang);
                 

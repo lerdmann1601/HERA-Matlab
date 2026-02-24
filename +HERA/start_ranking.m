@@ -56,7 +56,7 @@ function start_ranking(varargin)
 %       - Sets the confidence level for the confidence interval calculations.
 %
 %   7.  Graphics & Output:
-%       - Selects the graphical theme for all plots ('dark' or 'light').
+%       - Selects the graphical theme for all plots ('light', 'dark', 'colourblind light', or 'colourblind dark').
 %       - Report Generation: Option to enable/disable the creation of PDF reports 
 %         and complex summary plots ('create_reports'). 
 %         Disabling this puts the tool in "Diagnostic Batch Mode" (faster execution, 

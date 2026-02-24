@@ -73,10 +73,15 @@ function Summary(userInput, configLoadedFromFile, lang)
         end        
         % Display the chosen graphics theme only if graphics are actually generated.
         if show_theme_summary
-            if strcmpi(userInput.plot_theme, 'dark')
-                theme_str = 'Dark';
-            else
-                theme_str = 'Light';
+            switch lower(userInput.plot_theme)
+                case 'dark'
+                    theme_str = 'Dark';
+                case 'colourblind dark'
+                    theme_str = 'Colourblind Dark';
+                case 'colourblind light'
+                    theme_str = 'Colourblind Light';
+                otherwise
+                    theme_str = 'Light';
             end
             fprintf(' -> %s: %s\n', lang.summary.graphics_theme, theme_str);
             pause(0.5);
@@ -129,10 +134,15 @@ function Summary(userInput, configLoadedFromFile, lang)
         end        
         % Display theme only if graphics are actually generated.
         if show_theme_summary
-            if strcmpi(userInput.plot_theme, 'dark')
-                theme_str = 'Dark';
-            else
-                theme_str = 'Light';
+            switch lower(userInput.plot_theme)
+                case 'dark'
+                    theme_str = 'Dark';
+                case 'colourblind dark'
+                    theme_str = 'Colourblind Dark';
+                case 'colourblind light'
+                    theme_str = 'Colourblind Light';
+                otherwise
+                    theme_str = 'Light';
             end
             fprintf(' -> %s: %s\n', lang.summary.graphics_theme, theme_str);
             pause(0.5);
