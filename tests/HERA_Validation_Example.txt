@@ -277,11 +277,13 @@ Test 11: Systematic Missing Data (NaN) Handling
    ---------------------------------------------------------------
    |Data Structure       |5 Candidates (D1-D5), n=200 per group  |
    |Missing Data Levels  |20%, 40%, 60%, 80%                     |
+   |d_thresh (M1)        |0.15                                   |
+   |rel_thresh (M1)      |0.05                                   |
 
 [Input]
    |     Parameter     |           Description            |
    --------------------------------------------------------
-   |Signal Profile     |Means: [10, 8, 6, 4, 2], SD: 2.0  |
+   |Signal Profile (M1)|Means: [10, 8, 6, 4, 2], SD: 2.0  |
    |Total Data Points  |1000 (Matrix: 200x5)              |
    |Reference Order    |[1 2 3 4 5]                       |
 

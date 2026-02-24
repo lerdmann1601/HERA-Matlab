@@ -44,7 +44,9 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
     h_align = {'c', 'c'};
     table_data = {
         'Data Structure', sprintf('5 Candidates (D1-D5), n=%d per group', n_test11);
-        'Missing Data Levels', '20%, 40%, 60%, 80%'
+        'Missing Data Levels', '20%, 40%, 60%, 80%';
+        'd_thresh (M1)', sprintf('%.2f', thresholds.d_thresh(1));
+        'rel_thresh (M1)', sprintf('%.2f', thresholds.rel_thresh(1))
     };
     TestHelper.print_auto_table(h_set, table_data, d_align, h_align);
 
@@ -54,7 +56,7 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
     d_align = {'l', 'l'}; 
     h_align = {'c', 'c'};
     table_data = {
-        'Signal Profile', 'Means: [10, 8, 6, 4, 2], SD: 2.0';
+        'Signal Profile (M1)', 'Means: [10, 8, 6, 4, 2], SD: 2.0';
         'Total Data Points', sprintf('%d (Matrix: %dx5)', numel(m1_full), n_test11);
         'Reference Order', mat2str(order_ref)
     };
