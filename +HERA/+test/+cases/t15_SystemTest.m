@@ -31,21 +31,22 @@ function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, ~)
     % Generate 15 datasets split into Tiers (see helper function)
     [m1_data, m2_data, m3_data, ds_names_15] = TestHelper.generate_waterfall_data(n_subj);
     
-    % Calculate actual means for transparency in the log
+    % Calculate actual means and SDs for transparency in the log
     mu1 = mean(m1_data); mu2 = mean(m2_data); mu3 = mean(m3_data);
+    sd1 = std(m1_data);  sd2 = std(m2_data);  sd3 = std(m3_data);
     
     % Input Table (Detailed Data Profile)
     % We show representatives for each Tier to verify the generated signal values.
     fprintf('[Input: Data Profile (Waterfall Structure)]\n');
-    h_in = {'Tier', 'Rep.', 'M1 (Mean)', 'M2 (Mean)', 'M3 (Mean)', 'Intended Logic'}; 
-    d_align = {'l', 'c', 'c', 'c', 'c', 'l'}; 
-    h_align = {'c', 'c', 'c', 'c', 'c', 'c'};
+    h_in = {'Tier', 'Rep.', 'M1 (Mean)', 'M1 (SD)', 'M2 (Mean)', 'M2 (SD)', 'M3 (Mean)', 'M3 (SD)', 'Intended Logic'}; 
+    d_align = {'l', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'l'}; 
+    h_align = {'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c'};
     
     table_data = {
-        'Top (Tier 2)', 'D6',  sprintf('%.1f', mu1(6)),  sprintf('%.1f', mu2(6)),  sprintf('%.1f', mu3(6)),  'M2 High -> Correction';
-        'Mid (Tier 1)', 'D1',  sprintf('%.1f', mu1(1)),  sprintf('%.1f', mu2(1)),  sprintf('%.1f', mu3(1)),  'M1 High -> Base Rank';
-        'Low (Tier 3)', 'D11', sprintf('%.1f', mu1(11)), sprintf('%.1f', mu2(11)), sprintf('%.1f', mu3(11)), 'M3A Swap Logic';
-        'Bot (Tier 4)', 'D13', sprintf('%.1f', mu1(13)), sprintf('%.1f', mu2(13)), sprintf('%.1f', mu3(13)), 'M3B Sorting Logic'
+        'Top (Tier 2)', 'D6',  sprintf('%.1f', mu1(6)),  sprintf('%.2f', sd1(6)),  sprintf('%.1f', mu2(6)),  sprintf('%.2f', sd2(6)),  sprintf('%.1f', mu3(6)),  sprintf('%.2f', sd3(6)),  'M2 High -> Correction';
+        'Mid (Tier 1)', 'D1',  sprintf('%.1f', mu1(1)),  sprintf('%.2f', sd1(1)),  sprintf('%.1f', mu2(1)),  sprintf('%.2f', sd2(1)),  sprintf('%.1f', mu3(1)),  sprintf('%.2f', sd3(1)),  'M1 High -> Base Rank';
+        'Low (Tier 3)', 'D11', sprintf('%.1f', mu1(11)), sprintf('%.2f', sd1(11)), sprintf('%.1f', mu2(11)), sprintf('%.2f', sd2(11)), sprintf('%.1f', mu3(11)), sprintf('%.2f', sd3(11)), 'M3A Swap Logic';
+        'Bot (Tier 4)', 'D13', sprintf('%.1f', mu1(13)), sprintf('%.2f', sd1(13)), sprintf('%.1f', mu2(13)), sprintf('%.2f', sd2(13)), sprintf('%.1f', mu3(13)), sprintf('%.2f', sd3(13)), 'M3B Sorting Logic'
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
     

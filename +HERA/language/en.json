@@ -278,7 +278,7 @@
         "secondary_criterion": "Secondary: Elbow analysis",
         "convergence_run_info": "Convergence at %.2f%% in run %d/%d",
         "stability_change_info": "Relative stability change: %.2f%%",
-        "convergence_reached": "Convergence at %.2f%% reached",
+        "convergence_reached": "Convergence reached at %.2f%%.",
         "stable_runs_info": "Stability in %d consecutive runs",
         "elbow_analysis_info": "Convergence not reached, performing elbow analysis",
         "convergence_result": "B-value after convergence: %d",

@@ -1,7 +1,7 @@
 {
   "userInput": {
     "reproducible": true,
-    "seed": 1234,
+    "seed": 12345,
     "num_workers": "auto",
     "create_reports": true,
     "plot_theme": "light",
@@ -97,7 +97,7 @@
     ],
     "config": {
       "reproducible": true,
-      "seed": 1234,
+      "seed": 12345,
       "num_workers": "auto",
       "create_reports": true,
       "plot_theme": "light",
