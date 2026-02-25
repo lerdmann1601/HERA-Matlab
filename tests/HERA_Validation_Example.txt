@@ -1,4 +1,4 @@
-Log File: /home/runner/work/HERA-Matlab/HERA-Matlab/tests/logs/HERA_Validation_20260221_183820.txt (Documents (Persistent))
+Log File: /home/runner/work/HERA-Matlab/HERA-Matlab/tests/logs/HERA_Validation_20260225_095015.txt (Documents (Persistent))
 [System] Starting Parallel Pool...
 Starting parallel pool (parpool) using the 'Processes' profile ...
 Connected to parallel pool with 2 workers.
@@ -281,11 +281,11 @@ Test 11: Systematic Missing Data (NaN) Handling
    |rel_thresh (M1)      |0.05                                   |
 
 [Input]
-   |     Parameter     |           Description            |
-   --------------------------------------------------------
-   |Signal Profile (M1)|Means: [10, 8, 6, 4, 2], SD: 2.0  |
-   |Total Data Points  |1000 (Matrix: 200x5)              |
-   |Reference Order    |[1 2 3 4 5]                       |
+   |      Parameter      |           Description            |
+   ----------------------------------------------------------
+   |Signal Profile (M1)  |Means: [10, 8, 6, 4, 2], SD: 2.0  |
+   |Total Data Points    |1000 (Matrix: 200x5)              |
+   |Reference Order      |[1 2 3 4 5]                       |
 
 [Result]
    | Missing % | Order Match |         Status         |
@@ -360,12 +360,12 @@ Test 15: Global System Test (Static Thresholds)
 -----------------------------------------------
 [Test] Multi-Tier "Waterfall" sorting (M2 Correction, M1 Base, M3 Tail).
 [Input: Data Profile (Waterfall Structure)]
-   |     Tier     | Rep. | M1 (Mean) | M2 (Mean) | M3 (Mean) |    Intended Logic     |
-   -----------------------------------------------------------------------------------
-   |Top (Tier 2)  |  D6  |   100.0   |   120.0   |   100.0   |M2 High -> Correction  |
-   |Mid (Tier 1)  |  D1  |   120.0   |   100.0   |   100.0   |M1 High -> Base Rank   |
-   |Low (Tier 3)  | D11  |   80.0    |   100.0   |   95.0    |M3A Swap Logic         |
-   |Bot (Tier 4)  | D13  |   60.0    |   100.0   |   90.0    |M3B Sorting Logic      |
+   |     Tier     | Rep. | M1 (Mean) | M1 (SD) | M2 (Mean) | M2 (SD) | M3 (Mean) | M3 (SD) |    Intended Logic     |
+   -----------------------------------------------------------------------------------------------------------------
+   |Top (Tier 2)  |  D6  |   100.0   |  0.00   |   120.0   |  0.11   |   100.0   |  0.00   |M2 High -> Correction  |
+   |Mid (Tier 1)  |  D1  |   120.0   |  0.11   |   100.0   |  0.00   |   100.0   |  0.00   |M1 High -> Base Rank   |
+   |Low (Tier 3)  | D11  |   80.0    |  0.00   |   100.0   |  0.00   |   95.0    |  0.10   |M3A Swap Logic         |
+   |Bot (Tier 4)  | D13  |   60.0    |  0.00   |   100.0   |  0.00   |   90.0    |  0.08   |M3B Sorting Logic      |
 
 [Result]
    |    Group    | Mean Rank | Expectation | Status |
@@ -388,24 +388,69 @@ Test 16: Full System Integration (15 Candidates (N) + Auto-Thresholds)
    |Tier 3  |D11-D12     |Tie-Break -> Logic 3A (M3 Swap)         |
    |Tier 4  |D13-D15     |Sorting -> Logic 3B (M3 Gradient)       |
 
-[Result]
-   | Rank | Candidate | M1 Mean | M2 Mean | M3 Mean |
+[Auto-Calculated Thresholds (B=50)]
+   |     Metric     | Delta Thresh | RelDiff Thresh |
    --------------------------------------------------
-   |  1   |    D6     |  100.0  |  120.0  |  100.0  |
-   |  2   |    D7     |  100.0  |  120.0  |  100.0  |
-   |  3   |    D8     |  100.0  |  120.0  |  100.0  |
-   |  4   |    D9     |  100.0  |  120.0  |  100.0  |
-   |  5   |    D10    |  100.0  |  120.0  |  100.0  |
-   |  6   |    D3     |  120.0  |  100.0  |  100.0  |
-   |  7   |    D2     |  120.0  |  100.0  |  100.0  |
-   |  8   |    D4     |  120.0  |  100.0  |  100.0  |
-   |  9   |    D1     |  120.0  |  100.0  |  100.0  |
-   |  10  |    D5     |  120.0  |  100.0  |  100.0  |
-   |  11  |    D12    |  80.0   |  100.0  |  105.0  |
-   |  12  |    D11    |  80.0   |  100.0  |  95.0   |
-   |  13  |    D15    |  60.0   |  100.0  |  110.0  |
-   |  14  |    D14    |  60.0   |  100.0  |  100.0  |
-   |  15  |    D13    |  60.0   |  100.0  |  90.0   |
+   |M1 (Primary)    |    1.0000    |     0.1819     |
+   |M2 (Secondary)  |    0.0000    |     0.0000     |
+   |M3 (Tertiary)   |    0.0000    |     0.0000     |
+
+[Pairwise Effect Sizes: Within-Tier Representatives]
+   |        Pair         | Metric | p-value | Cliff d | RelDiff | Win? |
+   ---------------------------------------------------------------------
+   |D1 vs D2 (Tier 1)    |   M1   | 0.3320  | -0.1272 | 0.0002  |  N   |
+   |D1 vs D2 (Tier 1)    |   M2   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D1 vs D2 (Tier 1)    |   M3   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D6 vs D7 (Tier 2)    |   M1   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D6 vs D7 (Tier 2)    |   M2   | 0.6397  | 0.0696  | 0.0001  |  N   |
+   |D6 vs D7 (Tier 2)    |   M3   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D9 vs D10 (Tier 2)   |   M1   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D9 vs D10 (Tier 2)   |   M2   | 0.0164  | -0.2416 | 0.0003  |  N   |
+   |D9 vs D10 (Tier 2)   |   M3   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D11 vs D12 (Tier 3)  |   M1   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D11 vs D12 (Tier 3)  |   M2   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D11 vs D12 (Tier 3)  |   M3   | 0.0000  | -1.0000 | 0.0998  |  Y   |
+   |D13 vs D14 (Tier 4)  |   M1   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D13 vs D14 (Tier 4)  |   M2   | 1.0000  | 0.0000  | 0.0000  |  N   |
+   |D13 vs D14 (Tier 4)  |   M3   | 0.0000  | -1.0000 | 0.1049  |  Y   |
+
+[Per-Dataset Wins Summary]
+   | Candidate | M1 Wins | M2 Wins | M3 Wins |  Tier  |
+   ----------------------------------------------------
+   |    D1     |    5    |    0    |    2    |Tier 1  |
+   |    D2     |   10    |    0    |    2    |Tier 1  |
+   |    D3     |   10    |    0    |    2    |Tier 1  |
+   |    D4     |    5    |    0    |    2    |Tier 1  |
+   |    D5     |    5    |    0    |    2    |Tier 1  |
+   |    D6     |    5    |   10    |    2    |Tier 2  |
+   |    D7     |    5    |   10    |    2    |Tier 2  |
+   |    D8     |    5    |   10    |    2    |Tier 2  |
+   |    D9     |    5    |   10    |    2    |Tier 2  |
+   |    D10    |    5    |   10    |    2    |Tier 2  |
+   |    D11    |    3    |    0    |    1    |Tier 3  |
+   |    D12    |    3    |    0    |   13    |Tier 3  |
+   |    D13    |    0    |    0    |    0    |Tier 4  |
+   |    D14    |    0    |    0    |    2    |Tier 4  |
+   |    D15    |    0    |    0    |   14    |Tier 4  |
+
+[Result]
+   | Rank | Candidate | M1 Mean | M1 SD | M2 Mean | M2 SD | M3 Mean | M3 SD |
+   --------------------------------------------------------------------------
+   |  1   |    D6     |  100.0  | 0.00  |  120.0  | 0.11  |  100.0  | 0.00  |
+   |  2   |    D7     |  100.0  | 0.00  |  120.0  | 0.09  |  100.0  | 0.00  |
+   |  3   |    D8     |  100.0  | 0.00  |  120.0  | 0.12  |  100.0  | 0.00  |
+   |  4   |    D9     |  100.0  | 0.00  |  120.0  | 0.10  |  100.0  | 0.00  |
+   |  5   |    D10    |  100.0  | 0.00  |  120.0  | 0.09  |  100.0  | 0.00  |
+   |  6   |    D3     |  120.0  | 0.09  |  100.0  | 0.00  |  100.0  | 0.00  |
+   |  7   |    D2     |  120.0  | 0.11  |  100.0  | 0.00  |  100.0  | 0.00  |
+   |  8   |    D4     |  120.0  | 0.09  |  100.0  | 0.00  |  100.0  | 0.00  |
+   |  9   |    D1     |  120.0  | 0.11  |  100.0  | 0.00  |  100.0  | 0.00  |
+   |  10  |    D5     |  120.0  | 0.09  |  100.0  | 0.00  |  100.0  | 0.00  |
+   |  11  |    D12    |  80.0   | 0.00  |  100.0  | 0.00  |  105.0  | 0.11  |
+   |  12  |    D11    |  80.0   | 0.00  |  100.0  | 0.00  |  95.0   | 0.10  |
+   |  13  |    D15    |  60.0   | 0.00  |  100.0  | 0.00  |  110.0  | 0.09  |
+   |  14  |    D14    |  60.0   | 0.00  |  100.0  | 0.00  |  100.0  | 0.10  |
+   |  15  |    D13    |  60.0   | 0.00  |  100.0  | 0.00  |  90.0   | 0.08  |
 
 [Status] PASS: Full System Validation Successful.
 .
@@ -504,49 +549,49 @@ Test Results Summary:
                                 Name                                Passed    Failed    Incomplete    Duration      Details   
     ____________________________________________________________    ______    ______    __________    ________    ____________
 
-    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.23405    {1×1 struct}
-    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.008386    {1×1 struct}
-    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.034558    {1×1 struct}
-    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007439    {1×1 struct}
-    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.015105    {1×1 struct}
-    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false        0.10912    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.011075    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.007177    {1×1 struct}
-    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.010209    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.017798    {1×1 struct}
-    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.005481    {1×1 struct}
-    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false       0.029606    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.022266    {1×1 struct}
-    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false       0.019093    {1×1 struct}
-    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.002185    {1×1 struct}
-    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004746    {1×1 struct}
-    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.003026    {1×1 struct}
-    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.011959    {1×1 struct}
-    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false       0.010429    {1×1 struct}
-    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11497    {1×1 struct}
-    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false        0.02054    {1×1 struct}
-    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         23.666    {1×1 struct}
-    {'HERA.test.StatsTests/test_batching'                      }    true      false       false         40.965    {1×1 struct}
-    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false         9.8827    {1×1 struct}
-    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.3162    {1×1 struct}
-    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false        0.07936    {1×1 struct}
-    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.042381    {1×1 struct}
-    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         18.297    {1×1 struct}
-    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.054395    {1×1 struct}
-    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         178.74    {1×1 struct}
-    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false       0.068272    {1×1 struct}
-    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.033775    {1×1 struct}
-    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.020246    {1×1 struct}
-    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.029198    {1×1 struct}
-    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.059216    {1×1 struct}
-    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false       0.025235    {1×1 struct}
-    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.024837    {1×1 struct}
-    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.3702    {1×1 struct}
-    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false       0.068038    {1×1 struct}
-    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.7391    {1×1 struct}
-    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false          9.686    {1×1 struct}
-    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.017997    {1×1 struct}
-    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false       0.096723    {1×1 struct}
-    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false         35.292    {1×1 struct}
-    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false         46.087    {1×1 struct}
-    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false         38.039    {1×1 struct}
+    {'HERA.test.UnitTests/validate_main_action'                }    true      false       false        0.25136    {1×1 struct}
+    {'HERA.test.UnitTests/validate_yes_no'                     }    true      false       false       0.009101    {1×1 struct}
+    {'HERA.test.UnitTests/validate_numeric'                    }    true      false       false       0.039874    {1×1 struct}
+    {'HERA.test.UnitTests/validate_metric_count'               }    true      false       false       0.007841    {1×1 struct}
+    {'HERA.test.UnitTests/validate_ranking_mode'               }    true      false       false       0.015526    {1×1 struct}
+    {'HERA.test.UnitTests/validate_exit_mechanism'             }    true      false       false        0.11156    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_basic'            }    true      false       false       0.011308    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_recursive'        }    true      false       false       0.006893    {1×1 struct}
+    {'HERA.test.UnitTests/test_fill_defaults_dynamic_fields'   }    true      false       false       0.009534    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_numeric_conversion'}    true      false       false       0.016943    {1×1 struct}
+    {'HERA.test.UnitTests/test_clean_struct_recursive_cell'    }    true      false       false       0.004989    {1×1 struct}
+    {'HERA.test.UnitTests/test_bootstrap_summary_strings'      }    true      false       false        0.03072    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_fits_memory'              }    true      false       false       0.022294    {1×1 struct}
+    {'HERA.test.UnitTests/test_batch_splitting'                }    true      false       false       0.018671    {1×1 struct}
+    {'HERA.test.UnitTests/test_min_batch_size'                 }    true      false       false       0.002171    {1×1 struct}
+    {'HERA.test.UnitTests/test_worker_scaling'                 }    true      false       false       0.004859    {1×1 struct}
+    {'HERA.test.UnitTests/test_defaults'                       }    true      false       false       0.003288    {1×1 struct}
+    {'HERA.test.UnitTests/test_get_target_memory_execution'    }    true      false       false       0.012124    {1×1 struct}
+    {'HERA.test.UnitTests/test_target_memory_constraints'      }    true      false       false        0.01085    {1×1 struct}
+    {'HERA.test.StatsTests/test_jackknife_limits'              }    true      false       false        0.11663    {1×1 struct}
+    {'HERA.test.StatsTests/test_cliffs_delta_limits'           }    true      false       false       0.021593    {1×1 struct}
+    {'HERA.test.StatsTests/test_parfor_switch'                 }    true      false       false         23.889    {1×1 struct}
+    {'HERA.test.StatsTests/test_batching'                      }    true      false       false         41.144    {1×1 struct}
+    {'HERA.test.StatsTests/test_defaults_fallback'             }    true      false       false          10.32    {1×1 struct}
+    {'HERA.test.ScientificSuite/t01_SmallSample'               }    true      false       false         1.3724    {1×1 struct}
+    {'HERA.test.ScientificSuite/t02_HolmBonferroni'            }    true      false       false       0.089777    {1×1 struct}
+    {'HERA.test.ScientificSuite/t03_OutlierRobustness'         }    true      false       false       0.046437    {1×1 struct}
+    {'HERA.test.ScientificSuite/t04_MathValidation'            }    true      false       false         18.986    {1×1 struct}
+    {'HERA.test.ScientificSuite/t05_Stability'                 }    true      false       false       0.060787    {1×1 struct}
+    {'HERA.test.ScientificSuite/t06_BootstrapConvergence'      }    true      false       false         182.39    {1×1 struct}
+    {'HERA.test.ScientificSuite/t07_InitialSorting'            }    true      false       false       0.069931    {1×1 struct}
+    {'HERA.test.ScientificSuite/t08_ModeM1M2'                  }    true      false       false       0.033955    {1×1 struct}
+    {'HERA.test.ScientificSuite/t09_ModeM1M3A'                 }    true      false       false       0.019172    {1×1 struct}
+    {'HERA.test.ScientificSuite/t10_ModeM1M2M3'                }    true      false       false       0.029854    {1×1 struct}
+    {'HERA.test.ScientificSuite/t11_MissingData'               }    true      false       false       0.056065    {1×1 struct}
+    {'HERA.test.ScientificSuite/t12_CycleDetection'            }    true      false       false       0.024128    {1×1 struct}
+    {'HERA.test.ScientificSuite/t13_PathologicalData'          }    true      false       false       0.023574    {1×1 struct}
+    {'HERA.test.ScientificSuite/t14_DynamicCycle'              }    true      false       false         7.4375    {1×1 struct}
+    {'HERA.test.ScientificSuite/t15_SystemTest'                }    true      false       false       0.078347    {1×1 struct}
+    {'HERA.test.ScientificSuite/t16_FullIntegration'           }    true      false       false         7.7112    {1×1 struct}
+    {'HERA.test.ScientificSuite/t17_BootstrapStability'        }    true      false       false         9.6828    {1×1 struct}
+    {'HERA.test.ScientificSuite/t18_BordaCount'                }    true      false       false       0.016415    {1×1 struct}
+    {'HERA.test.ScientificSuite/t19_PowerAnalysis'             }    true      false       false        0.10783    {1×1 struct}
+    {'HERA.test.SystemTests/test_DeveloperMode'                }    true      false       false         35.616    {1×1 struct}
+    {'HERA.test.SystemTests/test_BatchMode'                    }    true      false       false          45.98    {1×1 struct}
+    {'HERA.test.SystemTests/test_NaN_Robustness'               }    true      false       false         38.435    {1×1 struct}
