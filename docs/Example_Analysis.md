@@ -3,7 +3,7 @@
 For this example we use synthetic datasets that are based on characteristics of real MRI Images. The original datasets are not included in this repository and results with these will be published in a future paper. As an example for quality metrics to objectively evaluate image quality, we use Optical Contrast (OC), Signal-to-Noise Ratio (SNR) and Contrast-to-Noise Ratio (CNR). These metrics and the way they were calculated and prioritized for the HERA analysis are based on the concept and results of Noeth et al., NMR Biomed. 2015; 28: 818-830.
 
 > [!NOTE]
-> The example results and interpretations shown below serve as a didactic walkthrough to demonstrate HERA’s decision-making capabilities. Please be aware that running the examples with different random seeds may yield slight variations—for instance, in the precise bounds of confidence intervals or in tie-breaking outcomes—which can lead to a different overall ranking for some methods compared to these static screenshots. These differences reflect the inherent stochastic variability of bootstrap resampling. The seed used for the examples below was 12345.
+> The example results and interpretations shown below serve as a didactic walkthrough to demonstrate HERA’s decision-making capabilities. Please be aware that running the examples with different seeds may yield slight variations—for instance, in the precise bounds of confidence intervals or in tie-breaking outcomes—which can lead to a different overall ranking for some methods compared to the static screenshots. These differences reflect the inherent stochastic variability of bootstrap resampling.
 
 ## Example use case 1
 
