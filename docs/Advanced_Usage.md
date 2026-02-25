@@ -16,7 +16,7 @@ Instead of `folderPath`, provide `custom_data`:
 
 ```matlab
 % 1. Prepare Data
-% Cell array of (N_Subjects x N_Methods) matrices
+% Cell array of (n_Subjects x N_Methods) matrices
 data_m1 = randn(50, 5); 
 data_m2 = randn(50, 5);
 custom_data = {data_m1, data_m2};

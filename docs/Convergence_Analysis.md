@@ -90,11 +90,11 @@ Based on these results, we can discuss the theoretical implications of the diffe
 
 ## Conclusion
 
-Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in >99.7% of tested Ranking cases and virtually 100% of other cases, while maintaining high accuracy against reference standards.
+Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in 99.7% of tested Ranking cases and 100% of other cases, while maintaining high accuracy against reference standards.
   
 ## Computational Note
 
-The complete analysis (7 scenarios × 50 independent simulations, comprising 2,100 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 15 hours. For each simulation, high-precision reference values were independently derived (up to B=30,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
+The complete analysis (7 scenarios × 50 independent simulations × 6 different candidates ranked per scenario, comprising 2,100 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 15 hours. For each simulation, high-precision reference values were independently derived (up to B=30,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
 
 ## Full Report
 
