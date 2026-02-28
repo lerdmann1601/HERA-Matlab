@@ -63,6 +63,24 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
     end
     effective_memory_mb = TARGET_MEMORY / max(1, num_workers);
     
+    if isfield(cfg_base, 'simulation_seed') && isnumeric(cfg_base.simulation_seed)
+        base_seed = cfg_base.simulation_seed;
+    else
+        base_seed = 123;
+    end
+    
+    if isfield(cfg_base, 'scenario_seed_offset') && isnumeric(cfg_base.scenario_seed_offset)
+        scenario_seed_offset = cfg_base.scenario_seed_offset;
+    else
+        scenario_seed_offset = 10000;
+    end
+    
+    if isfield(cfg_base, 'reference_seed_offset') && isnumeric(cfg_base.reference_seed_offset)
+        reference_seed_offset = cfg_base.reference_seed_offset;
+    else
+        reference_seed_offset = 1; % Backward compatibility
+    end
+    
     % Initialize Result Structure
     scenario_res = repmat(struct('name', '', 'N', 0, 'Dist', '', 'DataSummary', '', ...
                                  'thr', init_storage(n_sims_per_cond, num_modes), ...
@@ -125,8 +143,10 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 if ~exist(worker_temp_dir, 'dir'), mkdir(worker_temp_dir); end
                 
                 % Bit-Perfect Seeding Constraint
-                sim_seed = 123 + (sc_idx-1)*10000 + s_idx;
-                ref_seed = sim_seed + 1;
+                % Gap between sims: scenario_seed_offset (e.g., 10000)
+                % Gap to ref: reference_seed_offset (Legacy: 1, Future: 5000)
+                sim_seed = base_seed + (sc_idx-1)*scenario_seed_offset + s_idx;
+                ref_seed = sim_seed + reference_seed_offset;
                 
                 % Generate Data
                 dataStream = RandStream('mlfg6331_64', 'Seed', sim_seed);

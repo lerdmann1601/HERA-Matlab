@@ -12,6 +12,7 @@ function start_ranking(varargin)
 %   HERA.start_ranking('convergence', 'true', 'logPath', 'interactive')     7. Convergence Analysis (Select Log Path Interactively)
 %   HERA.start_ranking('convergence', 'true', 'logPath', 'path/to/log')     8. Convergence Analysis (Custom Log Path)
 %   HERA.start_ranking('convergence', 'true', 'sims', 50)                   9. Convergence Analysis (Custom Sims)
+%   HERA.start_ranking('convergence', 'path/to/config.json')                10. Convergence Analysis (JSON Config Mode)
 
 % Description:
 %   This function serves as the primary interface for configuring and starting the ranking process.
@@ -288,8 +289,14 @@ else
         
         try
             % Call the analysis function.
-            % logPath can be "", "interactive", or a custom path string.
-            HERA.analysis.convergence_analysis(args.sims, args.logPath);
+            % convergence argument can be "true" (default path), "true" + logPath, OR a path to a .json file.
+            if endsWith(args.convergence, ".json", "IgnoreCase", true)
+                fprintf('Using JSON configuration from %s\n', args.convergence);
+                HERA.analysis.convergence_analysis(args.convergence);
+            else
+                % Original behavior
+                HERA.analysis.convergence_analysis(args.sims, args.logPath);
+            end
             
             fprintf(['\n' lang.start_ranking.convergence_complete '\n']);
             exit_code = 0; % Success

@@ -1,4 +1,4 @@
-function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond)
+function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond, customConfig)
 % CONFIG - Central configuration for the convergence robustness study.
 %
 % Syntax:
@@ -11,6 +11,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 %
 % Inputs:
 %   n_sims_per_cond - Not directly used here, but part of the signature for potential dynamic adjustments.
+%   customConfig    - (Optional) Struct loaded from JSON for overriding internal arrays safely.
 %
 % Outputs:
 %   n_datasets  - Number of datasets in the scenarios.
@@ -23,6 +24,10 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 %   colors      - RGB matrix for consistent plotting colors.
 %
 % Author: Lukas von Erdmannsdorff
+
+    if nargin < 2
+        customConfig = struct();
+    end
 
     %% 1. General Settings
     n_datasets = 6; % Number of datasets
@@ -65,6 +70,13 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 
     % Reference settings (High B values for "Truth")
     ref_B_thr = 15000; ref_B_bca = 30000; ref_B_rnk = 5000;
+    
+    % Override Reference settings
+    if isfield(customConfig, 'refs') && isstruct(customConfig.refs)
+        if isfield(customConfig.refs, 'thr'), ref_B_thr = customConfig.refs.thr; end
+        if isfield(customConfig.refs, 'bca'), ref_B_bca = customConfig.refs.bca; end
+        if isfield(customConfig.refs, 'rnk'), ref_B_rnk = customConfig.refs.rnk; end
+    end
     refs.thr = ref_B_thr; refs.bca = ref_B_bca; refs.rnk = ref_B_rnk;
     
     % Upper limits for visualization
@@ -108,7 +120,76 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
         target_mem = 200;
         fprintf('Error in RAM detection. Using fallback: %d MB.\n', target_mem);
     end
+    if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
+        target_mem = customConfig.target_memory;
+        fprintf('Overriding memory via Config: %d MB.\n', target_mem);
+    end
     cfg_base.system.target_memory = target_mem;
+    
+    if isfield(customConfig, 'simulation_seed') && isnumeric(customConfig.simulation_seed)
+        cfg_base.simulation_seed = customConfig.simulation_seed;
+    end
+    
+    if isfield(customConfig, 'bootstrap_seed_offset') && isnumeric(customConfig.bootstrap_seed_offset)
+        cfg_base.bootstrap_seed_offset = customConfig.bootstrap_seed_offset;
+    end
+    
+    if isfield(customConfig, 'scenario_seed_offset') && isnumeric(customConfig.scenario_seed_offset)
+        cfg_base.scenario_seed_offset = customConfig.scenario_seed_offset;
+    end
+    
+    if isfield(customConfig, 'reference_seed_offset') && isnumeric(customConfig.reference_seed_offset)
+        cfg_base.reference_seed_offset = customConfig.reference_seed_offset;
+    end
+    
+    % Override Params using customConfig
+    if isfield(customConfig, 'modes') && isstruct(customConfig.modes)
+        fields = {'Relaxed', 'Default', 'Strict'};
+        for i=1:length(fields)
+            f = fields{i};
+            if isfield(customConfig.modes, f) && isstruct(customConfig.modes.(f))
+                cu = customConfig.modes.(f);
+                
+                % Parse 'thr' sub-struct if provided
+                if isfield(cu, 'thr') && isstruct(cu.thr)
+                    if isfield(cu.thr, 'n'), p_thr{i}.n = cu.thr.n; end
+                    if isfield(cu.thr, 'sm'), p_thr{i}.sm = cu.thr.sm; end
+                    if isfield(cu.thr, 'st'), p_thr{i}.st = cu.thr.st; end
+                    if isfield(cu.thr, 'tol'), p_thr{i}.tol = cu.thr.tol; end
+                    if isfield(cu.thr, 'start'), p_thr{i}.start = cu.thr.start; end
+                    if isfield(cu.thr, 'step'), p_thr{i}.step = cu.thr.step; end
+                    if isfield(cu.thr, 'end'), p_thr{i}.end = cu.thr.end; end
+                end
+                
+                % Parse 'bca' sub-struct if provided
+                if isfield(cu, 'bca') && isstruct(cu.bca)
+                    if isfield(cu.bca, 'n'), p_bca{i}.n = cu.bca.n; end
+                    if isfield(cu.bca, 'sm'), p_bca{i}.sm = cu.bca.sm; end
+                    if isfield(cu.bca, 'st'), p_bca{i}.st = cu.bca.st; end
+                    if isfield(cu.bca, 'tol'), p_bca{i}.tol = cu.bca.tol; end
+                    if isfield(cu.bca, 'start'), p_bca{i}.start = cu.bca.start; end
+                    if isfield(cu.bca, 'step'), p_bca{i}.step = cu.bca.step; end
+                    if isfield(cu.bca, 'end'), p_bca{i}.end = cu.bca.end; end
+                end
+                
+                % Parse 'rnk' sub-struct if provided
+                if isfield(cu, 'rnk') && isstruct(cu.rnk)
+                    if isfield(cu.rnk, 'n'), p_rank{i}.n = cu.rnk.n; end
+                    if isfield(cu.rnk, 'sm'), p_rank{i}.sm = cu.rnk.sm; end
+                    if isfield(cu.rnk, 'st'), p_rank{i}.st = cu.rnk.st; end
+                    if isfield(cu.rnk, 'tol'), p_rank{i}.tol = cu.rnk.tol; end
+                    if isfield(cu.rnk, 'start'), p_rank{i}.start = cu.rnk.start; end
+                    if isfield(cu.rnk, 'step'), p_rank{i}.step = cu.rnk.step; end
+                    if isfield(cu.rnk, 'end'), p_rank{i}.end = cu.rnk.end; end
+                end
+            end
+        end
+        % Re-assign to params
+        params.thr = p_thr; params.bca = p_bca; params.rnk = p_rank;
+    end
+    
+    % Upper limits for visualization (re-evaluating in case it changed)
+    limits.thr = p_thr{1}.end; limits.bca = p_bca{1}.end; limits.rnk = p_rank{1}.end;
     
     colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4]; 
 end

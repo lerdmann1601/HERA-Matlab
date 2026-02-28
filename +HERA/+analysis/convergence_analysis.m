@@ -33,10 +33,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 % Inputs:
 %   n_sims_per_cond  - (Optional) Number of simulations per scenario (Default: 15).
 %                      Higher values (e.g., 50-100) yield more robust statistics.
+%                      Alternatively, this can be a path to a .json configuration file.
 %   log_path_or_mode - (Optional) Output configuration (Default: "" -> Auto-Log).
 %                      - ""            : Auto-Log to 'Documents/HERA_convergence_Log'.
 %                      - "interactive" : Opens folder selection dialog.
 %                      - [Path String] : Uses the specified custom path.
+%                      Note: Overridden in JSON mode by `output_dir`.
 %
 % Outputs:
 %   results          - Struct containing the raw simulation data (Errors, Costs, Failures)
@@ -45,11 +47,53 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 % Author: Lukas von Erdmannsdorff
 
     arguments
-        n_sims_per_cond (1,1) double {mustBePositive, mustBeInteger} = 15
+        n_sims_per_cond = 15
         log_path_or_mode (1,1) string = ""
     end
 
     clc;
+    
+    %% Parse JSON Config if provided
+    customConfig = struct();
+    if ischar(n_sims_per_cond) || isstring(n_sims_per_cond)
+        configFile = string(n_sims_per_cond);
+        if endsWith(configFile, ".json", "IgnoreCase", true)
+            if exist(configFile, 'file')
+                try
+                    json_text = fileread(configFile);
+                    loadedData = jsondecode(json_text);
+                    if isfield(loadedData, 'userInput')
+                        customConfig = loadedData.userInput;
+                    else
+                        customConfig = loadedData;
+                    end
+                    
+                    % Extract n_sims_per_cond 
+                    if isfield(customConfig, 'n_sims_per_cond') && isnumeric(customConfig.n_sims_per_cond)
+                        n_sims_per_cond = customConfig.n_sims_per_cond;
+                    else
+                        n_sims_per_cond = 15;
+                    end
+                    
+                    % Extract output_dir
+                    if isfield(customConfig, 'output_dir') && (ischar(customConfig.output_dir) || isstring(customConfig.output_dir))
+                        log_path_or_mode = string(customConfig.output_dir);
+                    end
+                catch ME
+                    error('Error reading configuration file: %s', ME.message);
+                end
+            else
+                error('Configuration file not found: %s', configFile);
+            end
+        else
+            error('First argument must be numeric (n_sims_per_cond) or a path to a .json config file.');
+        end
+    else
+        % Validate n_sims_per_cond as numeric scalar
+        if ~isnumeric(n_sims_per_cond) || ~isscalar(n_sims_per_cond) || n_sims_per_cond <= 0 || mod(n_sims_per_cond, 1) ~= 0
+            error('n_sims_per_cond must be a positive integer.');
+        end
+    end
     
     %% 1. User Input & Initialization
     % Handle arguments for custom path or mode
@@ -81,7 +125,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 
     %% 2. Configuration
     % Retrieve all config parameters
-    [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond);
+    [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond, customConfig);
     
     fprintf('\n==========================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
@@ -126,7 +170,60 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     
     % Write Configuration CSVs (Created BEFORE simulation)
     save_csv('config', modes, scenarios, params, dir_csv, ts_str);
-
+    
+    % Save JSON Config
+    try
+        json_file = fullfile(final_out_dir, ['configuration_', char(ts_str), '.json']);
+        
+        cfg_out = struct();
+        cfg_out.n_sims_per_cond = n_sims_per_cond;
+        cfg_out.output_dir = log_path_or_mode;
+        
+        % Ensure we save the effective configuration applied
+        cfg_out.target_memory = cfg_base.system.target_memory;
+        if isfield(cfg_base, 'simulation_seed')
+            cfg_out.simulation_seed = cfg_base.simulation_seed;
+        else
+            cfg_out.simulation_seed = 123; 
+        end
+        cfg_out.bootstrap_seed_offset = cfg_base.bootstrap_seed_offset;
+        
+        if isfield(cfg_base, 'scenario_seed_offset')
+            cfg_out.scenario_seed_offset = cfg_base.scenario_seed_offset;
+        else
+            cfg_out.scenario_seed_offset = 10000;
+        end
+        
+        if isfield(cfg_base, 'reference_seed_offset')
+            cfg_out.reference_seed_offset = cfg_base.reference_seed_offset;
+        else
+            cfg_out.reference_seed_offset = 1;
+        end
+        
+        if exist('customConfig', 'var')
+            % Ensure we don't duplicate existing top-level fields
+            fnames = fieldnames(customConfig);
+            for i=1:length(fnames)
+                cfg_out.(fnames{i}) = customConfig.(fnames{i});
+            end
+        end
+        
+        json_text = jsonencode(cfg_out, 'PrettyPrint', true);                
+        fid = fopen(json_file, 'w');
+        if fid ~= -1
+            fprintf(fid, '%s', json_text);
+            fclose(fid);
+        end
+    catch ME
+        fprintf('Warning: Could not save configuration JSON: %s\n', ME.message);
+    end
+    
+    % Clear variables used only for preliminary setup
+    clear json_text;
+    if exist('customConfig', 'var'), clear customConfig; end
+    if exist('fnames', 'var'), clear fnames; end
+    if exist('cfg_out', 'var'), clear cfg_out; end
+    
     try
         %% 4. Simulation
         hWait = [];
@@ -141,7 +238,6 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         end
         
         cleanWait = onCleanup(@() delete_valid(hWait));
-        
         
         % Parallel Pool
         pool = gcp('nocreate');

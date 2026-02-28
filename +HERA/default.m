@@ -59,8 +59,7 @@ function defaults = default()
 
     %% Bootstrap Configuration
     % Base random seed offset for all bootstrap operations.
-    % Can be overwritten via JSON config to avoid substream collisions in 
-    % advanced setups. Default: 1000.
+    % Can be overwritten via JSON config to avoid substream collisions in advanced setups.
     defaults.bootstrap_seed_offset = 1000;
     
     % Manual Bootstrap Defaults (Empty = Automatic Mode)

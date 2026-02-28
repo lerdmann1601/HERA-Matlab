@@ -109,7 +109,11 @@ You can perform this analysis yourself to verify the robustness of your own chan
 ### Syntax
 
 ```matlab
+% Standard executions (Interactive CLI)
 HERA.start_ranking('convergence', 'true', [options])
+
+% Advanced executions (JSON Configurations)
+HERA.start_ranking('convergence', 'path/to/my_config.json')
 ```
 
 ### Options
@@ -142,3 +146,53 @@ Run 50 simulations per scenario for higher statistical power.
 ```matlab
 HERA.start_ranking('convergence', 'true', 'sims', 50)
 ```
+
+**4. Run with a Custom JSON Configuration:**
+For full control over the analysis parameters like RAM target, random seed offsets or simulation quantities, you can build a `.json` configuration file. This skips the standard `start_ranking` options entirely.
+
+*Note: All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.*
+
+```matlab
+HERA.start_ranking('convergence', 'path/to/convergence_config.json')
+```
+
+**Example JSON Configuration file:**
+
+```json
+{
+  "userInput": {
+     "n_sims_per_cond": 50,
+     "output_dir": "/Users/Name/Results",
+     "target_memory": 200,
+     "simulation_seed": 123,
+     "bootstrap_seed_offset": 1000,
+     "scenario_seed_offset": 10000,
+     "reference_seed_offset": 1,
+     "modes": {
+         "Default": {
+              "thr": {
+                  "n": 50,
+                  "sm": 5,
+                  "st": 5,
+                  "tol": 0.005,
+                  "step": 200
+              },
+              "bca": {
+                  "start": 500,
+                  "step": 500
+              },
+              "rnk": {
+                  "tol": 0.001
+              }
+         }
+     }
+  }
+}
+```
+
+* `target_memory`: Overrides the dynamic RAM detection algorithm with a fixed limit (in MB, default: 200).
+* `simulation_seed`: Seeds the main study. Can be locked for strict reproduction (fallback: 123).
+* `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
+* `scenario_seed_offset`: Ensures different tested scenarios (like Normal vs LogNormal) don't overlap in their RNG seeds (fallback: 10000).
+* `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 1 for backward compatibility).
+* `modes`: You can specify missing details (`Relaxed`, `Default`, `Strict`) specifically for each of the three algorithms (`thr` for Thresholds, `bca` for BCa CI, `rnk` for Ranking), down to single parameters (`start`, `step`, `end`, `sm`, `st`, `tol`). Missing properties will automatically fall back to the package defaults. 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
