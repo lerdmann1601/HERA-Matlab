@@ -126,10 +126,6 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     %% 2. Configuration
     % Retrieve all config parameters
     [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond, customConfig);
-    
-    fprintf('\n==========================================================\n');
-    fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
-    fprintf('==========================================================\n');
 
     %% 3. Setup Environment
     temp_dir = tempname; 
@@ -164,6 +160,20 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     cleanupDiary = onCleanup(@() diary('off'));  % Ensures diary closes on ANY exit (incl. Ctrl+C)
 
     pdf_full = fullfile(final_out_dir, ['Full_Combined_Report_', char(ts_str), '.pdf']);
+    
+    % Print Header and Config Summary to Console & Log
+    fprintf('\n==========================================================\n');
+    fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
+    fprintf('==========================================================\n');
+    fprintf(' Target Memory Limit:   %d MB\n', cfg_base.system.target_memory);
+    if isfield(cfg_base, 'simulation_seed'), sseed = cfg_base.simulation_seed; else, sseed = 123; end
+    if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = 10000; end
+    if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 1; end
+    fprintf(' Simulation Base Seed:  %d\n', sseed);
+    fprintf(' Bootstrap Offset:      %d\n', cfg_base.bootstrap_seed_offset);
+    fprintf(' Scenario Offset:       %d\n', sce_o);
+    fprintf(' Reference Offset:      %d\n', ref_o);
+    fprintf('==========================================================\n\n');
     
     % Overview Plot (Created BEFORE simulation to free RAM for batch processing)
     plot('parameter_overview', params, scenarios, modes, refs, dir_graphics, char(ts_str), pdf_full, dirty_pdfs);
@@ -284,6 +294,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('   Study Completed Successfully\n');
         fprintf('==================================\n');
         fprintf('Summary Report (PDF):  %s\n', pdf_full);
+        fprintf('Configuration (JSON):  %s\n', json_file);
         fprintf('Global Data (CSV):     %s\n', fullfile(out_dir, ['Global_Summary_' char(ts_str) '.csv']));
         fprintf('Detailed Results:      %s\n', fullfile(final_out_dir, 'CSV', ['Results_' char(ts_str)]));
         fprintf('Graphics Folder:       %s\n', dir_graphics);
