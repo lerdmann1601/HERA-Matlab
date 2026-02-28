@@ -200,7 +200,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             cfg_out.reference_seed_offset = 1;
         end
         
-        if exist('customConfig', 'var')
+        if exist('customConfig', 'var') && isstruct(customConfig)
             % Ensure we don't duplicate existing top-level fields
             fnames = fieldnames(customConfig);
             for i=1:length(fnames)
