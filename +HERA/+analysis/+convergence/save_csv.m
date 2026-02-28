@@ -186,11 +186,13 @@ function save_results_csv(results, modes, out_dir, ts_str)
                         
                         iqr_err = iqr(err_vals);
                         if ~isempty(err_vals)
+                             median_err= median(err_vals);
                              err_q1   = prctile(err_vals, 25);
                              err_q3   = prctile(err_vals, 75);
                              ci_lower = prctile(err_vals, 2.5);
                              ci_upper = prctile(err_vals, 97.5);
                         else
+                             median_err= NaN;
                              err_q1   = NaN;
                              err_q3   = NaN;
                              ci_lower = NaN;

@@ -125,7 +125,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     plot('parameter_overview', params, scenarios, modes, refs, dir_graphics, char(ts_str), pdf_full, dirty_pdfs);
     
     % Write Configuration CSVs (Created BEFORE simulation)
-    save_csv('config', modes, scenarios, params, out_dir, ts_str);
+    save_csv('config', modes, scenarios, params, dir_csv, ts_str);
 
     try
         %% 4. Simulation
