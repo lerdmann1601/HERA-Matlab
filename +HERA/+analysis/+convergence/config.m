@@ -37,7 +37,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
     scenarios(3).name = 'N = 100 (Normal)';  scenarios(3).N = 100; scenarios(3).Dist = 'Normal';
     scenarios(3).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', n_datasets, 10 + n_datasets - 1);
     scenarios(4).name = 'N = 50 (Skewed)';   scenarios(4).N = 50; scenarios(4).Dist = 'LogNormal';
-    scenarios(4).DataSummary = sprintf('%d Datasets, Means 2.0-%.1f (Log), SD = 0.4', n_datasets, 2.0 + (n_datasets-1)*0.1);
+    scenarios(4).DataSummary = sprintf('%d Datasets, Means 2.0-%.1f (Log), SD = 0.4 (Log)', n_datasets, 2.0 + (n_datasets-1)*0.1);
     scenarios(5).name = 'N = 50 (Likert)';   scenarios(5).N = 50; scenarios(5).Dist = 'Likert';
     scenarios(5).DataSummary = sprintf('%d Datasets, Scale 1-7, Means 3-5, SD = 1.5', n_datasets);
     scenarios(6).name = 'N = 50 (Bimodal)';  scenarios(6).N = 50; scenarios(6).Dist = 'Bimodal';
