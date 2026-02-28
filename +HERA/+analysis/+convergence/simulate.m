@@ -64,22 +64,19 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
     end
     effective_memory_mb = TARGET_MEMORY / max(1, num_workers);
     
+    base_seed = 123;
     if isfield(cfg_base, 'simulation_seed') && isnumeric(cfg_base.simulation_seed)
         base_seed = cfg_base.simulation_seed;
-    else
-        base_seed = 123;
     end
     
+    scenario_seed_offset = 10000;
     if isfield(cfg_base, 'scenario_seed_offset') && isnumeric(cfg_base.scenario_seed_offset)
         scenario_seed_offset = cfg_base.scenario_seed_offset;
-    else
-        scenario_seed_offset = 10000;
     end
     
+    reference_seed_offset = 1; % Backward compatibility
     if isfield(cfg_base, 'reference_seed_offset') && isnumeric(cfg_base.reference_seed_offset)
         reference_seed_offset = cfg_base.reference_seed_offset;
-    else
-        reference_seed_offset = 1; % Backward compatibility
     end
     
     % Initialize Result Structure
