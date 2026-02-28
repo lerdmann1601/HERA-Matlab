@@ -517,8 +517,12 @@ a_d_all = NaN(num_pairs, num_metrics);
 z0_r_all = NaN(num_pairs, num_metrics);
 a_r_all = NaN(num_pairs, num_metrics);
 
-% Use substream offset to avoid overlap with stability analysis phase.
-OFFSET_BASE_CI = 1000;
+% Determine base offset from config or fallback to 1000
+if isfield(config, 'bootstrap_seed_offset') && ~isempty(config.bootstrap_seed_offset)
+    OFFSET_BASE_CI = config.bootstrap_seed_offset;
+else
+    OFFSET_BASE_CI = 1000;
+end
 
 % --- Optimization for Jackknife Calculation ---
 % Empirical benchmark (M1 MBP,Dec 2025) determined N ~ 300-400 as the crossover point

@@ -128,6 +128,7 @@ classdef SystemTests < matlab.unittest.TestCase
             configStruct.userInput.output_dir = outputDir;
             configStruct.userInput.create_reports = false;
             configStruct.userInput.num_workers = 1; % Serial for robustness in test
+            configStruct.userInput.bootstrap_seed_offset = 5000; % Test override of default offset
             
             jsonPath = fullfile(testCase.tempDir, 'config.json');
             fid = fopen(jsonPath, 'w');
@@ -162,6 +163,19 @@ classdef SystemTests < matlab.unittest.TestCase
                 
                 testCase.verifyNotEmpty(resFiles, 'results_*.csv missing');
                 testCase.verifyNotEmpty(dataFiles, 'data_*.json missing');
+                
+                % Check that the parameter was correctly piped into the final loaded config
+                outputConfigPath = fullfile(outputDir, dirs(1).name, 'configuration.json');
+                testCase.verifyTrue(isfile(outputConfigPath), 'Output configuration.json missing');
+                
+                if isfile(outputConfigPath)
+                    savedConfigText = fileread(outputConfigPath);
+                    savedConfigStruct = jsondecode(savedConfigText);
+                    
+                    % Check if it exists and matches
+                    testCase.verifyTrue(isfield(savedConfigStruct.userInput, 'bootstrap_seed_offset'), 'bootstrap_seed_offset was not saved to output configuration.json');
+                    testCase.verifyEqual(savedConfigStruct.userInput.bootstrap_seed_offset, 5000, 'bootstrap_seed_offset override was not applied correctly');
+                end
             else
                 % If no folder, print the captured output for debugging
                 fprintf('\n[DEBUG] Captured Output from start_ranking:\n%s\n', T);

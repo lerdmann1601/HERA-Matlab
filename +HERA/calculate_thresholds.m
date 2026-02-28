@@ -455,8 +455,15 @@ for metric_idx = 1:num_metrics
         % Use helper to determine batch size (Final Phase)
         [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B, bytes_per_sample);
         
+        % Determine base offset from config or fallback to 1000
+        if isfield(config, 'bootstrap_seed_offset') && ~isempty(config.bootstrap_seed_offset)
+            base_offset = config.bootstrap_seed_offset;
+        else
+            base_offset = 1000;
+        end
+        
         % Substream offset for this metric.
-        offset_d = 1000 + (metric_idx - 1) * 2 * (num_batches + 10);
+        offset_d = base_offset + (metric_idx - 1) * 2 * (num_batches + 10);
         
         % Parallel bootstrap computation.
         results_cell_d = cell(1, num_batches);

@@ -384,11 +384,18 @@ mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_m
 
 rank_batches = cell(1, num_batches);
 
+% Determine base offset from config or fallback to 1000
+if isfield(config, 'bootstrap_seed_offset') && ~isempty(config.bootstrap_seed_offset)
+    base_offset = config.bootstrap_seed_offset;
+else
+    base_offset = 1000;
+end
+
 % Use substream offset to avoid overlap with stability analysis phase.
 if isfield(cfg_rank, 'n_trials')
-    OFFSET_BOOTSTRAP = cfg_rank.n_trials + 1000;
+    OFFSET_BOOTSTRAP = cfg_rank.n_trials + base_offset;
 else
-    OFFSET_BOOTSTRAP = 1000;
+    OFFSET_BOOTSTRAP = base_offset;
 end
 
 parfor b_idx = 1:num_batches

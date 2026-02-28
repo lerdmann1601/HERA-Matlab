@@ -43,10 +43,6 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
     "power_simulations": 10000,
     "min_data_completeness": 0.80,
 
-    "manual_B_thr": 2000,
-    "manual_B_ci": 10000,
-    "manual_B_rank": 500,
-
     "system": {
       "target_memory": "auto",
       "jack_parfor_thr": 300,
@@ -54,6 +50,12 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
       "delta_mat_limit": 30000,
       "min_batch_size": 100
     },
+
+    "manual_B_thr": 2000,
+    "manual_B_ci": 10000,
+    "manual_B_rank": 500,
+
+    "bootstrap_seed_offset": 1000,
 
     "bootstrap_thresholds": {
       "B_start": 100,
@@ -109,6 +111,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `power_simulations` | int | `10000` | Number of simulations for power analysis. |
 | **System** | `reproducible` | bool | `true` | Use fixed RNG seed. |
 | | `seed` | int | `123` | RNG seed value. |
+| | `bootstrap_seed_offset` | int | `1000` | Base random seed offset for parallel bootstrap operations. Prevents RNG substream collisions. |
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
 | | `system.target_memory` | int | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
 | | `system.jack_parfor_thr` | int | `300` | Min n to trigger parallel execution. |

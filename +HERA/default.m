@@ -58,6 +58,11 @@ function defaults = default()
     defaults.system.min_batch_size = 100;      % Min batch size for parfor
 
     %% Bootstrap Configuration
+    % Base random seed offset for all bootstrap operations.
+    % Can be overwritten via JSON config to avoid substream collisions in 
+    % advanced setups. Default: 1000.
+    defaults.bootstrap_seed_offset = 1000;
+    
     % Manual Bootstrap Defaults (Empty = Automatic Mode)
     defaults.manual_B_thr = 2000;
     defaults.manual_B_ci = 10000;
