@@ -165,14 +165,14 @@ function [userInput, setupData] = setup_environment(userInput)
     end
 
     % Create subdirectories for organized output.
-    % The 'Graphics' folder is always created to store diagnostic convergence plots.
-    graphics_dir = fullfile(output_dir, "Graphics");
-    mkdir(graphics_dir);
-    % The 'PDF' folder is only created if full reports are requested.
+    % The 'Graphics' and 'PDF' folders are only created if full reports are requested.
     if userInput.create_reports
+        graphics_dir = fullfile(output_dir, "Graphics");
+        mkdir(graphics_dir);
         pdf_dir = fullfile(output_dir, "PDF");
         mkdir(pdf_dir);
     else
+        graphics_dir = ''; % Leave empty if not needed
         pdf_dir = ''; % Leave empty if not needed
     end
     csv_dir = fullfile(output_dir, "Output");

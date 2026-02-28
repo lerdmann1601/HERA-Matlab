@@ -118,7 +118,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `system.jack_vec_limit` | int | `150` | Max n for vectorized Jackknife calculations. |
 | | `system.delta_mat_limit` | int | `30000` | Max n_x * n_y product (usually n^2) for matrix-based Cliff's Delta. |
 | | `system.min_batch_size` | int | `100` | Min batch size for parallel processing. |
-| **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. If `false`, only essential convergence and diagnostics plots are saved. |
+| **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. If `false` no plots are saved. |
 | | `plot_theme` | string | `"light"` | `"light"`, `"dark"`, `"colourblind light"`, or `"colourblind dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
 | | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |

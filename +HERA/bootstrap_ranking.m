@@ -112,9 +112,6 @@ num_datasets_b = size(all_data{1}, 2);
 n_subj_b = num_probanden;
 num_metrics = numel(all_data); % Get dynamic number of metrics
 
-% Create a dedicated subfolder for the bootstrap_ranking plots.
-subfolder_ranking = fullfile(graphics_dir, 'Ranking');
-
 % Initialize output arrays for figure handles to prevent errors if no plots are generated.
 h_figs_rank = gobjects(0);
 h_fig_hist_rank = gobjects(0); 
@@ -345,19 +342,22 @@ else
     selected_B_final = round(selected_B_final);
     
 %% 3. Create and save the convergence graphic.
-    h_fig_rank = HERA.plot.rank_convergence(B_tested_vector_b, stability_vector_b_plotted, ...
-                                            selected_B_final, converged, elbow_idx_rank, ...
-                                            config, styles, lang);
+    if isfield(config, 'create_reports') && config.create_reports
+        subfolder_ranking = fullfile(graphics_dir, 'Ranking');
+        h_fig_rank = HERA.plot.rank_convergence(B_tested_vector_b, stability_vector_b_plotted, ...
+                                                selected_B_final, converged, elbow_idx_rank, ...
+                                                config, styles, lang);
 
-    if isgraphics(h_fig_rank)
-         % Save graphic.
-        if ~exist(subfolder_ranking, 'dir'); mkdir(subfolder_ranking); end
-        [~, fName, fExt] = fileparts(lang.files.convergence_rank_stability);
-        filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
-        exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
-        fprintf([lang.ranking.convergence_plot_saved '\n'], filename);
+        if isgraphics(h_fig_rank)
+             % Save graphic.
+            if ~exist(subfolder_ranking, 'dir'); mkdir(subfolder_ranking); end
+            [~, fName, fExt] = fileparts(lang.files.convergence_rank_stability);
+            filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
+            exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
+            fprintf([lang.ranking.convergence_plot_saved '\n'], filename);
 
-        h_figs_rank(end+1) = h_fig_rank;
+            h_figs_rank(end+1) = h_fig_rank;
+        end
     end
 end
 
@@ -490,6 +490,7 @@ HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names,
 %% 6. Create and save the histogram distribution of the final ranks
 % Only create this plot if reports are enabled
 if isfield(config, 'create_reports') && config.create_reports
+    subfolder_ranking = fullfile(graphics_dir, 'Ranking');
     h_fig_hist_rank = HERA.plot.rank_histograms(final_bootstrap_ranks, dataset_names, ...
                                                 final_rank, selected_B_final, styles, lang);
 

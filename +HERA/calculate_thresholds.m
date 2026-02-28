@@ -73,11 +73,6 @@ if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
 end
 
 %% 1. Initialization and Calculation of Initial Statistics
-% Create a dedicated subfolder for the threshold analysis plots.
-subfolder_thresholds = fullfile(graphics_dir, 'Threshold_Analysis');
-if ~exist(subfolder_thresholds, 'dir')
-    mkdir(subfolder_thresholds);
-end
 % Extracts parameters from the configuration structure.
 metric_names = config.metric_names;
 num_metrics = numel(all_data); % Get dynamic metric count
@@ -416,10 +411,15 @@ else
 
 %% 4. Creates and saves plots to visualize the convergence analysis
 % Delegate to the plotting controller
-[h_fig_thr_global, h_fig_thr_detailed] = HERA.plot.threshold_convergence(...
-    B_tested_vector, stability_data_thr, selected_B, config, styles, lang, graphics_dir);
+h_fig_thr_global = gobjects(0); 
+h_fig_thr_detailed = gobjects(0);
 
+if isfield(config, 'create_reports') && config.create_reports
+    [h_fig_thr_global, h_fig_thr_detailed] = HERA.plot.threshold_convergence(...
+        B_tested_vector, stability_data_thr, selected_B, config, styles, lang, graphics_dir);
 end
+
+end % End of the if/else block for manual vs automatic B-value logic
 
 %% 5. Final calculation of thresholds with the optimal B
 % Calculates the final thresholds for Cliff's Delta and relative difference.
@@ -540,8 +540,13 @@ rel_thresh = max(rel_thresh, min_rel_thresh);
 
 %% 6. Creates and saves the histogram distribution of the bootstrap thresholds and raw effects
 % Delegate to the plotting controller
-[h_fig_hist_thr, h_fig_hist_raw] = HERA.plot.threshold_distributions(...
-    all_bootstat_d, all_bootstat_rel, d_vals_all, rel_vals_all, d_thresh, rel_thresh, rel_thresh_b, ...
-    selected_B, metric_names, styles, lang, graphics_dir, config);
+h_fig_hist_thr = gobjects(0); 
+h_fig_hist_raw = gobjects(0);
+
+if isfield(config, 'create_reports') && config.create_reports
+    [h_fig_hist_thr, h_fig_hist_raw] = HERA.plot.threshold_distributions(...
+        all_bootstat_d, all_bootstat_rel, d_vals_all, rel_vals_all, d_thresh, rel_thresh, rel_thresh_b, ...
+        selected_B, metric_names, styles, lang, graphics_dir, config);
+end
 
 end

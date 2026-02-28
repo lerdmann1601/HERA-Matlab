@@ -118,12 +118,6 @@ num_pairs = size(pair_idx_all, 1);
 num_metrics = numel(metric_names); % Get dynamic number of metrics
 ts = config.timestamp;
 
-% Create a dedicated subfolder for the CI analysis plots.
-subfolder_bca_CI = fullfile(graphics_dir, 'CI_Histograms');
-if ~exist(subfolder_bca_CI, 'dir')
-    mkdir(subfolder_bca_CI);
-end
-
 % Preparation of variables for the parfor loops
 p_pair_idx_all = pair_idx_all; 
 p_all_data = all_data; 
@@ -489,9 +483,14 @@ else
     B_ci = selected_B_ci; 
 
     %% 2. Generate graphics to visualize the convergence analysis via Helper
-    [h_fig_bca_global, h_fig_bca_detailed] = HERA.plot.bca_convergence(...
-        B_tested_vector_ci, overall_stability_ci_plotted, stability_matrix_ci(:, :, 1:final_i_ci), ...
-        selected_B_ci, config, metric_names, graphics_dir, styles, lang, elbow_indices);
+    h_fig_bca_global = gobjects(0); 
+    h_fig_bca_detailed = gobjects(0);
+
+    if isfield(config, 'create_reports') && config.create_reports
+        [h_fig_bca_global, h_fig_bca_detailed] = HERA.plot.bca_convergence(...
+            B_tested_vector_ci, overall_stability_ci_plotted, stability_matrix_ci(:, :, 1:final_i_ci), ...
+            selected_B_ci, config, metric_names, graphics_dir, styles, lang, elbow_indices);
+    end
 end
 
 %% 3. Final calculation of BCa confidence intervals with optimal B_ci
@@ -750,8 +749,14 @@ end
 HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts);
 
 %% 5. Generate histogram distributions via Helper Function
-[h_fig_hist_z0, h_fig_hist_a, h_fig_hist_widths] = HERA.plot.bca_distributions(...
-    z0_d_all, a_d_all, z0_r_all, a_r_all, ci_d_all, ci_r_all, metric_names, styles, lang, graphics_dir, ts, B_ci);
+h_fig_hist_z0 = gobjects(0); 
+h_fig_hist_a = gobjects(0); 
+h_fig_hist_widths = gobjects(0);
+
+if isfield(config, 'create_reports') && config.create_reports
+    [h_fig_hist_z0, h_fig_hist_a, h_fig_hist_widths] = HERA.plot.bca_distributions(...
+        z0_d_all, a_d_all, z0_r_all, a_r_all, ci_d_all, ci_r_all, metric_names, styles, lang, graphics_dir, ts, B_ci);
+end
 
 end
 
