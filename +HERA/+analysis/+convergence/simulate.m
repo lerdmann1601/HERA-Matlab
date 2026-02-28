@@ -138,10 +138,19 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             parfor i = 1:num_in_batch
                 s_idx = batch_sims(i);
                 
-                % Create unique temp dir for this worker to prevent plot collisions
-                % quiet_* functions write to graphics_dir/Threshold_Analysis etc.
-                worker_temp_dir = fullfile(temp_dir, sprintf('sim_%d', s_idx));
-                if ~exist(worker_temp_dir, 'dir'), mkdir(worker_temp_dir); end
+                % Create a unique temp dir for this worker to prevent collisions and avoid heavy SSD I/O. 
+                % We use the worker's internal task ID.
+                t_obj = getCurrentTask();
+                if isempty(t_obj)
+                    worker_id = 0; % Fallback for serial execution
+                else
+                    worker_id = t_obj.ID;
+                end
+                
+                worker_temp_dir = fullfile(temp_dir, sprintf('worker_%d', worker_id));
+                if ~exist(worker_temp_dir, 'dir')
+                    mkdir(worker_temp_dir); 
+                end
                 
                 % Bit-Perfect Seeding Constraint
                 % Gap between sims: scenario_seed_offset (e.g., 10000)
@@ -186,9 +195,17 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
                     'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed);
                     
-                % Cleanup worker temp files
-                if exist(worker_temp_dir, 'dir')
-                    rmdir(worker_temp_dir, 's');
+                % NOTE: We no longer perform rmdir inside the loop.
+                % The folder is safely overwritten/reused by the same worker and cleaned up at the end of the batch.
+            end
+            
+            % Cleanup all worker temp directories for this batch
+            if exist(temp_dir, 'dir')
+                worker_dirs = dir(fullfile(temp_dir, 'worker_*'));
+                for w_idx = 1:length(worker_dirs)
+                    if worker_dirs(w_idx).isdir
+                        rmdir(fullfile(temp_dir, worker_dirs(w_idx).name), 's');
+                    end
                 end
             end
             fprintf('Done (%.2fs).\n', toc(t_batch));
