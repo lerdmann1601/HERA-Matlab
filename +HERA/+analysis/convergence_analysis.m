@@ -125,7 +125,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 
     %% 2. Configuration
     % Retrieve all config parameters
-    [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond, customConfig);
+    [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig);
 
     %% 3. Setup Environment
     temp_dir = tempname; 
@@ -165,7 +165,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     fprintf('\n==========================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
     fprintf('==========================================================\n');
-    fprintf(' Target Memory Limit:   %d MB\n', cfg_base.system.target_memory);
+    if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
+        fprintf(' Memory Limit:          %d MB (User Override)\n', cfg_base.system.target_memory);
+    else
+        fprintf(' Detected RAM:          %.1f GB\n', ram_gb);
+        fprintf(' Memory Limit:          %d MB\n', cfg_base.system.target_memory);
+    end
     if isfield(cfg_base, 'simulation_seed'), sseed = cfg_base.simulation_seed; else, sseed = 123; end
     if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = 10000; end
     if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 1; end

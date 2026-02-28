@@ -1,8 +1,8 @@
-function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] = config(n_sims_per_cond, customConfig)
+function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig)
 % CONFIG - Central configuration for the convergence robustness study.
 %
 % Syntax:
-%   [n_ds, modes, sc, params, refs, lim, cfg, col] = HERA.analysis.convergence.config(n_sims_per_cond)
+%   [n_ds, modes, sc, params, refs, lim, cfg, col, ram_gb] = HERA.analysis.convergence.config(n_sims_per_cond)
 %
 % Description:
 %   This function defines the constant parameters, data scenarios, and method configurations
@@ -28,6 +28,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 %   limits      - Struct defining the maximum B limits for the methods.
 %   cfg_base    - The standard HERA configuration object initialized with defaults.
 %   colors      - RGB matrix for consistent plotting colors.
+%   ram_gb      - Detected system RAM in GB.
 %
 % Author: Lukas von Erdmannsdorff
 
