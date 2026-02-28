@@ -26,6 +26,9 @@ Ranking_*/
 # OS
 .DS_Store
 
+# MkDocs
+.cache/
+
 # Build Artifacts
 deploy/output/
 deploy/dist/
