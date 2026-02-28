@@ -25,7 +25,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 % Author: Lukas von Erdmannsdorff
 
     %% 1. General Settings
-    n_datasets = 6; % Number of datasets (User requested 6 for better scientific rigor)
+    n_datasets = 6; % Number of datasets
     modes = {'Relaxed', 'Default', 'Strict'};
     
     %% 2. Data Scenarios

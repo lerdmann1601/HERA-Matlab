@@ -290,7 +290,6 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 end
 
 %% Local Worker Function (Executed by parfeval)
-
 function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_test(s_idx, m_idx, method_id, sd, param, N, cfg, tmp, styles, lang)
     % Runs a single convergence test and returns ID + Results
     % method_id: 1=Thr, 2=BCa, 3=Rnk
@@ -341,7 +340,6 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
 end
 
 %% Helper Functions
-
 function so = map_params(pi)
     % Maps study params to HERA config
     so.n_trials = pi.n; so.smoothing_window = pi.sm;
@@ -391,7 +389,6 @@ function d_all = generate_data_vectorized(sc, stream, n_datasets)
 end
 
 %% Quiet Wrappers
-
 function [d_t, r_t, rel_thresh_b, min_rel_dynamic, d_vals_all, rel_vals_all, pair_idx_all, conv_B, stab_data] = ...
     quiet_thresholds(all_data, num_probanden, config, graphics_dir, manual_B, s, styles, lang)
     cmd = ['[d_t, r_t, rel_thresh_b, min_rel_dynamic, d_vals_all, rel_vals_all, pair_idx_all, conv_B, stab_data, ' ...

@@ -58,12 +58,8 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
 
     pdf_full = fullfile(final_out_dir, ['Full_Combined_Report_', char(ts_str), '.pdf']);
     
-    % NOTE: The parameter overview tables are created BEFORE simulation in convergence_analysis.m
-    % and appended to pdf_full there. Do NOT call plot_parameter_overview here again,
-    % as it would cause duplicate pages in the combined PDF.
-    
-    % Aggregate global results if we have multiple scenarios
-
+    % NOTE: The parameter overview tables are created BEFORE simulation in convergence_analysis.m and appended to pdf_full there.
+    % Aggregate global results
     if length(res_struct) > 1
         glob.thr = stack_results(res_struct, 'thr');
         glob.bca = stack_results(res_struct, 'bca');

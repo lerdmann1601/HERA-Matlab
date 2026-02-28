@@ -158,8 +158,6 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         % Run Simulation
         results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, n_datasets);
 
-
-
         %% 5. Reporting
         fprintf('All simulations completed. Generating global summary...\n');
         if ~isempty(hWait) && isvalid(hWait)
@@ -184,7 +182,6 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             fprintf('Parallel pool active (%d workers). Run \"delete(gcp)\" to free memory.\n', pool.NumWorkers);
         end
         
-        % Note: diary is automatically closed by cleanupDiary (onCleanup)
         % --- Final Summary of Saved Files ---
         fprintf('\n');
         fprintf('==================================\n');
