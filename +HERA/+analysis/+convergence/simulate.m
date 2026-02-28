@@ -196,32 +196,39 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % 2. Parallel Processing (Worker Balancing)
             futures = parallel.FevalFuture.empty(0, 0);
             
-            % Submit All Tasks (Interleaved Methods & Modes)
-            % NOTE: Modes are submitted in REVERSE order (Strict → Default → Relaxed)
-            % so that slower Strict tasks start first and don't block at batch boundaries.
-            for i = 1:num_in_batch
-                s_idx = batch_sims(i);
-                sd = sim_data_batch{i};
-                
-                % Thresholds (Method ID = 1) - Strict first
-                for m = num_modes:-1:1
-                    pp = map_params(params.thr{m});
-                    futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 1, sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
-                end
-                
-                % BCa (Method ID = 2) - Strict first
-                for m = num_modes:-1:1
+            % Submit All Tasks (Longest Processing Time First)
+            % To minimize worker idle time at the end of a batch, we schedule the most computationally expensive tasks first. 
+            % The shorter, faster tasks (e.g., Relaxed) should fill the remaining gaps to balance load across all workers.
+            % Overall Order of Complexity:
+            % 1. Modes: Strict first (Reverse order num_modes:-1:1)
+            % 2. Methods: BCa (ID=2) > Ranking (ID=3) > Thresholds (ID=1)
+            
+            for m = num_modes:-1:1
+                % 1. BCa (Method ID = 2) - Most expensive
+                for i = 1:num_in_batch
+                    s_idx = batch_sims(i);
+                    sd = sim_data_batch{i};
                     pp = map_params(params.bca{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
                         s_idx, m, 2, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
                 end
                 
-                % Ranking (Method ID = 3) - Strict first
-                for m = num_modes:-1:1
+                % 2. Ranking (Method ID = 3) - Medium expense
+                for i = 1:num_in_batch
+                    s_idx = batch_sims(i);
+                    sd = sim_data_batch{i};
                     pp = map_params(params.rnk{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
                         s_idx, m, 3, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                end
+                
+                % 3. Thresholds (Method ID = 1) - Least expensive
+                for i = 1:num_in_batch
+                    s_idx = batch_sims(i);
+                    sd = sim_data_batch{i};
+                    pp = map_params(params.thr{m});
+                    futures(end+1) = parfeval(@run_single_test, 6, ...
+                        s_idx, m, 1, sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
                 end
             end
             
