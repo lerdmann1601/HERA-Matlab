@@ -347,7 +347,7 @@ function so = map_params(pi)
     so.n_trials = pi.n; so.smoothing_window = pi.sm;
     so.convergence_streak_needed = pi.st; so.convergence_tolerance = pi.tol;
     so.B_start = pi.start; so.B_step = pi.step; so.B_end = pi.end;
-    so.min_steps_for_convergence_check = 2;
+    so.min_steps_for_convergence_check = 1;
 end
 
 function s = init_storage(n, num_modes)
