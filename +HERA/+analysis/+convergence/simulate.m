@@ -28,7 +28,8 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 %   params           - Struct containing the parameter sets for Thr, BCa, Rnk.
 %   n_sims_per_cond  - Number of simulations per scenario.
 %   refs             - Struct with reference B values.
-%   cfg_base         - Base HERA configuration object.
+%   cfg_base         - Base HERA configuration object. (e.g. holds system.target_memory, 
+%                      simulation_seed, scenario_seed_offset, reference_seed_offset).
 %   temp_dir         - Directory for temporary file artifacts.
 %   styles, lang     - HERA design/language structs.
 %   hWait            - Handle to the waitbar for progress updates.

@@ -12,6 +12,12 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors] 
 % Inputs:
 %   n_sims_per_cond - Not directly used here, but part of the signature for potential dynamic adjustments.
 %   customConfig    - (Optional) Struct loaded from JSON for overriding internal arrays safely.
+%                     Supports fields such as:
+%                       - `target_memory`
+%                       - `bootstrap_seed_offset`
+%                       - `scenario_seed_offset`
+%                       - `reference_seed_offset`
+%                       - `modes` (with sub-structs for 'thr', 'bca', 'rnk')
 %
 % Outputs:
 %   n_datasets  - Number of datasets in the scenarios.
