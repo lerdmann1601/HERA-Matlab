@@ -32,7 +32,68 @@ function save_csv(results, modes, out_dir, ts_str)
     results_subfolder = fullfile(out_dir, sprintf('Results_%s', ts_str));
     if ~exist(results_subfolder, 'dir'), mkdir(results_subfolder); end
     
-    % 2. Create Global Summary CSV (Aggregated)
+    % 2. Create Configuration CSVs (Scenarios & Methods)
+    scenarios_filename = fullfile(out_dir, sprintf('Scenarios_%s.csv', ts_str));
+    if ~exist(scenarios_filename, 'file')
+        try
+            n_sims_per_cond = size(results(1).thr.err, 1);
+            [~, config_modes, scenarios, params, ~, ~] = HERA.analysis.convergence.config(n_sims_per_cond);
+            
+            s_fid = fopen(scenarios_filename, 'w');
+            if s_fid ~= -1
+                fprintf(s_fid, 'Index,Scenario_Name,N,Distribution,Data_Summary\n');
+                for i = 1:length(scenarios)
+                    sc = scenarios(i);
+                    clean_name = strrep(sc.name, ',', ';');
+                    clean_dist = strrep(sc.Dist, ',', ';');
+                    clean_summary = strrep(sc.DataSummary, ',', ';');
+                    fprintf(s_fid, '%d,%s,%d,%s,%s\n', i, clean_name, sc.N, clean_dist, clean_summary);
+                end
+                fclose(s_fid);
+            end
+            
+            p_filename = fullfile(out_dir, sprintf('Method_Parameters_%s.csv', ts_str));
+            p_fid = fopen(p_filename, 'w');
+            if p_fid ~= -1
+                mode_str = strjoin(config_modes, ',');
+                fprintf(p_fid, 'Metric,Parameter,%s\n', mode_str);
+                
+                param_metrics = {'Bootstrap Thresholds', 'BCa Confidence Intervals', 'Ranking Stability'};
+                param_structs = {params.thr, params.bca, params.rnk};
+                lbls = {'Trials (n)', 'Smoothing (sm)', 'Streak (st)', 'Tolerance (tol)', 'Step Size (B)', 'B Range'};
+                fields = {'n', 'sm', 'st', 'tol', 'step', 'range'};
+                
+                for m_idx = 1:length(param_metrics)
+                    m_name = param_metrics{m_idx};
+                    p_cell = param_structs{m_idx};
+                    
+                    for r = 1:length(lbls)
+                        fprintf(p_fid, '%s,%s', m_name, lbls{r});
+                        for c = 1:length(p_cell)
+                            val = p_cell{c};
+                            if strcmp(fields{r}, 'range')
+                                str = sprintf('[%d-%d]', val.start, val.end);
+                            else
+                                v = val.(fields{r});
+                                if abs(v) < 1 && v > 0
+                                     str = sprintf('%.3f', v);
+                                else
+                                     str = sprintf('%d', v);
+                                end
+                            end
+                            fprintf(p_fid, ',%s', str);
+                        end
+                        fprintf(p_fid, '\n');
+                    end
+                end
+                fclose(p_fid);
+            end
+        catch ME_cfg
+            warning('Could not write configuration CSVs: %s', ME_cfg.message);
+        end
+    end
+    
+    % 3. Create Global Summary CSV (Aggregated)
     % This file will stay in the main CSV folder for easy access
     global_filename = fullfile(out_dir, sprintf('Global_Summary_%s.csv', ts_str));
     
@@ -43,7 +104,7 @@ function save_csv(results, modes, out_dir, ts_str)
     if global_fid ~= -1
         if write_header
             % Header for Aggregated Data
-            fprintf(global_fid, 'Scenario,Metric,Mode,Mean_Error_Percent,Std_Error,Mean_Cost_B,Failure_Rate_Percent\n');
+            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Error_Percent,IQR_Error,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
         end
     else
         warning('Could not create/open Global Summary CSV: %s', global_filename);
@@ -69,7 +130,7 @@ function save_csv(results, modes, out_dir, ts_str)
                 warning('Could not open file for writing: %s', filename);
                 continue;
             end
-            
+
             % Write Header for Detailed Scenario File (Raw Data)
             fprintf(fileID, 'SimID,Metric,Mode,Error,Cost,Fail\n');
             
@@ -106,13 +167,40 @@ function save_csv(results, modes, out_dir, ts_str)
                     
                     % --- B. Calculate & Write Aggregated Stats to Global Summary ---
                     if global_fid ~= -1
-                        mean_err = mean(err_mat(:, mode_idx), 'omitnan');
-                        std_err = std(err_mat(:, mode_idx), 'omitnan');
-                        mean_cost = mean(cost_mat(:, mode_idx), 'omitnan');
+                        % Calculate Median, IQR, and 95% CI for Errors (approximate normal)
+                        err_vals = err_mat(:, mode_idx);
+                        err_vals = err_vals(~isnan(err_vals)); % Remove NaNs for stat calculations
+                        
+                        cost_vals = cost_mat(:, mode_idx);
+                        cost_vals = cost_vals(~isnan(cost_vals));
+                        
+                        median_err = median(err_vals);
+                        iqr_err    = iqr(err_vals);
+                        
+                        % 95% CI using simple percentiles (2.5% and 97.5%) to match boxplot summaries
+                        if ~isempty(err_vals)
+                             ci_lower = prctile(err_vals, 2.5);
+                             ci_upper = prctile(err_vals, 97.5);
+                        else
+                             ci_lower = NaN;
+                             ci_upper = NaN;
+                        end
+                        
+                        median_cost = median(cost_vals);
+                        iqr_cost    = iqr(cost_vals);
+                        
+                        if ~isempty(cost_vals)
+                             cost_ci_lower = prctile(cost_vals, 2.5);
+                             cost_ci_upper = prctile(cost_vals, 97.5);
+                        else
+                             cost_ci_lower = NaN;
+                             cost_ci_upper = NaN;
+                        end
+                        
                         fail_rate = (sum(fail_mat(:, mode_idx)) / n_sims) * 100;
                         
-                        fprintf(global_fid, '%s,%s,%s,%.4f,%.4f,%.1f,%.1f\n', ...
-                            safe_name, m_name, mode_name, mean_err, std_err, mean_cost, fail_rate);
+                        fprintf(global_fid, '%s,%s,%s,%.4f,%.4f,%.4f,%.4f,%.1f,%.1f,%.1f,%.1f,%.1f\n', ...
+                            safe_name, m_name, mode_name, median_err, iqr_err, ci_lower, ci_upper, median_cost, iqr_cost, cost_ci_lower, cost_ci_upper, fail_rate);
                     end
                 end
             end
