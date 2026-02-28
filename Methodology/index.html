@@ -1,0 +1,1404 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="HERA is a MATLAB toolbox for robust, statistical benchmarking and ranking of algorithms using hierarchical logic, effect sizes, and bootstrapping.">
+      
+      
+      
+        <link rel="canonical" href="https://lerdmann1601.github.io/HERA-Matlab/Methodology/">
+      
+      
+        <link rel="prev" href="../overview/">
+      
+      
+        <link rel="next" href="../Ranking_Modes_Explained/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/hera_logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+    
+    
+      
+        <title>Theoretical Background - HERA</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="HERA" class="md-header__button md-logo" aria-label="HERA" data-md-component="logo">
+      
+  <img src="../assets/hera_logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HERA
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Theoretical Background
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/lerdmann1601/HERA-Matlab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lerdmann1601/HERA-Matlab
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="HERA" class="md-nav__button md-logo" aria-label="HERA" data-md-component="logo">
+      
+  <img src="../assets/hera_logo.svg" alt="logo">
+
+    </a>
+    HERA
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/lerdmann1601/HERA-Matlab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lerdmann1601/HERA-Matlab
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theoretical Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Ranking_Modes_Explained/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ranking Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Input_Data_Specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Example_Analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Methodological_Guidelines_%26_Limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodological Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Configuration_%26_Parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration & Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Bootstrap_Configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bootstrap Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Convergence_Modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convergence Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Convergence_Analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convergence Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Advanced_Usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Results_Structure_Reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Python_Integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Standalone_Runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standalone Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Automated_Build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+  <h1>Theoretical Background</h1>
+
+<h2 id="summary">Summary</h2>
+<p>In scientific disciplines ranging from clinical research to machine
+learning, researchers face the challenge of objectively comparing
+multiple algorithms, experimental conditions, or datasets across a
+variety of performance metrics. This process, often framed as
+Multi-Criteria Decision Making (MCDM), is critical for identifying
+state-of-the-art methods. However, traditional ranking approaches
+frequently suffer from limitations: they may rely on central tendencies
+that ignore data variability <span class="citation"
+data-cites="Demsar2006 Benavoli2016">(<a href="#ref-Benavoli2016"
+role="doc-biblioref">Benavoli et al., 2016</a>; <a
+href="#ref-Demsar2006" role="doc-biblioref">Demšar, 2006</a>)</span>,
+depend solely on p-values which can be misleading in large samples <span
+class="citation" data-cites="Wasserstein2016">(<a
+href="#ref-Wasserstein2016" role="doc-biblioref">Wasserstein &amp;
+Lazar, 2016</a>)</span>, or require subjective weighting of conflicting
+metrics <span class="citation" data-cites="Taherdoost2023">(<a
+href="#ref-Taherdoost2023" role="doc-biblioref">Taherdoost &amp;
+Madanchian, 2023</a>)</span>.</p>
+<p><strong>HERA</strong> (Hierarchical-Compensatory, Effect-Size Driven
+Ranking Algorithm) is a MATLAB toolbox designed to automate this
+comparison process, bridging the gap between elementary statistical
+tests and complex decision-making frameworks. Unlike weighted-sum
+approaches that collapse multi-dimensional performance into a single
+scalar, HERA implements a <strong>hierarchical-compensatory
+logic</strong>. This logic integrates non-parametric significance
+testing (Wilcoxon signed-rank test), robust effect size estimation
+(Cliff’s Delta, Relative Difference), and bootstrapping (e.g. Percentile
+and Cluster) to produce rankings that are both statistically robust and
+practically relevant. HERA is designed for researchers in biomedical
+imaging, machine learning, and applied statistics who need to compare
+method performance across multiple quality metrics in a statistically
+rigorous manner without requiring subjective parameter tuning.</p>
+<h2 id="statement-of-need">Statement of Need</h2>
+<p>The scientific community increasingly recognizes the pitfalls of
+relying on simple summary statistics or p-values alone <span
+class="citation" data-cites="Wasserstein2016">(<a
+href="#ref-Wasserstein2016" role="doc-biblioref">Wasserstein &amp;
+Lazar, 2016</a>)</span>. In benchmarking studies, specifically, several
+issues persist:</p>
+<ol type="1">
+<li><strong>Ignoring Variance</strong>: Ranking based on mean scores
+fails to account for the stability of performance across different
+subjects or folds. A method might achieve a high average score due to
+exceptional performance on a few easy cases while failing
+catastrophically on others, yet still outrank a more consistent
+competitor.</li>
+<li><strong>Statistical vs. Practical Significance</strong>: A result
+can be statistically significant but practically irrelevant, especially
+in large datasets where even trivial differences yield <span
+class="math inline"><em>p</em> &lt; 0.05</span>. Standard tests do not
+inherently distinguish between these cases, potentially leading to the
+adoption of methods that offer no tangible benefit <span
+class="citation" data-cites="Sullivan2012">(<a href="#ref-Sullivan2012"
+role="doc-biblioref">Sullivan &amp; Feinn, 2012</a>)</span>.</li>
+<li><strong>Subjectivity in Aggregation</strong>: Many MCDM methods
+require users to assign subjective weights to metrics (e.g., “Accuracy
+is 0.7, Speed is 0.3”). These weights are often chosen post-hoc or lack
+empirical justification, introducing researcher bias that can be
+manipulated to favor a specific outcome <span class="citation"
+data-cites="Taherdoost2023">(<a href="#ref-Taherdoost2023"
+role="doc-biblioref">Taherdoost &amp; Madanchian, 2023</a>)</span>.</li>
+<li><strong>Distributional Assumptions</strong>: Parametric tests (e.g.,
+t-test) assume normality, which is often violated in real-world
+benchmarks where performance metrics may be skewed, bounded, or ordinal
+<span class="citation" data-cites="Romano2006">(<a
+href="#ref-Romano2006" role="doc-biblioref">Romano et al.,
+2006</a>)</span>.</li>
+</ol>
+<p>HERA addresses these challenges by providing a standardized,
+data-driven framework. It ensures that a method is only ranked higher if
+it demonstrates a statistically significant and sufficiently large
+advantage, preventing “wins” based on negligible differences or noise.
+Unlike existing MCDM software packages such as the Python libraries
+pyDecision <span class="citation" data-cites="Pereira2024">(<a
+href="#ref-Pereira2024" role="doc-biblioref">Pereira et al.,
+2024</a>)</span> and pymcdm <span class="citation"
+data-cites="Kizielewicz2023">(<a href="#ref-Kizielewicz2023"
+role="doc-biblioref">Kizielewicz et al., 2023</a>)</span>, or R’s RMCDA
+<span class="citation" data-cites="Najafi2025">(<a
+href="#ref-Najafi2025" role="doc-biblioref">Najafi &amp; Mirzaei,
+2025</a>)</span>, which often implement classical methods like TOPSIS
+<span class="citation" data-cites="Hwang1981">(<a href="#ref-Hwang1981"
+role="doc-biblioref">Hwang &amp; Yoon, 1981</a>)</span>, PROMETHEE <span
+class="citation" data-cites="Brans1985">(<a href="#ref-Brans1985"
+role="doc-biblioref">Brans &amp; Vincke, 1985</a>)</span>, and ELECTRE
+<span class="citation" data-cites="Roy1968">(<a href="#ref-Roy1968"
+role="doc-biblioref">Roy, 1968</a>)</span> that require user-defined
+weights or preference functions, HERA eliminates subjective
+parameterization by using data-driven thresholds derived from bootstrap
+resampling. Furthermore, HERA integrates statistical hypothesis testing
+directly into the ranking process, a feature absent in standard MCDM
+toolboxes. While the MATLAB ecosystem offers robust statistical
+functions, it currently lacks a dedicated, open-source toolbox that
+unifies this advanced MCDM method with bootstrap validation, forcing
+researchers to rely on ad-hoc scripts.</p>
+<h2 id="methodological-framework">Methodological Framework</h2>
+<p>HERA operates on paired data matrices where rows represent subjects
+(or datasets) and columns represent the methods to be compared. The core
+innovation is its sequential logic, which allows for “compensation”
+between metrics based on strict statistical evidence.</p>
+<h3 id="statistical-rigor-and-effect-sizes">Statistical Rigor and Effect
+Sizes</h3>
+<p>HERA quantifies differences using statistical significance and effect
+sizes to ensure practical relevance independent of sample size <span
+class="citation" data-cites="Cohen1988 Sullivan2012">(<a
+href="#ref-Cohen1988" role="doc-biblioref">Cohen, 1988</a>; <a
+href="#ref-Sullivan2012" role="doc-biblioref">Sullivan &amp; Feinn,
+2012</a>)</span>. A “win” always requires satisfying three conjunctive
+criteria, if not it is considered “neutral”:</p>
+<ul>
+<li><strong>Significance</strong>: <span
+class="math inline"><em>p</em> &lt; <em>α</em><sub>Holm</sub></span>
+(Holm-Bonferroni corrected). Pairwise comparisons use the Wilcoxon
+signed-rank test <span class="citation" data-cites="Wilcoxon1945">(<a
+href="#ref-Wilcoxon1945" role="doc-biblioref">Wilcoxon,
+1945</a>)</span>, with p-values corrected using the step-down
+Holm-Bonferroni method <span class="citation" data-cites="Holm1979">(<a
+href="#ref-Holm1979" role="doc-biblioref">Holm, 1979</a>)</span> to
+control the Family-Wise Error Rate (FWER).</li>
+<li><strong>Stochastic Dominance (Cliff’s Delta)</strong>: Cliff’s Delta
+(<span
+class="math inline"><em>d</em> = <em>P</em>(<em>X</em>&gt;<em>Y</em>) − <em>P</em>(<em>Y</em>&gt;<em>X</em>)</span>)
+quantifies distribution overlap, is robust to outliers, and relates to
+common-language effect sizes <span class="citation"
+data-cites="Cliff1993 Vargha2000">(<a href="#ref-Cliff1993"
+role="doc-biblioref">Cliff, 1993</a>; <a href="#ref-Vargha2000"
+role="doc-biblioref">Vargha &amp; Delaney, 2000</a>)</span>. The effect
+size <span class="math inline"><em>d</em></span> must exceed a
+bootstrapped threshold <span
+class="math inline"><em>θ</em><sub><em>d</em></sub></span>.</li>
+<li><strong>Magnitude (Relative Difference)</strong>: The Relative
+Difference (RelDiff) quantifies effect magnitude on the original metric
+scale, normalized by the mean absolute value. This normalization is
+formally identical to the Symmetric Mean Absolute Percentage Error
+(SMAPE) used in forecasting <span class="citation"
+data-cites="Makridakis1993">(<a href="#ref-Makridakis1993"
+role="doc-biblioref">Makridakis, 1993</a>)</span> and conceptually
+related to the Response Ratio, which uses logarithmic ratios to compare
+effects across studies <span class="citation"
+data-cites="Hedges1999">(<a href="#ref-Hedges1999"
+role="doc-biblioref">Hedges et al., 1999</a>)</span>. The metric enables
+scale-independent comparisons and facilitates the interpretation of
+percentage changes <span class="citation" data-cites="Kampenes2007">(<a
+href="#ref-Kampenes2007" role="doc-biblioref">Kampenes et al.,
+2007</a>)</span>. RelDiff must exceed a threshold <span
+class="math inline"><em>θ</em><sub><em>r</em></sub></span>.</li>
+</ul>
+<p><strong>Dual Criteria &amp; SEM Lower Bound</strong> HERA’s
+complementary logic requires both dominance and magnitude, preventing
+“wins” based on trivial consistent differences or noisy outliers <span
+class="citation" data-cites="Lakens2013">(<a href="#ref-Lakens2013"
+role="doc-biblioref">Lakens, 2013</a>)</span>. Thresholds are determined
+via Percentile Bootstrapping (lower <span
+class="math inline"><em>α</em>/2</span>-quantile) <span class="citation"
+data-cites="Rousselet2021">(<a href="#ref-Rousselet2021"
+role="doc-biblioref">Rousselet et al., 2021</a>)</span>. To filter noise
+in low-variance datasets, the RelDiff threshold enforces a lower bound
+based on the Standard Error of the Mean (SEM), ensuring <span
+class="math inline"><em>θ</em><sub><em>r</em></sub> ≥ <em>θ</em><sub>SEM</sub></span>.
+This approach is inspired by the concept of the “Smallest Worthwhile
+Change” <span class="citation" data-cites="Hopkins2004">(<a
+href="#ref-Hopkins2004" role="doc-biblioref">Hopkins, 2004</a>)</span>,
+but adapted for HERA to quantify the uncertainty of the group mean
+rather than individual measurement error.</p>
+<h3 id="hierarchical-compensatory-logic">Hierarchical-Compensatory
+Logic</h3>
+<p>The ranking process is structured as a multi-stage tournament. It
+does not use a global score but refines the rank order iteratively (see
+Fig. 1):</p>
+<figure>
+<img src="../images/hierarchical_logic.png"
+alt="Hierarchical-Compensatory Ranking Logic" />
+<figcaption aria-hidden="true">Hierarchical-Compensatory Ranking
+Logic</figcaption>
+</figure>
+<ul>
+<li><strong>Stage 1 (Initial Sort)</strong>: Methods are initially
+ranked based on the win count of the primary metric <span
+class="math inline"><em>M</em><sub>1</sub></span>. In case of a tie in
+adjacent ranks, Cliff’s Delta is used to break the tie. If Cliff’s Delta
+is zero, the raw mean values are used to break the tie.</li>
+<li><strong>Stage 2 (Compensatory Correction)</strong>: This stage
+addresses the trade-off between metrics. A lower-ranked method can
+“swap” places with a higher-ranked method if it shows a statistically
+significant and relevant superiority in a secondary metric <span
+class="math inline"><em>M</em><sub>2</sub></span>. This effectively
+implements a lexicographic ordering with a compensatory component <span
+class="citation" data-cites="Keeney1976">(<a href="#ref-Keeney1976"
+role="doc-biblioref">Keeney &amp; Raiffa, 1976</a>)</span>, allowing a
+method that is slightly worse in the primary metric but vastly superior
+in a secondary metric to improve its standing.</li>
+<li><strong>Stage 3 (Tie-Breaking)</strong>: This stage resolves
+“neutral” results using a tertiary metric <span
+class="math inline"><em>M</em><sub>3</sub></span>. It applies two
+sub-logics to ensure a total ordering:
+<ul>
+<li><strong>Sublogic 3a</strong>: A one-time correction if the previous
+metric is “neutral” based on the HERA criteria. This handles cases where
+two methods are indistinguishable in the second metric while still
+respecting the initial ranking.</li>
+<li><strong>Sublogic 3b</strong>: To resolve groups of remaining
+undecided methods, an iterative correction loop is applied if both <span
+class="math inline"><em>M</em><sub>1</sub></span> and <span
+class="math inline"><em>M</em><sub>2</sub></span> are “neutral”,
+iteratively using metric <span
+class="math inline"><em>M</em><sub>3</sub></span> until a final stable
+ranking is found.</li>
+</ul></li>
+</ul>
+<h3 id="validation-and-uncertainty">Validation and Uncertainty</h3>
+<p>HERA integrates advanced resampling methods to quantify
+uncertainty:</p>
+<ul>
+<li><strong>BCa Confidence Intervals</strong>: Bias-Corrected and
+Accelerated (BCa) intervals are calculated for all effect sizes <span
+class="citation" data-cites="DiCiccio1996">(<a href="#ref-DiCiccio1996"
+role="doc-biblioref">DiCiccio &amp; Efron, 1996</a>)</span>.</li>
+<li><strong>Cluster Bootstrap</strong>: To assess the stability of the
+final ranking, HERA performs a cluster bootstrap resampling subjects
+with replacement <span class="citation" data-cites="Field2007">(<a
+href="#ref-Field2007" role="doc-biblioref">Field &amp; Welsh,
+2007</a>)</span>. This yields a 95% confidence interval for the rank of
+each method.</li>
+<li><strong>Power Analysis</strong>: A post-hoc simulation with
+bootstrap estimates the probability of detecting a “win”, “loss” or
+“neutral” in all tested metrics given the data characteristics.</li>
+<li><strong>Sensitivity Analysis</strong>: The algorithm permutes the
+metric hierarchy and aggregates the resulting rankings using a Borda
+Count <span class="citation" data-cites="Young1974">(<a
+href="#ref-Young1974" role="doc-biblioref">Young, 1974</a>)</span> to
+evaluate the robustness of the decision against hierarchy changes.</li>
+</ul>
+<h2 id="software-features">Software Features</h2>
+<p>HERA offers a flexible configuration of up to three metrics (see Fig.
+2). This allows users to adapt the ranking logic to different study
+designs and needs. It also provides a range of reporting options, data
+integration, and reproducibility features.</p>
+<ul>
+<li><strong>Automated Reporting</strong>: Generates PDF reports,
+Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV
+exports.</li>
+<li><strong>Reproducibility</strong>: Supports fixed-seed execution and
+configuration file-based workflows. The full analysis state, including
+random seeds and parameter settings, is saved in a JSON file, allowing
+other researchers to exactly replicate the ranking results.</li>
+<li><strong>Convergence Analysis</strong>: To avoid the common pitfall
+of using an arbitrary number of bootstrap iterations, HERA implements an
+adaptive algorithm. It automatically monitors the stability of the
+estimated confidence intervals and effect size thresholds, continuing
+the resampling process until the estimates converge within a specified
+tolerance, thus determining the optimal number of iterations <span
+class="math inline"><em>B</em></span> dynamically <span class="citation"
+data-cites="Pattengale2010">(<a href="#ref-Pattengale2010"
+role="doc-biblioref">Pattengale et al., 2010</a>)</span>. If the
+characteristics of the data for bootstrapping are known, the number of
+bootstrap iterations can be set manually.</li>
+<li><strong>Data Integration</strong>: HERA supports seamless data
+import from standard formats (CSV, Excel) and MATLAB tables,
+facilitating integration into existing research pipelines. Example
+datasets and workflows demonstrating practical applications are included
+in the repository.</li>
+<li><strong>Accessibility</strong>: HERA can be easily installed by
+cloning the GitHub repository and running a setup script, or deployed as
+a standalone application that requires no MATLAB license. An interactive
+command-line interface guides users through the analysis without
+requiring programming expertise, while an API and JSON Configuration
+allow for automated batch processing.</li>
+</ul>
+<figure>
+<img src="../images/features.png"
+alt="Flexible Configuration options for Ranking Logic" />
+<figcaption aria-hidden="true">Flexible Configuration options for
+Ranking Logic</figcaption>
+</figure>
+<h2 id="acknowledgements">Acknowledgements</h2>
+<p>This software was developed at the Institute of Neuroradiology,
+Goethe University Frankfurt. I thank Prof. Dr. Dipl.-Phys. Ralf
+Deichmann (Cooperative Brain Imaging Center, Goethe University
+Frankfurt) for his support during the initial conceptualization of this
+project. I acknowledge Dr. med. Christophe Arendt (Institute of
+Neuroradiology, Goethe University Frankfurt) for his supervision and
+support throughout the project. I also thank Rejane Golbach PhD
+(Institute of Biostatistics and Mathematical Modeling, Goethe University
+Frankfurt) for her valuable feedback on the statistical methodology.</p>
+<h2 class="unnumbered" id="references">References</h2>
+<div id="refs" class="references csl-bib-body hanging-indent"
+data-line-spacing="2" role="list">
+<div id="ref-Benavoli2016" class="csl-entry" role="listitem">
+Benavoli, A., Corani, G., &amp; Mangili, F. (2016). Should we really use
+post-hoc tests based on mean-ranks? <em>Journal of Machine Learning
+Research</em>, <em>17</em>, 1–10. <a
+href="https://jmlr.org/papers/v17/benavoli16a.html">https://jmlr.org/papers/v17/benavoli16a.html</a>
+</div>
+<div id="ref-Brans1985" class="csl-entry" role="listitem">
+Brans, J. P., &amp; Vincke, P. (1985). A preference ranking organization
+method (the PROMETHEE method for multiple criteria decision-making).
+<em>Management Science</em>, <em>31</em>(6), 647–656. <a
+href="https://doi.org/10.1287/mnsc.31.6.647">https://doi.org/10.1287/mnsc.31.6.647</a>
+</div>
+<div id="ref-Cliff1993" class="csl-entry" role="listitem">
+Cliff, N. (1993). Dominance statistics: Ordinal analyses to answer
+ordinal questions. <em>Psychological Bulletin</em>, <em>114</em>(3),
+494–509. <a
+href="https://doi.org/10.1037/0033-2909.114.3.494">https://doi.org/10.1037/0033-2909.114.3.494</a>
+</div>
+<div id="ref-Cohen1988" class="csl-entry" role="listitem">
+Cohen, J. (1988). <em>Statistical power analysis for the behavioral
+sciences</em> (2nd ed.). Lawrence Erlbaum Associates. <a
+href="https://doi.org/10.4324/9780203771587">https://doi.org/10.4324/9780203771587</a>
+</div>
+<div id="ref-Demsar2006" class="csl-entry" role="listitem">
+Demšar, J. (2006). Statistical comparisons of classifiers over multiple
+data sets. <em>Journal of Machine Learning Research</em>, <em>7</em>,
+1–30. <a
+href="https://jmlr.org/papers/v7/demsar06a.html">https://jmlr.org/papers/v7/demsar06a.html</a>
+</div>
+<div id="ref-DiCiccio1996" class="csl-entry" role="listitem">
+DiCiccio, T. J., &amp; Efron, B. (1996). Bootstrap confidence intervals.
+<em>Statistical Science</em>, <em>11</em>(3), 189–228. <a
+href="https://doi.org/10.1214/ss/1032280214">https://doi.org/10.1214/ss/1032280214</a>
+</div>
+<div id="ref-Field2007" class="csl-entry" role="listitem">
+Field, C. A., &amp; Welsh, A. H. (2007). Bootstrapping clustered data.
+<em>Journal of the Royal Statistical Society: Series B (Statistical
+Methodology)</em>, <em>69</em>(3), 369–390. <a
+href="https://doi.org/10.1111/j.1467-9868.2007.00593.x">https://doi.org/10.1111/j.1467-9868.2007.00593.x</a>
+</div>
+<div id="ref-Hedges1999" class="csl-entry" role="listitem">
+Hedges, L. V., Gurevitch, J., &amp; Curtis, P. S. (1999). The
+meta-analysis of response ratios in experimental ecology.
+<em>Ecology</em>, <em>80</em>(4), 1150–1156. <a
+href="https://doi.org/10.1890/0012-9658(1999)080[1150:TMAORR]2.0.CO;2">https://doi.org/10.1890/0012-9658(1999)080[1150:TMAORR]2.0.CO;2</a>
+</div>
+<div id="ref-Holm1979" class="csl-entry" role="listitem">
+Holm, S. (1979). A simple sequentially rejective multiple test
+procedure. <em>Scandinavian Journal of Statistics</em>, <em>6</em>(2),
+65–70. <a
+href="https://www.jstor.org/stable/4615733">https://www.jstor.org/stable/4615733</a>
+</div>
+<div id="ref-Hopkins2004" class="csl-entry" role="listitem">
+Hopkins, W. G. (2004). How to interpret changes in an athletic
+performance test. <em>Sportscience</em>, <em>8</em>, 1–7. <a
+href="https://www.sportsci.org/jour/04/wghtests.htm">https://www.sportsci.org/jour/04/wghtests.htm</a>
+</div>
+<div id="ref-Hwang1981" class="csl-entry" role="listitem">
+Hwang, C. L., &amp; Yoon, K. (1981). <em>Multiple attribute decision
+making: Methods and applications</em>. Springer. <a
+href="https://doi.org/10.1007/978-3-642-48318-9">https://doi.org/10.1007/978-3-642-48318-9</a>
+</div>
+<div id="ref-Kampenes2007" class="csl-entry" role="listitem">
+Kampenes, V. B., Dybå, T., Hannay, J. E., &amp; Sjøberg, D. I. K.
+(2007). A systematic review of effect size in software engineering
+experiments. <em>Information and Software Technology</em>,
+<em>49</em>(11–12), 1073–1086. <a
+href="https://doi.org/10.1016/j.infsof.2007.02.015">https://doi.org/10.1016/j.infsof.2007.02.015</a>
+</div>
+<div id="ref-Keeney1976" class="csl-entry" role="listitem">
+Keeney, R. L., &amp; Raiffa, H. (1976). <em>Decisions with multiple
+objectives: Preferences and value trade-offs</em>. Wiley. <a
+href="https://doi.org/10.1017/CBO9781139174084">https://doi.org/10.1017/CBO9781139174084</a>
+</div>
+<div id="ref-Kizielewicz2023" class="csl-entry" role="listitem">
+Kizielewicz, B., Shekhovtsov, A., &amp; Salabun, W. (2023). Pymcdm—the
+universal library for solving multi-criteria decision-making problems.
+<em>SoftwareX</em>, <em>22</em>, 101368. <a
+href="https://doi.org/10.1016/j.softx.2023.101368">https://doi.org/10.1016/j.softx.2023.101368</a>
+</div>
+<div id="ref-Lakens2013" class="csl-entry" role="listitem">
+Lakens, D. (2013). Calculating and reporting effect sizes to facilitate
+cumulative science: A practical primer for t-tests and ANOVAs.
+<em>Frontiers in Psychology</em>, <em>4</em>, 863. <a
+href="https://doi.org/10.3389/fpsyg.2013.00863">https://doi.org/10.3389/fpsyg.2013.00863</a>
+</div>
+<div id="ref-Makridakis1993" class="csl-entry" role="listitem">
+Makridakis, S. (1993). Accuracy measures: Theoretical and practical
+concerns. <em>International Journal of Forecasting</em>, <em>9</em>(4),
+527–529. <a
+href="https://doi.org/10.1016/0169-2070(93)90079-3">https://doi.org/10.1016/0169-2070(93)90079-3</a>
+</div>
+<div id="ref-Najafi2025" class="csl-entry" role="listitem">
+Najafi, A., &amp; Mirzaei, S. (2025). RMCDA: The comprehensive r library
+for applying multi-criteria decision analysis methods. <em>Software
+Impacts</em>, <em>24</em>, 100762. <a
+href="https://doi.org/10.1016/j.simpa.2025.100762">https://doi.org/10.1016/j.simpa.2025.100762</a>
+</div>
+<div id="ref-Pattengale2010" class="csl-entry" role="listitem">
+Pattengale, N. D., Alipour, M., Bininda-Emonds, O. R. P., Moret, B. M.
+E., &amp; Stamatakis, A. (2010). How many bootstrap replicates are
+necessary? <em>Journal of Computational Biology</em>, <em>17</em>(3),
+337–354. <a
+href="https://doi.org/10.1089/cmb.2009.0179">https://doi.org/10.1089/cmb.2009.0179</a>
+</div>
+<div id="ref-Pereira2024" class="csl-entry" role="listitem">
+Pereira, V., Basilio, M. P., &amp; Santos, C. H. T. (2024). Enhancing
+decision analysis with a large language model: pyDecision a
+comprehensive library of MCDA methods in python. <em>Journal of
+Modelling in Management</em>. <a
+href="https://doi.org/10.1108/JM2-04-2024-0118">https://doi.org/10.1108/JM2-04-2024-0118</a>
+</div>
+<div id="ref-Romano2006" class="csl-entry" role="listitem">
+Romano, J., Kromrey, J. D., Coraggio, J., &amp; Skowronek, J. (2006).
+Appropriate statistics for ordinal level data: Should we really be using
+t-test and cohen’s d for evaluating group differences on the NSSE and
+other surveys? <em>Proceedings of the Annual Meeting of the Florida
+Association of Institutional Research</em>. <a
+href="https://www.researchgate.net/publication/237544991">https://www.researchgate.net/publication/237544991</a>
+</div>
+<div id="ref-Rousselet2021" class="csl-entry" role="listitem">
+Rousselet, G. A., Pernet, C. R., &amp; Wilcox, R. R. (2021). The
+percentile bootstrap: A primer with step-by-step instructions in
+<span>R</span>. <em>Advances in Methods and Practices in Psychological
+Science</em>, <em>4</em>(1), 1–10. <a
+href="https://doi.org/10.1177/2515245920911881">https://doi.org/10.1177/2515245920911881</a>
+</div>
+<div id="ref-Roy1968" class="csl-entry" role="listitem">
+Roy, B. (1968). Classement et choix en pr<span>é</span>sence de points
+de vue multiples (la m<span>é</span>thode ELECTRE). <em>Revue
+Fran<span>ç</span>aise d’informatique Et de Recherche
+Op<span>é</span>rationnelle</em>, <em>2</em>(V1), 57–75. <a
+href="https://doi.org/10.1051/ro/196802V100571">https://doi.org/10.1051/ro/196802V100571</a>
+</div>
+<div id="ref-Sullivan2012" class="csl-entry" role="listitem">
+Sullivan, G. M., &amp; Feinn, R. (2012). Using effect size—or why the p
+value is not enough. <em>Journal of Graduate Medical Education</em>,
+<em>4</em>(3), 279–282. <a
+href="https://doi.org/10.4300/JGME-D-12-00156.1">https://doi.org/10.4300/JGME-D-12-00156.1</a>
+</div>
+<div id="ref-Taherdoost2023" class="csl-entry" role="listitem">
+Taherdoost, H., &amp; Madanchian, M. (2023). Multi-criteria decision
+making (MCDM) methods and concepts. <em>Encyclopedia</em>,
+<em>3</em>(1), 235–250. <a
+href="https://doi.org/10.3390/encyclopedia3010006">https://doi.org/10.3390/encyclopedia3010006</a>
+</div>
+<div id="ref-Vargha2000" class="csl-entry" role="listitem">
+Vargha, A., &amp; Delaney, H. D. (2000). A critique and improvement of
+the CL common language effect size statistics of McGraw and wong.
+<em>Journal of Educational and Behavioral Statistics</em>,
+<em>25</em>(2), 101–132. <a
+href="https://doi.org/10.3102/10769986025002101">https://doi.org/10.3102/10769986025002101</a>
+</div>
+<div id="ref-Wasserstein2016" class="csl-entry" role="listitem">
+Wasserstein, R. L., &amp; Lazar, N. A. (2016). The <span>ASA</span>
+statement on p-values: Context, process, and purpose. <em>The American
+Statistician</em>, <em>70</em>(2), 129–133. <a
+href="https://doi.org/10.1080/00031305.2016.1154108">https://doi.org/10.1080/00031305.2016.1154108</a>
+</div>
+<div id="ref-Wilcoxon1945" class="csl-entry" role="listitem">
+Wilcoxon, F. (1945). Individual comparisons by ranking methods.
+<em>Biometrics Bulletin</em>, <em>1</em>(6), 80–83. <a
+href="https://doi.org/10.2307/3001968">https://doi.org/10.2307/3001968</a>
+</div>
+<div id="ref-Young1974" class="csl-entry" role="listitem">
+Young, H. P. (1974). An axiomatization of borda’s rule. <em>Journal of
+Economic Theory</em>, <em>9</em>(1), 43–52. <a
+href="https://doi.org/10.1016/0022-0531(74)90073-8">https://doi.org/10.1016/0022-0531(74)90073-8</a>
+</div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>

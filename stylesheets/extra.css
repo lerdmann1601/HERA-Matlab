@@ -1,0 +1,43 @@
+/* Center all images in the content area */
+.md-content__inner img {
+    display: block;
+    margin: 0 auto;
+}
+
+/* Optional: Add a slight shadow/border to images for better visibility on white background */
+.md-content__inner img {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+/* Bibliography styling */
+#refs {
+    font-size: 0.9em;
+}
+
+#refs div {
+    margin-bottom: 0.5em;
+    margin-left: 2em;
+    text-indent: -2em;
+}
+
+/* Pandoc MathJax/HTML math rendering */
+span.math.inline {
+    display: inline !important;
+    float: none !important;
+    margin: 0 !important;
+}
+
+/* Automatic Figure Numbering */
+.md-content__inner {
+    counter-reset: fig-count;
+}
+
+figure {
+    counter-increment: fig-count;
+}
+
+figcaption::before {
+    content: "Fig. " counter(fig-count) ": ";
+    font-weight: bold;
+}
