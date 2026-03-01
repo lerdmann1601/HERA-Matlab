@@ -77,6 +77,7 @@ function save_log(results, thresholds, config, shared_info)
 
         % Write the generated CSV header to the log file
         fprintf(fid_log, '%s\n', csv_header);
+        fclose(fid_log); % Close it so writetable can append later
 
         % Pre-allocate a cell array to hold all log data before writing to file.
         % This allows sorting the entire log before outputting it.
@@ -409,32 +410,35 @@ function save_log(results, thresholds, config, shared_info)
                 row_line_console = strjoin(arrayfun(@(c) format_text(table_data_console{i, c}, col_widths(c), alignments{c}), 1:num_cols_console, ...
                     'UniformOutput', false), '|');
                 fprintf('%s\n', row_line_console);
-        
-                % Prepare the data row for the file, ensuring proper formatting and quoting.
-                row_data = sorted_log_data(i, 1:(end-1)); % Get original data (without sort key).
-                csv_cells = cell(1, numel(row_data));
+            end
+            
+            % Print a final separating line to the console.
+            fprintf('%s\n', repmat('-', 1, strlength(header_line)));
+            
+            % Accelerated file writing using writetable
+            export_cell_array = cell(size(sorted_log_data, 1), num_log_cols);
+            for i = 1:size(sorted_log_data, 1)
+                row_data = sorted_log_data(i, 1:(end-1)); % original data
                 for j = 1:numel(row_data)
                     cell_content = row_data{j};
                     if isnumeric(cell_content)
                         % Apply specific formatting for numeric types.
-                        if any(j == [4, 5]), csv_cells{j} = sprintf('%.4f', cell_content);
-                        elseif any(j == [8, 9, 11]), csv_cells{j} = sprintf('%.3f', cell_content);
-                        elseif j == 6, csv_cells{j} = sprintf('%+.3f', cell_content);
-                        else, csv_cells{j} = num2str(cell_content);
+                        if any(j == [4, 5]), export_cell_array{i, j} = sprintf('%.4f', cell_content);
+                        elseif any(j == [8, 9, 11]), export_cell_array{i, j} = sprintf('%.3f', cell_content);
+                        elseif j == 6, export_cell_array{i, j} = sprintf('%+.3f', cell_content);
+                        else, export_cell_array{i, j} = num2str(cell_content);
                         end
                     else
-                        % Enclose string data in double quotes.
-                        csv_cells{j} = ['"' strtrim(char(cell_content)) '"'];
+                        export_cell_array{i, j} = string(strtrim(char(cell_content)));
                     end
                 end
-                % Write the semicolon-separated row to the log file.
-                fprintf(fid_log, '%s\n', strjoin(csv_cells, ';'));
             end
-            % Print a final separating line to the console.
-            fprintf('%s\n', repmat('-', 1, strlength(header_line)));
+            
+            var_names = arrayfun(@(x) sprintf('Var%d', x), 1:num_log_cols, 'UniformOutput', false);
+            log_table = cell2table(export_cell_array, 'VariableNames', var_names);
+            
+            writetable(log_table, csv_filename_log, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         end
-        % Close the log file.
-        fclose(fid_log);
         % Notify the user that the log file has been saved successfully.
         fprintf(['\n' lang.output.files.log_file_saved '\n'], csv_filename_log);
 

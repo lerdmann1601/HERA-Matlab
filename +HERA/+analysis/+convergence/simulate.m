@@ -222,30 +222,27 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
                     sd = sim_data_batch{i};
-                    sd_bca = struct('all_data', {sd.all_data}, 'd_vals_all', sd.d_vals_all, 'rel_vals_all', sd.rel_vals_all, 'p_idx', sd.p_idx, 'ref_bca_width', sd.ref_bca_width, 'ref_seed', sd.ref_seed);
                     pp = map_params(params.bca{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 2, sd_bca, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        s_idx, m, 2, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
                 end
                 
                 % 2. Ranking (Method ID = 3) - Medium expense
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
                     sd = sim_data_batch{i};
-                    sd_rnk = struct('all_data', {sd.all_data}, 'ref_thr_struct', sd.ref_thr_struct, 'ds_names', {sd.ds_names}, 'base_rank', sd.base_rank, 'p_idx', sd.p_idx, 'ref_rnk_mean', sd.ref_rnk_mean, 'ref_seed', sd.ref_seed);
                     pp = map_params(params.rnk{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 3, sd_rnk, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        s_idx, m, 3, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
                 end
                 
                 % 3. Thresholds (Method ID = 1) - Least expensive
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
                     sd = sim_data_batch{i};
-                    sd_thr = struct('all_data', {sd.all_data}, 'ref_thr_d', sd.ref_thr_d, 'ref_seed', sd.ref_seed);
                     pp = map_params(params.thr{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 1, sd_thr, pp, sc.N, cfg_base, temp_dir, styles, lang); 
+                        s_idx, m, 1, sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
                 end
             end
             

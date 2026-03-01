@@ -305,7 +305,7 @@ else
                 %   - Preserves bit-perfect sequences via column-wise randi generation.
                 
                 % Dynamic batch sizing
-                bytes_per_sample = num_probanden * 8; % Double precision
+                bytes_per_sample = num_probanden * 4; % int32 precision
                 
                 % Use helper to determine batch size
                 [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, B_ci_current, bytes_per_sample);
@@ -326,7 +326,7 @@ else
                          current_n_loc = end_idx_loc - start_idx_loc + 1;
                     
                          % Generate bootstrap indices for this batch [N x Batch]
-                         boot_indices = randi(s_worker, num_probanden, [num_probanden, current_n_loc]);
+                         boot_indices = randi(s_worker, num_probanden, [num_probanden, current_n_loc], 'int32');
                          
                          % Direct indexing 
                          boot_x = data_x_orig(boot_indices);
@@ -612,7 +612,7 @@ for metric_idx = 1:num_metrics
     % --- Memory-aware batch sizing for bootstrap ---
     max_n_valid = max(pair_n_valid);
     if max_n_valid < 2, max_n_valid = 2; end
-    bytes_per_sample = max_n_valid * 8 * 2;  % x and y bootstrap samples
+    bytes_per_sample = max_n_valid * 4 * 2;  % x and y bootstrap samples (int32)
     
     % Use helper to determine batch size (Final Phase)
     [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, B_ci, bytes_per_sample);
@@ -659,7 +659,7 @@ for metric_idx = 1:num_metrics
             data_y = pair_data_y{k};
             
             % Generate bootstrap indices for this batch.
-            boot_indices = randi(s_worker, n_valid, [n_valid, batch_B]);
+            boot_indices = randi(s_worker, n_valid, [n_valid, batch_B], 'int32');
             boot_x = data_x(boot_indices);
             boot_y = data_y(boot_indices);
             

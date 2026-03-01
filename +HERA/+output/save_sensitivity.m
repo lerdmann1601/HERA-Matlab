@@ -83,46 +83,59 @@ function save_sensitivity(results, shared_info, metric_names)
         csv_filename_sensitivity = fullfile(csv_dir, [fName, '_', ts, fExt]);
         
         try
-            % Attempt to open CSV file for output
-            fid_sens = fopen(csv_filename_sensitivity, 'w');
-            if fid_sens == -1
-                error(lang.errors.file_open_error, csv_filename_sensitivity); 
-            end
-            
-            % Write header
-            fprintf(fid_sens, '%s\n', strjoin(header_list_csv, ';'));
+            % Pre-allocate arrays for table columns
+            borda_rank_col = zeros(num_datasets, 1);
+            borda_score_col = cell(num_datasets, 1);
+            dataset_col = cell(num_datasets, 1);
+            perm_cols = zeros(num_datasets, num_perms);
         
-            % Fill the tables (Console & CSV)
             [~, sort_idx_c] = sort(results.borda_results.rank); % Sort by consensus rank
             
             for r_idx = 1:num_datasets
                 d_idx = sort_idx_c(r_idx);
                 
-                % Prepare data for the current row (both for console and CSV)
-                table_data_row = cell(1, numel(header_parts_list));
-                table_data_row{1} = sprintf('%d', r_idx); % Borda Rank
-                table_data_row{2} = sprintf('%.1f%%', results.borda_results.score(d_idx)); % Borda Score
-                table_data_row{3} = dataset_names{d_idx}; % Dataset
+                % Prepare numeric and string data for table
+                borda_rank_col(r_idx) = r_idx;
+                borda_score_col{r_idx} = sprintf('%.1f%%', results.borda_results.score(d_idx));
+                dataset_col{r_idx} = dataset_names{d_idx};
                 
                 for p = 1:num_perms
-                    table_data_row{3 + p} = sprintf('%d', results.all_permutation_ranks(d_idx, p));
+                    perm_cols(r_idx, p) = results.all_permutation_ranks(d_idx, p);
                 end
                 
                 % Format and print the console row using the helper function
-                row_line_console = strjoin(arrayfun(@(c) format_text(table_data_row{c}, col_widths(c), alignments{c}), ...
+                console_row = cell(1, numel(header_parts_list));
+                console_row{1} = sprintf('%d', borda_rank_col(r_idx));
+                console_row{2} = borda_score_col{r_idx};
+                console_row{3} = dataset_col{r_idx};
+                for p = 1:num_perms
+                    console_row{3 + p} = sprintf('%d', perm_cols(r_idx, p));
+                end
+                
+                row_line_console = strjoin(arrayfun(@(c) format_text(console_row{c}, col_widths(c), alignments{c}), ...
                     1:numel(header_parts_list), 'UniformOutput', false), ' | ');
                 fprintf('%s\n', row_line_console);
-                
-                % Prepare and write the row to the CSV file
-                csv_row_cells = {table_data_row{1}, ... % Rank (number)
-                                 ['"' table_data_row{2} '"'], ... % Score (string)
-                                 ['"' table_data_row{3} '"']};   % Dataset (string)
-                csv_row_cells = [csv_row_cells, table_data_row(4:end)]; % Permutation ranks (numbers)
-                fprintf(fid_sens, '%s\n', strjoin(csv_row_cells, ';'));
             end
             
-            % Close the sensitivity file successfully
-            fclose(fid_sens);  
+            % Create the valid table
+            T = table(borda_rank_col, borda_score_col, dataset_col);
+            for p = 1:num_perms
+                var_name = sprintf('Perm_%d', p);
+                T.(var_name) = perm_cols(:, p);
+            end
+            
+            % Attempt to open CSV file for header output
+            fid_sens = fopen(csv_filename_sensitivity, 'w');
+            if fid_sens == -1
+                error(lang.errors.file_open_error, csv_filename_sensitivity); 
+            end
+            % Write explicit header
+            fprintf(fid_sens, '%s\n', strjoin(header_list_csv, ';'));
+            fclose(fid_sens);
+            
+            % Write accelerated data using writetable append
+            writetable(T, csv_filename_sensitivity, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+            
             fprintf(['\n' lang.output.files.sensitivity_results_saved '\n'], csv_filename_sensitivity);
     
         catch ME

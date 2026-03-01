@@ -274,7 +274,7 @@ else
             %   - Preserves bit-perfect sequences via column-wise randi generation.
 
             % Dynamic batch sizing
-            bytes_per_sample = n_vals * 8; % Double precision
+            bytes_per_sample = n_vals * 4; % int32 precision
             
             % Use helper to determine batch size
             [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, B_current, bytes_per_sample);
@@ -300,7 +300,7 @@ else
                 
                      
                      % Generate indices for this batch [N x Batch]
-                     boot_indices = randi(s_worker, n_vals, [n_vals, current_n_loc]);
+                     boot_indices = randi(s_worker, n_vals, [n_vals, current_n_loc], 'int32');
                      
                      % Calculate stats
                      bootstat(start_idx_loc:end_idx_loc) = median(vals(boot_indices), 1);
@@ -450,7 +450,7 @@ for metric_idx = 1:num_metrics
         n_data_d = numel(d_vals_metric_abs);
         
         % Calculate batch size based on memory.
-        bytes_per_sample = n_data_d * 8;
+        bytes_per_sample = n_data_d * 4;
         
         % Use helper to determine batch size (Final Phase)
         [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B, bytes_per_sample);
@@ -477,7 +477,7 @@ for metric_idx = 1:num_metrics
             current_n = end_idx - start_idx + 1;
             
             % Generate indices.
-            indices = randi(s_par, n_data_d, [n_data_d, current_n]);
+            indices = randi(s_par, n_data_d, [n_data_d, current_n], 'int32');
             
             % Compute bootstrap statistic.
             results_cell_d{b} = median(d_vals_metric_abs(indices), 1);
@@ -499,7 +499,7 @@ for metric_idx = 1:num_metrics
         n_data_rel = numel(rel_vals_metric);
         
         % Calculate batch size based on memory.
-        bytes_per_sample = n_data_rel * 8;
+        bytes_per_sample = n_data_rel * 4;
         
         % Use helper to determine batch size (Final Phase)
         [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B, bytes_per_sample);
@@ -519,7 +519,7 @@ for metric_idx = 1:num_metrics
             current_n = end_idx - start_idx + 1;
             
             % Generate indices.
-            indices = randi(s_par, n_data_rel, [n_data_rel, current_n]);
+            indices = randi(s_par, n_data_rel, [n_data_rel, current_n], 'int32');
             
             % Compute bootstrap statistic.
             results_cell_rel{b} = median(rel_vals_metric(indices), 1);

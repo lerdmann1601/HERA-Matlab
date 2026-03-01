@@ -195,7 +195,7 @@ else
                  
                  % Inner loop: Vectorized Bootstrap + Ranking (Chunked)
                  % Generate all bootstrap samples at once [N x B]
-                 boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, current_n_loc]);
+                 boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, current_n_loc], 'int32');
             
                  % Pre-allocate 3D arrays for effect sizes [Pairs x Metrics x B]
                  num_pairs = size(pair_idx_all, 1);
@@ -408,7 +408,7 @@ parfor b_idx = 1:num_batches
     current_batch_size = end_idx - start_idx + 1;
     
     % Generate bootstrap indices [N x BatchSize].
-    boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, current_batch_size]);
+    boot_indices_block = randi(s_worker, n_subj_b, [n_subj_b, current_batch_size], 'int32');
     
     % Calculate effect sizes for this batch.
     num_pairs = size(pair_idx_all, 1);
