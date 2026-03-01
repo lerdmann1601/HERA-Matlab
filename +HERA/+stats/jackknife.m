@@ -91,10 +91,14 @@ function [vals, a] = jackknife(x, y, metric_type, vec_limit)
             jy = y(idx);
             
             % Robust handling of NaNs (Pairwise Exclusion)
-            % We only use pairs where both x and y are valid numbers
-            valid = ~isnan(jx) & ~isnan(jy);
-            jx_valid = jx(valid); 
-            jy_valid = jy(valid);
+            if has_nans
+                valid = ~isnan(jx) & ~isnan(jy);
+                jx_valid = jx(valid); 
+                jy_valid = jy(valid);
+            else
+                jx_valid = jx;
+                jy_valid = jy;
+            end
             
             % Check if sufficient data remains
             if ~isempty(jx_valid)

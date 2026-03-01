@@ -195,6 +195,9 @@ else
             is_delta_pre = m_pre <= num_metrics;
             actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
             
+            % Check for NaNs once for this metric
+            has_nans_metric = any(isnan(p_all_data{actual_metric_pre}), 'all');
+            
             col_a = zeros(num_pairs, 1);
             
             for k_pre = 1:num_pairs
@@ -204,17 +207,27 @@ else
                 data_y = p_all_data{actual_metric_pre}(:, idx2);
                 
                 % Pairwise NaN exclusion.
-                valid = ~isnan(data_x) & ~isnan(data_y);
-                if sum(valid) < 3
+                if has_nans_metric
+                    valid = ~isnan(data_x) & ~isnan(data_y);
+                    data_x_clean = data_x(valid);
+                    data_y_clean = data_y(valid);
+                    n_valid = sum(valid);
+                else
+                    data_x_clean = data_x;
+                    data_y_clean = data_y;
+                    n_valid = num_probanden;
+                end
+                
+                if n_valid < 3
                     col_a(k_pre) = 0;
                     continue;
                 end
                 
                 % Pre-compute Jackknife + Acceleration.
                 if is_delta_pre
-                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
+                   [~, a_val] = HERA.stats.jackknife(data_x_clean, data_y_clean, 'delta', jack_vec_limit);
                 else
-                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+                   [~, a_val] = HERA.stats.jackknife(data_x_clean, data_y_clean, 'rel', jack_vec_limit);
                 end
                  col_a(k_pre) = a_val;
             end
@@ -227,6 +240,9 @@ else
             is_delta_pre = m_pre <= num_metrics;
             actual_metric_pre = mod(m_pre-1, num_metrics) + 1;
             
+            % Check for NaNs once for this metric
+            has_nans_metric = any(isnan(p_all_data{actual_metric_pre}), 'all');
+            
             for k_pre = 1:num_pairs
                 idx1 = p_pair_idx_all(k_pre, 1); 
                 idx2 = p_pair_idx_all(k_pre, 2);
@@ -234,17 +250,27 @@ else
                 data_y = p_all_data{actual_metric_pre}(:, idx2);
                 
                 % Pairwise NaN exclusion.
-                valid = ~isnan(data_x) & ~isnan(data_y);
-                if sum(valid) < 3
+                if has_nans_metric
+                    valid = ~isnan(data_x) & ~isnan(data_y);
+                    data_x_clean = data_x(valid);
+                    data_y_clean = data_y(valid);
+                    n_valid = sum(valid);
+                else
+                    data_x_clean = data_x;
+                    data_y_clean = data_y;
+                    n_valid = num_probanden;
+                end
+                
+                if n_valid < 3
                     precalc_a(k_pre, m_pre) = 0;
                     continue;
                 end
                 
                 % Pre-compute Jackknife + Acceleration (using updated API).
                 if is_delta_pre
-                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'delta', jack_vec_limit);
+                   [~, a_val] = HERA.stats.jackknife(data_x_clean, data_y_clean, 'delta', jack_vec_limit);
                 else
-                   [~, a_val] = HERA.stats.jackknife(data_x(valid), data_y(valid), 'rel', jack_vec_limit);
+                   [~, a_val] = HERA.stats.jackknife(data_x_clean, data_y_clean, 'rel', jack_vec_limit);
                 end
                 precalc_a(k_pre, m_pre) = a_val;
             end
@@ -539,6 +565,9 @@ end
 for metric_idx = 1:num_metrics
     fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
     
+    % Check for NaNs once for the entire metric (Once before pair loop)
+    has_nans_metric = any(isnan(p_all_data{metric_idx}), 'all');
+    
     % --- Pre-compute data and Jackknife for all pairs ---
     % Hybrid Parallelization Strategy:
     % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
@@ -569,10 +598,16 @@ for metric_idx = 1:num_metrics
             data_y_orig = sliced_all_data(:, j);
             
             % Pairwise NaN exclusion.
-            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-            pair_data_x{k} = data_x_orig(valid_mask);
-            pair_data_y{k} = data_y_orig(valid_mask);
-            pair_n_valid(k) = sum(valid_mask);
+            if has_nans_metric
+                valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                pair_data_x{k} = data_x_orig(valid_mask);
+                pair_data_y{k} = data_y_orig(valid_mask);
+                pair_n_valid(k) = sum(valid_mask);
+            else
+                pair_data_x{k} = data_x_orig;
+                pair_data_y{k} = data_y_orig;
+                pair_n_valid(k) = num_probanden;
+            end
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
@@ -593,10 +628,16 @@ for metric_idx = 1:num_metrics
             data_y_orig = sliced_all_data(:, j);
             
             % Pairwise NaN exclusion.
-            valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
-            pair_data_x{k} = data_x_orig(valid_mask);
-            pair_data_y{k} = data_y_orig(valid_mask);
-            pair_n_valid(k) = sum(valid_mask);
+            if has_nans_metric
+                valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                pair_data_x{k} = data_x_orig(valid_mask);
+                pair_data_y{k} = data_y_orig(valid_mask);
+                pair_n_valid(k) = sum(valid_mask);
+            else
+                pair_data_x{k} = data_x_orig;
+                pair_data_y{k} = data_y_orig;
+                pair_n_valid(k) = num_probanden;
+            end
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
