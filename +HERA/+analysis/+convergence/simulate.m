@@ -221,28 +221,31 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 % 1. BCa (Method ID = 2) - Most expensive
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
-                    sd = sim_data_batch{i};
-                    pp = map_params(params.bca{m});
+                    % Minimize IPC overhead: Strip unused variables prior to parfeval
+                    task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
+                     pp = map_params(params.bca{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 2, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        s_idx, m, 2, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
                 end
                 
                 % 2. Ranking (Method ID = 3) - Medium expense
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
-                    sd = sim_data_batch{i};
+                    % Minimize IPC overhead: Strip large matrices not needed for ranking
+                    task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
                     pp = map_params(params.rnk{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 3, sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        s_idx, m, 3, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
                 end
                 
                 % 3. Thresholds (Method ID = 1) - Least expensive
                 for i = 1:num_in_batch
                     s_idx = batch_sims(i);
-                    sd = sim_data_batch{i};
+                    % Minimize IPC overhead: Retain core data only for thresholds
+                    task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
                     pp = map_params(params.thr{m});
                     futures(end+1) = parfeval(@run_single_test, 6, ...
-                        s_idx, m, 1, sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
+                        s_idx, m, 1, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
                 end
             end
             
