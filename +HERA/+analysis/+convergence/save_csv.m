@@ -34,14 +34,17 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
             s_fid = fopen(scenarios_filename, 'w');
             if s_fid ~= -1
                 fprintf(s_fid, 'Index,Scenario_Name,N,Distribution,Data_Summary\n');
+                fclose(s_fid);
+                
+                s_T = cell(length(scenarios), 5);
                 for i = 1:length(scenarios)
                     sc = scenarios(i);
                     clean_name = strrep(sc.name, ',', ';');
                     clean_dist = strrep(sc.Dist, ',', ';');
                     clean_summary = strrep(sc.DataSummary, ',', ';');
-                    fprintf(s_fid, '%d,%s,%d,%s,%s\n', i, clean_name, sc.N, clean_dist, clean_summary);
+                    s_T(i, :) = {i, clean_name, sc.N, clean_dist, clean_summary};
                 end
-                fclose(s_fid);
+                writetable(cell2table(s_T), scenarios_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             end
             
             p_filename = fullfile(out_dir, sprintf('Method_Parameters_%s.csv', ts_str));
@@ -49,18 +52,25 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
             if p_fid ~= -1
                 mode_str = strjoin(modes, ',');
                 fprintf(p_fid, 'Metric,Parameter,%s\n', mode_str);
+                fclose(p_fid);
                 
                 param_metrics = {'Bootstrap Thresholds', 'BCa Confidence Intervals', 'Ranking Stability'};
                 param_structs = {params.thr, params.bca, params.rnk};
                 lbls = {'Trials (n)', 'Smoothing (sm)', 'Streak (st)', 'Tolerance (tol)', 'Step Size (B)', 'B Range'};
                 fields = {'n', 'sm', 'st', 'tol', 'step', 'range'};
                 
+                num_rows = length(param_metrics) * length(lbls);
+                num_cols = 2 + length(modes);
+                p_T = cell(num_rows, num_cols);
+                row_idx = 1;
+                
                 for m_idx = 1:length(param_metrics)
                     m_name = param_metrics{m_idx};
                     p_cell = param_structs{m_idx};
                     
                     for r = 1:length(lbls)
-                        fprintf(p_fid, '%s,%s', m_name, lbls{r});
+                        p_T{row_idx, 1} = m_name;
+                        p_T{row_idx, 2} = lbls{r};
                         for c = 1:length(p_cell)
                             val = p_cell{c};
                             if strcmp(fields{r}, 'range')
@@ -73,12 +83,12 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
                                      str = sprintf('%d', v);
                                 end
                             end
-                            fprintf(p_fid, ',%s', str);
+                            p_T{row_idx, 2+c} = str;
                         end
-                        fprintf(p_fid, '\n');
+                        row_idx = row_idx + 1;
                     end
                 end
-                fclose(p_fid);
+                writetable(cell2table(p_T), p_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             end
         catch ME_cfg
             warning('Could not write configuration CSVs: %s', ME_cfg.message);
@@ -116,6 +126,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
             % Header for Aggregated Data
             fprintf(global_fid, 'Scenario,Metric,Mode,Median_Error_Percent,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
         end
+        fclose(global_fid);
     else
         warning('Could not create/open Global Summary CSV: %s', global_filename);
     end
@@ -143,6 +154,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
 
             % Write Header for Detailed Scenario File (Raw Data)
             fprintf(fileID, 'SimID,Metric,Mode,Error,Cost,Fail\n');
+            fclose(fileID);
             
             % Iterate over each metric type
             for m_id = 1:length(metric_fields)
@@ -166,14 +178,15 @@ function save_results_csv(results, modes, out_dir, ts_str)
                     end
                     
                     % --- A. Write Raw Data to Scenario File ---
+                    t_T_raw = cell(n_sims, 6);
                     for sim_idx = 1:n_sims
                         val_err = err_mat(sim_idx, mode_idx);
                         val_cost = cost_mat(sim_idx, mode_idx);
                         val_fail = fail_mat(sim_idx, mode_idx);
                         
-                        fprintf(fileID, '%d,%s,%s,%.4f,%d,%d\n', ...
-                            sim_idx, m_name, mode_name, val_err, val_cost, val_fail);
+                        t_T_raw(sim_idx, :) = {sim_idx, m_name, mode_name, round(val_err, 4), val_cost, val_fail};
                     end
+                    writetable(cell2table(t_T_raw), filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
                     
                     % --- B. Calculate & Write Aggregated Stats to Global Summary ---
                     if global_fid ~= -1
@@ -216,23 +229,16 @@ function save_results_csv(results, modes, out_dir, ts_str)
                         
                         fail_rate = (sum(fail_mat(:, mode_idx)) / n_sims) * 100;
                         
-                        fprintf(global_fid, '%s,%s,%s,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n', ...
-                            safe_name, m_name, mode_name, median_err, iqr_err, err_q1, err_q3, ci_lower, ci_upper, median_cost, iqr_cost, cost_q1, cost_q3, cost_ci_lower, cost_ci_upper, fail_rate);
+                        row_data = {safe_name, m_name, mode_name, round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
+                            round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(median_cost, 1), round(iqr_cost, 1), ...
+                            round(cost_q1, 1), round(cost_q3, 1), round(cost_ci_lower, 1), round(cost_ci_upper, 1), round(fail_rate, 1)};
+                        writetable(cell2table(row_data), global_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
                     end
                 end
             end
-            
-            fclose(fileID);
-        end
-        
-        % Close Global CSV
-        if global_fid ~= -1
-            fclose(global_fid);
         end
         
     catch ME
-        if exist('fileID', 'var') && fileID ~= -1, fclose(fileID); end
-        if exist('global_fid', 'var') && global_fid ~= -1, fclose(global_fid); end
         fprintf('Error saving CSV results: %s\n', ME.message);
     end
 end

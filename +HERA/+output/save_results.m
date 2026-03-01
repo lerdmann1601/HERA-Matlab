@@ -106,16 +106,16 @@ function save_results(results, shared_info, metric_names)
 
         % Write header to CSV
         fprintf(fid_results, '%s\n', strjoin(header_parts, ';'));
-
-        % Write data rows to CSV
-        for r = 1:size(table_data, 1)
-            % Enclose each cell content in quotes for CSV compatibility
-            csv_row_cells = cellfun(@(c) ['"' c '"'], table_data(r,:), 'UniformOutput', false);
-            fprintf(fid_results, '%s\n', strjoin(csv_row_cells, ';'));
-        end
+        fclose(fid_results);
         
-        % Close the results file successfully
-        fclose(fid_results); 
+        % Write data rows to CSV using writetable
+        % table_data is already a cell array of strings. 
+        % We convert it to a table and append.
+        var_names = arrayfun(@(x) sprintf('Var%d', x), 1:numel(header_parts), 'UniformOutput', false);
+        T = cell2table(table_data, 'VariableNames', var_names);
+        
+        writetable(T, csv_filename_results, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+        
         fprintf(['\n' lang.output.files.final_results_saved '\n'], csv_filename_results);
 
     catch ME

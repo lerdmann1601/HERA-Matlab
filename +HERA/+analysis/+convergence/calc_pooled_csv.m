@@ -24,6 +24,7 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
     end
     
     fprintf(pooled_fid, 'Metric,Mode,Median_Error_Percent,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
+    fclose(pooled_fid);
     
     metric_names = {'Thresholds', 'BCa', 'Ranking'};
     metric_fields = {'thr', 'bca', 'rnk'};
@@ -104,10 +105,14 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
                 fail_rate = NaN;
             end
             
-            fprintf(pooled_fid, '%s,%s,%.4f,%.4f,%.4f,%.4f,%.4f,%.4f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f,%.1f\n', ...
-                m_name, mode_name, median_err, iqr_err, err_q1, err_q3, ci_lower, ci_upper, median_cost, iqr_cost, cost_q1, cost_q3, cost_ci_lower, cost_ci_upper, fail_rate);
+            % Form the single row as a cell array and append using writetable
+            row_data = {m_name, mode_name, round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
+                round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(median_cost, 1), ...
+                round(iqr_cost, 1), round(cost_q1, 1), round(cost_q3, 1), round(cost_ci_lower, 1), ...
+                round(cost_ci_upper, 1), round(fail_rate, 1)};
+            
+            T = cell2table(row_data);
+            writetable(T, pooled_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         end
     end
-    
-    fclose(pooled_fid);
 end

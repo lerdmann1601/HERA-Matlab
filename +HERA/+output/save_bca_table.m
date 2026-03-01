@@ -91,9 +91,16 @@ function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang
         header = {'Metric', lang.csv.headers.effect_size, lang.csv.headers.correction_factor, ...
                   lang.csv.headers.median, lang.csv.headers.mean, ...
                   lang.csv.headers.min, lang.csv.headers.max};
+        % Write the header and close file
         fprintf(fileID, '%s,%s,%s,%s,%s,%s,%s\n', header{:});
+        fclose(fileID);
         
-        % Loop over all metrics to write data
+        % Pre-allocate cell array for string formatting
+        num_rows = numel(metric_names) * 4;
+        export_cells = cell(num_rows, 7);
+        row_idx = 1;
+        
+        % Loop over all metrics to prepare data
         for metric_idx = 1:numel(metric_names)
             metric_name = metric_names{metric_idx};
             
@@ -103,19 +110,30 @@ function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang
             z0_r = z0_r_all(:, metric_idx);
             a_r  = a_r_all(:, metric_idx);
             
-            % Write rows to the CSV file with explicit sign formatting
-            fprintf(fileID, '%s,Cliff''s Delta,%s,%+.3f,%+.3f,%+.3f,%+.3f\n', ...
-                metric_name, lang.bca.correction_factors.bias, median(z0_d), mean(z0_d), min(z0_d), max(z0_d));
-            fprintf(fileID, '%s,Cliff''s Delta,%s,%+.3f,%+.3f,%+.3f,%+.3f\n', ...
-                metric_name, lang.bca.correction_factors.skew, median(a_d), mean(a_d), min(a_d), max(a_d));
-            fprintf(fileID, '%s,Relative Difference,%s,%+.3f,%+.3f,%+.3f,%+.3f\n', ...
-                metric_name, lang.bca.correction_factors.bias, median(z0_r), mean(z0_r), min(z0_r), max(z0_r));
-            fprintf(fileID, '%s,Relative Difference,%s,%+.3f,%+.3f,%+.3f,%+.3f\n', ...
-                metric_name, lang.bca.correction_factors.skew, median(a_r), mean(a_r), min(a_r), max(a_r));
+            % Save rows to cell array with explicit sign formatting
+            export_cells(row_idx, :) = {metric_name, 'Cliff''s Delta', lang.bca.correction_factors.bias, ...
+                sprintf('%+.3f', median(z0_d)), sprintf('%+.3f', mean(z0_d)), sprintf('%+.3f', min(z0_d)), sprintf('%+.3f', max(z0_d))};
+            row_idx = row_idx + 1;
+            
+            export_cells(row_idx, :) = {metric_name, 'Cliff''s Delta', lang.bca.correction_factors.skew, ...
+                sprintf('%+.3f', median(a_d)), sprintf('%+.3f', mean(a_d)), sprintf('%+.3f', min(a_d)), sprintf('%+.3f', max(a_d))};
+            row_idx = row_idx + 1;
+            
+            export_cells(row_idx, :) = {metric_name, 'Relative Difference', lang.bca.correction_factors.bias, ...
+                sprintf('%+.3f', median(z0_r)), sprintf('%+.3f', mean(z0_r)), sprintf('%+.3f', min(z0_r)), sprintf('%+.3f', max(z0_r))};
+            row_idx = row_idx + 1;
+            
+            export_cells(row_idx, :) = {metric_name, 'Relative Difference', lang.bca.correction_factors.skew, ...
+                sprintf('%+.3f', median(a_r)), sprintf('%+.3f', mean(a_r)), sprintf('%+.3f', min(a_r)), sprintf('%+.3f', max(a_r))};
+            row_idx = row_idx + 1;
         end
         
-        % Close the file successfully
-        fclose(fileID);
+        % Create table
+        T = cell2table(export_cells);
+        
+        % Write to CSV using writetable
+        writetable(T, csv_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+        
         fprintf([lang.bca.csv_saved '\n'], csv_filename);
 
     catch ME

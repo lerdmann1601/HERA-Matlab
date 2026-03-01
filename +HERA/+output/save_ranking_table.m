@@ -120,10 +120,27 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
         
         % Write the header using comma as delimiter (to match the data fprintf below)
         fprintf(fileID, '%s\n', strjoin(header, ','));
+        fclose(fileID);
         
         % Get the sorting order based on the final rank
         [~, sort_idx] = sort(final_rank);
 
+        % Calculate how many total rows we will have to pre-allocate
+        total_rows = 0;
+        for i_sorted = 1:num_datasets_b
+            i = sort_idx(i_sorted);
+            rank_data = final_bootstrap_ranks(i, :);
+            total_rows = total_rows + numel(unique(rank_data));
+        end
+        
+        % Pre-allocate arrays for table columns
+        rank_col = zeros(total_rows, 1);
+        dataset_col = cell(total_rows, 1);
+        bootstrap_rank_col = zeros(total_rows, 1);
+        freq_percent_col = zeros(total_rows, 1);
+        freq_count_col = zeros(total_rows, 1);
+        
+        row_idx = 1;
         % Loop over each dataset in the order of their final rank
         for i_sorted = 1:num_datasets_b
             i = sort_idx(i_sorted); % Get the original index
@@ -142,20 +159,23 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
             % Convert counts to percentages.
             percentages = (counts / selected_B_final) * 100;
             
-            % Write one row in the CSV for each observed rank.
+            % Store one row in the arrays for each observed rank.
             for j = 1:numel(unique_ranks)
-                rank_val = unique_ranks(j);
-                count_val = counts(j);
-                percent_val = percentages(j);
-                
-                % Write the data row.
-                fprintf(fileID, '%d,"%s",%d,%.2f,%d\n', ...
-                    current_final_rank, dataset_name, rank_val, percent_val, count_val);
+                rank_col(row_idx) = current_final_rank;
+                dataset_col{row_idx} = dataset_name;
+                bootstrap_rank_col(row_idx) = unique_ranks(j);
+                freq_percent_col(row_idx) = round(percentages(j), 2); % Match the %.2f formatting
+                freq_count_col(row_idx) = counts(j);
+                row_idx = row_idx + 1;
             end
         end
         
-        % Close the file.
-        fclose(fileID);
+        % Create table
+        T = table(rank_col, dataset_col, bootstrap_rank_col, freq_percent_col, freq_count_col);
+        
+        % Write to CSV using writetable
+        writetable(T, csv_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+        
         fprintf([lang.ranking.csv_saved '\n'], csv_filename);
         
     catch ME
