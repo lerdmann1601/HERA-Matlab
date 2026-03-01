@@ -119,8 +119,9 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
              target_mem = 200; % Fallback
              fprintf('Warning: RAM detection failed. Using fallback: %d MB.\n', target_mem);
         else
-             % Formula: 12.5 MB per GB (Conservative for parfeval overhead in this module)
-             target_mem = max(200, round(ram_gb * 12.5));
+             % Formula: 25 MB per GB 
+             % (Conservative for parfeval overhead in this module but should be safe since we don't store all data and no graphics are generated)
+             target_mem = max(200, round(ram_gb * 25));
              fprintf('System RAM: %.1f GB. Dynamic target_memory: %d MB.\n', ram_gb, target_mem);
         end
     catch
