@@ -134,6 +134,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
     end
     cfg_base.system.target_memory = target_mem;
     
+    cfg_base.simulation_seed = 123;
     if isfield(customConfig, 'simulation_seed') && isnumeric(customConfig.simulation_seed)
         cfg_base.simulation_seed = customConfig.simulation_seed;
     end
@@ -142,10 +143,12 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
         cfg_base.bootstrap_seed_offset = customConfig.bootstrap_seed_offset;
     end
     
+    cfg_base.scenario_seed_offset = 10000;
     if isfield(customConfig, 'scenario_seed_offset') && isnumeric(customConfig.scenario_seed_offset)
         cfg_base.scenario_seed_offset = customConfig.scenario_seed_offset;
     end
     
+    cfg_base.reference_seed_offset = 5000;
     if isfield(customConfig, 'reference_seed_offset') && isnumeric(customConfig.reference_seed_offset)
         cfg_base.reference_seed_offset = customConfig.reference_seed_offset;
     end

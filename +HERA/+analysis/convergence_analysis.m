@@ -173,7 +173,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     end
     if isfield(cfg_base, 'simulation_seed'), sseed = cfg_base.simulation_seed; else, sseed = 123; end
     if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = 10000; end
-    if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 1; end
+    if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 5000; end
     fprintf(' Simulation Base Seed:  %d\n', sseed);
     fprintf(' Bootstrap Offset:      %d\n', cfg_base.bootstrap_seed_offset);
     fprintf(' Scenario Offset:       %d\n', sce_o);
@@ -212,7 +212,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         if isfield(cfg_base, 'reference_seed_offset')
             cfg_out.reference_seed_offset = cfg_base.reference_seed_offset;
         else
-            cfg_out.reference_seed_offset = 1;
+            cfg_out.reference_seed_offset = 5000;
         end
         
         if exist('customConfig', 'var') && isstruct(customConfig)
