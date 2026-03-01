@@ -1,10 +1,10 @@
 function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices)
+            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices, is_clean)
 % CALCULATE_RANKING - Calculates the ranking of datasets based on a hierarchical metric system.
 %
 % Syntax:
 %   [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices)
+%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices, [is_clean])
 %
 % Description:
 %   This function implements a multi-stage ranking algorithm to determine the order of datasets.
@@ -37,6 +37,7 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 %   dataset_names        - Cell array with the names of the datasets.
 %   pair_idx_all         - Indices of all pairwise comparisons.
 %   subset_indices       - (Optional) Vector of row indices to use from all_data (virtual view).
+%   is_clean             - (Optional) Boolean flag. If true, bypasses NaN checks for performance.
 %
 % Outputs:
 %   final_order          - Vector with the final order of dataset indices.
@@ -58,6 +59,7 @@ arguments
     dataset_names (1,:) cell
     pair_idx_all
     subset_indices = []
+    is_clean (1,1) logical = false
 end
 
 % Initialization of basic parameters.
@@ -100,13 +102,19 @@ for metric_idx = 1:num_metrics
             col_j = data(subset_indices, j);
         end
         
-        % Find valid rows for this pair only (pairwise exclusion)
-        valid_rows = ~isnan(col_i) & ~isnan(col_j);
-        % Performs the test for paired samples if enough valid pairs are present.
-        if sum(valid_rows) >= 2 % signrank needs at least 2 valid pairs
-            p = signrank(col_i(valid_rows), col_j(valid_rows));
+        % --- Robust Handling of Missing Data (NaN) ---
+        if is_clean
+            % FAST PATH: No NaNs present (Guaranteed by caller).
+            p = signrank(col_i, col_j);
         else
-            p = NaN; % Indicates that the test could not be performed
+            % ROBUST PATH: Perform pairwise NaN exclusion.
+            valid_rows = ~isnan(col_i) & ~isnan(col_j);
+            % Performs the test for paired samples if enough valid pairs are present.
+            if sum(valid_rows) >= 2 % signrank needs at least 2 valid pairs
+                p = signrank(col_i(valid_rows), col_j(valid_rows));
+            else
+                p = NaN; % Indicates that the test could not be performed
+            end
         end
         p_values(k) = p;
         if nargout >= 6

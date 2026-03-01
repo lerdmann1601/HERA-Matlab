@@ -259,7 +259,7 @@ else
                                          'rel_vals_all', rel_vals_3d(:, :, bb_b));
                                      
                      [~, bootstrap_rank] = HERA.calculate_ranking(...
-                         all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb_b));
+                         all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, bb_b), ~has_nans_all);
                      
                      % Flatten index for result storage
                      global_b_idx = start_idx_loc + bb_b - 1;
@@ -474,7 +474,7 @@ parfor b_idx = 1:num_batches
                            'rel_vals_all', rel_vals_3d(:, :, k));
                        
         [~, rnk] = HERA.calculate_ranking(...
-             all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, k));
+             all_data, es_struct, thresholds, config, dataset_names, pair_idx_all, boot_indices_block(:, k), ~has_nans_all);
         batch_ranks(:, k) = rnk;
     end
     
