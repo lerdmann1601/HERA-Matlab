@@ -172,12 +172,24 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf(' Memory Limit:          %d MB\n', cfg_base.system.target_memory);
     end
     if isfield(cfg_base, 'simulation_seed'), sseed = cfg_base.simulation_seed; else, sseed = 123; end
-    if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = 10000; end
+    if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = max(10000, n_sims_per_cond * 3); end
     if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 5000; end
     fprintf(' Simulation Base Seed:  %d\n', sseed);
     fprintf(' Bootstrap Offset:      %d\n', cfg_base.bootstrap_seed_offset);
     fprintf(' Scenario Offset:       %d\n', sce_o);
     fprintf(' Reference Offset:      %d\n', ref_o);
+    fprintf('----------------------------------------------------------\n');
+    fprintf(' Reference Settings:\n');
+    
+    if isstruct(refs.thr), r_t = sprintf('%d (Dyn)', refs.thr.end); else, r_t = sprintf('%d', refs.thr); end
+    if isstruct(refs.bca), r_b = sprintf('%d (Dyn)', refs.bca.end); else, r_b = sprintf('%d', refs.bca); end
+    if isstruct(refs.rnk), r_r = sprintf('%d (Dyn)', refs.rnk.end); else, r_r = sprintf('%d', refs.rnk); end
+    
+    fprintf('  Thresholds: %s\n', r_t);
+    fprintf('  BCa CI:     %s\n', r_b);
+    fprintf('  Ranking:    %s\n', r_r);
+    fprintf('----------------------------------------------------------\n');
+    fprintf(' Method Params (CSV):   %s\n', fullfile(dir_csv, ['Method_Parameters_', char(ts_str), '.csv']));
     fprintf('==========================================================\n\n');
     
     % Overview Plot (Created BEFORE simulation to free RAM for batch processing)
@@ -206,7 +218,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         if isfield(cfg_base, 'scenario_seed_offset')
             cfg_out.scenario_seed_offset = cfg_base.scenario_seed_offset;
         else
-            cfg_out.scenario_seed_offset = 10000;
+            cfg_out.scenario_seed_offset = max(10000, n_sims_per_cond * 3);
         end
         
         if isfield(cfg_base, 'reference_seed_offset')
@@ -214,6 +226,8 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         else
             cfg_out.reference_seed_offset = 5000;
         end
+        
+        cfg_out.refs = refs;
         
         if exist('customConfig', 'var') && isstruct(customConfig)
             % Ensure we don't duplicate existing top-level fields
@@ -293,9 +307,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('\nTotal Study Duration: %s\n', time_str);
         
         % Optional: Clean up parallel pool to free memory
-        pool = gcp('nocreate');
-        if ~isempty(pool)
-            fprintf('Parallel pool active (%d workers). Run \"delete(gcp)\" to free memory.\n', pool.NumWorkers);
+        POOL = gcp('nocreate');
+        if ~isempty(POOL)
+            fprintf('Parallel pool active (%d workers). Run \"delete(gcp)\" to free memory.\n', POOL.NumWorkers);
         end
         
         % --- Final Summary of Saved Files ---

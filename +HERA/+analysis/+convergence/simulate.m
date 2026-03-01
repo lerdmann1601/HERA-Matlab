@@ -69,7 +69,8 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         base_seed = cfg_base.simulation_seed;
     end
     
-    scenario_seed_offset = 10000;
+    % Offset scenario seeds dynamically to prevent overlaps during extensive runs
+    scenario_seed_offset = max(10000, n_sims_per_cond * 3);
     if isfield(cfg_base, 'scenario_seed_offset') && isnumeric(cfg_base.scenario_seed_offset)
         scenario_seed_offset = cfg_base.scenario_seed_offset;
     end
@@ -169,20 +170,38 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 
                 % Ref: Threshold
                 refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
+                if isstruct(refs.thr)
+                    c_ref_thr = cfg_base; c_ref_thr.bootstrap_thresholds = map_params(refs.thr);
+                    man_thr = [];
+                else
+                    c_ref_thr = cfg_base; man_thr = refs.thr;
+                end
                 [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all] = ...
-                    quiet_thresholds(all_data, sc.N, cfg_base, worker_temp_dir, refs.thr, refStream, styles, lang);
+                    quiet_thresholds(all_data, sc.N, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
                 ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
                 
                 % Ref: BCa
                 refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
+                if isstruct(refs.bca)
+                    c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
+                    man_bca = [];
+                else
+                    c_ref_bca = cfg_base; man_bca = refs.bca;
+                end
                 [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.N, ...
-                    cfg_base, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, refs.bca, refStream, styles, lang, 'Ref');
+                    c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
                 
                 % Ref: Ranking
                 [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
                 refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
-                [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, cfg_base, ds_names, base_rank, p_idx_sim, sc.N, ...
-                    worker_temp_dir, worker_temp_dir, refs.rnk, refStream, styles, lang, 'Ref');
+                if isstruct(refs.rnk)
+                    c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
+                    man_rnk = [];
+                else
+                    c_ref_rnk = cfg_base; man_rnk = refs.rnk;
+                end
+                [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.N, ...
+                    worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
                 
                 % Store Package (Data transfer back to client)
                 sim_data_batch{i} = struct(...
@@ -190,21 +209,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     'p_idx', p_idx_sim, 'ds_names', {ds_names}, 'base_rank', base_rank, ...
                     'ref_thr_struct', ref_thr_struct, 'ref_thr_d', ref_d_t(1), ...
                     'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
-                    'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed);
+                    'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed);
                     
                 % NOTE: We no longer perform rmdir inside the loop.
                 % The folder is safely overwritten/reused by the same worker and cleaned up at the end of the batch.
             end
             
-            % Cleanup all worker temp directories for this batch
-            if exist(temp_dir, 'dir')
-                worker_dirs = dir(fullfile(temp_dir, 'worker_*'));
-                for w_idx = 1:length(worker_dirs)
-                    if worker_dirs(w_idx).isdir
-                        rmdir(fullfile(temp_dir, worker_dirs(w_idx).name), 's');
-                    end
-                end
-            end
+            % Eliminate redundant rmdir calls to maintain filesystem performance
+            % (cleanup relies on overwriting and final batch complete instead)
             fprintf('Done (%.2fs).\n', toc(t_batch));
             
             % 2. Parallel Processing (Worker Balancing)
@@ -339,7 +351,17 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
     % Runs a single convergence test and returns ID + Results
     % method_id: 1=Thr, 2=BCa, 3=Rnk
     
-    stream = RandStream('mlfg6331_64', 'Seed', sd.ref_seed);
+    % Generate independent streams for the simulations to avoid correlating
+    % their internal paths directly with the reference computations.
+    worker_sim_seed = sd.sim_seed + method_id * 100000;
+    stream = RandStream('mlfg6331_64', 'Seed', worker_sim_seed);
+    
+    % Create isolated temporary directories for file I/O safety across parallel workers
+    t_obj = getCurrentTask();
+    worker_id = 0; if ~isempty(t_obj), worker_id = t_obj.ID; end
+    worker_tmp = fullfile(tmp, sprintf('worker_%d', worker_id));
+    if ~exist(worker_tmp, 'dir'), mkdir(worker_tmp); end
+
     res_val = 0; res_cost = 0; res_fail = false;
     
     try
@@ -347,9 +369,10 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             % Thresholds
             c = cfg; c.bootstrap_thresholds = param;
             [d_t, ~, ~, ~, ~, ~, ~, conv_B, stab_data] = ...
-                quiet_thresholds(sd.all_data, N, c, tmp, [], stream, styles, lang);
+                quiet_thresholds(sd.all_data, N, c, worker_tmp, [], stream, styles, lang);
             
-            res_val = (d_t(1) - sd.ref_thr_d) / sd.ref_thr_d * 100;
+            % Calculate percentage difference with a safeguard against division by zero
+            res_val = (d_t(1) - sd.ref_thr_d) / max(abs(sd.ref_thr_d), 1e-6) * 100;
             res_cost = conv_B;
             res_fail = ~stab_data.converged;
             
@@ -358,10 +381,10 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             c = cfg; c.bootstrap_ci = param;
             [conv_B, ci_d, ~, ~, ~, ~, ~, stab_data] = ...
                 quiet_bca_ci(sd.all_data, sd.d_vals_all, sd.rel_vals_all, sd.p_idx, N, ...
-                c, c.metric_names, tmp, tmp, [], stream, styles, lang, 'Sim');
+                c, c.metric_names, worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
             width = ci_d(1, 2) - ci_d(1, 1);
-            res_val = (width - sd.ref_bca_width) / sd.ref_bca_width * 100;
+            res_val = (width - sd.ref_bca_width) / max(abs(sd.ref_bca_width), 1e-6) * 100;
             res_cost = conv_B;
             res_fail = ~stab_data.converged;
             
@@ -370,10 +393,10 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             c = cfg; c.bootstrap_ranks = param;
             [boot_r, conv_B, stab_data] = ...
                 quiet_bootstrap_ranking(sd.all_data, sd.ref_thr_struct, c, sd.ds_names, sd.base_rank, sd.p_idx, N, ...
-                tmp, tmp, [], stream, styles, lang, 'Sim');
+                worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
             mean_r = mean(boot_r(2, :));
-            res_val = (mean_r - sd.ref_rnk_mean) / sd.ref_rnk_mean * 100;
+            res_val = (mean_r - sd.ref_rnk_mean) / max(abs(sd.ref_rnk_mean), 1e-6) * 100;
             res_cost = conv_B;
             res_fail = ~stab_data.converged;
         end

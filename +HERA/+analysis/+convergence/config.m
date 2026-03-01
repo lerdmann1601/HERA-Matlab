@@ -69,14 +69,14 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
     p_bca{3} = struct('n', 40, 'sm', 4, 'st', 4, 'tol', 0.03, 'start', 100, 'step', 200, 'end', 20000); 
     
     % Ranking Stability
-    p_rank{1} = struct('n', 10, 'sm', 2, 'st', 2, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2000); 
-    p_rank{2} = struct('n', 15, 'sm', 3, 'st', 3, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2000);
-    p_rank{3} = struct('n', 20, 'sm', 4, 'st', 4, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2000); 
+    p_rank{1} = struct('n', 10, 'sm', 2, 'st', 2, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2500); 
+    p_rank{2} = struct('n', 15, 'sm', 3, 'st', 3, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2500);
+    p_rank{3} = struct('n', 20, 'sm', 4, 'st', 4, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2500); 
     
     params.thr = p_thr; params.bca = p_bca; params.rnk = p_rank;
 
     % Reference settings (High B values for "Truth")
-    ref_B_thr = 15000; ref_B_bca = 30000; ref_B_rnk = 5000;
+    ref_B_thr = 25000; ref_B_bca = 50000; ref_B_rnk = 10000;
     
     % Override Reference settings
     if isfield(customConfig, 'refs') && isstruct(customConfig.refs)

@@ -63,9 +63,9 @@ In our analysis, we observed that:
 Beyond simply checking for convergence, we also validated the **accuracy** of the results.
 
 * We compared the outcomes of the Robust Mode against "Gold Standard" reference values generated with very high bootstrap iteration counts:
-  * **Thresholds**: $B_{ref} = 15{,}000$
-  * **BCa Confidence Intervals**: $B_{ref} = 30{,}000$
-  * **Ranking Stability**: $B_{ref} = 5{,}000$
+  * **Thresholds**: $B_{ref} = 25{,}000$
+  * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
+  * **Ranking Stability**: $B_{ref} = 10{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
 * The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. Median absolute errors were typically well below 5% relative to the reference values. This also validates the averaged convergence approach: despite determining convergence from a combined stability indicator, the individual accuracy of Cliff's Delta remained excellent.
 
@@ -195,6 +195,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
   * **Default Calculation:** Because the convergence analysis uses `parfeval` for nested parallel execution (which carries slightly higher memory overhead), it applies a more conservative baseline than regular HERA runs. If omitted, it detects the system's total physical RAM and sets a base target of **25 MB per 1 GB of RAM** (e.g., 400 MB for a 16 GB system), with an unshakeable minimum of 200 MB. This base value is then divided by the number of CPU cores to determine the final effective memory limit per batch on each worker.
 * `simulation_seed`: Seeds the main study. Can be locked for strict reproduction (fallback: 123).
 * `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
-* `scenario_seed_offset`: Ensures different tested scenarios (like Normal vs LogNormal) don't overlap in their RNG seeds (fallback: 10000).
+* `scenario_seed_offset`: Ensures different tested scenarios (like Normal vs LogNormal) don't overlap in their RNG seeds.
+  * **How it works:** To maintain unique random sequences per scenario, HERA defaults this offset to `max(10000, n_sims_per_cond * 3)`. This ensures that even with a high number of simulations per condition (`n_sims_per_cond`), the seed space for each scenario remains completely isolated. If you provide a custom offset, ensure it is sufficiently large to accommodate your `n_sims_per_cond`.
 * `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 5000).
 * `modes`: You can specify missing details (`Relaxed`, `Default`, `Strict`) specifically for each of the three algorithms (`thr` for Thresholds, `bca` for BCa CI, `rnk` for Ranking), down to single parameters (`start`, `step`, `end`, `sm`, `st`, `tol`). Missing properties will automatically fall back to the package defaults. 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)

@@ -124,8 +124,10 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         t = tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'normal');
         
         clean_suffix = strrep(suffix_name, '_', ' ');
+        if isstruct(ref_B), rb_str = sprintf('%d (Dyn)', ref_B.end); else, rb_str = sprintf('%d', ref_B); end
+        
         if contains(suffix_name, 'Global_Summary')
-            title_str = sprintf('%s Analysis: %s (Ref B = %d)', name, clean_suffix, ref_B);
+            title_str = sprintf('%s Analysis: %s (Ref B = %s)', name, clean_suffix, rb_str);
         else
             title_str = sprintf('%s Analysis: %s', name, clean_suffix);
         end
@@ -277,7 +279,10 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     y_curr = 0.75;
     text(0.5, y_curr, 'Configuration: Method Parameters', 'HorizontalAlignment', 'center', 'FontSize', 18, 'FontWeight', 'bold', 'FontName', common_font, 'Color', 'k');
     y_curr = y_curr - 0.04; 
-    ref_str = sprintf('References (B):   Thresholds = %d   |   BCa = %d   |   Ranking = %d', refs.thr, refs.bca, refs.rnk);
+    if isstruct(refs.thr), r_t = sprintf('%d (Dyn)', refs.thr.end); else, r_t = sprintf('%d', refs.thr); end
+    if isstruct(refs.bca), r_b = sprintf('%d (Dyn)', refs.bca.end); else, r_b = sprintf('%d', refs.bca); end
+    if isstruct(refs.rnk), r_r = sprintf('%d (Dyn)', refs.rnk.end); else, r_r = sprintf('%d', refs.rnk); end
+    ref_str = sprintf('References (B):   Thresholds = %s   |   BCa = %s   |   Ranking = %s', r_t, r_b, r_r);
     text(0.5, y_curr, ref_str, 'HorizontalAlignment', 'center', 'FontSize', 11, 'FontWeight', 'bold', 'Color', 'k', 'FontName', common_font);
     
     % Dynamic Width Calculation for Methods Table
