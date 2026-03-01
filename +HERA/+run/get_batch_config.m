@@ -97,8 +97,8 @@ function [batch_size, num_batches] = get_batch_config(config, num_iterations, by
         % Calculate max items that fit in effective_memory
         max_items_fitting = floor((double(effective_memory) * 1024^2) / double(bytes_per_iteration));
         
-        % Constrain between min_batch_size and hard cap (e.g., 20,000 to prevent timeout/overhead issues)
-        hard_cap = 20000; 
+        % Constrain between min_batch_size and hard cap (e.g., 50,000 to prevent timeout/overhead issues)
+        hard_cap = 50000; 
         
         batch_size = max(min_batch_size, min(max_items_fitting, hard_cap));
     end
