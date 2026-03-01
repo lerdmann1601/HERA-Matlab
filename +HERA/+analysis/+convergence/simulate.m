@@ -74,7 +74,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         scenario_seed_offset = cfg_base.scenario_seed_offset;
     end
     
-    reference_seed_offset = 1; % Backward compatibility
+    reference_seed_offset = 5000;
     if isfield(cfg_base, 'reference_seed_offset') && isnumeric(cfg_base.reference_seed_offset)
         reference_seed_offset = cfg_base.reference_seed_offset;
     end
@@ -151,7 +151,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 
                 % Bit-Perfect Seeding Constraint
                 % Gap between sims: scenario_seed_offset (e.g., 10000)
-                % Gap to ref: reference_seed_offset (Legacy: 1, Future: 5000)
+                % Gap to ref: reference_seed_offset (e.g., 5000)
                 sim_seed = base_seed + (sc_idx-1)*scenario_seed_offset + s_idx;
                 ref_seed = sim_seed + reference_seed_offset;
                 

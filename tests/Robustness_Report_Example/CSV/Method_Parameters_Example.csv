@@ -1,0 +1,19 @@
+Metric,Parameter,Relaxed,Default,Strict
+Bootstrap Thresholds,Trials (n),15,25,35
+Bootstrap Thresholds,Smoothing (sm),2,3,4
+Bootstrap Thresholds,Streak (st),2,3,4
+Bootstrap Thresholds,Tolerance (tol),0.010,0.010,0.010
+Bootstrap Thresholds,Step Size (B),100,100,100
+Bootstrap Thresholds,B Range,[100-10000],[100-10000],[100-10000]
+BCa Confidence Intervals,Trials (n),20,30,40
+BCa Confidence Intervals,Smoothing (sm),2,3,4
+BCa Confidence Intervals,Streak (st),2,3,4
+BCa Confidence Intervals,Tolerance (tol),0.030,0.030,0.030
+BCa Confidence Intervals,Step Size (B),200,200,200
+BCa Confidence Intervals,B Range,[100-20000],[100-20000],[100-20000]
+Ranking Stability,Trials (n),10,15,20
+Ranking Stability,Smoothing (sm),2,3,4
+Ranking Stability,Streak (st),2,3,4
+Ranking Stability,Tolerance (tol),0.005,0.005,0.005
+Ranking Stability,Step Size (B),25,25,25
+Ranking Stability,B Range,[50-2000],[50-2000],[50-2000]

@@ -1,0 +1,158 @@
+
+==========================================================
+   Scientific Bootstrap Robustness Study (Sims/Cond=50)
+==========================================================
+ Detected RAM:          16.0 GB
+ Memory Limit:          400 MB
+ Simulation Base Seed:  123
+ Bootstrap Offset:      1000
+ Scenario Offset:       10000
+ Reference Offset:      1
+==========================================================
+
+Starting new parallel pool...
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 8 workers.
+
+
+--- Scenario 1/7: N = 25 (Normal) ---
+  [Config: sims_per_batch=8 for N=25]
+  Batch 1-8: Preparing Data... Done (6.89s).
+    Batch finished in 383.9s (47.99s/sim) [Progress: 2%]
+  Batch 9-16: Preparing Data... Done (3.42s).
+    Batch finished in 706.4s (88.30s/sim) [Progress: 5%]
+  Batch 17-24: Preparing Data... Done (3.35s).
+    Batch finished in 596.9s (74.62s/sim) [Progress: 7%]
+  Batch 25-32: Preparing Data... Done (3.31s).
+    Batch finished in 747.7s (93.46s/sim) [Progress: 9%]
+  Batch 33-40: Preparing Data... Done (3.30s).
+    Batch finished in 385.3s (48.16s/sim) [Progress: 11%]
+  Batch 41-48: Preparing Data... Done (3.23s).
+    Batch finished in 399.2s (49.90s/sim) [Progress: 14%]
+  Batch 49-50: Preparing Data... Done (3.11s).
+    Batch finished in 72.6s (36.30s/sim) [Progress: 14%]
+  Scenario completed in 3292.0s (65.8s/sim)
+
+--- Scenario 2/7: N = 50 (Normal) ---
+  [Config: sims_per_batch=8 for N=50]
+  Batch 1-8: Preparing Data... Done (6.03s).
+    Batch finished in 765.0s (95.63s/sim) [Progress: 17%]
+  Batch 9-16: Preparing Data... Done (5.75s).
+    Batch finished in 559.3s (69.91s/sim) [Progress: 19%]
+  Batch 17-24: Preparing Data... Done (6.04s).
+    Batch finished in 544.2s (68.02s/sim) [Progress: 21%]
+  Batch 25-32: Preparing Data... Done (5.84s).
+    Batch finished in 629.6s (78.70s/sim) [Progress: 23%]
+  Batch 33-40: Preparing Data... Done (5.82s).
+    Batch finished in 665.9s (83.24s/sim) [Progress: 26%]
+  Batch 41-48: Preparing Data... Done (5.76s).
+    Batch finished in 1114.6s (139.33s/sim) [Progress: 28%]
+  Batch 49-50: Preparing Data... Done (5.30s).
+    Batch finished in 295.8s (147.89s/sim) [Progress: 29%]
+  Scenario completed in 4574.4s (91.5s/sim)
+
+--- Scenario 3/7: N = 100 (Normal) ---
+  [Config: sims_per_batch=8 for N=100]
+  Batch 1-8: Preparing Data... Done (22.34s).
+    Batch finished in 2862.6s (357.83s/sim) [Progress: 31%]
+  Batch 9-16: Preparing Data... Done (22.97s).
+    Batch finished in 1895.4s (236.92s/sim) [Progress: 33%]
+  Batch 17-24: Preparing Data... Done (17.19s).
+    Batch finished in 1964.9s (245.61s/sim) [Progress: 35%]
+  Batch 25-32: Preparing Data... Done (24.26s).
+    Batch finished in 1789.1s (223.64s/sim) [Progress: 38%]
+  Batch 33-40: Preparing Data... Done (19.79s).
+    Batch finished in 1766.5s (220.81s/sim) [Progress: 40%]
+  Batch 41-48: Preparing Data... Done (19.88s).
+    Batch finished in 2105.7s (263.22s/sim) [Progress: 42%]
+  Batch 49-50: Preparing Data... Done (14.37s).
+    Batch finished in 1440.8s (720.38s/sim) [Progress: 43%]
+  Scenario completed in 13824.9s (276.5s/sim)
+
+--- Scenario 4/7: N = 50 (Skewed) ---
+  [Config: sims_per_batch=8 for N=50]
+  Batch 1-8: Preparing Data... Done (5.99s).
+    Batch finished in 615.6s (76.95s/sim) [Progress: 45%]
+  Batch 9-16: Preparing Data... Done (5.67s).
+    Batch finished in 606.0s (75.75s/sim) [Progress: 47%]
+  Batch 17-24: Preparing Data... Done (5.81s).
+    Batch finished in 822.1s (102.77s/sim) [Progress: 50%]
+  Batch 25-32: Preparing Data... Done (5.61s).
+    Batch finished in 827.2s (103.40s/sim) [Progress: 52%]
+  Batch 33-40: Preparing Data... Done (5.72s).
+    Batch finished in 617.4s (77.17s/sim) [Progress: 54%]
+  Batch 41-48: Preparing Data... Done (5.91s).
+    Batch finished in 1173.0s (146.62s/sim) [Progress: 57%]
+  Batch 49-50: Preparing Data... Done (5.32s).
+    Batch finished in 514.2s (257.12s/sim) [Progress: 57%]
+  Scenario completed in 5175.5s (103.5s/sim)
+
+--- Scenario 5/7: N = 50 (Likert) ---
+  [Config: sims_per_batch=8 for N=50]
+  Batch 1-8: Preparing Data... Done (5.62s).
+    Batch finished in 529.7s (66.21s/sim) [Progress: 59%]
+  Batch 9-16: Preparing Data... Done (5.60s).
+    Batch finished in 1000.8s (125.10s/sim) [Progress: 62%]
+  Batch 17-24: Preparing Data... Done (5.34s).
+    Batch finished in 509.2s (63.66s/sim) [Progress: 64%]
+  Batch 25-32: Preparing Data... Done (5.45s).
+    Batch finished in 1058.7s (132.33s/sim) [Progress: 66%]
+  Batch 33-40: Preparing Data... Done (5.45s).
+    Batch finished in 644.6s (80.57s/sim) [Progress: 69%]
+  Batch 41-48: Preparing Data... Done (5.68s).
+    Batch finished in 1052.6s (131.57s/sim) [Progress: 71%]
+  Batch 49-50: Preparing Data... Done (5.32s).
+    Batch finished in 207.4s (103.70s/sim) [Progress: 71%]
+  Scenario completed in 5002.9s (100.1s/sim)
+
+--- Scenario 6/7: N = 50 (Bimodal) ---
+  [Config: sims_per_batch=8 for N=50]
+  Batch 1-8: Preparing Data... Done (6.50s).
+    Batch finished in 512.0s (64.00s/sim) [Progress: 74%]
+  Batch 9-16: Preparing Data... Done (6.39s).
+    Batch finished in 1081.2s (135.14s/sim) [Progress: 76%]
+  Batch 17-24: Preparing Data... Done (7.14s).
+    Batch finished in 1037.1s (129.64s/sim) [Progress: 78%]
+  Batch 25-32: Preparing Data... Done (5.84s).
+    Batch finished in 963.8s (120.48s/sim) [Progress: 81%]
+  Batch 33-40: Preparing Data... Done (5.98s).
+    Batch finished in 494.1s (61.77s/sim) [Progress: 83%]
+  Batch 41-48: Preparing Data... Done (6.07s).
+    Batch finished in 813.7s (101.72s/sim) [Progress: 85%]
+  Batch 49-50: Preparing Data... Done (5.44s).
+    Batch finished in 297.3s (148.67s/sim) [Progress: 86%]
+  Scenario completed in 5199.2s (104.0s/sim)
+
+--- Scenario 7/7: N = 50 (Large Effect) ---
+  [Config: sims_per_batch=8 for N=50]
+  Batch 1-8: Preparing Data... Done (6.17s).
+    Batch finished in 533.6s (66.70s/sim) [Progress: 88%]
+  Batch 9-16: Preparing Data... Done (6.27s).
+    Batch finished in 538.1s (67.26s/sim) [Progress: 90%]
+  Batch 17-24: Preparing Data... Done (6.83s).
+    Batch finished in 502.6s (62.83s/sim) [Progress: 93%]
+  Batch 25-32: Preparing Data... Done (6.30s).
+    Batch finished in 649.5s (81.19s/sim) [Progress: 95%]
+  Batch 33-40: Preparing Data... Done (6.22s).
+    Batch finished in 535.8s (66.98s/sim) [Progress: 97%]
+  Batch 41-48: Preparing Data... Done (5.98s).
+    Batch finished in 538.7s (67.33s/sim) [Progress: 99%]
+  Batch 49-50: Preparing Data... Done (5.37s).
+    Batch finished in 172.6s (86.29s/sim) [Progress: 100%]
+  Scenario completed in 3470.8s (69.4s/sim)
+All simulations completed. Generating global summary...
+
+Total Study Duration: 11 hours, 23 minutes, 15 seconds
+Parallel pool active (8 workers). Run "delete(gcp)" to free memory.
+
+==================================
+   Study Completed Successfully
+==================================
+Summary Report (PDF):  /Documents/HERA_convergence_Log/Robustness_Report_Example/Full_Combined_Report_Example.pdf
+Configuration (JSON):  /Documents/HERA_convergence_Log/Robustness_Report_Example/configuration_Example.json
+Global Data (CSV):     /Documents/HERA_convergence_Log/Robustness_Report_Example/CSV/Global_Summary_Example.csv
+Pooled Results (CSV):  /Documents/HERA_convergence_Log/Robustness_Report_Example/CSV/Pooled_Results_Example.csv
+Detailed Results:      /Documents/HERA_convergence_Log/Robustness_Report_Example/CSV/Results_Example
+Graphics Folder:       /Documents/HERA_convergence_Log/Robustness_Report_Example/Graphics
+PDF Folder:            /Documents/HERA_convergence_Log/Robustness_Report_Example/PDF
+Log File:              /Documents/HERA_convergence_Log/Robustness_Report_Example/conv_log_Example.txt

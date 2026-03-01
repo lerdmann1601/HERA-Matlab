@@ -1,0 +1,8 @@
+Index,Scenario_Name,N,Distribution,Data_Summary
+1,N = 25 (Normal),25,Normal,6 Datasets; Means 10-15; SD = 2.0
+2,N = 50 (Normal),50,Normal,6 Datasets; Means 10-15; SD = 2.0
+3,N = 100 (Normal),100,Normal,6 Datasets; Means 10-15; SD = 2.0
+4,N = 50 (Skewed),50,LogNormal,6 Datasets; Means 2.0-2.5 (Log); SD = 0.4 (Log)
+5,N = 50 (Likert),50,Likert,6 Datasets; Scale 1-7; Means 3-5; SD = 1.5
+6,N = 50 (Bimodal),50,Bimodal,6 Datasets; Mix Means 10 & 15; SD = 2.7
+7,N = 50 (Large Effect),50,NormalLarge,6 Datasets; Means 10-20.0; SD = 2.0

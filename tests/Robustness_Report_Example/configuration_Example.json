@@ -1,0 +1,9 @@
+{
+  "n_sims_per_cond": 50,
+  "output_dir": "",
+  "target_memory": 400,
+  "simulation_seed": 123,
+  "bootstrap_seed_offset": 1000,
+  "scenario_seed_offset": 10000,
+  "reference_seed_offset": 1
+}

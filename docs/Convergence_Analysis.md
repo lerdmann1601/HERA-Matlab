@@ -167,7 +167,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
      "simulation_seed": 123,
      "bootstrap_seed_offset": 1000,
      "scenario_seed_offset": 10000,
-     "reference_seed_offset": 1,
+     "reference_seed_offset": 5000,
      "modes": {
          "Default": {
               "thr": {
@@ -196,5 +196,5 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 * `simulation_seed`: Seeds the main study. Can be locked for strict reproduction (fallback: 123).
 * `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
 * `scenario_seed_offset`: Ensures different tested scenarios (like Normal vs LogNormal) don't overlap in their RNG seeds (fallback: 10000).
-* `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 1 for backward compatibility).
+* `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 5000).
 * `modes`: You can specify missing details (`Relaxed`, `Default`, `Strict`) specifically for each of the three algorithms (`thr` for Thresholds, `bca` for BCa CI, `rnk` for Ranking), down to single parameters (`start`, `step`, `end`, `sm`, `st`, `tol`). Missing properties will automatically fall back to the package defaults. 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
