@@ -181,6 +181,17 @@ else
         % Use helper to determine batch size
         [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, Br_b, mem_per_iter_bytes);
         
+        % Check NaN status once before the parallel loop (checking original data once is enough)
+        has_nans_all = false;
+        for col = 1:num_datasets_b
+            for mid = 1:num_metrics
+                if any(isnan(all_data{mid}(:, col)))
+                    has_nans_all = true; break;
+                end
+            end
+            if has_nans_all, break; end
+        end
+        
         % Perform n_trials to check the stability of the rank confidence intervals for the current B-value.
         parfor (t_b = 1:double(int32(round(cfg_rank.n_trials))), double(int32(round(parfor_limit))))
             % Each parallel worker gets its own reproducible substream of the random number generator.
@@ -202,18 +213,7 @@ else
                  d_vals_3d = zeros(num_pairs, num_metrics, current_n_loc);
                  rel_vals_3d = zeros(num_pairs, num_metrics, current_n_loc);
                  
-                 % Check NaN status for this trial's data context (checking original data once is enough)
-                  has_nans = false;
-                  for col = 1:num_datasets_b
-                     for mid = 1:num_metrics
-                         if any(isnan(all_data{mid}(:, col)))
-                             has_nans = true; break;
-                         end
-                     end
-                     if has_nans, break; end
-                  end
-                  
-                  if ~has_nans
+                 if ~has_nans_all
                      % Fast path: Vectorized calculation
                      for p_idx = 1:num_pairs
                          i = pair_idx_all(p_idx, 1);
@@ -382,6 +382,17 @@ mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_m
 % Use helper to determine batch size
 [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B_final, mem_per_iter_bytes);
 
+% Check for NaNs to decide on calculation strategy (Once before parfor)
+has_nans_all = false;
+for col = 1:num_datasets_b
+   for mid = 1:num_metrics
+       if any(isnan(all_data{mid}(:, col)))
+           has_nans_all = true; break;
+       end
+   end
+   if has_nans_all, break; end
+end
+
 rank_batches = cell(1, num_batches);
 
 % Determine base offset from config or fallback to 1000
@@ -413,21 +424,10 @@ parfor b_idx = 1:num_batches
     % Calculate effect sizes for this batch.
     num_pairs = size(pair_idx_all, 1);
     
-    % Check for NaNs to decide on calculation strategy.
-    has_nans = false;
-    for col = 1:num_datasets_b
-       for mid = 1:num_metrics
-           if any(isnan(all_data{mid}(:, col)))
-               has_nans = true; break;
-           end
-       end
-       if has_nans, break; end
-    end
-    
     d_vals_3d = zeros(num_pairs, num_metrics, current_batch_size);
     rel_vals_3d = zeros(num_pairs, num_metrics, current_batch_size);
     
-    if ~has_nans
+    if ~has_nans_all
         % Fast path: Vectorized calculation.
         for p_idx = 1:num_pairs
             i = pair_idx_all(p_idx, 1);

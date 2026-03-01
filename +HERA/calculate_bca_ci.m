@@ -285,6 +285,9 @@ else
                 data_x_orig=p_all_data{actual_metric_idx}(:,idx1); 
                 data_y_orig=p_all_data{actual_metric_idx}(:,idx2);
                 
+                % Check for NaNs once per pair (checking original data once is enough)
+                has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
+            
                 % Retrieve pre-calculated 'a'
                 a = precalc_a(k, metric_idx);
             
@@ -333,8 +336,6 @@ else
                          boot_y = data_y_orig(boot_indices);
                          
                          % --- Robust Handling of Missing Data (NaN) ---
-                         has_nans = any(isnan(data_x_orig)) || any(isnan(data_y_orig));
-                         
                          if ~has_nans
                              % FAST PATH: No NaNs present.
                              if is_delta
