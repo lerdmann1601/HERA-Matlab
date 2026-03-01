@@ -276,7 +276,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         end
         
         plot('scientific_reports', results, modes, styles, refs, limits, params, final_out_dir, base_name, char(ts_str));
-        
+
+        % Pooled CSV results of across all simulations
+        fprintf('Evaluating Pooled Statistics... ');
+        HERA.analysis.convergence.calc_pooled_csv(results, modes, dir_csv, ts_str);
+        fprintf('Done.\n');
+
         % Final duration logging
         t_duration = toc(t_start);
         hrs = floor(t_duration / 3600); mins = floor(mod(t_duration, 3600) / 60); secs = round(mod(t_duration, 60));
@@ -301,6 +306,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('Summary Report (PDF):  %s\n', pdf_full);
         fprintf('Configuration (JSON):  %s\n', json_file);
         fprintf('Global Data (CSV):     %s\n', fullfile(out_dir, ['Global_Summary_' char(ts_str) '.csv']));
+        fprintf('Pooled Results (CSV):  %s\n', fullfile(out_dir, ['Pooled_Results_' char(ts_str) '.csv']));
         fprintf('Detailed Results:      %s\n', fullfile(final_out_dir, 'CSV', ['Results_' char(ts_str)]));
         fprintf('Graphics Folder:       %s\n', dir_graphics);
         fprintf('PDF Folder:            %s\n', dirty_pdfs);
