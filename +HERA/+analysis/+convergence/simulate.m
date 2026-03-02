@@ -139,6 +139,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                          (n_pairs * max_B * bytes_per_double) + ...           % Bootstrap Matrix peak (one task)
                          (sc.n * max_B * bytes_per_int);                      % Shuffle Indices
         
+        % --- DRAS (Dynamic Resource-Aware Scaling) ---
         % Determine how many simulations we can safely process in parallel.
         % We prioritze filling the scenario (e.g. 50 sims) to eliminate the tail effect,
         % as long as the memory per worker is respected for the *active* tasks.

@@ -329,7 +329,7 @@ else
         
     end % End of for-loop for stability check.
         
-%% 2. Selection of the final B-value based on the analysis outcome.
+    %% 2. Selection of the final B-value based on the analysis outcome.
     B_tested_vector_b = B_vector_b(1:final_b_idx);
     stability_vector_b_plotted = stability_vector_b(1:final_b_idx);
         
@@ -366,7 +366,7 @@ else
     % Ensure selected_B_final is a valid integer for parfor
     selected_B_final = round(selected_B_final);
     
-%% 3. Create and save the convergence graphic.
+    %% 3. Create and save the convergence graphic.
     if isfield(config, 'create_reports') && config.create_reports
         subfolder_ranking = fullfile(graphics_dir, 'Ranking');
         h_fig_rank = HERA.plot.rank_convergence(B_tested_vector_b, stability_vector_b_plotted, ...

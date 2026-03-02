@@ -464,8 +464,6 @@ rel_thresh = zeros(1, num_metrics);
 all_bootstat_d = cell(1, num_metrics); 
 all_bootstat_rel = cell(1, num_metrics);
 
-
-
 for metric_idx = 1:num_metrics
     % --- Cliff's Delta ---
     d_vals_metric_raw = d_vals_all(:, metric_idx);
