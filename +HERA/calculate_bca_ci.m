@@ -97,6 +97,11 @@ if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
     min_batch_size = config.system.min_batch_size;
 end
 
+% Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
+quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
+write_csv = isfield(config, 'create_csvs') && config.create_csvs;
+if ~isfield(config, 'create_csvs'), write_csv = true; end % Default for backward compatibility
+
 %% 1. Dynamic determination of the optimal bootstrap count (B)
 % Iteratively tests increasing B-values until the CI widths stabilize.
 %
@@ -130,7 +135,9 @@ if ~isempty(manual_B)
     h_fig_bca_global = gobjects(0); 
     h_fig_bca_detailed = gobjects(0);
     stability_data_ci = []; % No stability analysis performed
-    fprintf(['\n' lang.bca.manual_b_info '\n'], B_ci);
+    if ~quiet_mode
+        fprintf(['\n' lang.bca.manual_b_info '\n'], B_ci);
+    end
     % Jumps directly to the final calculation in Section 3.
 else
     % Extracts the configuration for this analysis step.
@@ -140,22 +147,26 @@ else
                                && isfield(cfg_ci, 'convergence_streak_needed') && ~isempty(cfg_ci.convergence_streak_needed);
     
     % Console output to inform the user about the process.
-    fprintf(['\n' lang.bca.searching_optimal_b '\n']);
-    if use_robust_convergence_ci
-        fprintf([lang.bca.primary_criterion '\n'])
-        fprintf([lang.bca.robust_convergence_info '\n'], ...
-            cfg_ci.smoothing_window, ...
-            cfg_ci.convergence_streak_needed, ...
-            cfg_ci.convergence_tolerance * 100, ...
-            cfg_ci.min_steps_for_convergence_check, ...
-            cfg_ci.B_end);
-    else
-        fprintf([lang.bca.simple_convergence_info '\n'], ...
-            cfg_ci.convergence_tolerance * 100, ...
-            cfg_ci.min_steps_for_convergence_check, ...
-            cfg_ci.B_end);
+    if ~quiet_mode
+        fprintf(['\n' lang.bca.searching_optimal_b '\n']);
     end
-    fprintf([lang.bca.secondary_criterion '\n']);
+    if ~quiet_mode
+        if use_robust_convergence_ci
+            fprintf([lang.bca.primary_criterion '\n'])
+            fprintf([lang.bca.robust_convergence_info '\n'], ...
+                cfg_ci.smoothing_window, ...
+                cfg_ci.convergence_streak_needed, ...
+                cfg_ci.convergence_tolerance * 100, ...
+                cfg_ci.min_steps_for_convergence_check, ...
+                cfg_ci.B_end);
+        else
+            fprintf([lang.bca.simple_convergence_info '\n'], ...
+                cfg_ci.convergence_tolerance * 100, ...
+                cfg_ci.min_steps_for_convergence_check, ...
+                cfg_ci.B_end);
+        end
+        fprintf([lang.bca.secondary_criterion '\n']);
+    end
     
     % Preparation of variables for the parfor loop and stability analysis.
     B_vector_ci = cfg_ci.B_start:cfg_ci.B_step:cfg_ci.B_end;
@@ -280,7 +291,9 @@ else
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector_ci)
         B_ci_current = B_vector_ci(i);
-        fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
+        if ~quiet_mode
+            fprintf([' -> ' lang.bca.checking_stability '\n'], B_ci_current, cfg_ci.n_trials);
+        end
         % Reset temp vector for each B value
         temp_stability_ci_vector(:) = 0; 
         
@@ -441,31 +454,33 @@ else
         rel_imp = stats.improvement;
         
         % Logging
-        if use_robust_convergence_ci
-            % Only print if enough steps have passed for logic to kick in
-            if ~isnan(rel_imp)
-                if abs(rel_imp) < cfg_ci.convergence_tolerance
-                    fprintf(['    ' lang.bca.convergence_run_info '\n'],...
-                    rel_imp * 100, stats.streak, cfg_ci.convergence_streak_needed);
-                else
-                    fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
+        if ~quiet_mode
+            if use_robust_convergence_ci
+                % Only print if enough steps have passed for logic to kick in
+                if ~isnan(rel_imp)
+                    if abs(rel_imp) < cfg_ci.convergence_tolerance
+                        fprintf(['    ' lang.bca.convergence_run_info '\n'],...
+                        rel_imp * 100, stats.streak, cfg_ci.convergence_streak_needed);
+                    else
+                        fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
+                    end
+                    
+                    if converged_ci
+                        fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
+                        fprintf([lang.bca.stable_runs_info '\n'], cfg_ci.convergence_streak_needed);
+                    end
                 end
-                
-                if converged_ci
-                    fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
-                    fprintf([lang.bca.stable_runs_info '\n'], cfg_ci.convergence_streak_needed);
-                end
+            else
+                % Simple method
+                 if i >= cfg_ci.min_steps_for_convergence_check
+                     if ~isnan(rel_imp)
+                         fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
+                     end
+                     if converged_ci
+                          fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
+                     end
+                 end
             end
-        else
-            % Simple method
-             if i >= cfg_ci.min_steps_for_convergence_check
-                 if ~isnan(rel_imp)
-                     fprintf(['    ' lang.bca.stability_change_info '\n'], rel_imp * 100);
-                 end
-                 if converged_ci
-                      fprintf([lang.bca.convergence_reached '\n'], rel_imp * 100);
-                 end
-             end
         end
 
         if converged_ci
@@ -481,10 +496,14 @@ else
     if converged_ci
         % If converged, the last tested B-value is used.
         selected_B_ci = B_tested_vector_ci(end);
-        fprintf([lang.bca.convergence_result '\n'], selected_B_ci);
+        if ~quiet_mode
+            fprintf([lang.bca.convergence_result '\n'], selected_B_ci);
+        end
     else
         % Otherwise, finding 'elbow' via Helper Function
-        fprintf([lang.bca.elbow_analysis_info '\n']);
+        if ~quiet_mode
+            fprintf([lang.bca.elbow_analysis_info '\n']);
+        end
         
         % Prepare curves matrix for the helper (steps x curves)
         num_curves = num_metrics * 2;
@@ -495,7 +514,9 @@ else
         end
         
         [selected_B_ci, elbow_indices] = HERA.stats.find_elbow_point(B_tested_vector_ci, curves_matrix);
-        fprintf([lang.bca.elbow_result '\n'], selected_B_ci);
+        if ~quiet_mode
+            fprintf([lang.bca.elbow_result '\n'], selected_B_ci);
+        end
     end
     
     % Store stability data for JSON export
@@ -563,7 +584,9 @@ end
 
 % Loop over the metrics for the final calculation.
 for metric_idx = 1:num_metrics
-    fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
+    if ~quiet_mode
+        fprintf(lang.bca.calculating_final_ci, metric_names{metric_idx});
+    end
     
     % Check for NaNs once for the entire metric (Once before pair loop)
     has_nans_metric = any(isnan(p_all_data{metric_idx}), 'all');
@@ -788,7 +811,9 @@ end
 
 %% 4. Output of BCa Correction Factors
 % Prints a formatted table with the summarized correction factors to the console and saves it to a CSV file.
-HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts);
+if write_csv
+    HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts);
+end
 
 %% 5. Generate histogram distributions via Helper Function
 h_fig_hist_z0 = gobjects(0); 

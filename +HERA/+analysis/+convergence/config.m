@@ -96,6 +96,8 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     cfg_base.metric_names = {'SimMetric'};
     cfg_base.ranking_mode = 'M1';
     cfg_base.timestamp = 'RobustnessStudy';
+    cfg_base.quiet_mode = true;
+    cfg_base.create_csvs = false;
     % Dynamic Target Memory Calculation (Inline)
     try
         ram_gb = NaN;

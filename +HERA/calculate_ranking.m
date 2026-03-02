@@ -62,6 +62,11 @@ arguments
     is_clean (1,1) logical = false
 end
 
+% Extract quiet_mode and write_csv flags safely with defaults (for consistency)
+quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
+write_csv = isfield(config, 'create_csvs') && config.create_csvs;
+if ~isfield(config, 'create_csvs'), write_csv = true; end
+
 % Initialization of basic parameters.
 num_metrics = numel(all_data);
 m = size(pair_idx_all, 1);
@@ -288,7 +293,9 @@ if num_metrics >= 2 && (strcmp(ranking_mode, 'M1_M2') || strcmp(ranking_mode, 'M
         % Cycle Detection:
         % If the sorting loop does not converge (cycle), revert to the stable ranking 
         % from the previous stage to ensure determinism.
-        warning('Ranking stopped at max iterations. Cycle detected. Reverting to initial order.');
+        if ~quiet_mode
+            warning('Ranking stopped at max iterations. Cycle detected. Reverting to initial order.');
+        end
         final_order = backup_order_m2;
         swap_count_metric2 = 0;
         metric2_global_swaps = zeros(0, 2);
@@ -403,7 +410,9 @@ elseif num_metrics == 3 && strcmp(ranking_mode, 'M1_M2_M3')
         % Cycle Detection:
         % If the sorting loop does not converge (cycle), revert to the stable ranking 
         % from the previous stage to ensure determinism.
-        warning('Ranking stopped at max iterations. Cycle detected. Reverting to previous order.');
+        if ~quiet_mode
+            warning('Ranking stopped at max iterations. Cycle detected. Reverting to previous order.');
+        end
         final_order = backup_order_3b;
         swap_count_metric3b = 0;
         metric3_swaps_b = zeros(0, 2);

@@ -93,6 +93,11 @@ if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
     min_batch_size = config.system.min_batch_size;
 end
 
+% Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
+quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
+write_csv = isfield(config, 'create_csvs') && config.create_csvs;
+if ~isfield(config, 'create_csvs'), write_csv = true; end
+
 %% 1. Initialization and Convergence Check for Optimal B
 % Iteratively tests increasing B-values until the rank CI widths stabilize.
 %
@@ -123,13 +128,17 @@ if ~isempty(manual_B)
     % If so, use the provided value and skip the dynamic search.
     selected_B_final = manual_B;
     stability_data_rank = []; % No stability analysis performed
-    fprintf(['\n' lang.ranking.manual_b_info '\n'], selected_B_final);
+    if ~quiet_mode
+        fprintf(['\n' lang.ranking.manual_b_info '\n'], selected_B_final);
+    end
     % Skip directly to the final calculation in Section 3.
 else
     % If no manual B is given, perform the dynamic search for the optimal B.
     
     % Inform the user about the start of the search and the criteria being used.
-    fprintf(['\n' lang.ranking.searching_optimal_b '\n']);
+    if ~quiet_mode
+        fprintf(['\n' lang.ranking.searching_optimal_b '\n']);
+    end
     
     % Initialize vectors for the stability analysis.
     B_vector_b = cfg_rank.B_start:cfg_rank.B_step:cfg_rank.B_end; 
@@ -141,7 +150,9 @@ else
     % Loop over the different B-values to check for stability.
     for b_idx = 1:numel(B_vector_b)
         Br_b = B_vector_b(b_idx);
-        fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
+        if ~quiet_mode
+            fprintf([' -> ' lang.ranking.checking_stability '\n'], Br_b, cfg_rank.n_trials);
+        end
         ci_widths_b = zeros(round(cfg_rank.n_trials), num_datasets_b);
         
         % --- Parallel Worker Limit ---
@@ -285,25 +296,29 @@ else
         [converged, results] = HERA.stats.check_convergence(stability_vector_b(1:b_idx), cfg_rank);
 
         % Log details from the check
-        if ~isnan(results.improvement)
-             if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
-                  if abs(results.improvement) < cfg_rank.convergence_tolerance
-                     fprintf(['    ' lang.ranking.convergence_run_info '\n'], results.improvement * 100, results.streak, cfg_rank.convergence_streak_needed);
-                  else
-                     fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
-                  end
-             else
-                  % Simple mode logs
-                  fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
-             end
+        if ~quiet_mode
+            if ~isnan(results.improvement)
+                 if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
+                      if abs(results.improvement) < cfg_rank.convergence_tolerance
+                         fprintf(['    ' lang.ranking.convergence_run_info '\n'], results.improvement * 100, results.streak, cfg_rank.convergence_streak_needed);
+                      else
+                         fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
+                      end
+                 else
+                      % Simple mode logs
+                      fprintf(['    ' lang.ranking.stability_change_info '\n'], results.improvement * 100);
+                 end
+            end
         end
 
         if converged
-            if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
-                fprintf([lang.ranking.convergence_reached '\n'], results.improvement * 100);
-                fprintf([lang.ranking.stable_runs_info '\n'], cfg_rank.convergence_streak_needed);
-            else
-                fprintf([lang.ranking.convergence_reached '\n'], results.improvement * 100);
+            if ~quiet_mode
+                if isfield(cfg_rank, 'convergence_streak_needed') && ~isempty(cfg_rank.convergence_streak_needed) && cfg_rank.convergence_streak_needed > 0
+                    fprintf([lang.ranking.convergence_reached '\n'], results.improvement * 100);
+                    fprintf([lang.ranking.stable_runs_info '\n'], cfg_rank.convergence_streak_needed);
+                else
+                    fprintf([lang.ranking.convergence_reached '\n'], results.improvement * 100);
+                end
             end
             break; % Abort the stability check loop as soon as convergence is reached.
         end
@@ -317,17 +332,23 @@ else
     if converged
         % If the process converged, the last tested B-value is selected as the optimal one.
         selected_B_final = B_tested_vector_b(end);
-        fprintf([lang.ranking.convergence_result '\n'], selected_B_final);
+        if ~quiet_mode
+            fprintf([lang.ranking.convergence_result '\n'], selected_B_final);
+        end
     else
         % If no convergence was reached, perform an "elbow analysis" as a fallback.
-        fprintf([' ' lang.ranking.elbow_analysis_info '\n']);
+        if ~quiet_mode
+            fprintf([' ' lang.ranking.elbow_analysis_info '\n']);
+        end
         
         % Use the generic elbow finder
         % It handles the 1-based index return and flat line cases internally
         [~, elbow_idx_rank] = HERA.stats.find_elbow_point(B_tested_vector_b, stability_vector_b_plotted);
         
         selected_B_final = B_tested_vector_b(elbow_idx_rank);
-        fprintf([lang.ranking.elbow_result '\n'], selected_B_final);
+        if ~quiet_mode
+            fprintf([lang.ranking.elbow_result '\n'], selected_B_final);
+        end
     end
     
     % Store stability data for JSON export
@@ -354,7 +375,9 @@ else
             [~, fName, fExt] = fileparts(lang.files.convergence_rank_stability);
             filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
             exportgraphics(h_fig_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
-            fprintf([lang.ranking.convergence_plot_saved '\n'], filename);
+            if ~quiet_mode
+                fprintf([lang.ranking.convergence_plot_saved '\n'], filename);
+            end
 
             h_figs_rank(end+1) = h_fig_rank;
         end
@@ -485,7 +508,9 @@ end
 final_bootstrap_ranks = [rank_batches{:}];
 
 %% 4 and 5. Print & Save Bootstrap Rank Distribution
-HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, selected_B_final, lang, csv_dir, ts);
+if write_csv
+    HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, selected_B_final, lang, csv_dir, ts);
+end
 
 %% 6. Create and save the histogram distribution of the final ranks
 % Only create this plot if reports are enabled
@@ -500,7 +525,9 @@ if isfield(config, 'create_reports') && config.create_reports
         [~, fName, fExt] = fileparts(lang.files.dist_bootstrap_ranks);
         filename = fullfile(subfolder_ranking, [fName, '_', ts, fExt]);
         exportgraphics(h_fig_hist_rank, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
-        fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
+        if ~quiet_mode
+            fprintf([lang.ranking.histogram_plot_saved '\n'], filename);
+        end
     end
 end
 

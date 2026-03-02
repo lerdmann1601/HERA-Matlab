@@ -72,6 +72,11 @@ if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
     min_batch_size = config.system.min_batch_size;
 end
 
+% Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
+quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
+write_csv = isfield(config, 'create_csvs') && config.create_csvs;
+if ~isfield(config, 'create_csvs'), write_csv = true; end 
+
 %% 1. Initialization and Calculation of Initial Statistics
 % Extracts parameters from the configuration structure.
 metric_names = config.metric_names;
@@ -177,7 +182,9 @@ if ~isempty(manual_B)
     h_fig_thr_global = gobjects(0); 
     h_fig_thr_detailed = gobjects(0);
     stability_data_thr = []; % No stability analysis performed
-    fprintf(['\n' lang.thresholds.manual_b_info '\n'], selected_B);    
+    if ~quiet_mode
+        fprintf(['\n' lang.thresholds.manual_b_info '\n'], selected_B);    
+    end
     % Jumps directly to the final calculation in Section 5.
 else
     % Extracts the configuration for this analysis step.
@@ -186,20 +193,24 @@ else
     use_robust_convergence_thr = isfield(cfg_thr, 'smoothing_window') && ~isempty(cfg_thr.smoothing_window) ...
                                && isfield(cfg_thr, 'convergence_streak_needed') && ~isempty(cfg_thr.convergence_streak_needed);
     
-    fprintf(['\n' lang.thresholds.searching_optimal_b '\n']);
-    if use_robust_convergence_thr    
-        fprintf([lang.thresholds.primary_criterion '\n'])
-        fprintf([lang.thresholds.robust_convergence_info '\n'], ...
-            cfg_thr.smoothing_window, ...
-            cfg_thr.convergence_streak_needed, ...
-            cfg_thr.convergence_tolerance * 100, ...
-            cfg_thr.min_steps_for_convergence_check, ...
-            cfg_thr.B_end);
-    else 
-        fprintf([lang.thresholds.simple_convergence_info '\n'], ...
-        cfg_thr.convergence_tolerance * 100, cfg_thr.min_steps_for_convergence_check, cfg_thr.B_end);
+    if ~quiet_mode
+        fprintf(['\n' lang.thresholds.searching_optimal_b '\n']);
     end
-    fprintf([lang.thresholds.secondary_criterion '\n']);
+    if ~quiet_mode
+        if use_robust_convergence_thr    
+            fprintf([lang.thresholds.primary_criterion '\n'])
+            fprintf([lang.thresholds.robust_convergence_info '\n'], ...
+                cfg_thr.smoothing_window, ...
+                cfg_thr.convergence_streak_needed, ...
+                cfg_thr.convergence_tolerance * 100, ...
+                cfg_thr.min_steps_for_convergence_check, ...
+                cfg_thr.B_end);
+        else 
+            fprintf([lang.thresholds.simple_convergence_info '\n'], ...
+            cfg_thr.convergence_tolerance * 100, cfg_thr.min_steps_for_convergence_check, cfg_thr.B_end);
+        end
+        fprintf([lang.thresholds.secondary_criterion '\n']);
+    end
     
     % Initializes vectors and matrices for the stability analysis.
     B_vector = cfg_thr.B_start:cfg_thr.B_step:cfg_thr.B_end;
@@ -214,7 +225,9 @@ else
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector)
         B_current = B_vector(i);
-        fprintf([' -> ' lang.ranking.checking_stability '\n'], B_current, cfg_thr.n_trials);
+        if ~quiet_mode
+            fprintf([' -> ' lang.ranking.checking_stability '\n'], B_current, cfg_thr.n_trials);
+        end
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
@@ -339,30 +352,32 @@ else
         % Convergence check: Determines if the stability has plateaued, indicating a sufficient B value.
         [converged, conv_stats] = HERA.stats.check_convergence(overall_stability_thr(1:i), cfg_thr);
         
-        if use_robust_convergence_thr
-             % Robust method logging
-             if i >= cfg_thr.min_steps_for_convergence_check + cfg_thr.smoothing_window
-                 if abs(conv_stats.improvement) < cfg_thr.convergence_tolerance
-                     fprintf(['    ' lang.thresholds.convergence_run_info '\n'], conv_stats.improvement * 100, conv_stats.streak, cfg_thr.convergence_streak_needed);
-                 else
-                     fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
+        if ~quiet_mode
+            if use_robust_convergence_thr
+                 % Robust method logging
+                 if i >= cfg_thr.min_steps_for_convergence_check + cfg_thr.smoothing_window
+                     if abs(conv_stats.improvement) < cfg_thr.convergence_tolerance
+                         fprintf(['    ' lang.thresholds.convergence_run_info '\n'], conv_stats.improvement * 100, conv_stats.streak, cfg_thr.convergence_streak_needed);
+                     else
+                         fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
+                     end
+                     
+                     if converged
+                         fprintf([lang.thresholds.convergence_reached '\n'], conv_stats.improvement * 100);
+                         fprintf([lang.thresholds.stable_runs_info '\n'], cfg_thr.convergence_streak_needed);
+                     end
                  end
-                 
-                 if converged
-                     fprintf([lang.thresholds.convergence_reached '\n'], conv_stats.improvement * 100);
-                     fprintf([lang.thresholds.stable_runs_info '\n'], cfg_thr.convergence_streak_needed);
+            else
+                 % Simple method logging
+                 if i >= cfg_thr.min_steps_for_convergence_check
+                     if ~isnan(conv_stats.improvement)
+                         fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
+                     end
+                     if converged
+                         fprintf([lang.thresholds.convergence_reached '\n'], conv_stats.improvement * 100);
+                     end
                  end
-             end
-        else
-             % Simple method logging
-             if i >= cfg_thr.min_steps_for_convergence_check
-                 if ~isnan(conv_stats.improvement)
-                     fprintf(['    ' lang.thresholds.stability_change_info '\n'], conv_stats.improvement * 100);
-                 end
-                 if converged
-                     fprintf([lang.thresholds.convergence_reached '\n'], conv_stats.improvement * 100);
-                 end
-             end
+            end
         end
 
         if converged
@@ -377,11 +392,15 @@ else
     if converged
         % If the process converged, the last tested B value is selected as the optimal one.
         selected_B = B_tested_vector(end);
-        fprintf([lang.thresholds.convergence_result '\n'], selected_B);
+        if ~quiet_mode
+            fprintf([lang.thresholds.convergence_result '\n'], selected_B);
+        end
         elbow_indices = [];
     else
         % Otherwise, the "elbow" of the curve is determined as the optimal point.
-        fprintf([lang.thresholds.elbow_analysis_info '\n']);
+        if ~quiet_mode
+            fprintf([lang.thresholds.elbow_analysis_info '\n']);
+        end
         
         % Dynamically build stability_vectors cell array
         stability_vectors = cell(1, num_metrics * 2);
@@ -397,7 +416,9 @@ else
         
         % Use the helper function to find the elbow points
         [selected_B, elbow_indices] = HERA.stats.find_elbow_point(B_tested_vector, stability_vectors);
-        fprintf([lang.thresholds.elbow_result '\n'], selected_B);
+        if ~quiet_mode
+            fprintf([lang.thresholds.elbow_result '\n'], selected_B);
+        end
     end
     % Ensure selected_B is a valid integer for parfor
     selected_B = round(selected_B);

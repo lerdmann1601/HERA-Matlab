@@ -355,9 +355,13 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
         if method_id == 1
             % Thresholds
             c = cfg; c.bootstrap_thresholds = param;
-            [d_t, ~, ~, ~, ~, ~, ~, conv_B, stab_data] = ...
-                quiet_thresholds(sd.all_data, N, c, worker_tmp, [], stream, styles, lang);
+            [d_t, ~, ~, ~, ~, ~, ~, conv_B, stab_data, h1, h2, h3, h4] = ...
+                HERA.calculate_thresholds(sd.all_data, N, c, worker_tmp, [], stream, styles, lang);
             
+            % Memory Management: Close generated figures to prevent leaks in workers
+            to_close = [h1(:); h2(:); h3(:); h4(:)];
+            close(to_close(isgraphics(to_close)));
+
             % Threshold Error: Use Absolute Difference (instead of percentage) 
             % Since Cliff's Delta is normalized already, absolute deviation is more representative.
             res_val = (d_t(1) - sd.ref_thr_d); 
@@ -367,10 +371,14 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
         elseif method_id == 2
             % BCa
             c = cfg; c.bootstrap_ci = param;
-            [conv_B, ci_d, ~, ~, ~, ~, ~, stab_data] = ...
-                quiet_bca_ci(sd.all_data, sd.d_vals_all, sd.rel_vals_all, sd.p_idx, N, ...
+            [conv_B, ci_d, ~, ~, ~, ~, ~, stab_data, h1, h2, h3, h4, h5] = ...
+                HERA.calculate_bca_ci(sd.all_data, sd.d_vals_all, sd.rel_vals_all, sd.p_idx, N, ...
                 c, c.metric_names, worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
+            % Memory Management
+            to_close = [h1(:); h2(:); h3(:); h4(:); h5(:)];
+            close(to_close(isgraphics(to_close)));
+
             width = ci_d(1, 2) - ci_d(1, 1);
             res_val = (width - sd.ref_bca_width) / max(abs(sd.ref_bca_width), 1e-6) * 100;
             res_cost = conv_B;
@@ -379,10 +387,14 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
         elseif method_id == 3
             % Ranking
             c = cfg; c.bootstrap_ranks = param;
-            [boot_r, conv_B, stab_data] = ...
-                quiet_bootstrap_ranking(sd.all_data, sd.ref_thr_struct, c, sd.ds_names, sd.base_rank, sd.p_idx, N, ...
+            [boot_r, conv_B, stab_data, h1, h2] = ...
+                HERA.bootstrap_ranking(sd.all_data, sd.ref_thr_struct, c, sd.ds_names, sd.base_rank, sd.p_idx, N, ...
                 worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
+            % Memory Management
+            to_close = [h1(:); h2(:)];
+            close(to_close(isgraphics(to_close)));
+
             mean_r = mean(boot_r(2, :));
             res_val = (mean_r - sd.ref_rnk_mean) / max(abs(sd.ref_rnk_mean), 1e-6) * 100;
             res_cost = conv_B;
@@ -444,51 +456,6 @@ function d_all = generate_data_vectorized(sc, stream, N)
     end
 end
 
-%% Quiet Wrappers
-function [d_t, r_t, rel_thresh_b, min_rel_dynamic, d_vals_all, rel_vals_all, pair_idx_all, conv_B, stab_data] = ...
-    quiet_thresholds(all_data, num_probanden, config, graphics_dir, manual_B, s, styles, lang)
-    cmd = ['[d_t, r_t, rel_thresh_b, min_rel_dynamic, d_vals_all, rel_vals_all, pair_idx_all, conv_B, stab_data, ' ...
-           'h1, h2, h3, h4] = ' ...
-           'HERA.calculate_thresholds(all_data, num_probanden, config, graphics_dir, manual_B, s, styles, lang);'];
-    evalc(cmd);
-    to_close = gobjects(0);
-    if exist('h1', 'var'), to_close = [to_close; h1(:)]; end
-    if exist('h2', 'var'), to_close = [to_close; h2(:)]; end
-    if exist('h3', 'var'), to_close = [to_close; h3(:)]; end
-    if exist('h4', 'var'), to_close = [to_close; h4(:)]; end
-    if ~isempty(to_close), close(to_close(isgraphics(to_close))); end
-end
-
-function [conv_B, ci_d, ci_r, z0_d, a_d, z0_r, a_r, stab_data] = ...
-    quiet_bca_ci(all_data, d_vals_all, rel_vals_all, pair_idx_all, num_probanden, ...
-                 config, metric_names, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
-    cmd = ['[conv_B, ci_d, ci_r, z0_d, a_d, z0_r, a_r, stab_data, ' ...
-           'h1, h2, h3, h4, h5] = ' ...
-           'HERA.calculate_bca_ci(all_data, d_vals_all, rel_vals_all, pair_idx_all, num_probanden, ' ...
-           'config, metric_names, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name);'];
-    evalc(cmd);
-    to_close = gobjects(0);
-    if exist('h1', 'var'), to_close = [to_close; h1(:)]; end
-    if exist('h2', 'var'), to_close = [to_close; h2(:)]; end
-    if exist('h3', 'var'), to_close = [to_close; h3(:)]; end
-    if exist('h4', 'var'), to_close = [to_close; h4(:)]; end
-    if exist('h5', 'var'), to_close = [to_close; h5(:)]; end
-    if ~isempty(to_close), close(to_close(isgraphics(to_close))); end
-end
-
-function [boot_r, conv_B, stab_data] = ...
-    quiet_bootstrap_ranking(all_data, thresholds, config, dataset_names, final_rank, pair_idx_all, ...
-                            num_probanden, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name)
-    cmd = ['[boot_r, conv_B, stab_data, h1, h2] = ' ...
-           'HERA.bootstrap_ranking(all_data, thresholds, config, dataset_names, final_rank, pair_idx_all, ' ...
-           'num_probanden, graphics_dir, csv_dir, manual_B, s, styles, lang, base_name);'];
-    evalc(cmd);
-    to_close = gobjects(0);
-    if exist('h1', 'var'), to_close = [to_close; h1(:)]; end
-    if exist('h2', 'var'), to_close = [to_close; h2(:)]; end
-    if ~isempty(to_close), close(to_close(isgraphics(to_close))); end
-end
-
 %% Simulation Case Preparation
 function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, N, refs, cfg_base, temp_dir, styles, lang)
     % PREPARE_SIMULATION - Generates data and reference values for one simulation case.
@@ -533,9 +500,12 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     else
         c_ref_thr = cfg_base; man_thr = refs.thr;
     end
-    [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all] = ...
-        quiet_thresholds(all_data, sc.n, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
+    [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all, ~, ~, ~, h1, h2, h3, h4] = ...
+        HERA.calculate_thresholds(all_data, sc.n, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
     ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
+    
+    % Memory Management
+    close([h1(:); h2(:); h3(:); h4(:)]);
     
     % Ref: BCa (Internal parfor activates if called from client thread)
     ref_seed_bca = ref_seed + 2 * reference_step_offset;
@@ -546,8 +516,11 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     else
         c_ref_bca = cfg_base; man_bca = refs.bca;
     end
-    [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.n, ...
+    [~, ref_ci_d, ~, ~, ~, ~, ~, ~, h1, h2, h3, h4, h5] = HERA.calculate_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.n, ...
         c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
+
+    % Memory Management
+    close([h1(:); h2(:); h3(:); h4(:); h5(:)]);
 
     % Ref: Ranking
     [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
@@ -559,8 +532,11 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     else
         c_ref_rnk = cfg_base; man_rnk = refs.rnk;
     end
-    [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.n, ...
+    [boot_r_ref, ~, ~, h1, h2] = HERA.bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.n, ...
         worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
+
+    % Memory Management
+    close([h1(:); h2(:)]);
     
     % Store Package
     sim_entry = struct(...
