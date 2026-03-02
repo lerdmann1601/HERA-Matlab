@@ -16,7 +16,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 %   1. User Input & Initialization:
 %      - Determines output location via Auto-Log logic or User Dialog.
 %   2. Configuration:
-%      - Defines data scenarios (N=25/50/100, different distributions).
+%      - Defines data scenarios (n=25/50/100, different distributions).
 %      - Defines parameter sets for Thresholds, BCa, and Ranking.
 %   3. Setup Environment:
 %      - Initializes the parallel pool and temporary directories.
@@ -125,7 +125,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 
     %% 2. Configuration
     % Retrieve all config parameters
-    [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig);
+    [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig);
 
     %% 3. Setup Environment
     temp_dir = tempname; 
@@ -288,7 +288,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('\n');
 
         % Run Simulation
-        results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, n_datasets);
+        results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, N);
 
         %% 5. Reporting
         fprintf('All simulations completed. Generating global summary...\n');

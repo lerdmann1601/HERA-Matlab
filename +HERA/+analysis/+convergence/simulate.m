@@ -1,8 +1,8 @@
-function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, n_datasets)
+function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, temp_dir, styles, lang, hWait, out_dir, ts_str, final_out_dir, colors, modes, limits, N)
 % SIMULATE - Executes the parallel simulation core for the convergence robustness study.
 %
 % Syntax:
-%   results = HERA.analysis.convergence.simulate(scen, params, n, refs, cfg, tmp, styles, lang, hWait, ...)
+%   results = HERA.analysis.convergence.simulate(scen, params, n_sims, refs, cfg, tmp, styles, lang, hWait, ..., N)
 %
 % Description:
 %   This function manages the computationally intensive part of the analysis using an optimized
@@ -11,13 +11,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 %
 % Workflow:
 %   1. Scenario Loop: 
-%      Iterates through each configured scenario (Distribution/N).
+%      Iterates through each configured scenario (Distribution/n).
 %   2. Interleaved Batching (Hybrid Parallelization): 
 %      - Breaks the total simulations into small chunks (matches worker count).
-%      - Hybrid Strategy: Uses coarse-grained parallelism for full batches and switches 
-%        to fine-grained (serial-outer/parallel-inner) for small tail batches.
-%      - This ensures that compute-heavy BCa and Ranking tasks always saturate the full 
-%        parallel pool, both during data preparation (Refs) and test execution (Sims).
+%      - Hybrid Strategy: Automatically switches between coarse-grained (Strategy A) 
+%        and fine-grained (Strategy B / Tail Mode) based on batch size AND n-complexity.
+%      - For small n (< 40), Strategy A is preferred to avoid dispatch latency.
+%      - For large n (>= 40), Strategy B ensures that compute-heavy BCa and Ranking 
+%        tasks always saturate the full parallel pool.
 %   3. Parallel Testing (Method-Major Scheduling): 
 %      - Submits all test combinations to a shared parallel pool using Method-Major ordering.
 %      - By scheduling BCa tests across all modes first, we minimize worker idle time 
@@ -29,7 +30,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 %      - Updates progress incrementally and saves intermediate plots after each scenario.
 %
 % Inputs:
-%   scenarios        - Struct array defining the data scenarios (N, Distribution).
+%   scenarios        - Struct array defining the data scenarios (n, Distribution).
 %   params           - Struct containing the parameter sets for Thr, BCa, Rnk.
 %   n_sims_per_cond  - Number of simulations per scenario.
 %   refs             - Struct with reference B values.
@@ -44,10 +45,13 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 %   colors           - Color matrix for plots.
 %   modes            - Cell array of mode names.
 %   limits           - Struct with B limits.
+%   N                - Number of candidates/datasets.
 %
 % Outputs:
-%   results          - Nested struct containing all simulation metrics (err, cost, fail) 
-%                      organized by scenario and method.
+%   results          - Struct array (one per scenario) containing:
+%                      - name, n, Dist, DataSummary : Metadata
+%                      - thr, bca, rnk             : Nested metrics (err, cost, fail)
+%                      - eff_all, eff_median       : Real effect size statistics (Cliff's d)
 %
 % Author: Lukas von Erdmannsdorff
 
@@ -108,7 +112,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
     for sc_idx = 1:length(scenarios)
         sc = scenarios(sc_idx);
         scenario_res(sc_idx).name = sc.name; 
-        scenario_res(sc_idx).N = sc.N; 
+        scenario_res(sc_idx).n = sc.n; 
         scenario_res(sc_idx).Dist = sc.Dist; 
         scenario_res(sc_idx).DataSummary = sc.DataSummary;
         
@@ -116,9 +120,9 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         t_scenario = tic;
         
         % Dynamic batch sizing
-        n_pairs = nchoosek(n_datasets, 2);
+        n_pairs = nchoosek(N, 2);
         bytes_per_double = 8;
-        bytes_per_sim = (sc.N * n_datasets + n_pairs*4 + n_datasets) * bytes_per_double;
+        bytes_per_sim = (sc.n * N + n_pairs*4 + N) * bytes_per_double;
         total_memory_needed = (n_sims_per_cond * bytes_per_sim) / (1024^2);
         
         if total_memory_needed <= effective_memory_mb
@@ -128,7 +132,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         end
         sims_per_batch = min(sims_per_batch, num_workers);  % Match batch size to worker count
         
-        fprintf('  [Config: sims_per_batch=%d for N=%d]\n', sims_per_batch, sc.N);
+        fprintf('  [Config: sims_per_batch=%d for n=%d]\n', sims_per_batch, sc.n);
         
         %% Interleaved Batch Loop
         % Divide simulations into small batches to keep memory footprint low
@@ -143,29 +147,36 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % 1. Generate Data & References (Hybrid Parallelization Strategy)
             sim_data_batch = cell(num_in_batch, 1);
             
-            % Determine parallelization strategy based on worker saturation.
-            % Threshold: If batch fills less than 50% of the pool, switch to serial-outer/parallel-inner.
-            % This allows the inner compute-heavy functions (BCa, Ranking) to utilize the full pool.
-            use_parallel_outer = num_in_batch > (num_workers / 2);
-            
-            if use_parallel_outer
-                % Strategy A: Coarse-Grained (High Saturation)
-                % Parallelize the outer loop, one simulation per worker.
-                parfor i = 1:num_in_batch
-                    sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
-                        base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
-                        n_datasets, refs, cfg_base, temp_dir, styles, lang);
-                end
+            % Determine parallelization strategy based on worker saturation and task complexity.
+            % Threshold A (Batch Size): If batch fills more than 50% of the pool.
+            % Threshold B (Complexity): For small batches, switch to Tail Mode (Strategy B) 
+            % only if n is large enough to justify parfor management overhead (Crossover n ~ 40).
+            % For small n, coarse-grained Strategy A is preferred to avoid dispatch latency.
+            if num_in_batch > (num_workers / 2)
+                use_parallel_outer = true;
             else
-                % Strategy B: Fine-Grained (Low Saturation / Tail Processing)
-                % Execute simulation loop serially to enable internal parallelization on the workers.
-                fprintf(' [Tail Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
-                for i = 1:num_in_batch
-                    sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
-                        base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
-                        n_datasets, refs, cfg_base, temp_dir, styles, lang);
-                end
+                % Hybrid logic: Use Strategy A for light loads, Strategy B for heavy loads
+                use_parallel_outer = sc.n < 40; 
             end
+            
+                if use_parallel_outer
+                    % Strategy A: Coarse-Grained (High Saturation)
+                    % Parallelize the outer loop, one simulation per worker.
+                    parfor i = 1:num_in_batch
+                        sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
+                            base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
+                            N, refs, cfg_base, temp_dir, styles, lang);
+                    end
+                else
+                    % Strategy B: Fine-Grained (Low Saturation / Tail Processing)
+                    % Execute simulation loop serially to enable internal parallelization on the workers.
+                    fprintf(' [Tail Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
+                    for i = 1:num_in_batch
+                        sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
+                            base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
+                            N, refs, cfg_base, temp_dir, styles, lang);
+                    end
+                end
 
             
             % Eliminate redundant rmdir calls to maintain filesystem performance
@@ -195,7 +206,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
                         pp = map_params(params.bca{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 2, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                            s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
                     end
                 end
                 
@@ -207,7 +218,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
                         pp = map_params(params.rnk{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 3, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                            s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
                     end
                 end
                 
@@ -219,7 +230,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
                         pp = map_params(params.thr{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 1, task_sd, pp, sc.N, cfg_base, temp_dir, styles, lang); 
+                            s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang); 
                     end
                 end
                 
@@ -251,7 +262,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
                         pp = map_params(params.bca{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, sim_data_batch{i}, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 2, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -264,7 +275,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
                         pp = map_params(params.rnk{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, sim_data_batch{i}, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 3, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -277,7 +288,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
                         pp = map_params(params.thr{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, sim_data_batch{i}, pp, sc.N, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 1, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -398,27 +409,27 @@ function s = init_storage(n, num_modes)
     s.err = zeros(n, num_modes); s.cost = zeros(n, num_modes); s.fail = false(n, num_modes); 
 end
 
-function d_all = generate_data_vectorized(sc, stream, n_datasets)
+function d_all = generate_data_vectorized(sc, stream, N)
     % Generates synthetic data based on the scenario configuration
-    d_all = zeros(sc.N, n_datasets);
+    d_all = zeros(sc.n, N);
     switch sc.Dist
         case 'Normal'
-            means = 10 + (0:n_datasets-1);
-            r = randn(stream, sc.N, n_datasets);
+            means = 10 + (0:N-1);
+            r = randn(stream, sc.n, N);
             d_all = means + 2.0 * r;
         case 'LogNormal'
-            means = 2.0 + (0:n_datasets-1)*0.1;
-            r = randn(stream, sc.N, n_datasets);
+            means = 2.0 + (0:N-1)*0.1;
+            r = randn(stream, sc.n, N);
             d_all = exp(means + 0.4 * r);
         case 'Likert'
-            centers = linspace(3, 5, n_datasets);
-            r = randn(stream, sc.N, n_datasets);
+            centers = linspace(3, 5, N);
+            r = randn(stream, sc.n, N);
             raw = centers + 1.5 * r;
             d_all = min(7, max(1, round(raw)));
         case 'Bimodal'
-            for k = 1:n_datasets
-                is_mode2 = rand(stream, sc.N, 1) > 0.5;
-                vals = zeros(sc.N, 1);
+            for k = 1:N
+                is_mode2 = rand(stream, sc.n, 1) > 0.5;
+                vals = zeros(sc.n, 1);
                 n1 = sum(~is_mode2); n2 = sum(is_mode2);
                 vals(~is_mode2) = 10 + randn(stream, n1, 1);
                 vals(is_mode2)  = 15 + randn(stream, n2, 1);
@@ -427,8 +438,8 @@ function d_all = generate_data_vectorized(sc, stream, n_datasets)
             end
         case 'NormalLarge'
             % Large Effect: Cohen's d = 1.0 (mean diff 2.0 / SD 2.0)
-            means = 10 + (0:n_datasets-1) * 2.0;
-            r = randn(stream, sc.N, n_datasets);
+            means = 10 + (0:N-1) * 2.0;
+            r = randn(stream, sc.n, N);
             d_all = means + 2.0 * r;
     end
 end
@@ -479,7 +490,7 @@ function [boot_r, conv_B, stab_data] = ...
 end
 
 %% Simulation Case Preparation
-function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, n_datasets, refs, cfg_base, temp_dir, styles, lang)
+function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, N, refs, cfg_base, temp_dir, styles, lang)
     % PREPARE_SIMULATION - Generates data and reference values for one simulation case.
     % This function is designed to be called either from a parfor (Strategy A) 
     % or a serial for-loop (Strategy B) in simulate.m.
@@ -503,10 +514,10 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     
     % Generate Data
     dataStream = RandStream('mlfg6331_64', 'Seed', sim_seed);
-    d_all = generate_data_vectorized(sc, dataStream, n_datasets);
+    d_all = generate_data_vectorized(sc, dataStream, N);
     all_data = {d_all};
-    p_idx_sim = nchoosek(1:n_datasets, 2);
-    ds_names = cellstr("D" + (1:n_datasets));
+    p_idx_sim = nchoosek(1:N, 2);
+    ds_names = cellstr("D" + (1:N));
     
     % Calc Real Effects (Fast)
     eff = HERA.test.TestHelper.calculate_real_effects(all_data, 1);
@@ -523,7 +534,7 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
         c_ref_thr = cfg_base; man_thr = refs.thr;
     end
     [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all] = ...
-        quiet_thresholds(all_data, sc.N, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
+        quiet_thresholds(all_data, sc.n, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
     ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
     
     % Ref: BCa (Internal parfor activates if called from client thread)
@@ -535,7 +546,7 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     else
         c_ref_bca = cfg_base; man_bca = refs.bca;
     end
-    [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.N, ...
+    [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.n, ...
         c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
 
     % Ref: Ranking
@@ -548,7 +559,7 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     else
         c_ref_rnk = cfg_base; man_rnk = refs.rnk;
     end
-    [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.N, ...
+    [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.n, ...
         worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
     
     % Store Package

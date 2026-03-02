@@ -33,7 +33,7 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
         try
             s_fid = fopen(scenarios_filename, 'w');
             if s_fid ~= -1
-                fprintf(s_fid, 'Index,Scenario_Name,N,Distribution,Data_Summary\n');
+                fprintf(s_fid, 'Index,Scenario_Name,n,Distribution,Data_Summary\n');
                 fclose(s_fid);
                 
                 s_T = cell(length(scenarios), 5);
@@ -42,7 +42,7 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
                     clean_name = strrep(sc.name, ',', ';');
                     clean_dist = strrep(sc.Dist, ',', ';');
                     clean_summary = strrep(sc.DataSummary, ',', ';');
-                    s_T(i, :) = {i, clean_name, sc.N, clean_dist, clean_summary};
+                    s_T(i, :) = {i, clean_name, sc.n, clean_dist, clean_summary};
                 end
                 writetable(cell2table(s_T), scenarios_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             end

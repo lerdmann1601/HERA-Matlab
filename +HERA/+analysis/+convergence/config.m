@@ -1,8 +1,8 @@
-function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig)
+function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] = config(n_sims_per_cond, customConfig)
 % CONFIG - Central configuration for the convergence robustness study.
 %
 % Syntax:
-%   [n_ds, modes, sc, params, refs, lim, cfg, col, ram_gb] = HERA.analysis.convergence.config(n_sims_per_cond)
+%   [N, modes, sc, params, refs, lim, cfg, col, ram_gb] = HERA.analysis.convergence.config(n_sims_per_cond)
 %
 % Description:
 %   This function defines the constant parameters, data scenarios, and method configurations
@@ -21,9 +21,9 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
 %                       - `modes` (with sub-structs for 'thr', 'bca', 'rnk')
 %
 % Outputs:
-%   n_datasets  - Number of datasets in the scenarios.
+%   N           - Number of datasets/candidates in the scenarios.
 %   modes       - Cell array of mode names (e.g., {'Relaxed', 'Default', 'Strict'}).
-%   scenarios   - Struct array defining each data scenario (name, N, Dist).
+%   scenarios   - Struct array defining each data scenario (name, n, Dist).
 %   params      - Struct containing specific parameter sets for Thr, BCa, Rnk.
 %   refs        - Struct defining the high-precision B values for reference calculations.
 %   limits      - Struct defining the maximum B limits for the methods.
@@ -38,25 +38,25 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
     end
 
     %% 1. General Settings
-    n_datasets = 6; % Number of datasets
+    N = 6; % Number of datasets/candidates
     modes = {'Relaxed', 'Default', 'Strict'};
     
     %% 2. Data Scenarios
     scenarios = struct();
-    scenarios(1).name = 'N = 25 (Normal)';   scenarios(1).N = 25; scenarios(1).Dist = 'Normal'; 
-    scenarios(1).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', n_datasets, 10 + n_datasets - 1);
-    scenarios(2).name = 'N = 50 (Normal)';   scenarios(2).N = 50; scenarios(2).Dist = 'Normal';
-    scenarios(2).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', n_datasets, 10 + n_datasets - 1);
-    scenarios(3).name = 'N = 100 (Normal)';  scenarios(3).N = 100; scenarios(3).Dist = 'Normal';
-    scenarios(3).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', n_datasets, 10 + n_datasets - 1);
-    scenarios(4).name = 'N = 50 (Skewed)';   scenarios(4).N = 50; scenarios(4).Dist = 'LogNormal';
-    scenarios(4).DataSummary = sprintf('%d Datasets, Means 2.0-%.1f (Log), SD = 0.4 (Log)', n_datasets, 2.0 + (n_datasets-1)*0.1);
-    scenarios(5).name = 'N = 50 (Likert)';   scenarios(5).N = 50; scenarios(5).Dist = 'Likert';
-    scenarios(5).DataSummary = sprintf('%d Datasets, Scale 1-7, Means 3-5, SD = 1.5', n_datasets);
-    scenarios(6).name = 'N = 50 (Bimodal)';  scenarios(6).N = 50; scenarios(6).Dist = 'Bimodal';
-    scenarios(6).DataSummary = sprintf('%d Datasets, Mix Means 10 & 15, SD = 2.7', n_datasets);
-    scenarios(7).name = 'N = 50 (Large Effect)';  scenarios(7).N = 50; scenarios(7).Dist = 'NormalLarge';
-    scenarios(7).DataSummary = sprintf('%d Datasets, Means 10-%.1f, SD = 2.0', n_datasets, 10 + (n_datasets - 1) * 2.0);
+    scenarios(1).name = 'n = 25 (Normal)';   scenarios(1).n = 25; scenarios(1).Dist = 'Normal'; 
+    scenarios(1).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
+    scenarios(2).name = 'n = 50 (Normal)';   scenarios(2).n = 50; scenarios(2).Dist = 'Normal';
+    scenarios(2).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
+    scenarios(3).name = 'n = 100 (Normal)';  scenarios(3).n = 100; scenarios(3).Dist = 'Normal';
+    scenarios(3).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
+    scenarios(4).name = 'n = 50 (Skewed)';   scenarios(4).n = 50; scenarios(4).Dist = 'LogNormal';
+    scenarios(4).DataSummary = sprintf('%d Datasets, Means 2.0-%.1f (Log), SD = 0.4 (Log)', N, 2.0 + (N-1)*0.1);
+    scenarios(5).name = 'n = 50 (Likert)';   scenarios(5).n = 50; scenarios(5).Dist = 'Likert';
+    scenarios(5).DataSummary = sprintf('%d Datasets, Scale 1-7, Means 3-5, SD = 1.5', N);
+    scenarios(6).name = 'n = 50 (Bimodal)';  scenarios(6).n = 50; scenarios(6).Dist = 'Bimodal';
+    scenarios(6).DataSummary = sprintf('%d Datasets, Mix Means 10 & 15, SD = 2.7', N);
+    scenarios(7).name = 'n = 50 (Large Effect)';  scenarios(7).n = 50; scenarios(7).Dist = 'NormalLarge';
+    scenarios(7).DataSummary = sprintf('%d Datasets, Means 10-%.1f, SD = 2.0', N, 10 + (N - 1) * 2.0);
     
     %% 3. Parameter Sets
     % Thresholds

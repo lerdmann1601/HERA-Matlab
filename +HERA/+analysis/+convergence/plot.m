@@ -394,7 +394,7 @@ end
     
     for i = 1:length(scenarios)
         l_name = max(l_name, length(scenarios(i).name));
-        l_n    = max(l_n,    length(sprintf('%d', scenarios(i).N)));
+        l_n    = max(l_n,    length(sprintf('%d', scenarios(i).n)));
         l_dist = max(l_dist, length(scenarios(i).Dist));
         l_sum  = max(l_sum,  length(scenarios(i).DataSummary));
     end
@@ -434,7 +434,7 @@ end
     % Draw header background
     rectangle('Position', [x_start, y_top - 0.025, total_w, 0.05], 'FaceColor', [0.95 0.95 0.95], 'EdgeColor', 'none');
 
-    headers = {'', 'Scenario Name', 'N', 'Distribution', 'Data Summary'};
+    headers = {'', 'Scenario Name', 'n', 'Distribution', 'Data Summary'};
     for i = 1:length(headers)
         text(cols{i}, y_top, headers{i}, 'FontWeight', 'bold', 'FontSize', 11, 'FontName', font_name, 'Color', 'k');
     end
@@ -445,7 +445,7 @@ end
         sc = scenarios(i); y_text = y + 0.005; 
         text(cols{1}, y_text, sprintf('%d', i), 'FontSize', 10, 'FontName', font_name, 'Color', 'k');
         text(cols{2}, y_text, sc.name, 'FontSize', 10, 'FontWeight', 'bold', 'FontName', font_name, 'Interpreter', 'none', 'Color', 'k');
-        text(cols{3}, y_text, sprintf('%d', sc.N), 'FontSize', 10, 'FontName', font_name, 'Color', 'k');
+        text(cols{3}, y_text, sprintf('%d', sc.n), 'FontSize', 10, 'FontName', font_name, 'Color', 'k');
         text(cols{4}, y_text, sc.Dist, 'FontSize', 10, 'FontName', font_name, 'Color', 'k');
         text(cols{5}, y_text, sc.DataSummary, 'FontSize', 10, 'Color', 'k', 'FontName', font_name);
         plot([x_start, x_end], [y-0.025, y-0.025], 'Color', [0.85 0.85 0.85], 'LineWidth', 0.5);
@@ -513,7 +513,7 @@ function w = get_scenarios_width_px(scenarios)
     
     for i = 1:length(scenarios)
         l_name = max(l_name, length(scenarios(i).name));
-        l_n    = max(l_n,    length(sprintf('%d', scenarios(i).N)));
+        l_n    = max(l_n,    length(sprintf('%d', scenarios(i).n)));
         l_dist = max(l_dist, length(scenarios(i).Dist));
         l_sum  = max(l_sum, length(scenarios(i).DataSummary));
     end
