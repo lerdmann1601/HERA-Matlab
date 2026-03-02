@@ -17,6 +17,7 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
 %                       - `bootstrap_seed_offset`
 %                       - `scenario_seed_offset`
 %                       - `reference_seed_offset`
+%                       - `reference_step_offset`
 %                       - `modes` (with sub-structs for 'thr', 'bca', 'rnk')
 %
 % Outputs:
@@ -151,6 +152,11 @@ function [n_datasets, modes, scenarios, params, refs, limits, cfg_base, colors, 
     cfg_base.reference_seed_offset = 5000;
     if isfield(customConfig, 'reference_seed_offset') && isnumeric(customConfig.reference_seed_offset)
         cfg_base.reference_seed_offset = customConfig.reference_seed_offset;
+    end
+    
+    cfg_base.reference_step_offset = 1000; % Default gap between ref components (Thr, BCa, Rnk)
+    if isfield(customConfig, 'reference_step_offset') && isnumeric(customConfig.reference_step_offset)
+        cfg_base.reference_step_offset = customConfig.reference_step_offset;
     end
     
     % Override Params using customConfig

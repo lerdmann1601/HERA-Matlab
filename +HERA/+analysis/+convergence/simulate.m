@@ -80,11 +80,19 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         reference_seed_offset = cfg_base.reference_seed_offset;
     end
     
+    reference_step_offset = 1000;
+    if isfield(cfg_base, 'reference_step_offset') && isnumeric(cfg_base.reference_step_offset)
+        reference_step_offset = cfg_base.reference_step_offset;
+    end
+
+    
     % Initialize Result Structure
     scenario_res = repmat(struct('name', '', 'N', 0, 'Dist', '', 'DataSummary', '', ...
                                  'thr', init_storage(n_sims_per_cond, num_modes), ...
                                  'bca', init_storage(n_sims_per_cond, num_modes), ...
-                                 'rnk', init_storage(n_sims_per_cond, num_modes)), ...
+                                 'rnk', init_storage(n_sims_per_cond, num_modes), ...
+                                 'eff_all', zeros(n_sims_per_cond, 1), ...
+                                 'eff_median', 0), ...
                           length(scenarios), 1);
                       
     % Global Progress Tracking
@@ -169,7 +177,8 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 % Reference Calculations (Using High Precision Refs from input)
                 
                 % Ref: Threshold
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
+                ref_seed_thr = ref_seed + 1 * reference_step_offset; % Deterministic shift for independence
+                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_thr);
                 if isstruct(refs.thr)
                     c_ref_thr = cfg_base; c_ref_thr.bootstrap_thresholds = map_params(refs.thr);
                     man_thr = [];
@@ -181,7 +190,8 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
                 
                 % Ref: BCa
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
+                ref_seed_bca = ref_seed + 2 * reference_step_offset; % Deterministic shift for independence
+                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_bca);
                 if isstruct(refs.bca)
                     c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
                     man_bca = [];
@@ -190,10 +200,11 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 end
                 [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.N, ...
                     c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
-                
+
                 % Ref: Ranking
                 [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed);
+                ref_seed_rnk = ref_seed + 3 * reference_step_offset; % Deterministic shift for independence
+                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
                 if isstruct(refs.rnk)
                     c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
                     man_rnk = [];
@@ -209,7 +220,9 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     'p_idx', p_idx_sim, 'ds_names', {ds_names}, 'base_rank', base_rank, ...
                     'ref_thr_struct', ref_thr_struct, 'ref_thr_d', ref_d_t(1), ...
                     'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
-                    'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed);
+                    'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed, ...
+                    'eff_median', median(abs(d_vals_all(:))));
+
                     
                 % NOTE: We no longer perform rmdir inside the loop.
                 % The folder is safely overwritten/reused by the same worker and cleaned up at the end of the batch.
@@ -285,6 +298,12 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         scenario_res(sc_idx).rnk.fail(ret_s_idx, ret_m_idx) = ret_fail;
                 end
                 
+                % Store scenario-wide constant metadata (once per simulation)
+                if ret_method_id == 1 % arbitrary choice
+                    i_in_batch = ret_s_idx - batch_start + 1;
+                    scenario_res(sc_idx).eff_all(ret_s_idx) = sim_data_batch{i_in_batch}.eff_median;
+                end
+                
                 tests_done_batch = tests_done_batch + 1;
                 global_tests_completed = global_tests_completed + 1;
                 
@@ -327,9 +346,10 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         end
         
         %% End of Scenario
+        scenario_res(sc_idx).eff_median = median(scenario_res(sc_idx).eff_all);
         t_sc_elapsed = toc(t_scenario);
         fprintf('  Scenario completed in %.1fs (%.1fs/sim)\n', t_sc_elapsed, t_sc_elapsed / n_sims_per_cond);
-        
+               
         % Incremental Plotting
         try
             HERA.analysis.convergence.plot('scientific_reports', [scenario_res(sc_idx)], modes, styles, refs, limits, params, final_out_dir, 'Incremental', ts_str);
@@ -371,11 +391,12 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             [d_t, ~, ~, ~, ~, ~, ~, conv_B, stab_data] = ...
                 quiet_thresholds(sd.all_data, N, c, worker_tmp, [], stream, styles, lang);
             
-            % Calculate percentage difference with a safeguard against division by zero
-            res_val = (d_t(1) - sd.ref_thr_d) / max(abs(sd.ref_thr_d), 1e-6) * 100;
+            % Threshold Error: Use Absolute Difference (instead of percentage) 
+            % Since Cliff's Delta is normalized already, absolute deviation is more representative.
+            res_val = (d_t(1) - sd.ref_thr_d); 
             res_cost = conv_B;
             res_fail = ~stab_data.converged;
-            
+
         elseif method_id == 2
             % BCa
             c = cfg; c.bootstrap_ci = param;

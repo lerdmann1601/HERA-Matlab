@@ -227,7 +227,14 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             cfg_out.reference_seed_offset = 5000;
         end
         
+        if isfield(cfg_base, 'reference_step_offset')
+            cfg_out.reference_step_offset = cfg_base.reference_step_offset;
+        else
+            cfg_out.reference_step_offset = 1000;
+        end
+        
         cfg_out.refs = refs;
+        cfg_out.params = params; % Store the Relaxed, Default, Strict settings
         
         if exist('customConfig', 'var') && isstruct(customConfig)
             % Ensure we don't duplicate existing top-level fields

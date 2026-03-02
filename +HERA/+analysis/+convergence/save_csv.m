@@ -124,7 +124,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
     if global_fid ~= -1
         if write_header
             % Header for Aggregated Data
-            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Error_Percent,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
+            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Scenario_d,Median_Error_Percent,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
         end
         fclose(global_fid);
     else
@@ -144,7 +144,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
             safe_name = regexprep(safe_name, '_$', ''); 
             
             % Scenario Filename (Saved in the Results_timestamp subfolder)
-            filename = fullfile(results_subfolder, sprintf('%s.csv', safe_name));
+            filename = fullfile(results_subfolder, sprintf('%s_%s.csv', safe_name, ts_str));
             
             fileID = fopen(filename, 'w');
             if fileID == -1
@@ -229,7 +229,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
                         
                         fail_rate = (sum(fail_mat(:, mode_idx)) / n_sims) * 100;
                         
-                        row_data = {safe_name, m_name, mode_name, round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
+                        row_data = {safe_name, m_name, mode_name, round(sc.eff_median, 4), round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
                             round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(median_cost, 1), round(iqr_cost, 1), ...
                             round(cost_q1, 1), round(cost_q3, 1), round(cost_ci_lower, 1), round(cost_ci_upper, 1), round(fail_rate, 1)};
                         writetable(cell2table(row_data), global_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);

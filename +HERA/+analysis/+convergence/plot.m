@@ -109,7 +109,7 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
     % Layout: Error (Boxplot), Deviation (Scatter), Cost (Boxplot), Failure (Bar).
     
     metrics = { ...
-        'Thresholds (Delta)', data.thr, 'Error (%)',   'Thresholds', refs.thr, limits.thr; ...
+        'Thresholds (Delta)', data.thr, 'Error (Abs)',   'Thresholds', refs.thr, limits.thr; ...
         'BCa CI (Width)',     data.bca, 'Width Dev (%)', 'BCa',      refs.bca, limits.bca; ...
         'Ranking (Mean)',     data.rnk, 'Rank Dev (%)',  'Ranking',  refs.rnk, limits.rnk ...
     };
@@ -129,14 +129,34 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         if contains(suffix_name, 'Global_Summary')
             title_str = sprintf('%s Analysis: %s (Ref B = %s)', name, clean_suffix, rb_str);
         else
-            title_str = sprintf('%s Analysis: %s', name, clean_suffix);
+            % Add Median Cliff's d to the title for context
+            if isfield(data, 'eff_median') && data.eff_median > 0
+                title_str = sprintf('%s Analysis: %s (Median d = %.2f)', name, clean_suffix, data.eff_median);
+            else
+                title_str = sprintf('%s Analysis: %s', name, clean_suffix);
+            end
         end
         title(t, title_str, 'FontSize', 16, 'FontWeight', 'bold', 'FontName', 'Helvetica', 'Color', 'k');
           
         % 1. Error Distribution (Boxplot)
         nexttile; hold on;
         d_plot = d_val.err;
-        d_plot(d_plot > 50) = 50; d_plot(d_plot < -50) = -50; 
+        
+        % Dynamic scaling for absolute vs percentage
+        if contains(label_str, '(Abs)')
+            % Find max actual error (ignoring massive outliers > 1)
+            max_actual_err = max(abs(d_plot(abs(d_plot) < 1)), [], 'all');
+            if isempty(max_actual_err), max_actual_err = 0.05; end
+            
+            % Set y_err_max dynamically (+20% buffer), but at least 0.05
+            y_err_max = max(0.05, max_actual_err * 1.2);
+            
+            d_plot(d_plot > 1) = 1; d_plot(d_plot < -1) = -1; % Cap at logical limits
+        else
+            y_err_max = 10; % Percentage range [-10, 10]
+            d_plot(d_plot > 50) = 50; d_plot(d_plot < -50) = -50; 
+        end
+        
         yline(0, '--k', 'LineWidth', 1.2, 'HandleVisibility', 'off');
         for m = 1:3
              boxchart(m * ones(size(d_plot,1),1), d_plot(:,m), 'BoxFaceColor', colors(m,:), ...
@@ -145,7 +165,6 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         xticks(1:3); xticklabels(modes);
         ylabel(label_str, 'FontWeight', 'bold', 'Color', 'k');
         title('Error Distribution', 'Color', 'k', 'FontSize', 12);
-        y_err_max = 10; 
         ylim([-y_err_max, y_err_max]);
         setup_axis();
         
