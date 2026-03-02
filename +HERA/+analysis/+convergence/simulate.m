@@ -12,9 +12,11 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 % Workflow:
 %   1. Scenario Loop: 
 %      Iterates through each configured scenario (Distribution/N).
-%   2. Interleaved Batching: 
-%      - Breaks the total simulations into small chunks (e.g., 4 sims/batch).
-%      - For each batch, data and reference values are generated locally (Just-in-Time).
+%   2. Interleaved Batching (Hybrid Parallelization): 
+%      - Breaks the total simulations into small chunks (matches worker count).
+%      - Hybrid Strategy: Uses coarse-grained parfor for full batches and switches 
+%        to fine-grained (serial-outer/parallel-inner) for small tail batches 
+%        to maximize worker saturation during reference generation.
 %   3. Parallel Testing (Worker Balancing): 
 %      - Submits all test combinations (Thresholds, BCa, Ranking) for the batch to a shared parallel pool.
 %      - Uses fetchNext to process results immediately as workers finish, reducing idle time.
@@ -135,98 +137,33 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             
             fprintf('  Batch %d-%d: Preparing Data... ', batch_start, batch_end);
             
-            % 1. Generate Data & References (Parallelized / Coarse-Grained)
+            % 1. Generate Data & References (Hybrid Parallelization Strategy)
             sim_data_batch = cell(num_in_batch, 1);
             
-            % Parallelize outer loop to saturate cores during "Preparing Data"
-            % Inner functions (calculate_*) will detect single-batch and run serially
-            % inside each worker, avoiding nested parallelism overhead.
-            parfor i = 1:num_in_batch
-                s_idx = batch_sims(i);
-                
-                % Create a unique temp dir for this worker to prevent collisions and avoid heavy SSD I/O. 
-                % We use the worker's internal task ID.
-                t_obj = getCurrentTask();
-                if isempty(t_obj)
-                    worker_id = 0; % Fallback for serial execution
-                else
-                    worker_id = t_obj.ID;
+            % Determine parallelization strategy based on worker saturation.
+            % Threshold: If batch fills less than 50% of the pool, switch to serial-outer/parallel-inner.
+            % This allows the inner compute-heavy functions (BCa, Ranking) to utilize the full pool.
+            use_parallel_outer = num_in_batch > (num_workers / 2);
+            
+            if use_parallel_outer
+                % Strategy A: Coarse-Grained (High Saturation)
+                % Parallelize the outer loop, one simulation per worker.
+                parfor i = 1:num_in_batch
+                    sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
+                        base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
+                        n_datasets, refs, cfg_base, temp_dir, styles, lang);
                 end
-                
-                worker_temp_dir = fullfile(temp_dir, sprintf('worker_%d', worker_id));
-                if ~exist(worker_temp_dir, 'dir')
-                    mkdir(worker_temp_dir); 
+            else
+                % Strategy B: Fine-Grained (Low Saturation / Tail Processing)
+                % Execute simulation loop serially to enable internal parallelization on the workers.
+                fprintf(' [Tail Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
+                for i = 1:num_in_batch
+                    sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
+                        base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
+                        n_datasets, refs, cfg_base, temp_dir, styles, lang);
                 end
-                
-                % Bit-Perfect Seeding Constraint
-                % Gap between sims: scenario_seed_offset (e.g., 10000)
-                % Gap to ref: reference_seed_offset (e.g., 5000)
-                sim_seed = base_seed + (sc_idx-1)*scenario_seed_offset + s_idx;
-                ref_seed = sim_seed + reference_seed_offset;
-                
-                % Generate Data
-                dataStream = RandStream('mlfg6331_64', 'Seed', sim_seed);
-                d_all = generate_data_vectorized(sc, dataStream, n_datasets);
-                all_data = {d_all};
-                p_idx_sim = nchoosek(1:n_datasets, 2);
-                ds_names = cellstr("D" + (1:n_datasets));
-                
-                % Calc Real Effects (Fast)
-                eff = HERA.test.TestHelper.calculate_real_effects(all_data, 1);
-                
-                % Reference Calculations (Using High Precision Refs from input)
-                
-                % Ref: Threshold
-                ref_seed_thr = ref_seed + 1 * reference_step_offset; % Deterministic shift for independence
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_thr);
-                if isstruct(refs.thr)
-                    c_ref_thr = cfg_base; c_ref_thr.bootstrap_thresholds = map_params(refs.thr);
-                    man_thr = [];
-                else
-                    c_ref_thr = cfg_base; man_thr = refs.thr;
-                end
-                [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all] = ...
-                    quiet_thresholds(all_data, sc.N, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
-                ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
-                
-                % Ref: BCa
-                ref_seed_bca = ref_seed + 2 * reference_step_offset; % Deterministic shift for independence
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_bca);
-                if isstruct(refs.bca)
-                    c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
-                    man_bca = [];
-                else
-                    c_ref_bca = cfg_base; man_bca = refs.bca;
-                end
-                [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.N, ...
-                    c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
-
-                % Ref: Ranking
-                [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
-                ref_seed_rnk = ref_seed + 3 * reference_step_offset; % Deterministic shift for independence
-                refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
-                if isstruct(refs.rnk)
-                    c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
-                    man_rnk = [];
-                else
-                    c_ref_rnk = cfg_base; man_rnk = refs.rnk;
-                end
-                [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.N, ...
-                    worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
-                
-                % Store Package (Data transfer back to client)
-                sim_data_batch{i} = struct(...
-                    'all_data', {all_data}, 'd_vals_all', d_vals_all, 'rel_vals_all', rel_vals_all, ...
-                    'p_idx', p_idx_sim, 'ds_names', {ds_names}, 'base_rank', base_rank, ...
-                    'ref_thr_struct', ref_thr_struct, 'ref_thr_d', ref_d_t(1), ...
-                    'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
-                    'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed, ...
-                    'eff_median', median(abs(d_vals_all(:))));
-
-                    
-                % NOTE: We no longer perform rmdir inside the loop.
-                % The folder is safely overwritten/reused by the same worker and cleaned up at the end of the batch.
             end
+
             
             % Eliminate redundant rmdir calls to maintain filesystem performance
             % (cleanup relies on overwriting and final batch complete instead)
@@ -521,3 +458,87 @@ function [boot_r, conv_B, stab_data] = ...
     if exist('h2', 'var'), to_close = [to_close; h2(:)]; end
     if ~isempty(to_close), close(to_close(isgraphics(to_close))); end
 end
+
+%% Simulation Case Preparation
+function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, n_datasets, refs, cfg_base, temp_dir, styles, lang)
+    % PREPARE_SIMULATION - Generates data and reference values for one simulation case.
+    % This function is designed to be called either from a parfor (Strategy A) 
+    % or a serial for-loop (Strategy B) in simulate.m.
+    
+    s_idx = batch_sims(i);
+    
+    % Create a unique temp dir for this worker to prevent collisions.
+    t_obj = getCurrentTask();
+    if isempty(t_obj)
+        worker_id = 0; % Client/serial execution
+    else
+        worker_id = t_obj.ID;
+    end
+    
+    worker_temp_dir = fullfile(temp_dir, sprintf('worker_%d', worker_id));
+    if ~exist(worker_temp_dir, 'dir'), mkdir(worker_temp_dir); end
+    
+    % Bit-Perfect Seeding Constraint
+    sim_seed = base_seed + (sc_idx-1)*scenario_seed_offset + s_idx;
+    ref_seed = sim_seed + reference_seed_offset;
+    
+    % Generate Data
+    dataStream = RandStream('mlfg6331_64', 'Seed', sim_seed);
+    d_all = generate_data_vectorized(sc, dataStream, n_datasets);
+    all_data = {d_all};
+    p_idx_sim = nchoosek(1:n_datasets, 2);
+    ds_names = cellstr("D" + (1:n_datasets));
+    
+    % Calc Real Effects (Fast)
+    eff = HERA.test.TestHelper.calculate_real_effects(all_data, 1);
+    
+    % Reference Calculations
+    
+    % Ref: Thresholds
+    ref_seed_thr = ref_seed + 1 * reference_step_offset;
+    refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_thr);
+    if isstruct(refs.thr)
+        c_ref_thr = cfg_base; c_ref_thr.bootstrap_thresholds = map_params(refs.thr);
+        man_thr = [];
+    else
+        c_ref_thr = cfg_base; man_thr = refs.thr;
+    end
+    [ref_d_t, ref_r_t, ~, ~, d_vals_all, rel_vals_all] = ...
+        quiet_thresholds(all_data, sc.N, c_ref_thr, worker_temp_dir, man_thr, refStream, styles, lang);
+    ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
+    
+    % Ref: BCa (Internal parfor activates if called from client thread)
+    ref_seed_bca = ref_seed + 2 * reference_step_offset;
+    refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_bca);
+    if isstruct(refs.bca)
+        c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
+        man_bca = [];
+    else
+        c_ref_bca = cfg_base; man_bca = refs.bca;
+    end
+    [~, ref_ci_d] = quiet_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.N, ...
+        c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
+
+    % Ref: Ranking
+    [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
+    ref_seed_rnk = ref_seed + 3 * reference_step_offset;
+    refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
+    if isstruct(refs.rnk)
+        c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
+        man_rnk = [];
+    else
+        c_ref_rnk = cfg_base; man_rnk = refs.rnk;
+    end
+    [boot_r_ref] = quiet_bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.N, ...
+        worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
+    
+    % Store Package
+    sim_entry = struct(...
+        'all_data', {all_data}, 'd_vals_all', d_vals_all, 'rel_vals_all', rel_vals_all, ...
+        'p_idx', p_idx_sim, 'ds_names', {ds_names}, 'base_rank', base_rank, ...
+        'ref_thr_struct', ref_thr_struct, 'ref_thr_d', ref_d_t(1), ...
+        'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
+        'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed, ...
+        'eff_median', median(abs(d_vals_all(:))));
+end
+
