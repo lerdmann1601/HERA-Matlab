@@ -70,6 +70,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         num_workers = cfg_base.num_workers;
     else
         num_workers = feature('numcores');
+        cfg_base.num_workers = num_workers; % Store back to prevent redundant calls in workers
     end
     effective_memory_mb = TARGET_MEMORY / max(1, num_workers);
     
@@ -275,12 +276,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 tests_done_batch = 0;
                 
                 % Method-Major scheduling consistency (BCa -> Ranking -> Thresholds)
-                % 1. BCa (Method ID = 2)
+                % 1. BCa (Method ID = 2) - Most expensive
                 for m = num_modes:-1:1
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
+                        % Minimize IPC overhead: Strip unused variables prior to parfeval
+                        task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
                         pp = map_params(params.bca{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 2, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -288,12 +291,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     end
                 end
                 
-                % 2. Ranking (Method ID = 3)
+                % 2. Ranking (Method ID = 3) - Medium expense
                 for m = num_modes:-1:1
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
+                        % Minimize IPC overhead: Strip large matrices not needed for ranking
+                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
                         pp = map_params(params.rnk{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 3, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -301,12 +306,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     end
                 end
                 
-                % 3. Thresholds (Method ID = 1)
+                % 3. Thresholds (Method ID = 1) - Least expensive
                 for m = num_modes:-1:1
                     for i = 1:num_in_batch
                         s_idx = batch_sims(i);
+                        % Minimize IPC overhead: Retain core data only for thresholds
+                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
                         pp = map_params(params.thr{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, sim_data_batch{i}, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
                         scenario_res = assign_result(scenario_res, sc_idx, 1, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
