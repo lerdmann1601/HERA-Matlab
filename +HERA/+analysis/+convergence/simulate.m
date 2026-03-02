@@ -140,13 +140,14 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                          (sc.n * max_B * bytes_per_int);                      % Shuffle Indices
         
         % Determine how many simulations we can safely process in parallel.
-        % We compare the per-task footprint against the available RAM per worker.
+        % We prioritze filling the scenario (e.g. 50 sims) to eliminate the tail effect,
+        % as long as the memory per worker is respected for the *active* tasks.
         if (bytes_per_task / 1024^2) <= effective_memory_mb
-            % Most cases: Each task fits comfortably in a worker's slice.
-            % We set batch size to worker count to ensure Strategy A (parallel outer).
-            sims_per_batch = num_workers;
+            % Standard case: Each task's peak RAM (bootstrap matrix) fits in a worker's slice.
+            % We allow the batch to cover the entire scenario to saturate the parfeval queue.
+            sims_per_batch = n_sims_per_cond;
         else
-            % Very low RAM / Huge B: Scale down to fit.
+            % Very low RAM / Huge B: Scale down batch size to fit.
             sims_per_batch = max(2, floor(TARGET_MEMORY / (bytes_per_task / 1024^2)));
         end
         sims_per_batch = min(sims_per_batch, n_sims_per_cond);
