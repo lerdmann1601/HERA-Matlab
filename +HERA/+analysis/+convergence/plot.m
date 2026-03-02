@@ -83,6 +83,7 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
         safe_name = regexprep(sc.name, '[^a-zA-Z0-9]+', '_'); safe_name = regexprep(safe_name, '_$', ''); 
         pdf_sc = fullfile(dirty_pdfs, sprintf('%s_%s.pdf', safe_name, char(ts_str)));
         dat.thr = sc.thr; dat.bca = sc.bca; dat.rnk = sc.rnk;
+        if isfield(sc, 'eff_median'), dat.eff_median = sc.eff_median; end
         
         if is_incremental
              target_pdfs = {pdf_sc};
@@ -130,8 +131,8 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
             title_str = sprintf('%s Analysis: %s (Ref B = %s)', name, clean_suffix, rb_str);
         else
             % Add Median Cliff's d to the title for context
-            if isfield(data, 'eff_median') && data.eff_median > 0
-                title_str = sprintf('%s Analysis: %s (Median d = %.2f)', name, clean_suffix, data.eff_median);
+            if isfield(data, 'eff_median') && ~isempty(data.eff_median)
+                title_str = sprintf('%s Analysis: %s (Median Cliff''s d = %.2f)', name, clean_suffix, data.eff_median);
             else
                 title_str = sprintf('%s Analysis: %s', name, clean_suffix);
             end

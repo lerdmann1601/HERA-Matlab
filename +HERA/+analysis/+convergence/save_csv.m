@@ -124,7 +124,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
     if global_fid ~= -1
         if write_header
             % Header for Aggregated Data
-            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Scenario_d,Median_Error,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
+            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Cliffs_d,Median_Error,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
         end
         fclose(global_fid);
     else
