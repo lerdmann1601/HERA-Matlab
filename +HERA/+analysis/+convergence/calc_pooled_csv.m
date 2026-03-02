@@ -23,7 +23,7 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
         return;
     end
     
-    fprintf(pooled_fid, 'Metric,Mode,Median_Error_Percent,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
+    fprintf(pooled_fid, 'Metric,Mode,Median_Error,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
     fclose(pooled_fid);
     
     metric_names = {'Thresholds', 'BCa', 'Ranking'};

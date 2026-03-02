@@ -144,17 +144,18 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         
         % Dynamic scaling for absolute vs percentage
         if contains(label_str, '(Abs)')
-            % Find max actual error (ignoring massive outliers > 1)
+            % Case 1: Absolute Error (Thresholds) -> Range [0, 1]
             max_actual_err = max(abs(d_plot(abs(d_plot) < 1)), [], 'all');
             if isempty(max_actual_err), max_actual_err = 0.05; end
-            
-            % Set y_err_max dynamically (+20% buffer), but at least 0.05
-            y_err_max = max(0.05, max_actual_err * 1.2);
-            
-            d_plot(d_plot > 1) = 1; d_plot(d_plot < -1) = -1; % Cap at logical limits
+            y_err_max = max(0.05, max_actual_err * 1.2); % Min scale ±0.05
+            d_plot(d_plot > 1) = 1; d_plot(d_plot < -1) = -1;
         else
-            y_err_max = 10; % Percentage range [-10, 10]
-            d_plot(d_plot > 50) = 50; d_plot(d_plot < -50) = -50; 
+            % Case 2: Percentage Error (BCa, Ranking) -> Range [-Inf, Inf]
+            % Ignore massive outliers > 30% for determining the zoomlevel
+            max_actual_err = max(abs(d_plot(abs(d_plot) < 30)), [], 'all');
+            if isempty(max_actual_err), max_actual_err = 5.0; end
+            y_err_max = max(5.0, max_actual_err * 1.2); % Min scale ±5%
+            d_plot(d_plot > 50) = 50; d_plot(d_plot < -50) = -50; % Cap data display at 50%
         end
         
         yline(0, '--k', 'LineWidth', 1.2, 'HandleVisibility', 'off');
