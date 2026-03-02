@@ -122,6 +122,13 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         
         f = figure('Name', ['Robustness: ' metric_tag ' - ' suffix_name], 'Color', 'w', ... 
                    'Position', [100, 100, 1200, 950], 'Visible', 'off');
+        
+        % Set consistent paper size and positioning BEFORE any plotting or export
+        % This ensures the figure is in the exact same state for both PNG and PDF export.
+        set(f, 'PaperUnits', 'inches');
+        set(f, 'PaperSize', [12, 9.5]);  % Match figure aspect ratio
+        set(f, 'PaperPosition', [0, 0, 12, 9.5]);
+        
         t = tiledlayout(2, 2, 'TileSpacing', 'compact', 'Padding', 'normal');
         
         clean_suffix = strrep(suffix_name, '_', ' ');
@@ -146,15 +153,15 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         % Dynamic scaling for absolute vs percentage
         if contains(label_str, '(Abs)')
             % Case 1: Absolute Error (Thresholds) -> Range [0, 1]
-            max_actual_err = max(abs(d_plot(abs(d_plot) < 1)), [], 'all');
-            if isempty(max_actual_err), max_actual_err = 0.05; end
+            max_actual_err = max(abs(d_plot(abs(d_plot) < 1)), [], 'all', 'omitnan');
+            if isempty(max_actual_err) || isnan(max_actual_err), max_actual_err = 0.05; end
             y_err_max = max(0.05, max_actual_err * 1.2); % Min scale ±0.05
             d_plot(d_plot > 1) = 1; d_plot(d_plot < -1) = -1;
         else
             % Case 2: Percentage Error (BCa, Ranking) -> Range [-Inf, Inf]
             % Ignore massive outliers > 30% for determining the zoomlevel
-            max_actual_err = max(abs(d_plot(abs(d_plot) < 30)), [], 'all');
-            if isempty(max_actual_err), max_actual_err = 5.0; end
+            max_actual_err = max(abs(d_plot(abs(d_plot) < 30)), [], 'all', 'omitnan');
+            if isempty(max_actual_err) || isnan(max_actual_err), max_actual_err = 5.0; end
             y_err_max = max(5.0, max_actual_err * 1.2); % Min scale ±5%
             d_plot(d_plot > 50) = 50; d_plot(d_plot < -50) = -50; % Cap data display at 50%
         end
@@ -204,7 +211,9 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         xticks(1:3); xticklabels(modes);
         ylabel('Bootstrap Steps (B)', 'FontWeight', 'bold', 'Color', 'k');
         title('Computational Cost', 'Color', 'k', 'FontSize', 12);
-        ylim([0, max(d_val.cost(:)) * 1.15]);
+        max_cost = max(d_val.cost(:), [], 'all', 'omitnan');
+        if isempty(max_cost) || isnan(max_cost), max_cost = 1000; end
+        ylim([0, max_cost * 1.15]);
         setup_axis();
         
         % 4. Failure Rate (Bar)
@@ -222,11 +231,6 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         clean_metric = regexprep(metric_tag, '[^a-zA-Z0-9]', '');
         final_name = fullfile(out_path, sprintf('%s_%s_%s.png', suffix_name, clean_metric, ts_str));
         exportgraphics(f, final_name, 'Resolution', 300, 'BackgroundColor', 'w', 'Padding', 30);
-        
-        % Set consistent paper size for PDF export (prevents sizing inconsistencies)
-        set(f, 'PaperUnits', 'inches');
-        set(f, 'PaperSize', [12, 9.5]);  % Match figure aspect ratio (1200x950 px at 100 dpi)
-        set(f, 'PaperPosition', [0, 0, 12, 9.5]);
         
         % Append to PDFs
         for k = 1:length(pdf_paths)
@@ -260,6 +264,12 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     % Page 1: Scenarios
     fig_w = get_scenarios_width_px(scenarios);
     f1 = figure('Name', 'Study Config: Scenarios', 'Color', 'w', 'Position', [100, 100, fig_w, 680], 'Visible', 'off');
+    
+    % Set paper size for consistent PDF export BEFORE any plotting or export
+    set(f1, 'PaperUnits', 'inches');
+    set(f1, 'PaperSize', [12, 9.5]);
+    set(f1, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     cleanF1 = onCleanup(@() close_if_valid(f1)); % Ensure f1 is closed even on error
     
     axes('Position', [0 0 1 1], 'Visible', 'off'); hold on; xlim([0 1]); ylim([0 1]);
@@ -272,11 +282,6 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     
     name_p1 = fullfile(out_path, sprintf('Param_Scenarios_%s.png', ts_str));
     exportgraphics(f1, name_p1, 'Resolution', 300, 'BackgroundColor', 'w', 'Padding', 30);
-    
-    % Set paper size for consistent PDF export
-    set(f1, 'PaperUnits', 'inches');
-    set(f1, 'PaperSize', [12, 9.5]);
-    set(f1, 'PaperPosition', [0, 0, 12, 9.5]);
     
     % Export to combined PDF
     if exist(pdf_path, 'file'), exportgraphics(f1, pdf_path, 'Append', true, 'ContentType', 'vector', 'BackgroundColor', 'w');
@@ -293,6 +298,12 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     
     % Page 2: Methods
     f2 = figure('Name', 'Study Config: Methods', 'Color', 'w', 'Position', [150, 150, 850, 1100], 'Visible', 'off');
+    
+    % Set paper size for consistent PDF export BEFORE any plotting or export
+    set(f2, 'PaperUnits', 'inches');
+    set(f2, 'PaperSize', [12, 9.5]);
+    set(f2, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     cleanF2 = onCleanup(@() close_if_valid(f2)); % Ensure f2 is closed even on error
     
     axes('Position', [0 0 1 1], 'Visible', 'off'); hold on; xlim([0 1]); ylim([0 1]);
@@ -359,11 +370,6 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     
     name_p2 = fullfile(out_path, sprintf('Param_Methods_%s.png', ts_str));
     exportgraphics(f2, name_p2, 'Resolution', 300, 'BackgroundColor', 'w', 'Padding', 30);
-    
-    % Set paper size for consistent PDF export
-    set(f2, 'PaperUnits', 'inches');
-    set(f2, 'PaperSize', [12, 9.5]);
-    set(f2, 'PaperPosition', [0, 0, 12, 9.5]);
     
     if exist(pdf_path, 'file'), exportgraphics(f2, pdf_path, 'Append', true, 'ContentType', 'vector', 'BackgroundColor', 'w'); end
     

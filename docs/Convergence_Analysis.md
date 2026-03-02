@@ -39,9 +39,10 @@ We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) 
 
 ### Analysis Scope
 
-To isolate the behavior of individual convergence algorithms, the following simplifications were applied:
+To isolate the behavior of individual convergence algorithms, the following principles and simplifications were applied:
 
-* **Effect Size Metrics**: Both Cliff's Delta and Relative Difference are always calculated, and the convergence criterion is based on the averaged stability of both. Only Cliff's Delta was used as the accuracy metric for comparison against reference values. This design choice allows us to test whether the averaged convergence approach produces accurate individual estimates despite relying on a combined stability indicator.
+* **Accuracy Metrics**: To assess the overarching robustness, we quantify the estimation error against the high-precision references. For **BCa Confidence Intervals** and **Rankings**, we calculate the relative percentage error. For **Cliff's Delta Thresholds** ($\theta_d$), which operate on a fixed $[0, 1]$ interval, we use the absolute deviation to ensure stable validation even for very small reference values.
+* **Effect Size Calculation**: Both Cliff's Delta and Relative Difference are always calculated, and the convergence criterion is based on the averaged stability of both. This design choice allows us to test whether the averaged convergence approach produces accurate individual estimates despite relying on a combined stability indicator.
 * **Ranking Stability**: A single-metric ranking (M1 only) was used to provide a stable reference point. Multi-metric rankings (M1_M2, M1_M2_M3) may exhibit different convergence characteristics due to increased complexity.
 * **Thresholds for Ranking**: Pre-calculated reference thresholds were used to isolate the ranking convergence behavior from threshold estimation variability.
 
@@ -67,7 +68,8 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. Median absolute errors were typically well below 5% relative to the reference values. This also validates the averaged convergence approach: despite determining convergence from a combined stability indicator, the individual accuracy of Cliff's Delta remained excellent.
+* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, median relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.02).
+* This hybrid approach prevents scale-related artifacts and confirms that the averaged convergence criteria in HERA ensure high precision across all metrics, even when they are not individually monitored.
 
 ### Global Results Summary
 
@@ -168,6 +170,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
      "bootstrap_seed_offset": 1000,
      "scenario_seed_offset": 10000,
      "reference_seed_offset": 5000,
+     "reference_step_offset": 1000,
      "modes": {
          "Default": {
               "thr": { "n": 25, "sm": 3, "st": 3, "tol": 0.01, "start": 100, "step": 100, "end": 10000 },
@@ -194,6 +197,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 * `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
 * `scenario_seed_offset`: Ensures different tested scenarios don't overlap in their RNG seeds. HERA automatically scales this offset based on the number of simulations to ensure each scenario stays in its own unique random sequence.
 * `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 5000).
+* `reference_step_offset`: Ensures that the high-precision reference values for Thresholds, BCa, and Ranking are statistically independent of each other by applying multipliers ($1 \cdot \text{offset}$, $2 \cdot \text{offset}$, $3 \cdot \text{offset}$) to the reference base seed (fallback: 1000).
 * `modes`: You can specify missing details (`Relaxed`, `Default`, `Strict`) specifically for each of the three algorithms (`thr` for Thresholds, `bca` for BCa CI, `rnk` for Ranking), down to single parameters (`start`, `step`, `end`, `sm`, `st`, `tol`). Missing properties will automatically fall back to the package defaults. 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
 * `refs`: Defines the number of bootstrap iterations for the high-precision reference values ("The Truth").
   * **Default:** Thresholds $25{,}000$, BCa Confidence Intervals $50{,}000$, Ranking Stability $10{,}000$.
