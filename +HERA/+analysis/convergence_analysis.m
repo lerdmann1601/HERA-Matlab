@@ -174,10 +174,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     if isfield(cfg_base, 'simulation_seed'), sseed = cfg_base.simulation_seed; else, sseed = 123; end
     if isfield(cfg_base, 'scenario_seed_offset'), sce_o = cfg_base.scenario_seed_offset; else, sce_o = max(10000, n_sims_per_cond * 3); end
     if isfield(cfg_base, 'reference_seed_offset'), ref_o = cfg_base.reference_seed_offset; else, ref_o = 5000; end
+    if isfield(cfg_base, 'reference_step_offset'), ref_s_o = cfg_base.reference_step_offset; else, ref_s_o = 1000; end
     fprintf(' Simulation Base Seed:  %d\n', sseed);
     fprintf(' Bootstrap Offset:      %d\n', cfg_base.bootstrap_seed_offset);
     fprintf(' Scenario Offset:       %d\n', sce_o);
     fprintf(' Reference Offset:      %d\n', ref_o);
+    fprintf(' Reference Step Offset: %d\n', ref_s_o);
     fprintf('----------------------------------------------------------\n');
     fprintf(' Reference Settings:\n');
     
