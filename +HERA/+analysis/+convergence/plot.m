@@ -262,8 +262,7 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     pdf_config = ''; % Initialize for later use
     
     % Page 1: Scenarios
-    fig_w = get_scenarios_width_px(scenarios);
-    f1 = figure('Name', 'Study Config: Scenarios', 'Color', 'w', 'Position', [100, 100, fig_w, 680], 'Visible', 'off');
+    f1 = figure('Name', 'Study Config: Scenarios', 'Color', 'w', 'Position', [100, 100, 1200, 950], 'Visible', 'off');
     
     % Set paper size for consistent PDF export BEFORE any plotting or export
     set(f1, 'PaperUnits', 'inches');
@@ -297,7 +296,7 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     close(f1); clear cleanF1;
     
     % Page 2: Methods
-    f2 = figure('Name', 'Study Config: Methods', 'Color', 'w', 'Position', [150, 150, 850, 1100], 'Visible', 'off');
+    f2 = figure('Name', 'Study Config: Methods', 'Color', 'w', 'Position', [150, 150, 1200, 950], 'Visible', 'off');
     
     % Set paper size for consistent PDF export BEFORE any plotting or export
     set(f2, 'PaperUnits', 'inches');
@@ -385,11 +384,10 @@ end
     function draw_data_section_clean(scenarios, y_top)
     font_name = 'Helvetica'; row_h = 0.065;
     
-    % Dynamically calculate column widths based on content
-    pos = get(gcf, 'Position');
-    fig_w = pos(3);
+    % Fixed dimensions based on standardized 1200x950 resolution
+    fig_w = 1200;
     char_w_norm = 7.0 / fig_w; % 7px per char normalized
-    pad_norm = 20 / fig_w;     % 20px padding (standardized)
+    pad_norm = 20 / fig_w;     % 20px padding
     
     % 1. Calculate MAX widths for each column
     l_idx = length('0'); % Approx width for index
@@ -509,31 +507,6 @@ function l = check_param_struct_len(p_cell)
             l = max(l, length(str));
         end
     end
-end
-
-function w = get_scenarios_width_px(scenarios)
-    l_name = length('Scenario Name');
-    l_n    = length('N');
-    l_dist = length('Distribution');
-    l_sum  = length('Data Summary');
-    
-    for i = 1:length(scenarios)
-        l_name = max(l_name, length(scenarios(i).name));
-        l_n    = max(l_n,    length(sprintf('%d', scenarios(i).n)));
-        l_dist = max(l_dist, length(scenarios(i).Dist));
-        l_sum  = max(l_sum, length(scenarios(i).DataSummary));
-    end
-    
-    px_per_char = 7.0; % Match draw_data_section_clean
-    pad_px = 30;
-    margin_left = 60; % Space for row numbers and left margin
-    
-    % Match the draw_data_section_clean calculation:
-    % c2=0.08, c3=c2+name+pad, c4=c3+n+pad, c5=c4+dist+pad, x_end=c5+sum
-    % Total content width = margin + name + pad + n + pad + dist + pad + sum
-    req_px = margin_left + (l_name * px_per_char) + pad_px + (l_n * px_per_char) + pad_px + (l_dist * px_per_char) + pad_px + (l_sum * px_per_char);
-    
-    w = max(720, ceil(req_px));
 end
 
 function close_if_valid(fig)
