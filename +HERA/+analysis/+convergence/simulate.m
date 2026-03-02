@@ -122,7 +122,22 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         % Dynamic batch sizing
         n_pairs = nchoosek(N, 2);
         bytes_per_double = 8;
-        bytes_per_sim = (sc.n * N + n_pairs*4 + N) * bytes_per_double;
+        bytes_per_int = 4;
+        
+        % Determine peak B-value from parameters for realistic RAM estimation
+        max_B = 0;
+        for m_cfg = 1:num_modes
+            max_B = max([max_B, params.thr{m_cfg}.end, params.bca{m_cfg}.end, params.rnk{m_cfg}.end]);
+        end
+        if isfield(refs, 'bca') && isnumeric(refs.bca), max_B = max(max_B, refs.bca); end
+        if isfield(refs, 'thr') && isnumeric(refs.thr), max_B = max(max_B, refs.thr); end
+        
+        % The "Real" Formula: Input Data + Bootstrap Matrices [Pairs x Modes x B] + Indices [n x B]
+        % This now reflects the actual working memory footprint on the workers.
+        bytes_per_sim = (sc.n * N * bytes_per_double) + ...                  % Input Data
+                         (n_pairs * num_modes * max_B * bytes_per_double) + ... % Bootstrap Matrix peak
+                         (sc.n * max_B * bytes_per_int);                        % Shuffle Indices
+        
         total_memory_needed = (n_sims_per_cond * bytes_per_sim) / (1024^2);
         
         if total_memory_needed <= effective_memory_mb

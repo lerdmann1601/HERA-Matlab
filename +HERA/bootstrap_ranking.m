@@ -187,7 +187,11 @@ else
         %   - Preserves bit-perfect sequences via column-wise randi generation.
 
         % Estimate memory per iteration (ranking involves 3D arrays [Pairs x Metrics x B])
-        mem_per_iter_bytes = (n_subj_b * 4) + (size(pair_idx_all, 1) * num_metrics * 2 * 8);
+        bytes_per_double = 8;
+        bytes_per_int = 4;
+        mem_per_iter_bytes = (n_subj_b * bytes_per_int) + ...               % Bootstrap indices
+                             (n_subj_b * 2 * bytes_per_double) + ...        % Temp boot_indices_block data
+                             (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double); % Result matrix
         
         % Use helper to determine batch size
         [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, Br_b, mem_per_iter_bytes);
@@ -400,7 +404,9 @@ end
 % Estimate total memory needed for all iterations.
 bytes_per_double = 8;
 bytes_per_int = 4;
-mem_per_iter_bytes = (n_subj_b * bytes_per_int) + (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double);
+mem_per_iter_bytes = (n_subj_b * bytes_per_int) + ...               % Bootstrap indices
+                     (n_subj_b * 2 * bytes_per_double) + ...        % Temp boot_x/boot_y data
+                     (size(pair_idx_all, 1) * num_metrics * 2 * bytes_per_double); % Result matrix
 
 % Use helper to determine batch size
 [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B_final, mem_per_iter_bytes);

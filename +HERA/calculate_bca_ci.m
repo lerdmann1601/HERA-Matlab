@@ -347,7 +347,11 @@ else
                 %   - Preserves bit-perfect sequences via column-wise randi generation.
                 
                 % Dynamic batch sizing
-                bytes_per_sample = num_probanden * 4; % int32 precision
+                bytes_per_double = 8;
+                bytes_per_int = 4;
+                bytes_per_sample = (num_probanden * bytes_per_int) + ...      % Bootstrap indices
+                                   (num_probanden * 2 * bytes_per_double) + ... % Temp boot_x/boot_y
+                                   bytes_per_double;                            % boot_stats result
                 
                 % Use helper to determine batch size
                 [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, B_ci_current, bytes_per_sample);
@@ -677,9 +681,14 @@ for metric_idx = 1:num_metrics
     % --- Memory-aware batch sizing for bootstrap ---
     max_n_valid = max(pair_n_valid);
     if max_n_valid < 2, max_n_valid = 2; end
-    bytes_per_sample = max_n_valid * 4 * 2;  % x and y bootstrap samples (int32)
     
     % Use helper to determine batch size (Final Phase)
+    bytes_per_double = 8;
+    bytes_per_int = 4;
+    bytes_per_sample = (max_n_valid * bytes_per_int) + ...      % Bootstrap indices
+                       (max_n_valid * 2 * bytes_per_double) + ... % Temp boot_x/boot_y
+                       bytes_per_double;                            % boot_stats result
+    
     [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, B_ci, bytes_per_sample);
     
     % Unique offset for this metric to avoid substream collisions.

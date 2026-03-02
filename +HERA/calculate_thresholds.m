@@ -287,7 +287,11 @@ else
             %   - Preserves bit-perfect sequences via column-wise randi generation.
 
             % Dynamic batch sizing
-            bytes_per_sample = n_vals * 4; % int32 precision
+            bytes_per_double = 8;
+            bytes_per_int = 4;
+            bytes_per_sample = (n_vals * bytes_per_int) + ...    % Bootstrap indices
+                               (n_vals * bytes_per_double) + ... % Temp data matrix
+                               bytes_per_double;                 % Median result
             
             % Use helper to determine batch size
             [BATCH_SIZE_PAR, num_batches_par] = HERA.run.get_batch_config(config, B_current, bytes_per_sample);
@@ -471,7 +475,11 @@ for metric_idx = 1:num_metrics
         n_data_d = numel(d_vals_metric_abs);
         
         % Calculate batch size based on memory.
-        bytes_per_sample = n_data_d * 4;
+        bytes_per_double = 8;
+        bytes_per_int = 4;
+        bytes_per_sample = (n_data_d * bytes_per_int) + ...    % Bootstrap indices
+                           (n_data_d * bytes_per_double) + ... % Temp data matrix
+                           bytes_per_double;                 % Median result
         
         % Use helper to determine batch size (Final Phase)
         [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B, bytes_per_sample);
@@ -520,7 +528,11 @@ for metric_idx = 1:num_metrics
         n_data_rel = numel(rel_vals_metric);
         
         % Calculate batch size based on memory.
-        bytes_per_sample = n_data_rel * 4;
+        bytes_per_double = 8;
+        bytes_per_int = 4;
+        bytes_per_sample = (n_data_rel * bytes_per_int) + ...    % Bootstrap indices
+                           (n_data_rel * bytes_per_double) + ... % Temp data matrix
+                           bytes_per_double;                   % Median result
         
         % Use helper to determine batch size (Final Phase)
         [BATCH_SIZE, num_batches] = HERA.run.get_batch_config(config, selected_B, bytes_per_sample);
