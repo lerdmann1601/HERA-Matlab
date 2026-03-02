@@ -41,6 +41,11 @@ names = dataset_names(order);
 % Create the figure object.
 h_fig_rank = figure('Name', figure_name_str, 'Color', styles.colors.background, 'Visible', 'off');
 
+% Set figure paper properties for consistent PDF export
+set(h_fig_rank, 'PaperUnits', 'inches');
+set(h_fig_rank, 'PaperSize', [12, 9.5]);
+set(h_fig_rank, 'PaperPosition', [0, 0, 12, 9.5]);
+
 tcl = tiledlayout(1, 1, 'Padding', 'compact');
 ax = nexttile;
 

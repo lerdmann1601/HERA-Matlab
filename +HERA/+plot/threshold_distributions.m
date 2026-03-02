@@ -53,6 +53,12 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     %% Plot 1: Histogram Distribution of Bootstrap Thresholds
     % Create the figure.
     h_fig_hist_thr = figure('Name', lang.plots.titles.threshold_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_hist_thr, 'PaperUnits', 'inches');
+    set(h_fig_hist_thr, 'PaperSize', [12, 9.5]);
+    set(h_fig_hist_thr, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     % Dynamic tiled layout
     tcl_thr = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     sgtitle_str = sprintf([lang.plots.titles.threshold_dist '\n'], selected_B);
@@ -77,8 +83,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
         else
             % Dynamically determine "nice" bin edges and tick marks for the histogram.
             points_of_interest = [data(:); d_thresh(metric_idx)]; 
-            min_val = min(points_of_interest);
-            max_val = max(points_of_interest);
+            min_val = min(points_of_interest, [], 'all', 'omitnan');
+            max_val = max(points_of_interest, [], 'all', 'omitnan');
             data_range = max_val - min_val;
             
             if data_range > 1e-6
@@ -144,8 +150,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             if rel_thresh(metric_idx) > rel_thresh_b(metric_idx)
                 points_of_interest(end+1) = rel_thresh(metric_idx);
             end
-            min_val = min(points_of_interest);
-            max_val = max(points_of_interest);
+            min_val = min(points_of_interest, [], 'all', 'omitnan');
+            max_val = max(points_of_interest, [], 'all', 'omitnan');
             data_range = max_val - min_val;
             
             if data_range > 1e-6
@@ -204,6 +210,12 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     %% Plot 2: Histogram Distribution of Raw Effect Sizes
     % Creates the figure.
     h_fig_hist_raw = figure('Name', lang.plots.titles.raw_effect_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_hist_raw, 'PaperUnits', 'inches');
+    set(h_fig_hist_raw, 'PaperSize', [12, 9.5]);
+    set(h_fig_hist_raw, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     % Dynamic tiled layout
     tcl_thr = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     sgtitle_str = sprintf([lang.plots.titles.raw_effect_dist '\n']);
@@ -241,8 +253,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xticks(sort([val1, val2, 0]));
         else
             % Dynamic ticks based on the raw data range.
-            min_val = min(data_clean);
-            max_val = max(data_clean);
+            min_val = min(data_clean, [], 'all', 'omitnan');
+            max_val = max(data_clean, [], 'all', 'omitnan');
             data_range = max_val - min_val;
             
             if data_range > 1e-6
@@ -320,7 +332,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xticks(sort(unique([0, val1, val2, 2])));
         else
             % Dynamic ticks based on the raw data range.
-            min_val = min(data_clean); max_val = max(data_clean);
+            min_val = min(data_clean, [], 'all', 'omitnan'); 
+            max_val = max(data_clean, [], 'all', 'omitnan');
             data_range = max_val - min_val;
             
             if data_range > 1e-6

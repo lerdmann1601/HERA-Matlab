@@ -50,6 +50,12 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
 
     %% 1. Z0 Distribution (Bias Correction)
     h_z0 = figure('Name', lang.plots.titles.bca_z0_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_z0, 'PaperUnits', 'inches');
+    set(h_z0, 'PaperSize', [12, 9.5]);
+    set(h_z0, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_z0 = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     
     sgtitle_str_z0 = sprintf(lang.plots.titles.bca_z0_dist, num_pairs);
@@ -85,6 +91,12 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
 
     %% 2. A Distribution (Acceleration/Skewness)
     h_a = figure('Name', lang.plots.titles.bca_a_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_a, 'PaperUnits', 'inches');
+    set(h_a, 'PaperSize', [12, 9.5]);
+    set(h_a, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_a = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     
     sgtitle_str_a = sprintf(lang.plots.titles.bca_a_dist, num_pairs);
@@ -122,6 +134,12 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
     ci_widths_r = ci_r_all(:, 2, :) - ci_r_all(:, 1, :);
 
     h_widths = figure('Name', lang.plots.titles.ci_width_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_widths, 'PaperUnits', 'inches');
+    set(h_widths, 'PaperSize', [12, 9.5]);
+    set(h_widths, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_widths = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
     
     sgtitle_str = sprintf(lang.plots.titles.ci_width_dist, num_pairs, B_ci);
@@ -181,8 +199,8 @@ function plot_distribution(ax, data, face_color, styles)
         [f, xi] = ksdensity(data, 'Bandwidth', 'normal-approx');
         
         % Nicer axis ticks (Auto-Scale)
-        min_val = min([data(:); xi(:)]);
-        max_val = max([data(:); xi(:)]);
+        min_val = min([data(:); xi(:)], [], 'all', 'omitnan');
+        max_val = max([data(:); xi(:)], [], 'all', 'omitnan');
         data_range = max_val - min_val;
         
         if data_range > 1e-6

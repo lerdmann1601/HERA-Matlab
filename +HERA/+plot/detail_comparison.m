@@ -129,6 +129,11 @@ for page = 1:num_pages
     
     h_fig = figure('Name', sprintf(lang.plots.figure_names.comparison_by_metric, metric_names{metric_idx}, page), ...
                    'Color', styles.colors.background, 'Visible', 'off', 'Units', 'pixels', 'Position', current_pos);
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig, 'PaperUnits', 'inches');
+    set(h_fig, 'PaperSize', [12, 9.5]);
+    set(h_fig, 'PaperPosition', [0, 0, 12, 9.5]);
     % Add the figure handle to the list for PDF export.
     handles_list(end+1) = h_fig;
     
@@ -142,7 +147,7 @@ for page = 1:num_pages
     p_min_display_floor = 1e-4;
     % Add tiny random jitter to visually separate identical p-values.
     jitter = (rand(size(page_data.p_values))) * 1e-9;
-    p_values_for_plot = max(page_data.p_values + jitter, p_min_display_floor);
+    p_values_for_plot = max(page_data.p_values + jitter, p_min_display_floor, 'omitnan');
     % Plot the horizontal bars with significance-based colors.
     barh(ax1, 1:num_current_items, p_values_for_plot, 'FaceColor', 'flat', 'CData', colors_combined, 'BarWidth', 0.7);
     % Overlay the Holm-Bonferroni threshold markers.

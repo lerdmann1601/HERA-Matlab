@@ -37,6 +37,12 @@ function h_fig_rank = rank_convergence(B_vector, stability_vector, selected_B, c
     
     % Create the figure with specified properties.
     h_fig_rank = figure('Name', lang.plots.titles.rank_stability_convergence_name, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_rank, 'PaperUnits', 'inches');
+    set(h_fig_rank, 'PaperSize', [12, 9.5]);
+    set(h_fig_rank, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_rank = tiledlayout(1, 1, 'Padding', 'compact');
     ax = nexttile;
     

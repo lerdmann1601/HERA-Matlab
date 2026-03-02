@@ -31,6 +31,11 @@ num_metrics = numel(metric_names);
 ts = shared_info.config.timestamp;
 
 h_fig_summary = figure('Name', lang.plots.figure_names.final_ranking, 'Color', styles.colors.background, 'Visible', 'off');
+
+% Set figure paper properties for consistent PDF export
+set(h_fig_summary, 'PaperUnits', 'inches');
+set(h_fig_summary, 'PaperSize', [12, 9.5]);
+set(h_fig_summary, 'PaperPosition', [0, 0, 12, 9.5]);
 tcl_summary = tiledlayout(1, 2, 'Padding', 'loose', 'TileSpacing', 'compact');
 title_str_summary = sprintf([lang.plots.titles.final_ranking '\n']);
 title(tcl_summary, title_str_summary, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text, 'Interpreter', 'none');

@@ -56,6 +56,12 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     %% Plot 1: Global Convergence Curve
     % This plot shows the overall stability (mean across all metrics) that was used for the convergence check.
     h_fig_global = figure('Name', lang.plots.titles.threshold_convergence_global, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_global, 'PaperUnits', 'inches');
+    set(h_fig_global, 'PaperSize', [12, 9.5]);
+    set(h_fig_global, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_thr_global = tiledlayout(1, 1, 'Padding', 'compact');
     ax_global = nexttile;
 
@@ -116,6 +122,11 @@ function [h_fig_global, h_fig_detailed] = threshold_convergence(B_vector, stabil
     %% Plot 2: Detailed Convergence Curves (per Metric) 
     % This plot shows the individual stability curves for each metric (without smoothing).
     h_fig_detailed = figure('Name', lang.plots.titles.threshold_convergence, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_detailed, 'PaperUnits', 'inches');
+    set(h_fig_detailed, 'PaperSize', [12, 9.5]);
+    set(h_fig_detailed, 'PaperPosition', [0, 0, 12, 9.5]);
     
     stability_matrix = stability_data.detailed_stability;
     elbow_indices = [];

@@ -31,6 +31,11 @@ ts = shared_info.config.timestamp;
 if isfield(results, 'borda_results') && ~isempty(results.borda_results)
     % Create the figure for the Borda consensus ranking plot.
     h_fig_borda = figure('Name', lang.plots.figure_names.borda_plot, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_borda, 'PaperUnits', 'inches');
+    set(h_fig_borda, 'PaperSize', [12, 9.5]);
+    set(h_fig_borda, 'PaperPosition', [0, 0, 12, 9.5]);
     tcl_borda = tiledlayout(1, 1, 'Padding', 'compact');
     ax_lollipop = nexttile;
     hold(ax_lollipop, 'on');

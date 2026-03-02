@@ -30,6 +30,11 @@ function h_fig_hist_rank = rank_histograms(final_bootstrap_ranks, dataset_names,
     num_datasets_plot = size(final_bootstrap_ranks, 1);
     h_fig_hist_rank = figure('Name', lang.plots.titles.rank_dist_name, 'Color', styles.colors.background, 'Visible', 'off');
     
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_hist_rank, 'PaperUnits', 'inches');
+    set(h_fig_hist_rank, 'PaperSize', [12, 9.5]);
+    set(h_fig_hist_rank, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     % Set up the title and layout for the combined plot.
     tcl_hist = tiledlayout('flow', 'TileSpacing', 'compact', 'Padding', 'compact');
     sgtitle_str = sprintf(lang.plots.titles.rank_dist, selected_B);
@@ -58,7 +63,7 @@ function h_fig_hist_rank = rank_histograms(final_bootstrap_ranks, dataset_names,
             % Normal case for integer-valued ranks: use a bin width of 1.
             h = histogram(ranks_data, 'Normalization', 'probability', 'FaceColor', styles.colors.bar_face, 'EdgeColor', styles.colors.bar_edge);
             h.BinWidth = 1; 
-            h.BinLimits = [min(ranks_data)-0.5, max(ranks_data)+0.5];
+            h.BinLimits = [min(ranks_data, [], 'all', 'omitnan')-0.5, max(ranks_data, [], 'all', 'omitnan')+0.5];
         end
         grid on; box on;
         set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
@@ -68,12 +73,11 @@ function h_fig_hist_rank = rank_histograms(final_bootstrap_ranks, dataset_names,
         xlabel(lang.plots.xlabels.rank, 'FontSize', styles.font.label, 'Color', styles.colors.text);
         ylabel(lang.plots.ylabels.rel_frequency, 'FontSize', styles.font.label, 'Color', styles.colors.text);
     
-        % Set general axis properties.
         set(gca, 'FontSize', styles.font.tick, ...
                  'XTick', unique(ranks_data), ...
                  'XColor', styles.colors.text, ...
                  'YColor', styles.colors.text);
-        xlim([min(ranks_data)-1, max(ranks_data)+1]);
+        xlim([min(ranks_data, [], 'all', 'omitnan')-1, max(ranks_data, [], 'all', 'omitnan')+1]);
         % Enforce the y-axis to always span from 0 to 1.
         ylim([0 1]);    
         % Force the y-axis ticks for readable standard.

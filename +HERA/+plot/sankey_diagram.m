@@ -34,6 +34,11 @@ num_metrics = numel(metric_names);
 if num_metrics > 1
     
     h_fig_sankey = figure('Name', lang.plots.figure_names.rank_shifts, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_sankey, 'PaperUnits', 'inches');
+    set(h_fig_sankey, 'PaperSize', [12, 9.5]);
+    set(h_fig_sankey, 'PaperPosition', [0, 0, 12, 9.5]);
     tcl_sankey = tiledlayout(1, 1, 'Padding', 'compact');
     ax = nexttile;
     hold(ax, 'on');

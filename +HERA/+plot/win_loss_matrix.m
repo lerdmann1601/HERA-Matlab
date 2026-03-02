@@ -41,6 +41,11 @@ edges = [-inf, 0.25, 0.5, 0.75, inf];
 
 % Set up the figure, tiled layout, and main title.
 h_fig_winloss = figure('Name', lang.plots.figure_names.win_loss_matrix, 'Color', styles.colors.background, 'Visible', 'off');
+
+% Set figure paper properties for consistent PDF export
+set(h_fig_winloss, 'PaperUnits', 'inches');
+set(h_fig_winloss, 'PaperSize', [12, 9.5]);
+set(h_fig_winloss, 'PaperPosition', [0, 0, 12, 9.5]);
 % Tiled layout is dynamic based on num_metrics
 tcl_wl = tiledlayout(1, num_metrics, 'Padding', 'loose', 'TileSpacing', 'compact');
 title_str_winloss = sprintf([lang.plots.titles.win_loss_matrix '\n']);

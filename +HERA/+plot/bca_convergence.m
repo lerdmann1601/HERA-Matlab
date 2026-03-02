@@ -57,11 +57,16 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');
 
-
     %% Plot 1: Global Convergence Curve
     % This plot summarizes the entire process into one line (mean stability).
     
     h_fig_global = figure('Name', lang.plots.titles.bca_convergence_global, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_global, 'PaperUnits', 'inches');
+    set(h_fig_global, 'PaperSize', [12, 9.5]);
+    set(h_fig_global, 'PaperPosition', [0, 0, 12, 9.5]);
+    
     tcl_bca_global = tiledlayout(1, 1, 'Padding', 'compact');
     ax_global = nexttile;
 
@@ -127,6 +132,11 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
 
     %% Plot 2: Detailed Convergence (Grid)
     h_fig_detailed = figure('Name', lang.plots.titles.bca_convergence_long, 'Color', styles.colors.background, 'Visible', 'off');
+    
+    % Set figure paper properties for consistent PDF export
+    set(h_fig_detailed, 'PaperUnits', 'inches');
+    set(h_fig_detailed, 'PaperSize', [12, 9.5]);
+    set(h_fig_detailed, 'PaperPosition', [0, 0, 12, 9.5]);
     
     num_metrics = numel(metric_names);
     tcl_detailed = tiledlayout(2, num_metrics, 'TileSpacing', 'compact', 'Padding', 'compact');
