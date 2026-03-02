@@ -132,20 +132,23 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         if isfield(refs, 'bca') && isnumeric(refs.bca), max_B = max(max_B, refs.bca); end
         if isfield(refs, 'thr') && isnumeric(refs.thr), max_B = max(max_B, refs.thr); end
         
-        % The "Real" Formula: Input Data + Bootstrap Matrices [Pairs x Modes x B] + Indices [n x B]
-        % This now reflects the actual working memory footprint on the workers.
-        bytes_per_sim = (sc.n * N * bytes_per_double) + ...                  % Input Data
-                         (n_pairs * num_modes * max_B * bytes_per_double) + ... % Bootstrap Matrix peak
-                         (sc.n * max_B * bytes_per_int);                        % Shuffle Indices
+        % Memory per simulation task (one mode/method at a time)
+        % Peak is dominated by the bootstrap result matrix [Pairs x B] and indices [n x B].
+        bytes_per_task = (sc.n * N * bytes_per_double) + ...                  % Input Data
+                         (n_pairs * max_B * bytes_per_double) + ...           % Bootstrap Matrix peak (one task)
+                         (sc.n * max_B * bytes_per_int);                      % Shuffle Indices
         
-        total_memory_needed = (n_sims_per_cond * bytes_per_sim) / (1024^2);
-        
-        if total_memory_needed <= effective_memory_mb
-            sims_per_batch = n_sims_per_cond;
+        % Determine how many simulations we can safely process in parallel.
+        % We compare the per-task footprint against the available RAM per worker.
+        if (bytes_per_task / 1024^2) <= effective_memory_mb
+            % Most cases: Each task fits comfortably in a worker's slice.
+            % We set batch size to worker count to ensure Strategy A (parallel outer).
+            sims_per_batch = num_workers;
         else
-            sims_per_batch = max(2, floor((effective_memory_mb * 1024^2) / bytes_per_sim));
+            % Very low RAM / Huge B: Scale down to fit.
+            sims_per_batch = max(2, floor(TARGET_MEMORY / (bytes_per_task / 1024^2)));
         end
-        sims_per_batch = min(sims_per_batch, num_workers);  % Match batch size to worker count
+        sims_per_batch = min(sims_per_batch, n_sims_per_cond);
         
         fprintf('  [Config: sims_per_batch=%d for n=%d]\n', sims_per_batch, sc.n);
         
