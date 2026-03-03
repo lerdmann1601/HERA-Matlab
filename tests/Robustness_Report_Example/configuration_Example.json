@@ -5,5 +5,100 @@
   "simulation_seed": 123,
   "bootstrap_seed_offset": 1000,
   "scenario_seed_offset": 10000,
-  "reference_seed_offset": 1
+  "reference_seed_offset": 5000,
+  "reference_step_offset": 1000,
+  "refs": {
+    "thr": 25000,
+    "bca": 50000,
+    "rnk": 10000
+  },
+  "params": {
+    "thr": [
+      {
+        "n": 15,
+        "sm": 2,
+        "st": 2,
+        "tol": 0.01,
+        "start": 100,
+        "step": 100,
+        "end": 10000
+      },
+      {
+        "n": 25,
+        "sm": 3,
+        "st": 3,
+        "tol": 0.01,
+        "start": 100,
+        "step": 100,
+        "end": 10000
+      },
+      {
+        "n": 35,
+        "sm": 4,
+        "st": 4,
+        "tol": 0.01,
+        "start": 100,
+        "step": 100,
+        "end": 10000
+      }
+    ],
+    "bca": [
+      {
+        "n": 20,
+        "sm": 2,
+        "st": 2,
+        "tol": 0.03,
+        "start": 100,
+        "step": 200,
+        "end": 20000
+      },
+      {
+        "n": 30,
+        "sm": 3,
+        "st": 3,
+        "tol": 0.03,
+        "start": 100,
+        "step": 200,
+        "end": 20000
+      },
+      {
+        "n": 40,
+        "sm": 4,
+        "st": 4,
+        "tol": 0.03,
+        "start": 100,
+        "step": 200,
+        "end": 20000
+      }
+    ],
+    "rnk": [
+      {
+        "n": 10,
+        "sm": 2,
+        "st": 2,
+        "tol": 0.005,
+        "start": 50,
+        "step": 25,
+        "end": 2500
+      },
+      {
+        "n": 15,
+        "sm": 3,
+        "st": 3,
+        "tol": 0.005,
+        "start": 50,
+        "step": 25,
+        "end": 2500
+      },
+      {
+        "n": 20,
+        "sm": 4,
+        "st": 4,
+        "tol": 0.005,
+        "start": 50,
+        "step": 25,
+        "end": 2500
+      }
+    ]
+  }
 }

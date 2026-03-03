@@ -68,7 +68,7 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, median relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.02).
+* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, median relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.05).
 * This hybrid approach prevents scale-related artifacts and confirms that the averaged convergence criteria in HERA ensure high precision across all metrics, even when they are not individually monitored.
 
 ### Global Results Summary
@@ -96,7 +96,7 @@ Our analysis confirms that the Default settings provided with HERA should be a s
   
 ## Computational Note
 
-The complete analysis (7 scenarios × 50 independent simulations × 6 different candidates ranked per scenario, comprising 2,100 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 11.5 hours. For each simulation, high-precision reference values were independently derived (up to B=30,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
+The complete analysis (7 scenarios × 50 independent simulations × 6 different candidates ranked per scenario, comprising 2,100 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 9 hours. For each simulation, high-precision reference values were independently derived (up to B=30,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
 
 ## Full Report
 
@@ -192,7 +192,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 
 * `target_memory`: Overrides the dynamic RAM detection algorithm with a fixed limit (in MB).
   * **What it means:** It caps the memory footprint allowed per parallel worker during bootstrap batch processing. If the estimated memory for all iterations exceeds this limit, they are automatically split into smaller chunks to prevent out-of-memory errors.
-  * **Default Calculation:** Because the convergence analysis uses `parfeval` for nested parallel execution (which carries slightly higher memory overhead), it applies a more conservative baseline than regular HERA runs. If omitted, it detects the system's total physical RAM and sets a base target of **25 MB per 1 GB of RAM** (e.g., 400 MB for a 16 GB system), with an unshakeable minimum of 200 MB. This base value is then divided by the number of CPU cores to determine the final effective memory limit per batch on each worker.
+  * **Default Calculation:** If omitted, HERA automatically detects your system's available RAM to optimize performance. It reserves a safe memory buffer (**25 MB per 1 GB of RAM**, e.g., 400 MB for a 16 GB system) to prevent system overloads and automatically balances the number of simultaneous simulations based on your CPU cores and this memory limit to ensure the analysis runs as fast as possible without crashing.
 * `simulation_seed`: Seeds the main study. Can be locked for strict reproduction (fallback: 123).
 * `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
 * `scenario_seed_offset`: Ensures different tested scenarios don't overlap in their RNG seeds. HERA automatically scales this offset based on the number of simulations to ensure each scenario stays in its own unique random sequence.
