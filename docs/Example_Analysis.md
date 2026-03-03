@@ -13,7 +13,7 @@ We prioritize Optical Contrast (OC) as the primary metric, given its strong corr
 
 ### Interpreting the results 1
 
-The whole analysis took about 4 Minutes to complete on my Laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM). The final report PDF provides guidance on interpreting the results. Detailed Statistics are provided in the Ranking Report PDF. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
+The whole analysis took about 4 Minutes to complete on a standard Laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM). The final report PDF provides guidance on interpreting the results. Detailed Statistics are provided in the Ranking Report PDF. In this example, Method D is ranked first, followed by Method B and Method A. However, Method A exhibits a 95% confidence interval ranging from rank 3 to rank 6, whereas Method F is ranked fourth with a confidence interval between rank 2 and rank 4.
 
 The Sankey Diagram reveals that Method A's ranking is largely driven by its high SNR. The rank distribution under resampling conditions indicates that Method F frequently achieves a higher rank than Method A. Analysis of the Win-Loss Matrix and the CSV log file suggests that Method A outranks Method F partly due to a win in SNR against Method E, albeit with only 50% power.
 
@@ -51,13 +51,13 @@ This matrix visualizes the pairwise comparisons between methods. Green indicates
 
 We began evaluating the initial images from Method D, Method F, and Method B. Although Method D appears to offer the best overall image quality, we observed that its contrast enhancement occasionally leads to an over-representation of the Region of Interest (ROI). Conversely, the Contrast and Image Quality of Method B seem to depict the ROI size more accurately. Consequently, we sought to determine the optimal setting where Method D remains superior to Method B without excessive contrast enhancement that could compromise SNR as well.
 
-To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 5 minutes to 1 minute for each analysis step on my M1 MBP.
+To achieve this, we used the same metrics as in Example 1 but introduced a new method, Method G. In Method G, we iteratively reduced the contrast enhancement calculated for Method D until it was just robustly superior to Method B. We retained all original methods, including Method D, in the analysis for comparison. Since we had already established the required number of bootstrap iterations for our data characteristics, we repeated the analysis with a fixed iteration count, reducing the HERA runtime from 4 minutes to 1 minute for each analysis step on the same standard M1 MBP.
 
 ### Interpreting the results 2
 
 We progressively reduced the contrast enhancement of Method G to 20%. Below this threshold, Method G begins to lose its robust superiority over Method B, and at 15%, its confidence interval overlaps with that of Method B.
 
-Examining the final ranking for Example 2, we see that the addition of Method G does not fundamentally alter the initial ranking. Method G achieves a rank of 2 within its 95% confidence interval and secures the second-highest Borda Score. Based on these findings, we can proceed with recalculating our image enhancement technique using 20% contrast enhancement for the final analysis.
+Examining the final ranking for Example 2, we see that the addition of Method G does not fundamentally alter the initial ranking. Method G achieves a rank of 2 within its 95% confidence interval and secures the second-highest Borda Score. Based on these findings, we can proceed with recalculating our image enhancement technique using 20% contrast enhancement for the final analysis. However, as demonstrated in this use case, quality metrics alone do not guarantee that the identified top candidate is optimal for the specific application. The final results should always be critically reviewed and validated within the targeted application context.
 
 ### Example Results 2
 

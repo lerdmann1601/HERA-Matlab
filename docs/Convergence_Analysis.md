@@ -29,7 +29,7 @@ These were held constant because the three parameters we *did* test (regarding d
 
 ### Evaluated Scenarios
 
-We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties.
+We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties. Typical Cliff's Delta effect magnitudes observed in the simulations ranged from 0.29 to 0.86.
 
 **Data Scenarios:**
 ![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Param_Scenarios_Example.png)
@@ -55,9 +55,8 @@ We evaluated the performance of the Robust Mode based on two key criteria: **Con
 In our analysis, we observed that:
 
 * The **Robust Mode** achieved exceptionally high convergence rates.
-* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in **< 0.3%** of ranking cases.
-* This implies that for all other metrics (BCa Intervals, Thresholds), convergence was virtually 100%.
-* In the rare ranking failures, the maximum number of iterations (`B_end`) was reached before the convergence criterion was satisfied. To resolve this we increased `B_end` for the default settings provided.
+* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in **0.3%** of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
+* For all other metrics (BCa Intervals, Thresholds), convergence rates were 100%.
 
 ### 2. Accuracy Validation
 
@@ -68,8 +67,8 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, median relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.05).
-* This hybrid approach prevents scale-related artifacts and confirms that the averaged convergence criteria in HERA ensure high precision across all metrics, even when they are not individually monitored.
+* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.05).
+* This confirms that the averaged convergence criteria in HERA ensure high precision across all metrics.
 
 ### Global Results Summary
 
