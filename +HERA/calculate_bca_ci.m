@@ -31,6 +31,15 @@ function [B_ci, ci_d_all, ci_r_all, z0_d_all, a_d_all, z0_r_all, a_r_all, stabil
 %      them to a CSV file.
 %   5. Generation of distribution plots:
 %      Calls `HERA.plot.bca_distributions` to create histograms for z0, a, and CI widths.
+% Generated outputs can be disabled via `config.create_reports`, `config.create_csvs` and `config.quiet_mode`.
+%
+% BCa Fallback Mechanisms (Numerical Stability):
+%   To guarantee uninterrupted execution during extreme bootstrap samples, HERA utilizes a stepwise fallback strategy.
+%   - Step 1 (Primary): Bias-Corrected and accelerated (BCa) interval.
+%   - Step 2 (Loss of Bias): If bias correction z_0 encounters a singularity, HERA sets z_0 = 0.
+%     This safely disables bias correction while preserving the acceleration (a) adjustment.
+%   - Step 3 (Full Fallback): If the final percentiles (a_1, a_2) evaluate to NaN, 
+%     HERA falls back to standard, unadjusted Percentile intervals (\alpha/2 and 1-\alpha/2).
 %
 % Inputs:
 %   all_data      - Cell array with the data matrices for each metric (1, 2, or 3 cells).
@@ -198,8 +207,7 @@ else
     % --- Pre-compute data and Jackknife for all pairs ---
     % Hybrid Parallelization Strategy:
     % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
-    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins) 
-    
+    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)    
     if num_probanden > MIN_N_FOR_PARFOR
          % --- Parallel Execution (High Scaling) ---
          parfor m_pre = 1:(num_metrics * 2)
@@ -405,17 +413,13 @@ else
                          boot_stats(start_idx_loc:end_idx_loc) = batch_res;
                     end
                     
-                    % Calculate BCa correction factors (z0 for bias):
-                    % If z0 is non-finite (e.g., all bootstrap values are greater or less than theta_hat), set z0 = 0. 
-                    % This effectively disables bias correction, causing BCa to fall back to the standard percentile bootstrap 
-                    % (since z0=0, a=0 implies BCa = Percentile).
+                    % Step 2 (Loss of Bias): If z0 is non-finite (e.g., all samples on one side of theta_hat),
+                    % we set z0 = 0 to disable bias correction but retain acceleration (a).
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
                     if ~isfinite(z0), z0 = 0; end 
     
-                    % Calculate BCa interval limits as percentiles:
-                    % If a1 or a2 become NaN (due to division by near-zero in the BCa formula),
-                    % fall back to the standard percentile quantiles (alpha/2 and 1-alpha/2).
-                    % This ensures numerical stability without crashing the analysis.
+                    % Step 3 (Full Fallback): If a1 or a2 evaluate to NaN (e.g., due to division by zero),
+                    % fall back entirely to standard, unadjusted percentile quantiles.
                     z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
                     a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
                     a2 = normcdf(z0 + (z0 + z2) / (1 - a * (z0 + z2)));
@@ -598,8 +602,7 @@ for metric_idx = 1:num_metrics
     % --- Pre-compute data and Jackknife for all pairs ---
     % Hybrid Parallelization Strategy:
     % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
-    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)
-    
+    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)   
     pair_data_x = cell(num_pairs, 1);
     pair_data_y = cell(num_pairs, 1);
     pair_n_valid = zeros(num_pairs, 1);
@@ -780,27 +783,32 @@ for metric_idx = 1:num_metrics
         a_d = pair_a_d(k);
         a_r = pair_a_r(k);
         
-        % BCa for Cliff's Delta:
-        % If z0 is non-finite, set z0 = 0 (no bias correction -> Fallback to Percentile).
+        % --- BCa for Cliff's Delta ---
+        % Step 2 (Loss of Bias): If z0 is non-finite, set z0 = 0 (disables bias correction).
         z0_d = norminv(sum(boot_d < theta_hat_d) / B_ci);
         if ~isfinite(z0_d), z0_d = 0; end
-        % If a1_d or a2_d are NaN -> Fallback to standard percentile quantiles.
+        
         a1_d = normcdf(z0_d + (z0_d + z1) / (1 - a_d * (z0_d + z1)));
         a2_d = normcdf(z0_d + (z0_d + z2) / (1 - a_d * (z0_d + z2)));
+        
+        % Step 3 (Full Fallback): If a1_d or a2_d evaluate to NaN -> Fallback to standard percentiles.
         if isnan(a1_d), a1_d = alpha_level / 2; end
         if isnan(a2_d), a2_d = 1 - alpha_level / 2; end
+        
         sorted_d = sort(boot_d);
         temp_ci_d(k, :) = [sorted_d(max(1, floor(B_ci * a1_d))), sorted_d(min(B_ci, ceil(B_ci * a2_d)))];
         temp_z0_d(k) = z0_d;
         temp_a_d(k) = a_d;
         
-        % BCa for Relative Difference:
-        % If z0 is non-finite, set z0 = 0 (no bias correction -> Fallback to Percentile).
+        % --- BCa for Relative Difference ---
+        % Step 2 (Loss of Bias): If z0 is non-finite, set z0 = 0 (disables bias correction).
         z0_r = norminv(sum(boot_r < theta_hat_r) / B_ci);
         if ~isfinite(z0_r), z0_r = 0; end
-        % If a1_r or a2_r are NaN -> Fallback to standard percentile quantiles.
+        
         a1_r = normcdf(z0_r + (z0_r + z1) / (1 - a_r * (z0_r + z1)));
         a2_r = normcdf(z0_r + (z0_r + z2) / (1 - a_r * (z0_r + z2)));
+        
+        % Step 3 (Full Fallback): If a1_r or a2_r evaluate to NaN -> Fallback to standard percentiles.
         if isnan(a1_r), a1_r = alpha_level / 2; end
         if isnan(a2_r), a2_r = 1 - alpha_level / 2; end
         sorted_r = sort(boot_r);

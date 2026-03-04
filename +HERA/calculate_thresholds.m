@@ -25,6 +25,8 @@ function [d_thresh, rel_thresh, rel_thresh_b, min_rel_thresh, d_vals_all, rel_va
 %      Delegates the creation of convergence and distribution plots to `HERA.plot.threshold_convergence`
 %      and `HERA.plot.threshold_distributions`.
 %
+% Generated outputs can be disabled via `config.create_reports`, `config.create_csvs` and `config.quiet_mode`.
+%
 % Inputs:
 %   all_data      - Cell array of data matrices for each metric (1, 2, or 3).
 %   num_probanden - Number of subjects.

@@ -33,6 +33,8 @@ function [final_bootstrap_ranks, selected_B_final, stability_data_rank, h_figs_r
 %   8.  CI Calculation:
 %       Computes the user-defined confidence intervals (e.g., 95%) for the final ranks based on the bootstrap distribution.
 %
+% Generated outputs can be disabled via `config.create_reports`, `config.create_csvs` and `config.quiet_mode`.
+%
 % Inputs:
 %   all_data        - Cell array containing the original data matrices for each metric (1, 2, or 3 cells).
 %   thresholds      - Struct with the pre-calculated effect size thresholds (thresholds.d_thresh, thresholds.rel_thresh).
