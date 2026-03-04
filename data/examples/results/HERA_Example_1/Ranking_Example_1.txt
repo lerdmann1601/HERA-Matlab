@@ -1,19 +1,19 @@
 =======================
 Ranking is starting...
 =======================
-Version: v1.0.0
+Version: v1.3.0
 
 Configuration loaded.
 --------------------------------------------------
 CPU cores for ranking: auto
-Reproducibility: true (Seed: 123)
+Reproducibility: true (Seed: 12345)
 
 -> Percentile-Bootstrap for Thresholds
    Method: Automatic (Convergence search)
    Convergence search: Robust
    Smoothing window:   3
    Stable runs needed: 3
-   B-Range:        100:150:10000
+   B-Range:        100:100:10000
    Trials per B:   25
    Tolerance:      1.00%
 
@@ -24,27 +24,25 @@ Reproducibility: true (Seed: 123)
    Stable runs needed: 3
    B-Range:        100:200:20000
    Trials per B:   30
-   Tolerance:      5.00%
+   Tolerance:      3.00%
 
 -> Cluster-Bootstrap for Ranking
    Method: Automatic (Convergence search)
    Convergence search: Robust
    Smoothing window:   3
    Stable runs needed: 3
-   B-Range:        50:25:1500
-   Trials per B:   20
+   B-Range:        50:25:2500
+   Trials per B:   15
    Tolerance:      0.50%
 --------------------------------------------------
 
-RNG stream set to reproducible seed 123.
-Starting parallel pool with default setting (8 CPU cores).
-Starting parallel pool (parpool) using the 'Processes' profile ...
-Connected to parallel pool with 8 workers.
+RNG stream set to reproducible seed 12345.
+Parallel pool already active (8 workers). Skipping restart.
 
-Importing data from folder: /HERA-Matlab/data/examples/Example_1
- -> Reading metric 1: /HERA-Matlab/data/examples/Example_1/OC.csv
- -> Reading metric 2: /HERA-Matlab/data/examples/Example_1/CNR.csv
- -> Reading metric 3: /HERA-Matlab/data/examples/Example_1/SNR.csv
+Importing data from folder: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_1
+ -> Reading metric 1: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_1/OC.csv
+ -> Reading metric 2: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_1/CNR.csv
+ -> Reading metric 3: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_1/SNR.csv
 
 Data successfully loaded.
 -------------------------------------------
@@ -77,76 +75,216 @@ Primary: IQR/Median-Ratio
 Convergence averaged over 3 iterations, constant in 3 runs with < 1.0% change, starting after 1 runs up to B max 10000
 Secondary: Elbow analysis
  -> Checking stability with B = 100 and 25 Trials
- -> Checking stability with B = 250 and 25 Trials
+ -> Checking stability with B = 200 and 25 Trials
+ -> Checking stability with B = 300 and 25 Trials
  -> Checking stability with B = 400 and 25 Trials
- -> Checking stability with B = 550 and 25 Trials
-    Relative stability change: -2.99%
+    Relative stability change: 3.45%
+ -> Checking stability with B = 500 and 25 Trials
+    Relative stability change: -8.31%
+ -> Checking stability with B = 600 and 25 Trials
+    Relative stability change: -1.55%
  -> Checking stability with B = 700 and 25 Trials
-    Relative stability change: 10.51%
- -> Checking stability with B = 850 and 25 Trials
-    Relative stability change: 16.91%
+    Relative stability change: -3.88%
+ -> Checking stability with B = 800 and 25 Trials
+    Relative stability change: -2.10%
+ -> Checking stability with B = 900 and 25 Trials
+    Relative stability change: 1.45%
  -> Checking stability with B = 1000 and 25 Trials
-    Relative stability change: 1.07%
- -> Checking stability with B = 1150 and 25 Trials
-    Relative stability change: -14.54%
+    Relative stability change: 5.52%
+ -> Checking stability with B = 1100 and 25 Trials
+    Relative stability change: 2.21%
+ -> Checking stability with B = 1200 and 25 Trials
+    Relative stability change: 3.07%
  -> Checking stability with B = 1300 and 25 Trials
-    Relative stability change: -17.65%
- -> Checking stability with B = 1450 and 25 Trials
-    Relative stability change: -2.48%
+    Convergence at -0.36% in run 1/3
+ -> Checking stability with B = 1400 and 25 Trials
+    Convergence at -0.68% in run 2/3
+ -> Checking stability with B = 1500 and 25 Trials
+    Relative stability change: -3.14%
  -> Checking stability with B = 1600 and 25 Trials
-    Convergence at -0.20% in run 1/3
- -> Checking stability with B = 1750 and 25 Trials
-    Convergence at 0.08% in run 2/3
+    Relative stability change: -1.88%
+ -> Checking stability with B = 1700 and 25 Trials
+    Relative stability change: 6.39%
+ -> Checking stability with B = 1800 and 25 Trials
+    Relative stability change: 8.45%
  -> Checking stability with B = 1900 and 25 Trials
-    Convergence at 0.03% in run 3/3
-Convergence at 0.03% reached
+    Relative stability change: 16.00%
+ -> Checking stability with B = 2000 and 25 Trials
+    Relative stability change: 2.10%
+ -> Checking stability with B = 2100 and 25 Trials
+    Relative stability change: -11.22%
+ -> Checking stability with B = 2200 and 25 Trials
+    Relative stability change: -7.57%
+ -> Checking stability with B = 2300 and 25 Trials
+    Relative stability change: 4.69%
+ -> Checking stability with B = 2400 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 2500 and 25 Trials
+    Relative stability change: -7.39%
+ -> Checking stability with B = 2600 and 25 Trials
+    Relative stability change: -13.75%
+ -> Checking stability with B = 2700 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 2800 and 25 Trials
+    Convergence at 0.01% in run 2/3
+ -> Checking stability with B = 2900 and 25 Trials
+    Relative stability change: 12.08%
+ -> Checking stability with B = 3000 and 25 Trials
+    Relative stability change: 6.87%
+ -> Checking stability with B = 3100 and 25 Trials
+    Relative stability change: 19.68%
+ -> Checking stability with B = 3200 and 25 Trials
+    Relative stability change: -5.38%
+ -> Checking stability with B = 3300 and 25 Trials
+    Convergence at 0.69% in run 1/3
+ -> Checking stability with B = 3400 and 25 Trials
+    Relative stability change: -14.63%
+ -> Checking stability with B = 3500 and 25 Trials
+    Relative stability change: -10.81%
+ -> Checking stability with B = 3600 and 25 Trials
+    Convergence at -0.55% in run 1/3
+ -> Checking stability with B = 3700 and 25 Trials
+    Relative stability change: -6.86%
+ -> Checking stability with B = 3800 and 25 Trials
+    Relative stability change: 8.11%
+ -> Checking stability with B = 3900 and 25 Trials
+    Relative stability change: -2.58%
+ -> Checking stability with B = 4000 and 25 Trials
+    Relative stability change: 2.15%
+ -> Checking stability with B = 4100 and 25 Trials
+    Relative stability change: -8.79%
+ -> Checking stability with B = 4200 and 25 Trials
+    Relative stability change: 8.76%
+ -> Checking stability with B = 4300 and 25 Trials
+    Relative stability change: 11.83%
+ -> Checking stability with B = 4400 and 25 Trials
+    Relative stability change: 18.59%
+ -> Checking stability with B = 4500 and 25 Trials
+    Relative stability change: 6.54%
+ -> Checking stability with B = 4600 and 25 Trials
+    Relative stability change: -6.99%
+ -> Checking stability with B = 4700 and 25 Trials
+    Relative stability change: -22.85%
+ -> Checking stability with B = 4800 and 25 Trials
+    Relative stability change: -13.29%
+ -> Checking stability with B = 4900 and 25 Trials
+    Relative stability change: 9.37%
+ -> Checking stability with B = 5000 and 25 Trials
+    Relative stability change: 20.69%
+ -> Checking stability with B = 5100 and 25 Trials
+    Relative stability change: -9.76%
+ -> Checking stability with B = 5200 and 25 Trials
+    Relative stability change: -23.75%
+ -> Checking stability with B = 5300 and 25 Trials
+    Relative stability change: -19.20%
+ -> Checking stability with B = 5400 and 25 Trials
+    Relative stability change: 8.05%
+ -> Checking stability with B = 5500 and 25 Trials
+    Relative stability change: 13.14%
+ -> Checking stability with B = 5600 and 25 Trials
+    Relative stability change: 20.17%
+ -> Checking stability with B = 5700 and 25 Trials
+    Relative stability change: 12.64%
+ -> Checking stability with B = 5800 and 25 Trials
+    Relative stability change: 3.61%
+ -> Checking stability with B = 5900 and 25 Trials
+    Relative stability change: -7.50%
+ -> Checking stability with B = 6000 and 25 Trials
+    Relative stability change: -6.98%
+ -> Checking stability with B = 6100 and 25 Trials
+    Relative stability change: -3.25%
+ -> Checking stability with B = 6200 and 25 Trials
+    Convergence at -0.01% in run 1/3
+ -> Checking stability with B = 6300 and 25 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 6400 and 25 Trials
+    Relative stability change: 3.16%
+ -> Checking stability with B = 6500 and 25 Trials
+    Relative stability change: 6.53%
+ -> Checking stability with B = 6600 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 6700 and 25 Trials
+    Relative stability change: -3.49%
+ -> Checking stability with B = 6800 and 25 Trials
+    Relative stability change: -6.74%
+ -> Checking stability with B = 6900 and 25 Trials
+    Relative stability change: 6.32%
+ -> Checking stability with B = 7000 and 25 Trials
+    Relative stability change: 3.96%
+ -> Checking stability with B = 7100 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 7200 and 25 Trials
+    Relative stability change: -3.51%
+ -> Checking stability with B = 7300 and 25 Trials
+    Relative stability change: -3.98%
+ -> Checking stability with B = 7400 and 25 Trials
+    Relative stability change: -6.52%
+ -> Checking stability with B = 7500 and 25 Trials
+    Relative stability change: -3.06%
+ -> Checking stability with B = 7600 and 25 Trials
+    Relative stability change: -5.94%
+ -> Checking stability with B = 7700 and 25 Trials
+    Relative stability change: 11.22%
+ -> Checking stability with B = 7800 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 7900 and 25 Trials
+    Relative stability change: -12.64%
+ -> Checking stability with B = 8000 and 25 Trials
+    Relative stability change: -22.44%
+ -> Checking stability with B = 8100 and 25 Trials
+    Relative stability change: -13.74%
+ -> Checking stability with B = 8200 and 25 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 8300 and 25 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 8400 and 25 Trials
+    Convergence at 0.00% in run 3/3
+Convergence reached at 0.00%.
 Stability in 3 consecutive runs
-B-value after convergence: 1900
-Convergence plot for thresholds saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Threshold_Analysis/Convergence_Thresholds_Global_Example_1.png
-Convergence plot for thresholds saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Threshold_Analysis/Convergence_Thresholds_Detailed_Example_1.png
-Histogram plot for threshold distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_Example_1.png
-Histogram plot for effect sizes saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_Example_1.png
+B-value after convergence: 8400
+Convergence plot for thresholds saved: /Desktop/Ranking_Example_1/Graphics/Threshold_Analysis/Convergence_Thresholds_Global_Example_1.png
+Convergence plot for thresholds saved: /Desktop/Ranking_Example_1/Graphics/Threshold_Analysis/Convergence_Thresholds_Detailed_Example_1.png
+Histogram plot for threshold distribution saved: /Desktop/Ranking_Example_1/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_Example_1.png
+Histogram plot for effect sizes saved: /Desktop/Ranking_Example_1/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_Example_1.png
 
 Calculating BCa confidence intervals
 
 Searching for optimal Bias-corrected and accelerated Bootstrap count (B) for effect size CIs
 Primary: IQR/Median-Ratio
-Convergence averaged over 3 iterations, constant in 3 runs with < 5.0% change, starting after 1 runs up to B max 20000
+Convergence averaged over 3 iterations, constant in 3 runs with < 3.0% change, starting after 1 runs up to B max 20000
 Secondary: Elbow analysis
  -> Checking stability with B = 100 and 30 trials
  -> Checking stability with B = 300 and 30 trials
  -> Checking stability with B = 500 and 30 trials
  -> Checking stability with B = 700 and 30 trials
-    Relative stability change: 34.35%
+    Relative stability change: 28.75%
  -> Checking stability with B = 900 and 30 trials
-    Relative stability change: 17.55%
+    Relative stability change: 17.04%
  -> Checking stability with B = 1100 and 30 trials
-    Relative stability change: 15.25%
+    Relative stability change: 13.80%
  -> Checking stability with B = 1300 and 30 trials
-    Relative stability change: 7.61%
+    Relative stability change: 10.19%
  -> Checking stability with B = 1500 and 30 trials
-    Relative stability change: 7.28%
+    Relative stability change: 10.60%
  -> Checking stability with B = 1700 and 30 trials
-    Relative stability change: 9.61%
+    Relative stability change: 9.04%
  -> Checking stability with B = 1900 and 30 trials
-    Relative stability change: 5.34%
+    Relative stability change: 9.31%
  -> Checking stability with B = 2100 and 30 trials
-    Relative stability change: 8.03%
+    Relative stability change: 5.82%
  -> Checking stability with B = 2300 and 30 trials
-    Convergence at 1.17% in run 1/3
+    Relative stability change: 3.84%
  -> Checking stability with B = 2500 and 30 trials
-    Relative stability change: 5.84%
+    Convergence at -0.00% in run 1/3
  -> Checking stability with B = 2700 and 30 trials
-    Convergence at 1.89% in run 1/3
+    Convergence at 0.17% in run 2/3
  -> Checking stability with B = 2900 and 30 trials
-    Convergence at 4.08% in run 2/3
- -> Checking stability with B = 3100 and 30 trials
-    Convergence at 1.08% in run 3/3
-Convergence reached at 1.08%.
+    Convergence at 1.86% in run 3/3
+Convergence reached at 1.86%.
 Stability in 3 consecutive runs
-B-value after convergence: 3100
-Convergence plot for BCa-CI saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/CI_Histograms/Convergence_BCa_CI_Global_Example_1.png
-Convergence plot for BCa-CI saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/CI_Histograms/Convergence_BCa_CI_Detailed_Example_1.png
+B-value after convergence: 2900
+Convergence plot for BCa-CI saved: /Desktop/Ranking_Example_1/Graphics/CI_Histograms/Convergence_BCa_CI_Global_Example_1.png
+Convergence plot for BCa-CI saved: /Desktop/Ranking_Example_1/Graphics/CI_Histograms/Convergence_BCa_CI_Detailed_Example_1.png
 
 Calculating CI and correction factors for: OC
 Calculating CI and correction factors for: CNR
@@ -157,141 +295,113 @@ Calculating CI and correction factors for: SNR
 OC:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.000 | +0.012 | -0.149 | +0.124 
+Bias (z0) Delta       | +0.000 | +0.010 | -0.152 | +0.124 
 Skewness (a) Delta    | +0.000 | +0.010 | -0.063 | +0.101 
-Bias (z0) RelDiff     | -0.036 | -0.026 | -0.079 | +0.045 
+Bias (z0) RelDiff     | -0.007 | -0.005 | -0.056 | +0.079 
 Skewness (a) RelDiff  | -0.011 | -0.012 | -0.027 | +0.005 
 ----------------------------------------------------------
 
 CNR:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.079 | +0.134 | -2.797 | +2.505 
+Bias (z0) Delta       | +0.069 | +0.135 | -2.818 | +2.520 
 Skewness (a) Delta    | -0.003 | +0.003 | -0.045 | +0.064 
-Bias (z0) RelDiff     | +0.007 | +0.010 | -0.032 | +0.047 
+Bias (z0) RelDiff     | +0.011 | +0.017 | -0.033 | +0.063 
 Skewness (a) RelDiff  | +0.001 | +0.011 | -0.002 | +0.033 
 ----------------------------------------------------------
 
 SNR:
 Correction Factor     | Median |  Mean  |  Min   |  Max   
 ----------------------------------------------------------
-Bias (z0) Delta       | +0.000 | +0.004 | -0.192 | +0.247 
+Bias (z0) Delta       | +0.000 | -0.001 | -0.221 | +0.212 
 Skewness (a) Delta    | +0.000 | -0.001 | -0.117 | +0.106 
-Bias (z0) RelDiff     | -0.005 | -0.006 | -0.067 | +0.043 
+Bias (z0) RelDiff     | -0.005 | -0.007 | -0.041 | +0.033 
 Skewness (a) RelDiff  | +0.007 | +0.001 | -0.008 | +0.009 
 ----------------------------------------------------------
 
 Saving BCa correction factors as CSV file
-CSV file successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/BCa_Correction_Factors_Example_1.csv
-Histogram plot for z0 distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_Example_1.png
-Histogram plot for a distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_Example_1.png
-Histogram plot for CI width distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/CI_Histograms/Distribution_CI_Widths_Example_1.png
+CSV file successfully saved: /Desktop/Ranking_Example_1/Output/BCa_Correction_Factors_Example_1.csv
+Histogram plot for z0 distribution saved: /Desktop/Ranking_Example_1/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_Example_1.png
+Histogram plot for a distribution saved: /Desktop/Ranking_Example_1/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_Example_1.png
+Histogram plot for CI width distribution saved: /Desktop/Ranking_Example_1/Graphics/CI_Histograms/Distribution_CI_Widths_Example_1.png
 
 Calculating ranking for 6 hierarchy permutation(s)
  -> Permutation 1/6: OC -> CNR -> SNR
- -> Permutation 2/6: OC -> SNR -> CNR
- -> Permutation 3/6: CNR -> OC -> SNR
+ -> Permutation 2/6: SNR -> CNR -> OC
+ -> Permutation 3/6: SNR -> OC -> CNR
  -> Permutation 4/6: CNR -> SNR -> OC
- -> Permutation 5/6: SNR -> OC -> CNR
- -> Permutation 6/6: SNR -> CNR -> OC
+ -> Permutation 5/6: CNR -> OC -> SNR
+ -> Permutation 6/6: OC -> SNR -> CNR
 
 Calculating Borda ranking from permutations
 
 Performing bootstrap analysis of rank stability for primary metric hierarchy
 
 Searching for optimal Cluster-Bootstrap count (B) for rank CIs
- -> Checking stability with B = 50 and 20 Trials
- -> Checking stability with B = 75 and 20 Trials
- -> Checking stability with B = 100 and 20 Trials
- -> Checking stability with B = 125 and 20 Trials
-    Relative stability change: -4.65%
- -> Checking stability with B = 150 and 20 Trials
-    Relative stability change: -2.22%
- -> Checking stability with B = 175 and 20 Trials
-    Convergence at 0.00% in run 1/3
- -> Checking stability with B = 200 and 20 Trials
-    Relative stability change: 17.39%
- -> Checking stability with B = 225 and 20 Trials
-    Convergence at 0.00% in run 1/3
- -> Checking stability with B = 250 and 20 Trials
-    Relative stability change: 15.79%
- -> Checking stability with B = 275 and 20 Trials
-    Relative stability change: -6.25%
- -> Checking stability with B = 300 and 20 Trials
-    Relative stability change: 17.65%
- -> Checking stability with B = 325 and 20 Trials
-    Relative stability change: -3.57%
- -> Checking stability with B = 350 and 20 Trials
-    Relative stability change: -20.69%
- -> Checking stability with B = 375 and 20 Trials
-    Relative stability change: -22.86%
- -> Checking stability with B = 400 and 20 Trials
-    Relative stability change: -11.63%
- -> Checking stability with B = 425 and 20 Trials
-    Relative stability change: 4.17%
- -> Checking stability with B = 450 and 20 Trials
-    Relative stability change: 13.04%
- -> Checking stability with B = 475 and 20 Trials
-    Relative stability change: 7.50%
- -> Checking stability with B = 500 and 20 Trials
-    Relative stability change: -5.41%
- -> Checking stability with B = 525 and 20 Trials
-    Relative stability change: -15.38%
- -> Checking stability with B = 550 and 20 Trials
+ -> Checking stability with B = 50 and 15 Trials
+ -> Checking stability with B = 75 and 15 Trials
+ -> Checking stability with B = 100 and 15 Trials
+ -> Checking stability with B = 125 and 15 Trials
     Relative stability change: -6.67%
- -> Checking stability with B = 575 and 20 Trials
+ -> Checking stability with B = 150 and 15 Trials
     Convergence at 0.00% in run 1/3
- -> Checking stability with B = 600 and 20 Trials
-    Relative stability change: 16.67%
- -> Checking stability with B = 625 and 20 Trials
-    Relative stability change: 2.50%
- -> Checking stability with B = 650 and 20 Trials
-    Convergence at 0.00% in run 1/3
- -> Checking stability with B = 675 and 20 Trials
-    Relative stability change: -12.82%
- -> Checking stability with B = 700 and 20 Trials
-    Relative stability change: -2.27%
- -> Checking stability with B = 725 and 20 Trials
-    Convergence at 0.00% in run 1/3
- -> Checking stability with B = 750 and 20 Trials
-    Relative stability change: -2.22%
- -> Checking stability with B = 775 and 20 Trials
-    Convergence at 0.00% in run 1/3
- -> Checking stability with B = 800 and 20 Trials
+ -> Checking stability with B = 175 and 15 Trials
     Convergence at 0.00% in run 2/3
- -> Checking stability with B = 825 and 20 Trials
+ -> Checking stability with B = 200 and 15 Trials
+    Relative stability change: 4.17%
+ -> Checking stability with B = 225 and 15 Trials
+    Relative stability change: 1.09%
+ -> Checking stability with B = 250 and 15 Trials
+    Relative stability change: 6.59%
+ -> Checking stability with B = 275 and 15 Trials
+    Relative stability change: 4.71%
+ -> Checking stability with B = 300 and 15 Trials
+    Relative stability change: -1.23%
+ -> Checking stability with B = 325 and 15 Trials
+    Relative stability change: -7.32%
+ -> Checking stability with B = 350 and 15 Trials
+    Relative stability change: -9.09%
+ -> Checking stability with B = 375 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 400 and 15 Trials
+    Relative stability change: 4.17%
+ -> Checking stability with B = 425 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 450 and 15 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 475 and 15 Trials
     Relative stability change: -4.35%
- -> Checking stability with B = 850 and 20 Trials
+ -> Checking stability with B = 500 and 15 Trials
     Convergence at 0.00% in run 1/3
- -> Checking stability with B = 875 and 20 Trials
+ -> Checking stability with B = 525 and 15 Trials
     Convergence at 0.00% in run 2/3
- -> Checking stability with B = 900 and 20 Trials
+ -> Checking stability with B = 550 and 15 Trials
     Convergence at 0.00% in run 3/3
 Convergence reached at 0.00%.
 Stability in 3 consecutive runs
-B-value after convergence: 900
-Convergence graphic for rank stability saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Ranking/Convergence_Rank_Stability_Example_1.png
+B-value after convergence: 550
+Convergence graphic for rank stability saved: /Desktop/Ranking_Example_1/Graphics/Ranking/Convergence_Rank_Stability_Example_1.png
 
-=== Bootstrap Rank Distribution (B = 900) ===
+=== Bootstrap Rank Distribution (B = 550) ===
 
 | Final Rank |Dataset   |Bootstrap Rank (%)                              
 -------------------------------------------------------------------------
 |     1      |Method D  |1: 100.0%                                       
 -------------------------------------------------------------------------
-|     2      |Method B  |2: 79.2%, 3: 1.7%, 4: 19.1%                     
+|     2      |Method B  |2: 78.0%, 3: 0.9%, 4: 21.1%                     
 -------------------------------------------------------------------------
-|     3      |Method A  |2: 1.4%, 3: 21.9%, 4: 18.7%, 5: 52.4%, 6: 5.6%  
+|     3      |Method A  |2: 3.1%, 3: 22.0%, 4: 15.5%, 5: 55.3%, 6: 4.2%  
 -------------------------------------------------------------------------
-|     4      |Method F  |2: 19.3%, 3: 52.3%, 4: 25.7%, 5: 2.7%           
+|     4      |Method F  |2: 18.9%, 3: 52.9%, 4: 25.6%, 5: 2.5%           
 -------------------------------------------------------------------------
-|     5      |Method E  |3: 16.0%, 4: 36.6%, 5: 43.2%, 6: 4.2%           
+|     5      |Method E  |3: 16.4%, 4: 37.8%, 5: 41.3%, 6: 4.5%           
 -------------------------------------------------------------------------
-|     6      |Method C  |3: 8.1%, 5: 1.7%, 6: 90.2%                      
+|     6      |Method C  |3: 7.8%, 5: 0.9%, 6: 91.3%                      
 -------------------------------------------------------------------------
 
-Saving BCa correction factors as CSV file
-Bootstrap rank distribution CSV saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/bootstrap_rank_Example_1.csv
-Histogram graphic for rank distribution saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_1.png
+Saving Bootstrap Rank Distribution as CSV file
+Bootstrap rank distribution CSV saved: /Desktop/Ranking_Example_1/Output/bootstrap_rank_Example_1.csv
+Histogram graphic for rank distribution saved: /Desktop/Ranking_Example_1/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_1.png
 
 Calculating post-hoc power analysis to estimate the probability of finding a significant and relevant comparison
   Bootstrap Power Analysis with 10000 simulations per comparison.
@@ -318,7 +428,7 @@ Threshold for Cliff's Delta (lower 95% CI of the 50th percentile of Cliff's Delt
 
 Threshold for relative mean differences (lower 95% CI of the 50th percentile of relative mean differences):
  OC: 0.622
- CNR: 0.030
+ CNR: 0.044
  SNR: 0.581
 
 Protection against small mean differences and influence from slight noise/signal fluctuations:
@@ -332,9 +442,9 @@ Criteria for a significant and relevant comparison between two datasets:
  2. Cliff's Delta is above the threshold
  3. Relative difference is above the threshold
 
-A Percentile-Bootstrap with B = 1900 was used to calculate the thresholds.
-A BCa-Bootstrap with B = 3100 was performed to calculate the 95% CI of the dataset comparisons.
-To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 900.
+A Percentile-Bootstrap with B = 8400 was used to calculate the thresholds.
+A BCa-Bootstrap with B = 2900 was performed to calculate the 95% CI of the dataset comparisons.
+To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 550.
 
 === OC Comparison: Analysis and Initial Ranking ===
 
@@ -347,19 +457,19 @@ Significant and relevant OC comparisons (-> Swap by logic 1 and 2 marked. See lo
  (1/2) | Dataset 1 | > | Dataset 2 | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
 -----------------------------------------------------------------------------------------------------------
   (1)  |   Method B| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.192    | [1.190, 1.193] 
-  (1)  |   Method B| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.919    | [0.908, 0.928] 
-  (1)  |   Method C| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.762    | [1.736, 1.783] 
-  (1)  |   Method C| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.202    | [1.138, 1.260] 
-  (1)  |   Method C| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.622    | [0.568, 0.677] 
-  (1)  |   Method C| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.662    | [1.630, 1.689] 
-  (1)  |   Method C| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.464    | [1.415, 1.505] 
-  (1)  |   Method D| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.571    | [1.546, 1.591] 
-  (1)  |   Method D| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.713    | [0.657, 0.758] 
-  (1)  |   Method D| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.402    | [1.375, 1.426] 
-  (1)  |   Method D| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.090    | [1.049, 1.124] 
-  (2)  |   Method E| > |Method A   | 0.0000  |  -0.787   | [-0.898, -0.636] |    0.376    | [0.362, 0.389] 
+  (1)  |   Method B| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.919    | [0.908, 0.929] 
+  (1)  |   Method C| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.762    | [1.739, 1.783] 
+  (1)  |   Method C| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.202    | [1.139, 1.260] 
+  (1)  |   Method C| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.622    | [0.563, 0.675] 
+  (1)  |   Method C| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.662    | [1.631, 1.688] 
+  (1)  |   Method C| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.464    | [1.416, 1.506] 
+  (1)  |   Method D| > |Method A   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.571    | [1.546, 1.593] 
+  (1)  |   Method D| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.713    | [0.660, 0.761] 
+  (1)  |   Method D| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.402    | [1.374, 1.426] 
+  (1)  |   Method D| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.090    | [1.050, 1.124] 
+  (2)  |   Method E| > |Method A   | 0.0000  |  -0.787   | [-0.898, -0.640] |    0.376    | [0.362, 0.389] 
   (2)  |   Method F| > |Method A   | 0.0000  |  -0.996   | [-1.000, -0.967] |    0.841    | [0.834, 0.848] 
-  (2)  |   Method F| > |Method E   | 0.0000  |  -0.913   | [-0.971, -0.804] |    0.505    | [0.500, 0.510] 
+  (2)  |   Method F| > |Method E   | 0.0000  |  -0.913   | [-0.973, -0.807] |    0.505    | [0.500, 0.510] 
 -----------------------------------------------------------------------------------------------------------
 
 Ranking after OC comparison:
@@ -380,15 +490,15 @@ Significant and relevant CNR comparisons (-> See log file for more details on ra
 
  Dataset 1 | > | Dataset 2 | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
 ---------------------------------------------------------------------------------------------------
-   Method D| > |Method A   | 0.0000  |  -0.764   | [-0.880, -0.629] |    0.336    | [0.322, 0.351] 
-   Method D| > |Method B   | 0.0000  |  -0.824   | [-0.920, -0.698] |    0.378    | [0.365, 0.392] 
-   Method D| > |Method C   | 0.0000  |  -0.958   | [-0.991, -0.869] |    0.494    | [0.431, 0.572] 
-   Method D| > |Method E   | 0.0000  |  +0.780   | [+0.638, +0.884] |    0.349    | [0.334, 0.365] 
-   Method D| > |Method F   | 0.0000  |  +0.744   | [+0.596, +0.844] |    0.327    | [0.312, 0.342] 
-   Method F| > |Method C   | 0.0006  |  -0.464   | [-0.667, -0.220] |    0.174    | [0.102, 0.261] 
-   Method A| > |Method C   | 0.0010  |  +0.438   | [+0.169, +0.631] |    0.165    | [0.088, 0.256] 
-   Method E| > |Method C   | 0.0020  |  -0.396   | [-0.613, -0.127] |    0.151    | [0.079, 0.244] 
-   Method B| > |Method C   | 0.0132  |  +0.311   | [+0.047, +0.549] |    0.121    | [0.050, 0.215] 
+   Method D| > |Method A   | 0.0000  |  -0.764   | [-0.873, -0.622] |    0.336    | [0.322, 0.352] 
+   Method D| > |Method B   | 0.0000  |  -0.824   | [-0.922, -0.709] |    0.378    | [0.365, 0.392] 
+   Method D| > |Method C   | 0.0000  |  -0.958   | [-0.991, -0.871] |    0.494    | [0.430, 0.578] 
+   Method D| > |Method E   | 0.0000  |  +0.780   | [+0.638, +0.880] |    0.349    | [0.334, 0.365] 
+   Method D| > |Method F   | 0.0000  |  +0.744   | [+0.591, +0.842] |    0.327    | [0.313, 0.342] 
+   Method F| > |Method C   | 0.0006  |  -0.464   | [-0.664, -0.220] |    0.174    | [0.099, 0.261] 
+   Method A| > |Method C   | 0.0010  |  +0.438   | [+0.171, +0.633] |    0.165    | [0.095, 0.258] 
+   Method E| > |Method C   | 0.0020  |  -0.396   | [-0.620, -0.124] |    0.151    | [0.075, 0.253] 
+   Method B| > |Method C   | 0.0132  |  +0.311   | [+0.040, +0.538] |    0.121    | [0.049, 0.215] 
 ---------------------------------------------------------------------------------------------------
 
 Ranking after CNR correction:
@@ -410,18 +520,18 @@ Significant and relevant SNR comparisons (-> Swap by logic 1 and 2 marked. See l
 
  (1/2) | Dataset 1 | > | Dataset 2 | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
 -----------------------------------------------------------------------------------------------------------
-  (1)  |   Method A| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.581    | [0.564, 0.597] 
+  (1)  |   Method A| > |Method E   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.581    | [0.565, 0.596] 
   (2)  |   Method A| > |Method F   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.954    | [0.945, 0.962] 
        |   Method A| > |Method B   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.198    | [1.198, 1.198] 
-       |   Method A| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.670    | [1.660, 1.681] 
-       |   Method A| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.355    | [1.335, 1.372] 
-       |   Method B| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.943    | [0.916, 0.972] 
-       |   Method E| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.747    | [0.732, 0.762] 
-       |   Method D| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.725    | [0.704, 0.747] 
-       |   Method E| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.437    | [1.411, 1.464] 
-       |   Method F| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.190    | [1.161, 1.223] 
-       |   Method E| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.963    | [0.923, 0.997] 
-       |   Method F| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.592    | [0.552, 0.630] 
+       |   Method A| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.670    | [1.660, 1.682] 
+       |   Method A| > |Method D   | 0.0000  |  +1.000   | [+1.000, +1.000] |    1.355    | [1.336, 1.373] 
+       |   Method B| > |Method C   | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.943    | [0.917, 0.971] 
+       |   Method E| > |Method B   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.747    | [0.733, 0.762] 
+       |   Method D| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.725    | [0.704, 0.748] 
+       |   Method E| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.437    | [1.412, 1.464] 
+       |   Method F| > |Method C   | 0.0000  |  -1.000   | [-1.000, -1.000] |    1.190    | [1.161, 1.222] 
+       |   Method E| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.963    | [0.926, 0.999] 
+       |   Method F| > |Method D   | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.592    | [0.553, 0.630] 
 -----------------------------------------------------------------------------------------------------------
 
 Final ranking after SNR comparison:
@@ -439,100 +549,100 @@ Final ranking after SNR comparison:
 --------------------------------------------------------------------------------------
   1   | Method D | [1.00, 1.00]  | 0.815 ± 0.056  | 11.415 ± 2.231  | 15.937 ± 2.212  
   2   | Method B | [2.00, 4.00]  | 0.387 ± 0.089  |  7.784 ± 1.647  | 20.772 ± 1.617  
-  3   | Method A | [3.00, 6.00]  | 0.098 ± 0.023  |  8.131 ± 1.748  | 82.866 ± 6.479  
-  4   | Method F | [2.00, 5.00]  | 0.240 ± 0.053  |  8.208 ± 1.755  | 29.342 ± 2.145  
+  3   | Method A | [2.00, 6.00]  | 0.098 ± 0.023  |  8.131 ± 1.748  | 82.866 ± 6.479  
+  4   | Method F | [2.00, 4.75]  | 0.240 ± 0.053  |  8.208 ± 1.755  | 29.342 ± 2.145  
   5   | Method E | [3.00, 6.00]  | 0.143 ± 0.030  |  8.019 ± 1.750  | 45.544 ± 3.426  
   6   | Method C | [3.00, 6.00]  | 1.550 ± 0.247  |  6.895 ± 1.130  |  7.456 ± 1.102  
 --------------------------------------------------------------------------------------
 
-Final results table saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/results_Example_1.csv
+Final results table saved: /Desktop/Ranking_Example_1/Output/results_Example_1.csv
 
 ==== Results of the Sensitivity Analysis ====
 
- Borda Rank  |  Borda Score (%)  |  Dataset   |  OC -> CNR -> SNR  |  OC -> SNR -> CNR  |  CNR -> OC -> SNR  |  CNR -> SNR -> OC  |  SNR -> OC -> CNR  |  SNR -> CNR -> OC 
+ Borda Rank  |  Borda Score (%)  |  Dataset   |  OC -> CNR -> SNR  |  SNR -> CNR -> OC  |  SNR -> OC -> CNR  |  CNR -> SNR -> OC  |  CNR -> OC -> SNR  |  OC -> SNR -> CNR 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     1       |       73.3%       | Method D   |         1          |         4          |         2          |         4          |         2          |         1         
-     2       |       53.3%       | Method A   |         3          |         1          |         4          |         1          |         6          |         5         
-     3       |       50.0%       | Method F   |         4          |         3          |         6          |         2          |         3          |         3         
+     1       |       73.3%       | Method D   |         1          |         1          |         2          |         4          |         2          |         4         
+     2       |       53.3%       | Method A   |         3          |         5          |         6          |         1          |         4          |         1         
+     3       |       50.0%       | Method F   |         4          |         3          |         3          |         2          |         6          |         3         
      4       |       46.7%       | Method E   |         5          |         2          |         5          |         3          |         5          |         2         
-     5       |       43.3%       | Method B   |         2          |         5          |         3          |         5          |         4          |         4         
+     5       |       43.3%       | Method B   |         2          |         4          |         4          |         5          |         3          |         5         
      6       |       33.3%       | Method C   |         6          |         6          |         1          |         6          |         1          |         6         
 
-Sensitivity analysis results saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/sensitivity_details_Example_1.csv
+Sensitivity analysis results saved: /Desktop/Ranking_Example_1/Output/sensitivity_details_Example_1.csv
 
 === Log of all Dataset Comparisons ===
 
  Dataset 1 | vs | Dataset 2 | Test | p-value | p-Thr  | Delta  |     d 95% CI     | Delta-Thr | RelDiff |    r 95% CI    | Rel-Thr | Win | Power (%) | Swap |Reason                                
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  Method A  | vs | Method B  |  OC  | 0.0000  | 0.0033 | -1.000 | [-1.000, -1.000] |   1.000   |  1.192  | [1.190, 1.193] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method C  |  OC  | 0.0000  | 0.0036 | -1.000 | [-1.000, -1.000] |   1.000   |  1.762  | [1.736, 1.783] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method D  |  OC  | 0.0000  | 0.0038 | -1.000 | [-1.000, -1.000] |   1.000   |  1.571  | [1.546, 1.591] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method C  |  OC  | 0.0000  | 0.0050 | -1.000 | [-1.000, -1.000] |   1.000   |  1.202  | [1.138, 1.260] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method D  |  OC  | 0.0000  | 0.0056 | -1.000 | [-1.000, -1.000] |   1.000   |  0.713  | [0.657, 0.758] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method E  |  OC  | 0.0000  | 0.0063 | +1.000 | [+1.000, +1.000] |   1.000   |  0.919  | [0.908, 0.928] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method B  | vs | Method F  |  OC  | 0.0000  | 0.0071 | +0.873 | [+0.742, +0.951] |   1.000   |  0.468  | [0.461, 0.475] |  0.622  |  0  |    0.0    |      |(1) Decision by number of wins        
- Method C  | vs | Method D  |  OC  | 0.0000  | 0.0083 | +1.000 | [+1.000, +1.000] |   1.000   |  0.622  | [0.568, 0.677] |  0.622  |  1  |   50.4    |      |(1) Decision by number of wins        
- Method C  | vs | Method E  |  OC  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  1.662  | [1.630, 1.689] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method C  | vs | Method F  |  OC  | 0.0000  | 0.0125 | +1.000 | [+1.000, +1.000] |   1.000   |  1.464  | [1.415, 1.505] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method D  | vs | Method E  |  OC  | 0.0000  | 0.0167 | +1.000 | [+1.000, +1.000] |   1.000   |  1.402  | [1.375, 1.426] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method D  | vs | Method F  |  OC  | 0.0000  | 0.0250 | +1.000 | [+1.000, +1.000] |   1.000   |  1.090  | [1.049, 1.124] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
- Method A  | vs | Method E  |  OC  | 0.0000  | 0.0042 | -0.787 | [-0.898, -0.636] |   1.000   |  0.376  | [0.362, 0.389] |  0.622  |  0  |    0.0    |      |(2) Decision by Cliff's d             
- Method A  | vs | Method F  |  OC  | 0.0000  | 0.0045 | -0.996 | [-1.000, -0.967] |   1.000   |  0.841  | [0.834, 0.848] |  0.622  |  0  |   44.1    |      |(2) Decision by Cliff's d             
- Method E  | vs | Method F  |  OC  | 0.0000  | 0.0500 | -0.913 | [-0.971, -0.804] |   1.000   |  0.505  | [0.500, 0.510] |  0.622  |  0  |    0.0    |      |(2) Decision by Cliff's d             
- Method A  | vs | Method C  | CNR  | 0.0010  | 0.0167 | +0.438 | [+0.169, +0.631] |   0.109   |  0.165  | [0.088, 0.256] |  0.078  |  1  |   90.0    |  1   |                                      
- Method B  | vs | Method C  | CNR  | 0.0132  | 0.0500 | +0.311 | [+0.047, +0.549] |   0.109   |  0.121  | [0.050, 0.215] |  0.078  |  1  |   72.2    |  1   |                                      
- Method C  | vs | Method D  | CNR  | 0.0000  | 0.0063 | -0.958 | [-0.991, -0.869] |   0.109   |  0.494  | [0.431, 0.572] |  0.078  |  1  |   100.0   |  1   |                                      
- Method C  | vs | Method E  | CNR  | 0.0020  | 0.0250 | -0.396 | [-0.613, -0.127] |   0.109   |  0.151  | [0.079, 0.244] |  0.078  |  1  |   87.1    |  1   |                                      
- Method C  | vs | Method F  | CNR  | 0.0006  | 0.0125 | -0.464 | [-0.667, -0.220] |   0.109   |  0.174  | [0.102, 0.261] |  0.078  |  1  |   91.6    |  1   |                                      
- Method A  | vs | Method D  | CNR  | 0.0000  | 0.0036 | -0.764 | [-0.880, -0.629] |   0.109   |  0.336  | [0.322, 0.351] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
- Method B  | vs | Method D  | CNR  | 0.0000  | 0.0045 | -0.824 | [-0.920, -0.698] |   0.109   |  0.378  | [0.365, 0.392] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
- Method D  | vs | Method E  | CNR  | 0.0000  | 0.0071 | +0.780 | [+0.638, +0.884] |   0.109   |  0.349  | [0.334, 0.365] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
- Method D  | vs | Method F  | CNR  | 0.0000  | 0.0083 | +0.744 | [+0.596, +0.844] |   0.109   |  0.327  | [0.312, 0.342] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
- Method A  | vs | Method B  | CNR  | 0.0000  | 0.0033 | +0.162 | [+0.102, +0.202] |   0.109   |  0.044  | [0.041, 0.047] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method A  | vs | Method E  | CNR  | 0.0000  | 0.0038 | +0.064 | [+0.058, +0.058] |   0.109   |  0.014  | [0.012, 0.016] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method A  | vs | Method F  | CNR  | 0.0000  | 0.0042 | -0.064 | [-0.062, -0.056] |   0.109   |  0.009  | [0.008, 0.011] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method B  | vs | Method E  | CNR  | 0.0000  | 0.0050 | -0.109 | [-0.129, -0.076] |   0.109   |  0.030  | [0.027, 0.032] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method B  | vs | Method F  | CNR  | 0.0000  | 0.0056 | -0.182 | [-0.236, -0.118] |   0.109   |  0.053  | [0.049, 0.057] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method A  | vs | Method C  |  OC  | 0.0000  | 0.0036 | -1.000 | [-1.000, -1.000] |   1.000   |  1.762  | [1.739, 1.783] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method A  | vs | Method D  |  OC  | 0.0000  | 0.0038 | -1.000 | [-1.000, -1.000] |   1.000   |  1.571  | [1.546, 1.593] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method C  |  OC  | 0.0000  | 0.0050 | -1.000 | [-1.000, -1.000] |   1.000   |  1.202  | [1.139, 1.260] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method D  |  OC  | 0.0000  | 0.0056 | -1.000 | [-1.000, -1.000] |   1.000   |  0.713  | [0.660, 0.761] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method E  |  OC  | 0.0000  | 0.0063 | +1.000 | [+1.000, +1.000] |   1.000   |  0.919  | [0.908, 0.929] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method B  | vs | Method F  |  OC  | 0.0000  | 0.0071 | +0.873 | [+0.740, +0.949] |   1.000   |  0.468  | [0.460, 0.474] |  0.622  |  0  |    0.0    |      |(1) Decision by number of wins        
+ Method C  | vs | Method D  |  OC  | 0.0000  | 0.0083 | +1.000 | [+1.000, +1.000] |   1.000   |  0.622  | [0.563, 0.675] |  0.622  |  1  |   49.1    |      |(1) Decision by number of wins        
+ Method C  | vs | Method E  |  OC  | 0.0000  | 0.0100 | +1.000 | [+1.000, +1.000] |   1.000   |  1.662  | [1.631, 1.688] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method C  | vs | Method F  |  OC  | 0.0000  | 0.0125 | +1.000 | [+1.000, +1.000] |   1.000   |  1.464  | [1.416, 1.506] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method D  | vs | Method E  |  OC  | 0.0000  | 0.0167 | +1.000 | [+1.000, +1.000] |   1.000   |  1.402  | [1.374, 1.426] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method D  | vs | Method F  |  OC  | 0.0000  | 0.0250 | +1.000 | [+1.000, +1.000] |   1.000   |  1.090  | [1.050, 1.124] |  0.622  |  1  |   100.0   |      |(1) Decision by number of wins        
+ Method A  | vs | Method E  |  OC  | 0.0000  | 0.0042 | -0.787 | [-0.898, -0.640] |   1.000   |  0.376  | [0.362, 0.389] |  0.622  |  0  |    0.0    |      |(2) Decision by Cliff's d             
+ Method A  | vs | Method F  |  OC  | 0.0000  | 0.0045 | -0.996 | [-1.000, -0.967] |   1.000   |  0.841  | [0.834, 0.848] |  0.622  |  0  |   44.6    |      |(2) Decision by Cliff's d             
+ Method E  | vs | Method F  |  OC  | 0.0000  | 0.0500 | -0.913 | [-0.973, -0.807] |   1.000   |  0.505  | [0.500, 0.510] |  0.622  |  0  |    0.0    |      |(2) Decision by Cliff's d             
+ Method A  | vs | Method C  | CNR  | 0.0010  | 0.0167 | +0.438 | [+0.171, +0.633] |   0.109   |  0.165  | [0.095, 0.258] |  0.078  |  1  |   90.3    |  1   |                                      
+ Method B  | vs | Method C  | CNR  | 0.0132  | 0.0500 | +0.311 | [+0.040, +0.538] |   0.109   |  0.121  | [0.049, 0.215] |  0.078  |  1  |   72.3    |  1   |                                      
+ Method C  | vs | Method D  | CNR  | 0.0000  | 0.0063 | -0.958 | [-0.991, -0.871] |   0.109   |  0.494  | [0.430, 0.578] |  0.078  |  1  |   100.0   |  1   |                                      
+ Method C  | vs | Method E  | CNR  | 0.0020  | 0.0250 | -0.396 | [-0.620, -0.124] |   0.109   |  0.151  | [0.075, 0.253] |  0.078  |  1  |   87.3    |  1   |                                      
+ Method C  | vs | Method F  | CNR  | 0.0006  | 0.0125 | -0.464 | [-0.664, -0.220] |   0.109   |  0.174  | [0.099, 0.261] |  0.078  |  1  |   92.0    |  1   |                                      
+ Method A  | vs | Method D  | CNR  | 0.0000  | 0.0036 | -0.764 | [-0.873, -0.622] |   0.109   |  0.336  | [0.322, 0.352] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
+ Method B  | vs | Method D  | CNR  | 0.0000  | 0.0045 | -0.824 | [-0.922, -0.709] |   0.109   |  0.378  | [0.365, 0.392] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
+ Method D  | vs | Method E  | CNR  | 0.0000  | 0.0071 | +0.780 | [+0.638, +0.880] |   0.109   |  0.349  | [0.334, 0.365] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
+ Method D  | vs | Method F  | CNR  | 0.0000  | 0.0083 | +0.744 | [+0.591, +0.842] |   0.109   |  0.327  | [0.313, 0.342] |  0.078  |  1  |   100.0   |  0   |Ranking already correct               
+ Method A  | vs | Method B  | CNR  | 0.0000  | 0.0033 | +0.162 | [+0.107, +0.204] |   0.109   |  0.044  | [0.041, 0.046] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method A  | vs | Method E  | CNR  | 0.0000  | 0.0038 | +0.064 | [+0.060, +0.060] |   0.109   |  0.014  | [0.012, 0.016] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method A  | vs | Method F  | CNR  | 0.0000  | 0.0042 | -0.064 | [-0.062, -0.058] |   0.109   |  0.009  | [0.008, 0.011] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method B  | vs | Method E  | CNR  | 0.0000  | 0.0050 | -0.109 | [-0.127, -0.076] |   0.109   |  0.030  | [0.027, 0.032] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
+ Method B  | vs | Method F  | CNR  | 0.0000  | 0.0056 | -0.182 | [-0.240, -0.127] |   0.109   |  0.053  | [0.049, 0.057] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
  Method E  | vs | Method F  | CNR  | 0.0000  | 0.0100 | -0.100 | [-0.113, -0.071] |   0.109   |  0.023  | [0.020, 0.027] |  0.078  |  0  |    0.0    |  0   |Criteria for CNR win not met          
- Method A  | vs | Method E  | SNR  | 0.0000  | 0.0042 | +1.000 | [+1.000, +1.000] |   1.000   |  0.581  | [0.564, 0.597] |  0.581  |  1  |   50.4    |  1   |(1) CNR neutral                       
+ Method A  | vs | Method E  | SNR  | 0.0000  | 0.0042 | +1.000 | [+1.000, +1.000] |   1.000   |  0.581  | [0.565, 0.596] |  0.581  |  1  |   50.2    |  1   |(1) CNR neutral                       
  Method A  | vs | Method F  | SNR  | 0.0000  | 0.0045 | +1.000 | [+1.000, +1.000] |   1.000   |  0.954  | [0.945, 0.962] |  0.581  |  1  |   100.0   |  1   |(2) OC/CNR neutral                    
- Method A  | vs | Method C  | SNR  | 0.0000  | 0.0036 | +1.000 | [+1.000, +1.000] |   1.000   |  1.670  | [1.660, 1.681] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method A  | vs | Method D  | SNR  | 0.0000  | 0.0038 | +1.000 | [+1.000, +1.000] |   1.000   |  1.355  | [1.335, 1.372] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method B  | vs | Method C  | SNR  | 0.0000  | 0.0050 | +1.000 | [+1.000, +1.000] |   1.000   |  0.943  | [0.916, 0.972] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method D  | SNR  | 0.0000  | 0.0083 | -1.000 | [-1.000, -1.000] |   1.000   |  0.725  | [0.704, 0.747] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method E  | SNR  | 0.0000  | 0.0100 | -1.000 | [-1.000, -1.000] |   1.000   |  1.437  | [1.411, 1.464] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method C  | vs | Method F  | SNR  | 0.0000  | 0.0125 | -1.000 | [-1.000, -1.000] |   1.000   |  1.190  | [1.161, 1.223] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method D  | vs | Method E  | SNR  | 0.0000  | 0.0167 | -1.000 | [-1.000, -1.000] |   1.000   |  0.963  | [0.923, 0.997] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
- Method D  | vs | Method F  | SNR  | 0.0000  | 0.0250 | -1.000 | [-1.000, -1.000] |   1.000   |  0.592  | [0.552, 0.630] |  0.581  |  1  |   70.6    |  0   |(1/2) No comparison -> CNR win        
+ Method A  | vs | Method C  | SNR  | 0.0000  | 0.0036 | +1.000 | [+1.000, +1.000] |   1.000   |  1.670  | [1.660, 1.682] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method A  | vs | Method D  | SNR  | 0.0000  | 0.0038 | +1.000 | [+1.000, +1.000] |   1.000   |  1.355  | [1.336, 1.373] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method B  | vs | Method C  | SNR  | 0.0000  | 0.0050 | +1.000 | [+1.000, +1.000] |   1.000   |  0.943  | [0.917, 0.971] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method D  | SNR  | 0.0000  | 0.0083 | -1.000 | [-1.000, -1.000] |   1.000   |  0.725  | [0.704, 0.748] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method E  | SNR  | 0.0000  | 0.0100 | -1.000 | [-1.000, -1.000] |   1.000   |  1.437  | [1.412, 1.464] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method C  | vs | Method F  | SNR  | 0.0000  | 0.0125 | -1.000 | [-1.000, -1.000] |   1.000   |  1.190  | [1.161, 1.222] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method D  | vs | Method E  | SNR  | 0.0000  | 0.0167 | -1.000 | [-1.000, -1.000] |   1.000   |  0.963  | [0.926, 0.999] |  0.581  |  1  |   100.0   |  0   |(1/2) No comparison -> CNR win        
+ Method D  | vs | Method F  | SNR  | 0.0000  | 0.0250 | -1.000 | [-1.000, -1.000] |   1.000   |  0.592  | [0.553, 0.630] |  0.581  |  1  |   70.6    |  0   |(1/2) No comparison -> CNR win        
  Method A  | vs | Method B  | SNR  | 0.0000  | 0.0033 | +1.000 | [+1.000, +1.000] |   1.000   |  1.198  | [1.198, 1.198] |  0.581  |  1  |   100.0   |  0   |(2) No comparison -> OC win           
- Method B  | vs | Method E  | SNR  | 0.0000  | 0.0063 | -1.000 | [-1.000, -1.000] |   1.000   |  0.747  | [0.732, 0.762] |  0.581  |  1  |   100.0   |  0   |(2) No comparison -> OC win           
- Method B  | vs | Method F  | SNR  | 0.0000  | 0.0071 | -0.998 | [-1.000, -0.973] |   1.000   |  0.342  | [0.332, 0.353] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
- Method E  | vs | Method F  | SNR  | 0.0000  | 0.0500 | +1.000 | [+1.000, +1.000] |   1.000   |  0.433  | [0.427, 0.439] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
+ Method B  | vs | Method E  | SNR  | 0.0000  | 0.0063 | -1.000 | [-1.000, -1.000] |   1.000   |  0.747  | [0.733, 0.762] |  0.581  |  1  |   100.0   |  0   |(2) No comparison -> OC win           
+ Method B  | vs | Method F  | SNR  | 0.0000  | 0.0071 | -0.998 | [-1.000, -0.973] |   1.000   |  0.342  | [0.332, 0.352] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
+ Method E  | vs | Method F  | SNR  | 0.0000  | 0.0500 | +1.000 | [+1.000, +1.000] |   1.000   |  0.433  | [0.426, 0.439] |  0.581  |  0  |    0.0    |  0   |(1)/(2) Criteria for SNR win not met  
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Detailed comparison log saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/log_Example_1.csv
+Detailed comparison log saved: /Desktop/Ranking_Example_1/Output/log_Example_1.csv
 
-Starting creation of LIGHT graphics...
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Ranking_Metric1_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_OC_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Correction_Metric2_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_CNR_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Correction_Metric3_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_SNR_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Ranking/Sankey_Rank_Shifts_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Final_Ranking_Example_1.png
-  Graphic successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Graphics/Ranking/Borda_Plot_Example_1.png
-  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/PDF/Convergence_Report_Example_1.pdf
-  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/PDF/Bootstrap_Report_Example_1.pdf
-  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/PDF/Ranking_Report_Example_1.pdf
-  PDF report successfully saved: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Final_Report_Example_1.pdf
+Starting creation of COLOURBLIND LIGHT graphics...
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Ranking_Metric1_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_OC_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Correction_Metric2_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_CNR_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Correction_Metric3_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Detail_Comparison/Detailplot_SNR_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Ranking/Sankey_Rank_Shifts_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Final_Ranking_Example_1.png
+  Graphic successfully saved: /Desktop/Ranking_Example_1/Graphics/Ranking/Borda_Plot_Example_1.png
+  PDF report successfully saved: /Desktop/Ranking_Example_1/PDF/Convergence_Report_Example_1.pdf
+  PDF report successfully saved: /Desktop/Ranking_Example_1/PDF/Bootstrap_Report_Example_1.pdf
+  PDF report successfully saved: /Desktop/Ranking_Example_1/PDF/Ranking_Report_Example_1.pdf
+  PDF report successfully saved: /Desktop/Ranking_Example_1/Final_Report_Example_1.pdf
 All graphics successfully created.
 
 Saving ranking data to JSON
-Machine-readable JSON saved to: /HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1/Output/data_Example_1.json
+Machine-readable JSON saved to: /Desktop/Ranking_Example_1/Output/data_Example_1.json
 
 Ranking finished.
-All outputs successfully saved in: "/HERA-Matlab/data/examples/results/HERA_Example_1/Ranking_Example_1"
+All outputs successfully saved in: "/Desktop/Ranking_Example_1"
 
-Total execution time: 4 minutes and 35.82 seconds.
+Total execution time: 3 minutes and 39.01 seconds.
