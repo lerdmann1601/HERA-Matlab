@@ -43,7 +43,7 @@ This diagram shows how the ranking of methods changes across different metrics a
 
 #### Win-Loss Matrix 1
 
-This matrix visualizes the pairwise comparisons between methods. Green indicates a win, red a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
+This matrix visualizes the pairwise comparisons between methods. Blue indicates a win, orange a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
 ![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
 
@@ -89,6 +89,6 @@ This diagram shows how the ranking of methods changes across different metrics a
 
 #### Win-Loss Matrix 2
 
-This matrix visualizes the pairwise comparisons between methods. Green indicates a win, red a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
+This matrix visualizes the pairwise comparisons between methods. Blue indicates a win, orange a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
 ![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_2/Graphics/Ranking/Win_Loss_Matrix_Example_2.png)
