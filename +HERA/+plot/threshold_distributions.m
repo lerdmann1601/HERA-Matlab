@@ -239,7 +239,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             bin_width = 0.1; 
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
-            xlim([-1.1, 1.1]);
+            xlim([-1 - bin_width/2, 1 + bin_width/2]);
             xticks(sort(unique([-1, 0, 1, bin_center])));       
         elseif numel(unique_data) == 2
             % Exactly 2 values.
@@ -249,7 +249,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             bin_edges = [val1 - bin_width/2, val1 + bin_width/2, val2 - bin_width/2, val2 + bin_width/2];
             histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
-            xlim([-1.1, 1.1]);
+            xlim([-1 - bin_width/2, 1 + bin_width/2]);
             xticks(sort([val1, val2, 0]));
         else
             % Dynamic ticks based on the raw data range.
@@ -277,9 +277,9 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             h_hist = histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
             
-            % Restrict the final view to the range [-1, 1].
-            final_xlim_min = max(-1.1, bin_edges(1));
-            final_xlim_max = min(1.1, bin_edges(end));
+            % Restrict the final view to the range [-1, 1] plus margin.
+            final_xlim_min = max(-1 - nice_step/2, bin_edges(1));
+            final_xlim_max = min(1 + nice_step/2, bin_edges(end));
             
             % Adjust KDE to the final, restricted axis limits.
             evaluation_points = linspace(final_xlim_min, final_xlim_max, 200);
@@ -320,7 +320,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             bin_width = 0.1; 
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
-            xlim([-0.1, 2.1]);
+            xlim([0 - bin_width/2, 2 + bin_width/2]);
             xticks(sort(unique([0, 1, 2, bin_center])));
     
         elseif numel(unique_data) == 2
@@ -328,7 +328,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             bin_width = 0.1; 
             bin_edges = [val1 - bin_width/2, val1 + bin_width/2, val2 - bin_width/2, val2 + bin_width/2];
             histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
-            xlim([-0.1, 2.1]);
+            xlim([0 - bin_width/2, 2 + bin_width/2]);
             xticks(sort(unique([0, val1, val2, 2])));
         else
             % Dynamic ticks based on the raw data range.
@@ -357,8 +357,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
                 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
             
             % Adjust KDE to the final, restricted axis limits.
-            final_xlim_min = max(-0.1, bin_edges(1));
-            final_xlim_max = min(2.1, bin_edges(end));
+            final_xlim_min = max(0 - nice_step/2, bin_edges(1));
+            final_xlim_max = min(2 + nice_step/2, bin_edges(end));
             
             evaluation_points = linspace(final_xlim_min, final_xlim_max, 200); % Uses the final limits.
             [f, xi] = ksdensity(data_clean, evaluation_points, 'Bandwidth', 'normal-approx');

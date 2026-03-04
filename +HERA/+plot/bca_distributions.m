@@ -14,8 +14,6 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
 %
 %   Each figure uses a dynamic tiled layout corresponding to the number of metrics and
 %   effect types (Cliff's Delta vs Relative Difference).
-%   It includes kernel density estimation (KDE) overlays if there is sufficient data variation,
-%   or robust fallback plotting for constant/low-variance data.
 %
 % Inputs:
 %   z0_d_all, a_d_all   - Matrices of correction factors for Cliff's Delta [Pairs x Metrics].
@@ -72,7 +70,9 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
                 face_color = styles.colors.rel_face;
             end
             
-            % Use helper to plot histogram + density
+            % z0 is a normal quantile, theoretically it can span [-inf, inf] 
+            % but realistically falls within [-3, 3] or [-5, 5]. We do not apply strict mathematical 
+            % constraints here since there is no hard theoretical cut-off like for CI widths.
             plot_distribution(ax, data, face_color, styles);
             
             title(sprintf('%s - %s', metric_names{m_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
@@ -113,6 +113,7 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
                 face_color = styles.colors.rel_face;
             end
             
+            % the acceleration factor 'a' is also theoretically unbounded, but practically small
             plot_distribution(ax, data, face_color, styles);
             
             title(sprintf('%s - %s', metric_names{m_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
@@ -156,8 +157,11 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
                 face_color = styles.colors.rel_face;
             end
             
-            plot_distribution(ax, data, face_color, styles);
-            
+            if es_type == 1
+                plot_distribution(ax, data, face_color, styles, [0, 1]);
+            else
+                plot_distribution(ax, data, face_color, styles, [0, 2]);
+            end
             title(sprintf('%s - %s', metric_names{m_idx}, effect_type_names{es_type}), 'FontSize', styles.font.label, ...
                 'Color', styles.colors.text, 'Interpreter', 'none');
             set(gca, 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text);
@@ -175,8 +179,11 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
 end
 
 %% Helper Function: Robust Histogram + Density Plotting
-function plot_distribution(ax, data, face_color, styles)
+function plot_distribution(ax, data, face_color, styles, bounds)
 % PLOT_DISTRIBUTION - Automatically handles data scaling, binning, and kernel density estimation.
+    if nargin < 5
+        bounds = [];
+    end
 
     hold(ax, 'on');
     grid(ax, 'on'); box(ax, 'on');
@@ -191,16 +198,21 @@ function plot_distribution(ax, data, face_color, styles)
         histogram(ax, data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], ...
             'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
         
-        xlim(ax, [bin_center - bin_width*5, bin_center + bin_width*5]);
+        if ~isempty(bounds)
+            final_xlim_min = max(bounds(1) - bin_width/2, bin_center - bin_width*5);
+            final_xlim_max = min(bounds(2) + bin_width/2, bin_center + bin_width*5);
+        else
+            final_xlim_min = bin_center - bin_width*5;
+            final_xlim_max = bin_center + bin_width*5;
+        end
+        xlim(ax, [final_xlim_min, final_xlim_max]);
         xticks(ax, sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
         
     % Case 2: Standard Distribution
     else
-        [f, xi] = ksdensity(data, 'Bandwidth', 'normal-approx');
-        
         % Nicer axis ticks (Auto-Scale)
-        min_val = min([data(:); xi(:)], [], 'all', 'omitnan');
-        max_val = max([data(:); xi(:)], [], 'all', 'omitnan');
+        min_val = min(data(:), [], 'all', 'omitnan');
+        max_val = max(data(:), [], 'all', 'omitnan');
         data_range = max_val - min_val;
         
         if data_range > 1e-6
@@ -226,14 +238,18 @@ function plot_distribution(ax, data, face_color, styles)
         % Ensure bins are centered on ticks
         bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
         
+        if ~isempty(bounds)
+            final_xlim_min = max(bounds(1) - nice_step/2, bin_edges(1));
+            final_xlim_max = min(bounds(2) + nice_step/2, bin_edges(end));
+        else
+            final_xlim_min = bin_edges(1);
+            final_xlim_max = bin_edges(end);
+        end
+
         h_hist = histogram(ax, data, 'BinEdges', bin_edges, 'Normalization', 'probability', ...
             'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
         
-        % Overlay Density Curve scaled to Histogram
-        if max(f) > 0
-            plot(ax, xi, f * (max(h_hist.Values)/max(f)), 'Color', styles.colors.kde_line, 'LineWidth', 1.5);
-        end
-        xlim(ax, [bin_edges(1), bin_edges(end)]);
+        xlim(ax, [final_xlim_min, final_xlim_max]);
         xticks(ax, ticks);
     end
     hold(ax, 'off');
