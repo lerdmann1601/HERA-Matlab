@@ -413,12 +413,14 @@ else
                          boot_stats(start_idx_loc:end_idx_loc) = batch_res;
                     end
                     
-                    % Step 2 (Loss of Bias): If z0 is non-finite (e.g., all samples on one side of theta_hat),
+                    % Calculate BCa correction factors (z0 for bias):
+                    % If z0 is non-finite (e.g., all samples on one side of theta_hat),
                     % we set z0 = 0 to disable bias correction but retain acceleration (a).
                     z0 = norminv(sum(boot_stats < theta_hat) / B_ci_current);
                     if ~isfinite(z0), z0 = 0; end 
     
-                    % Step 3 (Full Fallback): If a1 or a2 evaluate to NaN (e.g., due to division by zero),
+                    % Calculate BCa correction factors (a for acceleration):
+                    % If a1 or a2 evaluate to NaN (e.g., due to division by zero),
                     % fall back entirely to standard, unadjusted percentile quantiles.
                     z1 = norminv(alpha_level / 2); z2 = norminv(1 - alpha_level / 2);
                     a1 = normcdf(z0 + (z0 + z1) / (1 - a * (z0 + z1)));
@@ -784,14 +786,14 @@ for metric_idx = 1:num_metrics
         a_r = pair_a_r(k);
         
         % --- BCa for Cliff's Delta ---
-        % Step 2 (Loss of Bias): If z0 is non-finite, set z0 = 0 (disables bias correction).
+        % If z0 is non-finite, set z0 = 0 (disables bias correction).
         z0_d = norminv(sum(boot_d < theta_hat_d) / B_ci);
         if ~isfinite(z0_d), z0_d = 0; end
         
         a1_d = normcdf(z0_d + (z0_d + z1) / (1 - a_d * (z0_d + z1)));
         a2_d = normcdf(z0_d + (z0_d + z2) / (1 - a_d * (z0_d + z2)));
         
-        % Step 3 (Full Fallback): If a1_d or a2_d evaluate to NaN -> Fallback to standard percentiles.
+        % If a1_d or a2_d evaluate to NaN -> Fallback to standard percentiles.
         if isnan(a1_d), a1_d = alpha_level / 2; end
         if isnan(a2_d), a2_d = 1 - alpha_level / 2; end
         
@@ -801,14 +803,14 @@ for metric_idx = 1:num_metrics
         temp_a_d(k) = a_d;
         
         % --- BCa for Relative Difference ---
-        % Step 2 (Loss of Bias): If z0 is non-finite, set z0 = 0 (disables bias correction).
+        % If z0 is non-finite, set z0 = 0 (disables bias correction).
         z0_r = norminv(sum(boot_r < theta_hat_r) / B_ci);
         if ~isfinite(z0_r), z0_r = 0; end
         
         a1_r = normcdf(z0_r + (z0_r + z1) / (1 - a_r * (z0_r + z1)));
         a2_r = normcdf(z0_r + (z0_r + z2) / (1 - a_r * (z0_r + z2)));
         
-        % Step 3 (Full Fallback): If a1_r or a2_r evaluate to NaN -> Fallback to standard percentiles.
+        % If a1_r or a2_r evaluate to NaN -> Fallback to standard percentiles.
         if isnan(a1_r), a1_r = alpha_level / 2; end
         if isnan(a2_r), a2_r = 1 - alpha_level / 2; end
         sorted_r = sort(boot_r);
