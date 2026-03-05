@@ -47,7 +47,7 @@ function save_results(results, shared_info, metric_names)
 
     % Prepare all data and headers for the console from the language file
     % Dynamically build header parts
-    header_parts = {lang.plots.table.rank, lang.csv.headers.dataset, lang.output.tables.rank_ci};
+    header_parts = {lang.plots.table.rank, lang.csv.headers.dataset, sprintf(lang.output.tables.rank_ci, shared_info.config.ci_level * 100)};
     for i = 1:num_metrics
         header_parts{end+1} = sprintf(lang.csv.headers.mean_sd_template, metric_names{i});
     end

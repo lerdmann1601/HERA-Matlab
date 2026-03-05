@@ -1,7 +1,7 @@
 % HERA Toolbox
 % Version 1.3.0 03-Mar-2026
 %
-% HERA: Hierarchical-Compensatory, Effect-Size-Driven and Non-Parametric Ranking Algorithm
+% HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
 %
 % Files
 %   bootstrap_ranking    - Performs bootstrap analysis for ranking stability.

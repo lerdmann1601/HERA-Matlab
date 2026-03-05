@@ -208,7 +208,7 @@ for page = 1:num_pages
     % Set X-axis limits from -1.1 to 1.1 for full range with buffer.
     xlim(ax2, [-1.1, 1.1]);
     % Set labels and title.
-    xlabel(ax2, {lang.plots.xlabels.cliffs_delta_ci, lang.plots.xlabels.red_line_threshold}, 'FontSize', styles.font.label, ...
+    xlabel(ax2, {sprintf(lang.plots.xlabels.cliffs_delta_ci, shared_info.config.ci_level * 100), lang.plots.xlabels.red_line_threshold}, 'FontSize', styles.font.label, ...
         'Color', styles.colors.text, 'Interpreter', 'none');
     title(ax2, sprintf([lang.plots.titles.effect_size_delta '\n']), 'FontSize', styles.font.label, 'Color', styles.colors.text, 'Interpreter', 'none');
     % Apply grid and box styles.
@@ -225,7 +225,7 @@ for page = 1:num_pages
     xlim(ax3, [0.0, 2.1]);
     xticks(ax3, [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2.0]); 
     % Set labels and title.
-    xlabel(ax3, {lang.plots.xlabels.rel_mean_diff_ci, lang.plots.xlabels.red_line_threshold}, 'FontSize', styles.font.label, ...
+    xlabel(ax3, {sprintf(lang.plots.xlabels.rel_mean_diff_ci, shared_info.config.ci_level * 100), lang.plots.xlabels.red_line_threshold}, 'FontSize', styles.font.label, ...
         'Color', styles.colors.text, 'Interpreter', 'none');
     title(ax3, sprintf([lang.plots.titles.rel_mean_diff '\n']), 'FontSize', styles.font.label, 'Color', styles.colors.text, 'Interpreter', 'none');
     % Apply grid and box styles.

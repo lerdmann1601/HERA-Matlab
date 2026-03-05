@@ -385,14 +385,14 @@
             "win_criterion2": "Cliff's Delta is above the threshold",
             "win_criterion3": "Relative difference is above the threshold",
             "bootstrap_summary_thr": "A Percentile-Bootstrap with B = %d was used to calculate the thresholds.",
-            "bootstrap_summary_ci": "A BCa-Bootstrap with B = %d was performed to calculate the 95%% CI of the dataset comparisons.",
-            "bootstrap_summary_rank": "To calculate the 95%% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = %d."
+            "bootstrap_summary_ci": "A BCa-Bootstrap with B = %d was performed to calculate the %g%% CI of the dataset comparisons.",
+            "bootstrap_summary_rank": "To calculate the %g%% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = %d."
         },
         "thresholds": {
-            "delta_header": "Threshold for Cliff's Delta (lower 95%% CI of the 50th percentile of Cliff's Delta of all dataset comparisons):",
-            "rel_diff_header": "Threshold for relative mean differences (lower 95%% CI of the 50th percentile of relative mean differences):",
+            "delta_header": "Threshold for Cliff's Delta (lower %g%% CI of the 50th percentile of Cliff's Delta of all dataset comparisons):",
+            "rel_diff_header": "Threshold for relative mean differences (lower %g%% CI of the 50th percentile of relative mean differences):",
             "sem_protection_header": "\nProtection against small mean differences and influence from slight noise/signal fluctuations:",
-            "sem_protection_desc": "Minimum threshold for relative mean differences based on the 95%% CI of the 50th percentile of the SEM of all datasets"
+            "sem_protection_desc": "Minimum threshold for relative mean differences based on the %g%% CI of the 50th percentile of the SEM of all datasets"
         },
         "metric1": {
             "header": "=== %s Comparison: Analysis and Initial Ranking ===",
@@ -423,7 +423,7 @@
             "vs": ">",
             "delta_short": "d (Delta)",
             "reldiff_short": "r (RelDiff)",
-            "rank_ci": "Rank CI (95%)",
+            "rank_ci": "Rank CI (%g%%)",
             "format": " %2d. %-22s Mean %s: %4.3f"
         },
         "final_summary": {
@@ -444,10 +444,10 @@
                 "p-value",
                 "p-Thr",
                 "Delta",
-                "d 95% CI",
+                "d %g%% CI",
                 "Delta-Thr",
                 "RelDiff",
-                "r 95% CI",
+                "r %g%% CI",
                 "Rel-Thr",
                 "Win",
                 "Power (%)",
@@ -461,10 +461,10 @@
                 "p-value",
                 "p-Thr",
                 "Delta",
-                "d 95% CI",
+                "d %g%% CI",
                 "Delta-Thr",
                 "RelDiff",
-                "r 95% CI",
+                "r %g%% CI",
                 "Rel-Thr",
                 "Win",
                 "Swap",
@@ -562,15 +562,15 @@
             "mean_sd": "Mean %s (± SD)",
             "p_value_log": "p-value (log scale)",
             "holm_threshold": "Dots: Holm-Bonferroni threshold",
-            "cliffs_delta_ci": "Cliff's Delta (with 95% CI)",
-            "rel_mean_diff_ci": "Rel. mean Diff. (with 95% CI)",
+            "cliffs_delta_ci": "Cliff's Delta (with %g%% CI)",
+            "rel_mean_diff_ci": "Rel. mean Diff. (with %g%% CI)",
             "red_line_threshold": "Vertical line: Threshold",
             "after_metric": "After %s",
             "sankey_m1": "After %s (Wins)",
             "sankey_m2_corr": "After %s (Correction)",
             "sankey_m2_tie": "After %s (Tie-break)",
             "sankey_m3_corr": "After %s (Correction)",
-            "final_rank": "Final Rank (with 95% CI and log-frequency of ranks)",
+            "final_rank": "Final Rank (with %g%% CI and log-frequency of ranks)",
             "borda_rank": "Normalized Borda Consensus Rank [%]"
         },
         "ylabels": {

@@ -49,18 +49,18 @@ function print_header(thresholds, shared_info)
     fprintf([lang.output.info.cliffs_delta_desc '\n']);
     fprintf([lang.output.info.rel_diff_desc '\n']);
 
-    fprintf(['\n' lang.output.thresholds.delta_header '\n']);
+    fprintf(['\n' lang.output.thresholds.delta_header '\n'], shared_info.config.ci_level * 100);
     for i = 1:num_metrics
         fprintf(' %s: %.3f\n', metric_names{i}, d_thresh(i));
     end
 
-    fprintf(['\n' lang.output.thresholds.rel_diff_header '\n']);
+    fprintf(['\n' lang.output.thresholds.rel_diff_header '\n'], shared_info.config.ci_level * 100);
     for i = 1:num_metrics
         fprintf(' %s: %.3f\n', metric_names{i}, rel_thresh_b(i));
     end
 
     fprintf([lang.output.thresholds.sem_protection_header]);
-    fprintf(['\n-> ' lang.output.thresholds.sem_protection_desc '\n']);
+    fprintf(['\n-> ' lang.output.thresholds.sem_protection_desc '\n'], shared_info.config.ci_level * 100);
     for i = 1:num_metrics
         fprintf(' %s: %.3f\n', metric_names{i}, min_rel_thresh(i));
     end
@@ -71,7 +71,7 @@ function print_header(thresholds, shared_info)
     fprintf(['\n 3. ' lang.output.info.win_criterion3]);
 
     fprintf(['\n\n' lang.output.info.bootstrap_summary_thr '\n'], shared_info.selected_B_thresholds);
-    fprintf([lang.output.info.bootstrap_summary_ci '\n'], shared_info.selected_B_ci);
-    fprintf([lang.output.info.bootstrap_summary_rank '\n'], shared_info.selected_B_rank);
+    fprintf([lang.output.info.bootstrap_summary_ci '\n'], shared_info.selected_B_ci, shared_info.config.ci_level * 100);
+    fprintf([lang.output.info.bootstrap_summary_rank '\n'], shared_info.config.ci_level * 100, shared_info.selected_B_rank);
 
 end

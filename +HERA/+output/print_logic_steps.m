@@ -25,6 +25,12 @@ function print_logic_steps(results, thresholds, config, shared_info)
 
     % Unpack necessary variables
     lang = shared_info.lang;
+    
+    ci_val = shared_info.config.ci_level * 100;
+    lang.output.log.headers_no_power{7} = ...
+        sprintf(lang.output.log.headers_no_power{7}, ci_val);
+    lang.output.log.headers_no_power{10} = ...
+        sprintf(lang.output.log.headers_no_power{10}, ci_val);
     metric_names = shared_info.metric_names;
     dataset_names = shared_info.dataset_names;
     num_datasets = shared_info.num_datasets;

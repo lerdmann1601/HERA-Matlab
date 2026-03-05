@@ -25,7 +25,16 @@ function save_log(results, thresholds, config, shared_info)
 
     % Unpack necessary variables
     lang = shared_info.lang;
-    metric_names = shared_info.metric_names;
+    
+    ci_val = shared_info.config.ci_level * 100;
+    lang.output.log.headers_with_power{7} = ...
+        sprintf(lang.output.log.headers_with_power{7}, ci_val);
+    lang.output.log.headers_with_power{10} = ...
+        sprintf(lang.output.log.headers_with_power{10}, ci_val);
+    lang.output.log.headers_no_power{7} = ...
+        sprintf(lang.output.log.headers_no_power{7}, ci_val);
+    lang.output.log.headers_no_power{10} = ...
+        sprintf(lang.output.log.headers_no_power{10}, ci_val);
     csv_dir = shared_info.csv_dir;
     ts = shared_info.config.timestamp;
     pair_idx_all = shared_info.pair_idx_all;

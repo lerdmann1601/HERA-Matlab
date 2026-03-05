@@ -160,7 +160,7 @@ hold(ax_rank, 'off');
 set(ax_rank, 'YDir', 'reverse', 'FontSize', styles.font.tick, 'XColor', styles.colors.text, 'YColor', styles.colors.text, ...
     'YTick', 1:num_datasets, 'YTickLabel', sorted_names, 'TickLabelInterpreter', 'none');
 ylabel(ax_rank, {''}, 'FontSize', styles.font.label, 'Color', styles.colors.text); % No label, names are sufficient.
-xlabel(ax_rank, lang.plots.xlabels.final_rank, 'FontSize', styles.font.label, 'Color', styles.colors.text);
+xlabel(ax_rank, sprintf(lang.plots.xlabels.final_rank, shared_info.config.ci_level * 100), 'FontSize', styles.font.label, 'Color', styles.colors.text);
 set(ax_rank, 'XGrid', 'on', 'YGrid', 'on', 'GridLineStyle', styles.line.grid, 'box', 'on', 'GridColor', styles.colors.grid_color);
 xticks(ax_rank, 1:num_datasets);
 xlim(ax_rank, [0.5, num_datasets + 0.5]); ylim(ax_rank, [0.5, num_datasets + 0.5]);
