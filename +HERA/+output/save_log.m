@@ -25,6 +25,7 @@ function save_log(results, thresholds, config, shared_info)
 
     % Unpack necessary variables
     lang = shared_info.lang;
+    metric_names = shared_info.metric_names;
     
     ci_val = shared_info.config.ci_level * 100;
     lang.output.log.headers_with_power{7} = ...
