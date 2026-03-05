@@ -145,4 +145,8 @@ function results = run_ranking(userInput)
     minutes = floor(total_duration_seconds / 60);
     seconds = rem(total_duration_seconds, 60);
     fprintf('\nTotal execution time: %d minutes and %.2f seconds.\n', minutes, seconds);
+
+    if isfield(setupData.lang, 'run_ranking') && isfield(setupData.lang.run_ranking, 'cite_request')
+        fprintf('%s\n', setupData.lang.run_ranking.cite_request);
+    end
 end

@@ -290,8 +290,8 @@ If you use HERA in your research, please cite:
 ```bibtex
 @software{HERA_Matlab,
   author = {von Erdmannsdorff, Lukas},
-  title = {HERA: A Hierarchical-Compensatory, Effect-Size Driven and Non-parametric
-  Ranking Algorithm using Data-Driven Thresholds and Bootstrap Validation},
+  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven
+  Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.3.0},
   doi = {10.5281/zenodo.18274870},
