@@ -42,7 +42,7 @@ ranking system.
 
 ## Key Features
 
-* **Hierarchical Logic**: Define primary and secondary metrics. Secondary
+* **Hierarchical-Compensatory Logic**: Define primary and secondary metrics. Secondary
   metrics can act as tie-breakers or rank correctors (e.g., `M1_M2`,
   `M1_M2_M3`).
 * **Data-Driven Thresholds**: Automatically calculates adaptive effect size
