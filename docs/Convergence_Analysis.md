@@ -10,7 +10,7 @@ Additionally, we evaluated the accuracy of the results by comparing them against
 
 The results confirm that the default settings are appropriate for the vast majority of scenarios, yielding both stable and accurate outcomes.
 
-To ensure **reproducibility** and fair comparability between the Robust Mode and the reference runs, we utilized a **fixed random seed** for all simulations. This guarantees that both the convergence checks and the reference benchmarks were performed on identical data sequences and bootstrap samples.
+To ensure **reproducibility** and fair comparability, we utilized a **deterministic seeding scheme** for all simulations. A fixed base seed controls the synthetic data generation, guaranteeing that both the convergence checks and the reference benchmarks operate on **identical datasets**. The bootstrap resampling seeds, however, are deliberately offset to ensure **statistical independence** between the convergence tests and the high-precision reference computations.
 
 ## Analysis Design & Constraints
 
