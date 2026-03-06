@@ -68,7 +68,7 @@ The ranking process is structured as a multi-stage tournament. It does not use a
 
 HERA integrates advanced resampling methods to quantify uncertainty:
 
-- **BCa Confidence Intervals**: Bias-Corrected and Accelerated (BCa) intervals are calculated for all effect sizes [@DiCiccio1996].
+- **BCa Confidence Intervals**: Bias-Corrected and Accelerated (BCa) intervals are calculated for all effect sizes [@Efron1987].
 - **Cluster Bootstrap**: To assess the stability of the final ranking, HERA performs a cluster bootstrap resampling subjects with replacement [@Field2007]. This yields a 95% confidence interval for the rank of each method.
 - **Power Analysis**: A post-hoc simulation with bootstrap estimates the probability of detecting a "win", "loss" or "neutral" in all tested metrics given the data characteristics.
 - **Sensitivity Analysis**: The algorithm permutes the metric hierarchy and aggregates the resulting rankings using a Borda Count [@Young1974] to evaluate the robustness of the decision against hierarchy changes.
