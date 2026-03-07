@@ -180,7 +180,7 @@ end
 
 %% Helper Function: Robust Histogram + Density Plotting
 function plot_distribution(ax, data, face_color, styles, bounds)
-% PLOT_DISTRIBUTION - Automatically handles data scaling, binning, and kernel density estimation.
+% PLOT_DISTRIBUTION - Automatically handles data scaling and binning.
     if nargin < 5
         bounds = [];
     end
@@ -189,8 +189,12 @@ function plot_distribution(ax, data, face_color, styles, bounds)
     grid(ax, 'on'); box(ax, 'on');
     set(ax, 'Color', styles.colors.background, 'GridColor', styles.colors.grid_color);
 
-    % Case 1: Constant or effectively single-value data
+    % --- Step 1: Data Categorization & Initial Plotting ---
+    % We distinguish between constant data (e.g., zero variance) and standard distributions
+    % to ensure the histogram bins and axis limits are always meaningful.
+
     if isscalar(unique(data))
+        % Case 1: Constant or effectively single-value data
         bin_center = unique(data);
         if isempty(bin_center), bin_center = 0; end
         bin_width = 0.02;
@@ -198,6 +202,9 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         histogram(ax, data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], ...
             'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
         
+        % --- Step 2: Axis Scaling (Constant Data) ---
+        % If bounds are provided, we clip the view to stay within the theoretical range
+        % while maintaining a minimum buffer around the data point.
         if ~isempty(bounds)
             final_xlim_min = max(bounds(1) - bin_width/2, bin_center - bin_width*2);
             final_xlim_max = min(bounds(2) + bin_width/2, bin_center + bin_width*2);
@@ -206,7 +213,7 @@ function plot_distribution(ax, data, face_color, styles, bounds)
             final_xlim_max = bin_center + bin_width*5;
         end
         
-        % Final safety: strictly enforce min < max
+        % Final safety guard: strictly enforce min < max to prevent MATLAB errors.
         if final_xlim_min >= final_xlim_max
             final_xlim_min = bin_center - bin_width*2;
             final_xlim_max = bin_center + bin_width*2;
@@ -215,9 +222,9 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         xlim(ax, [final_xlim_min, final_xlim_max]);
         xticks(ax, sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
         
-    % Case 2: Standard Distribution
     else
-        % Nicer axis ticks (Auto-Scale)
+        % Case 2: Standard Distribution
+        % Calculate "nice" axis ticks for a professional look (Auto-Scale).
         min_val = min(data(:), [], 'all', 'omitnan');
         max_val = max(data(:), [], 'all', 'omitnan');
         data_range = max_val - min_val;
@@ -242,10 +249,12 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         if isempty(ticks), ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
         if numel(ticks) < 2, ticks = linspace(ticks(1)-nice_step, ticks(1)+nice_step, 3); end
         
-        % Ensure bins are centered on ticks
+        % --- Step 2: Binning and Scaling (Standard Data) ---
+        % Ensure bins are perfectly centered on the calculated ticks.
         bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
         
         if ~isempty(bounds)
+            % Clip x-axis to bounds if provided, while respecting the bin structure.
             final_xlim_min = max(bounds(1) - nice_step/2, bin_edges(1));
             final_xlim_max = min(bounds(2) + nice_step/2, bin_edges(end));
         else
@@ -253,7 +262,7 @@ function plot_distribution(ax, data, face_color, styles, bounds)
             final_xlim_max = bin_edges(end);
         end
         
-        % Final safety: strictly enforce min < max
+        % Final safety guard: Ensure valid numeric limits even with extreme data.
         if final_xlim_min >= final_xlim_max
             final_xlim_min = bin_edges(1);
             final_xlim_max = bin_edges(end);

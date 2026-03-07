@@ -71,18 +71,20 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
         data = abs(bootstat_d);
         
         hold on;
-        % Handle cases with no or little data variation for robust plotting.
+        % --- Step 1: Data Categorization & Initial Plotting (Cliff's Delta) ---
         if isempty(data) || isscalar(unique(data))
+            % Case 1: Constant or effectively single-value data
             bin_center = unique(data);
             if isempty(bin_center), bin_center = 0; end
             bin_width = 0.02; 
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
-            % Ensure we include the data point while respecting the general bounds structure
+            
+            % --- Step 2: Axis Scaling (Constant Data) ---
             final_xlim_min = bin_center - bin_width*2;
             final_xlim_max = bin_center + bin_width*2;
             
-            % Final safety: strictly enforce min < max
+            % Final safety guard: strictly enforce min < max.
             if final_xlim_min >= final_xlim_max
                 final_xlim_min = bin_center - bin_width*2;
                 final_xlim_max = bin_center + bin_width*2;
@@ -90,6 +92,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([final_xlim_min, final_xlim_max]);
             xticks(sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
         else
+            % Case 2: Standard Distribution
             % Dynamically determine "nice" bin edges and tick marks for the histogram.
             points_of_interest = [data(:); d_thresh(metric_idx)]; 
             min_val = min(points_of_interest, [], 'all', 'omitnan');
@@ -115,11 +118,12 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             end
             if isempty(ticks) || numel(ticks) < 2, ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
             
+            % --- Step 2: Binning and Scaling (Standard Data) ---
             bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
             
             histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
             
-            % Final safety: strictly enforce min < max
+            % Final safety guard: Ensure valid numeric limits.
             final_xlim_min = bin_edges(1);
             final_xlim_max = bin_edges(end);
             if final_xlim_min >= final_xlim_max
@@ -128,10 +132,10 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([final_xlim_min, final_xlim_max]);
             xticks(ticks);
         end    
-        % Set final y-axis limits and ticks before adding text.
+        % Set final axes properties and add threshold indicator.
         ylim([0 1]);
         set(gca, 'YTick', 0:0.1:1);
-        % Add a line and text.
+
         xline(d_thresh(metric_idx), '--', 'Color', styles.colors.holm_threshold, 'LineWidth', 2);
         text(d_thresh(metric_idx), 1, sprintf(lang.plots.misc.boot_thr, d_thresh(metric_idx)), 'Color', styles.colors.holm_threshold, ...
             'VerticalAlignment', 'top', 'HorizontalAlignment', 'right', 'Rotation', 90, 'FontSize', styles.font.tick);
@@ -152,7 +156,9 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
         data = bootstat_rel;
         
         hold on;
+        % --- Step 1: Data Categorization & Initial Plotting (Rel Diff) ---
         if isempty(data) || isscalar(unique(data))
+            % Case 1: Constant or effectively single-value data
             bin_center = unique(data);
             if isempty(bin_center), bin_center = 0; end
             bin_width = max(abs(bin_center) * 0.1, 0.05);
@@ -160,7 +166,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
             
-            % Ensure robust view for constant data
+            % --- Step 2: Axis Scaling (Constant Data) ---
             final_xlim_min = bin_center - bin_width*2;
             final_xlim_max = bin_center + bin_width*2;
             if final_xlim_min >= final_xlim_max
@@ -169,6 +175,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([final_xlim_min, final_xlim_max]);
             xticks(bin_center);
         else
+            % Case 2: Standard Distribution
+            % Determine optimal points of interest (including threshold indicators) for auto-scaling.
             points_of_interest = [data(:); rel_thresh_b(metric_idx)]; 
             if rel_thresh(metric_idx) > rel_thresh_b(metric_idx)
                 points_of_interest(end+1) = rel_thresh(metric_idx);
@@ -196,11 +204,12 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             end
             if isempty(ticks) || numel(ticks) < 2, ticks = linspace(min_val, max_val, 3); nice_step = ticks(2)-ticks(1); end
             
+            % --- Step 2: Binning and Scaling (Standard Data) ---
             bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
             
             histogram(data, 'BinEdges', bin_edges, 'Normalization', 'probability', 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
             
-            % Final safety: strictly enforce min < max
+            % Final safety guard.
             final_xlim_min = bin_edges(1);
             final_xlim_max = bin_edges(end);
             if final_xlim_min >= final_xlim_max
@@ -209,7 +218,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([final_xlim_min, final_xlim_max]);
             xticks(ticks);
         end    
-        % Set final y-axis limits and ticks before adding text.
+        % Set final axes properties and add threshold indicators.
         ylim([0 1]);
         set(gca, 'YTick', 0:0.1:1);
         % Add lines and text.
@@ -259,19 +268,22 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
         
         hold on;
         
-        % Handle different data scenarios for robust plotting.
+        % --- Step 1: Data Categorization & Initial Plotting (Cliff's Delta Raw) ---
         if isempty(unique_data)
             % No data -> Empty plot.
         elseif isscalar(unique_data)
-            % Exactly 1 value.
+            % Case 1: Constant data (exactly 1 unique value).
             bin_center = unique_data;
             bin_width = 0.1; 
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
+            
+            % --- Step 2: Axis Scaling (Constant Data) ---
+            % We maintain a fixed view for raw effect sizes to aid comparison.
             xlim([-1 - bin_width/2, 1 + bin_width/2]);
             xticks(sort(unique([-1, 0, 1, bin_center])));       
         elseif numel(unique_data) == 2
-            % Exactly 2 values.
+            % Case 2: Binary data (exactly 2 unique values).
             val1 = unique_data(1);
             val2 = unique_data(2);
             bin_width = 0.2; 
@@ -281,7 +293,8 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([-1 - bin_width/2, 1 + bin_width/2]);
             xticks(sort([val1, val2, 0]));
         else
-            % Dynamic ticks based on the raw data range.
+            % Case 3: Standard Distribution
+            % Dynamic ticks based on the raw data range for highest precision.
             min_val = min(data_clean, [], 'all', 'omitnan');
             max_val = max(data_clean, [], 'all', 'omitnan');
             data_range = max_val - min_val;
@@ -352,17 +365,21 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
         unique_data = unique(data_clean);
         
         hold on;
-    
+        % --- Step 1: Data Categorization & Initial Plotting (Rel Diff Raw) ---
         if isempty(unique_data) || isscalar(unique_data)
+            % Case 1: Constant data
             bin_center = unique(data);
             if isempty(bin_center), bin_center = 0; end
             bin_width = 0.1; 
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
+            
+            % --- Step 2: Axis Scaling (Constant Data) ---
             xlim([0 - bin_width/2, 2 + bin_width/2]);
             xticks(sort(unique([0, 1, 2, bin_center])));
     
         elseif numel(unique_data) == 2
+            % Case 2: Binary data
             val1 = unique_data(1); val2 = unique_data(2);
             bin_width = 0.1; 
             bin_edges = [val1 - bin_width/2, val1 + bin_width/2, val2 - bin_width/2, val2 + bin_width/2];
@@ -370,6 +387,7 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             xlim([0 - bin_width/2, 2 + bin_width/2]);
             xticks(sort(unique([0, val1, val2, 2])));
         else
+            % Case 3: Standard Distribution
             % Dynamic ticks based on the raw data range.
             min_val = min(data_clean, [], 'all', 'omitnan'); 
             max_val = max(data_clean, [], 'all', 'omitnan');
