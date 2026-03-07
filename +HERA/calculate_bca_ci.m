@@ -316,8 +316,8 @@ else
         else
             parfor_limit = current_pool_size;
         end
-        % Ensure parfor_limit is finite (fallback for local execution)
-        if isinf(parfor_limit), parfor_limit = 0; end
+        % Ensure parfor_limit is finite (fallback to large number to allow parallel pool)
+        if isinf(parfor_limit), parfor_limit = 500; end
 
         % Loop over metrics and effect types
         for metric_idx = 1:(num_metrics * 2)
