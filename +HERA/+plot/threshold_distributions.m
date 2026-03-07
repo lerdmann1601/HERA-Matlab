@@ -79,12 +79,13 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.delta_face, 'EdgeColor', styles.colors.bar_edge);
             % Ensure we include the data point while respecting the general bounds structure
-            final_xlim_min = bin_center - bin_width*5;
-            final_xlim_max = bin_center + bin_width*5;
+            final_xlim_min = bin_center - bin_width*2;
+            final_xlim_max = bin_center + bin_width*2;
             
             % Final safety: strictly enforce min < max
             if final_xlim_min >= final_xlim_max
-                final_xlim_max = final_xlim_min + 0.1;
+                final_xlim_min = bin_center - bin_width*2;
+                final_xlim_max = bin_center + bin_width*2;
             end
             xlim([final_xlim_min, final_xlim_max]);
             xticks(sort([bin_center, bin_center - bin_width*2, bin_center + bin_width*2]));
@@ -158,6 +159,14 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             if bin_width == 0, bin_width = 0.1; end
             histogram(data, 'BinEdges', [bin_center - bin_width/2, bin_center + bin_width/2], 'Normalization', 'probability', ...
                 'FaceColor', styles.colors.rel_face, 'EdgeColor', styles.colors.bar_edge);
+            
+            % Ensure robust view for constant data
+            final_xlim_min = bin_center - bin_width*2;
+            final_xlim_max = bin_center + bin_width*2;
+            if final_xlim_min >= final_xlim_max
+                final_xlim_max = final_xlim_min + 0.1;
+            end
+            xlim([final_xlim_min, final_xlim_max]);
             xticks(bin_center);
         else
             points_of_interest = [data(:); rel_thresh_b(metric_idx)]; 
@@ -301,14 +310,14 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             final_xlim_min = max(-1 - nice_step/2, bin_edges(1));
             final_xlim_max = min(1 + nice_step/2, bin_edges(end));
             
-            % Final safety: strictly enforce min < max and contain the bin edges at least partially
+            % Final safety: strictly enforce min < max
             if final_xlim_min >= final_xlim_max
-                % Fallback: use bin edges directly but cap them logically if possible
                 final_xlim_min = bin_edges(1);
                 final_xlim_max = bin_edges(end);
-                if final_xlim_min >= final_xlim_max
-                    final_xlim_max = final_xlim_min + 0.1;
-                end
+            end
+            % Extra guard for extreme edge cases
+            if final_xlim_min >= final_xlim_max
+                final_xlim_max = final_xlim_min + 0.1;
             end
             
             % Adjust KDE to the final, restricted axis limits.
@@ -394,9 +403,10 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
             if final_xlim_min >= final_xlim_max
                 final_xlim_min = bin_edges(1);
                 final_xlim_max = bin_edges(end);
-                if final_xlim_min >= final_xlim_max
-                    final_xlim_max = final_xlim_min + 0.1;
-                end
+            end
+            % Extra guard for extreme edge cases
+            if final_xlim_min >= final_xlim_max
+                final_xlim_max = final_xlim_min + 0.1;
             end
             
             evaluation_points = linspace(final_xlim_min, final_xlim_max, 200); % Uses the final limits.
@@ -427,5 +437,4 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     filename = fullfile(subfolder_thresholds, [fName, '_', ts, fExt]);
     exportgraphics(tcl_thr, filename, 'Resolution', 300, 'BackgroundColor', styles.colors.background, 'Padding', 30);
     fprintf([lang.thresholds.effects_plot_saved '\n'], filename);
-
 end

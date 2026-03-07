@@ -199,9 +199,8 @@ function plot_distribution(ax, data, face_color, styles, bounds)
             'Normalization', 'probability', 'FaceColor', face_color, 'EdgeColor', styles.colors.bar_edge);
         
         if ~isempty(bounds)
-            % Ensure we include the data point while respecting the general bounds structure
-            final_xlim_min = min(bounds(1), bin_center - bin_width*2);
-            final_xlim_max = max(bounds(2), bin_center + bin_width*2);
+            final_xlim_min = max(bounds(1) - bin_width/2, bin_center - bin_width*2);
+            final_xlim_max = min(bounds(2) + bin_width/2, bin_center + bin_width*2);
         else
             final_xlim_min = bin_center - bin_width*5;
             final_xlim_max = bin_center + bin_width*5;
@@ -209,7 +208,8 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         
         % Final safety: strictly enforce min < max
         if final_xlim_min >= final_xlim_max
-            final_xlim_max = final_xlim_min + 0.1;
+            final_xlim_min = bin_center - bin_width*2;
+            final_xlim_max = bin_center + bin_width*2;
         end
         
         xlim(ax, [final_xlim_min, final_xlim_max]);
@@ -246,9 +246,8 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         bin_edges = (ticks(1) - nice_step/2):nice_step:(ticks(end) + nice_step/2);
         
         if ~isempty(bounds)
-            % Ensure we include the data range while respecting the general bounds structure
-            final_xlim_min = min(bounds(1), bin_edges(1));
-            final_xlim_max = max(bounds(2), bin_edges(end));
+            final_xlim_min = max(bounds(1) - nice_step/2, bin_edges(1));
+            final_xlim_max = min(bounds(2) + nice_step/2, bin_edges(end));
         else
             final_xlim_min = bin_edges(1);
             final_xlim_max = bin_edges(end);
@@ -256,7 +255,8 @@ function plot_distribution(ax, data, face_color, styles, bounds)
         
         % Final safety: strictly enforce min < max
         if final_xlim_min >= final_xlim_max
-            final_xlim_max = final_xlim_min + 0.1;
+            final_xlim_min = bin_edges(1);
+            final_xlim_max = bin_edges(end);
         end
 
         h_hist = histogram(ax, data, 'BinEdges', bin_edges, 'Normalization', 'probability', ...
