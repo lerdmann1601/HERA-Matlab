@@ -10,19 +10,61 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `final_bootstrap_ranks` | `[N x B]` | Bootstrapped rank distribution for stability analysis. |
 | `ci_lower_rank` | `[N x 1]` | Lower bound of Rank Confidence Interval. |
 | `ci_upper_rank` | `[N x 1]` | Upper bound of Rank Confidence Interval. |
-| `thresholds` | struct | Thresholds for Cliff's Delta and RelDiff. |
+| `thresholds.d_thresh` | `[1 x M]` | Final determined thresholds for Cliff's Delta. |
+| `thresholds.rel_thresh` | `[1 x M]` | Final determined thresholds for Relative Difference. |
+| `thresholds.rel_thresh_b` | `[1 x M]` | Raw bootstrap thresholds for Relative Difference (before SEM-cap). |
+| `thresholds.min_rel_thresh` | `[1 x M]` | Data-driven minimum thresholds for Relative Difference (SEM-cap). |
 | **Statistics** | | |
+| `stats.mean` | `[N x M]` | Matrix of mean values per dataset (rows) and metric (columns). |
+| `stats.std` | `[N x M]` | Matrix of standard deviations per dataset (rows) and metric (columns). |
 | `d_vals_all` | `[Pairs x M]` | Cliff's Delta effect sizes for all pairs/metrics. |
 | `rel_vals_all` | `[Pairs x M]` | Relative Mean Differences. |
 | `ci_d_all` | `[Pairs x 2 x M]` | BCa Confidence Intervals for Delta. |
 | `ci_r_all` | `[Pairs x 2 x M]` | BCa Confidence Intervals for RelDiff. |
+| `z0_d_all` | `[Pairs x M]` | BCa bias-correction factors (z0) for Cliff's Delta. |
+| `a_d_all` | `[Pairs x M]` | BCa acceleration factors (a) for Cliff's Delta. |
+| `z0_r_all` | `[Pairs x M]` | BCa bias-correction factors (z0) for RelDiff. |
+| `a_r_all` | `[Pairs x M]` | BCa acceleration factors (a) for RelDiff. |
 | `all_p_value_matrices` | `{1 x M}` | Cell array of raw p-values (Wilcoxon). |
 | `all_alpha_matrices` | `{1 x M}` | Cell array of Holm-Bonferroni corrected alphas. |
 | `all_sig_matrices` | `{1 x M}` | Logical matrices indicating significant wins. |
 | **Diagnostics** | | |
-| `swap_details` | struct | Log of logic-based rank swaps (M1 vs M2). |
-| `intermediate_orders` | struct | Rankings after each hierarchical stage. |
-| `borda_results` | struct | Consensus ranking from sensitivity analysis. |
-| `power_results` | struct | Post-hoc power analysis data. |
+| `swap_details(1..).metric_idx` | int | Index of the metric where a rank swap occurred. |
+| `swap_details(1..).swapped_pair` | `[2 x 1]` | Indices of the two datasets whose ranks were swapped. |
+| `swap_details(1..).reason` | string | Description of *why* the metrics triggered the change. |
+| `intermediate_orders(1..M).metric_idx` | int | Current metric hierarchy layer being evaluated. |
+| `intermediate_orders(1..M).order` | `[1 x N]` | Ranking order determined after this step. |
+| `borda_results.consensus_rank` | `[N x 1]` | Global Borda count result (1 = Best). |
+| `borda_results.borda_scores` | `[N x 1]` | Accumulated Borda scores for each dataset. |
+| `power_results.achieved_power_d` | `[Pairs x M]` | Post-hoc power probability for detecting Cliff's Delta effects. |
+| `power_results.achieved_power_rel` | `[Pairs x M]` | Post-hoc power probability for detecting RelDiff effects. |
+| `power_results.simulated_n` | int | Iterations run per simulation to determine the power. |
 | `all_permutation_ranks` | `[N x Perms]` | Ranks for every metric permutation tested. |
 | `selected_permutations` | `[Perms x M]` | Indices of metrics for each permutation. |
+| **Metadata & Configuration** | | |
+| `dataset_names` | `{1 x N}` | Cell array of dataset names. |
+| `config` | struct | Cleaned configuration used for the analysis (all settings). |
+| `meta.timestamp` | string | Global timestamp and unique run-ID. |
+| `meta.version` | string | HERA algorithmic version. |
+| `meta.n_datasets` | int | Number of datasets / algorithms (`N`). |
+| `meta.n_subjects` | int | Total number of data points per dataset (`Clusters`/`Subjects`). |
+| `meta.pair_indices` | `[Pairs x 2]` | Exact index comparisons generated matching all data tables. |
+| `meta.metric_list` | `{1 x M}` | Names of the evaluated metrics in hierarchical order. |
+| `meta.stability_analysis.thresholds.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for threshold convergence. |
+| `meta.stability_analysis.thresholds.global_stability` | `[1 x Steps]` | Aggregated IQR/Median stability measure per step. |
+| `meta.stability_analysis.thresholds.detailed_stability` | `[EffectTypes x M x Steps]` | Per-metric stability values (IQR/Median) for each effect type. |
+| `meta.stability_analysis.thresholds.converged` | bool | True if threshold estimates safely stabilized. |
+| `meta.stability_analysis.thresholds.elbow_indices` | `[1 x Curves]` | Elbow-point indices (fallback if convergence not reached). |
+| `meta.stability_analysis.ci.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for CI convergence. |
+| `meta.stability_analysis.ci.global_stability` | `[1 x Steps]` | Aggregated IQR/Median stability measure per step. |
+| `meta.stability_analysis.ci.detailed_stability` | `[EffectTypes x M x Steps]` | Per-metric CI width stability values for each effect type. |
+| `meta.stability_analysis.ci.converged` | bool | True if BCa CI widths safely stabilized. |
+| `meta.stability_analysis.ci.elbow_indices` | `[1 x Curves]` | Elbow-point indices (fallback if convergence not reached). |
+| `meta.stability_analysis.ranks.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for rank convergence. |
+| `meta.stability_analysis.ranks.global_stability` | `[1 x Steps]` | Max IQR of rank CI widths per step. |
+| `meta.stability_analysis.ranks.detailed_stability` | `[]` | Empty (rank stability is only assessed globally). |
+| `meta.stability_analysis.ranks.converged` | bool | True if rank outputs safely stabilized. |
+| `meta.stability_analysis.ranks.elbow_indices` | `[1 x Curves]` | Elbow-point indices (fallback if convergence not reached). |
+| `meta.bootstrap_B.thresholds` | int | Final determined B used for Thresholds computation. |
+| `meta.bootstrap_B.ci` | int | Final determined B used for BCa CI computation. |
+| `meta.bootstrap_B.ranks` | int | Final determined B used for Rank computation. |

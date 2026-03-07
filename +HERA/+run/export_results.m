@@ -58,6 +58,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     % Aggregate all analysis results into a single 'results' struct.
     % We pull fields from analysis_results
     results = struct();
+    results.dataset_names = dataset_names;
     results.thresholds = analysis_results.thresholds;
     results.final_rank = analysis_results.final_rank;
     results.ci_lower_rank = analysis_results.ci_lower_rank;
@@ -70,6 +71,10 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     results.rel_vals_all = analysis_results.rel_vals_all;
     results.ci_d_all = analysis_results.ci_d_all;
     results.ci_r_all = analysis_results.ci_r_all;
+    results.z0_d_all = analysis_results.z0_d_all;
+    results.a_d_all = analysis_results.a_d_all;
+    results.z0_r_all = analysis_results.z0_r_all;
+    results.a_r_all = analysis_results.a_r_all;
     results.swap_details = analysis_results.swap_details;
     results.intermediate_orders = analysis_results.intermediate_orders;
     results.final_order = analysis_results.final_order;
@@ -77,6 +82,45 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     results.power_results = analysis_results.power_results;
     results.all_permutation_ranks = analysis_results.all_permutation_ranks;
     results.selected_permutations = userInput.selected_permutations;
+    results.stats = struct();
+    results.stats.mean = mean_metrics;
+    results.stats.std = std_metrics;
+
+    % Add config information directly to results
+    tmp_config = config;
+    if isfield(tmp_config, 'system')
+         sys = tmp_config.system;
+         fields_to_remove = {'target_memory', 'jack_vec_limit', 'delta_mat_limit', 'jack_parfor_thr'};
+         for f = fields_to_remove
+             if isfield(sys, f{1}), sys = rmfield(sys, f{1}); end
+         end
+         tmp_config.system = sys;
+    end
+    results.config = tmp_config;
+    
+    % Add comprehensive metadata directly to results for Python/MATLAB
+    results.meta = struct();
+    results.meta.n_subjects = num_probanden;
+    results.meta.n_datasets = num_datasets;
+    results.meta.version = HERA.get_version(); 
+    results.meta.timestamp = base_name;
+    results.meta.pair_indices = analysis_results.pair_idx_all;
+    
+    if isfield(userInput, 'available_metrics')
+        results.meta.metric_list = userInput.available_metrics;
+    else
+        results.meta.metric_list = metric_names;
+    end
+    
+    results.meta.stability_analysis = struct();
+    results.meta.stability_analysis.thresholds = analysis_results.stability_data_thr;
+    results.meta.stability_analysis.ci = analysis_results.stability_data_ci;
+    results.meta.stability_analysis.ranks = analysis_results.stability_data_rank;
+    
+    results.meta.bootstrap_B = struct();
+    results.meta.bootstrap_B.thresholds = analysis_results.selected_B;
+    results.meta.bootstrap_B.ci = analysis_results.selected_B_ci;
+    results.meta.bootstrap_B.ranks = analysis_results.selected_B_rank;
     
     % Aggregate all shared information (paths, names, etc.) into a 'shared_info' struct.
     shared_info = struct();
