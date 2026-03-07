@@ -98,11 +98,14 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     end
     results.config = tmp_config;
     
+    % Retrieve version once to avoid duplicate git calls
+    hera_version = HERA.get_version();
+
     % Add comprehensive metadata directly to results for Python/MATLAB
     results.meta = struct();
     results.meta.n_subjects = num_probanden;
     results.meta.n_datasets = num_datasets;
-    results.meta.version = HERA.get_version(); 
+    results.meta.version = hera_version; 
     results.meta.timestamp = base_name;
     results.meta.pair_indices = analysis_results.pair_idx_all;
     
@@ -225,7 +228,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         json_export_data.meta = struct();
         json_export_data.meta.n_subjects = shared_info.num_probanden;
         json_export_data.meta.n_datasets = shared_info.num_datasets;
-        json_export_data.meta.version = HERA.get_version(); 
+        json_export_data.meta.version = hera_version; 
         json_export_data.meta.timestamp = shared_info.log_basename;
         
         json_export_data.meta.pair_indices = shared_info.pair_idx_all;
