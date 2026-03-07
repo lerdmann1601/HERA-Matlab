@@ -263,6 +263,8 @@ else
         else
             parfor_limit = current_pool_size;
         end
+        % Ensure parfor_limit is finite (fallback for local execution)
+        if isinf(parfor_limit), parfor_limit = 0; end
         
         % Data Preparation for all effect types (minimizing broadcast overhead)
         % vals_cell and n_vals_vec are already prepared above.
