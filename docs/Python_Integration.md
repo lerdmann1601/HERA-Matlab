@@ -94,42 +94,7 @@ scripts (e.g., Jupyter Notebooks). You can pass data directly from NumPy/Pandas
 and receive the ranking results as a Python dictionary, enabling seamless
 integration into larger data science pipelines.
 
-```python
-import hera_matlab
-import matlab
-
-# Initialize
-hera = hera_matlab.initialize()
-
-# Prepare Data (Convert NumPy arrays to MATLAB types)
-# Example: 2 Subjects x 2 Methods
-data_m1 = matlab.double([[0.1, 0.5], [0.2, 0.4]])
-data_m2 = matlab.double([[1.0, 3.0], [1.2, 2.9]])
-
-# Configure Analysis
-config = {
-    'custom_data': [data_m1, data_m2],
-    'metric_names': ['Runtime', 'Accuracy'],
-    'dataset_names': ['Method A', 'Method B'],
-    'ranking_mode': 'M1_M2',
-    'output_dir': 'my_hera_results' # Optional: Specify output folder
-}
-
-# Execute Ranking and retrieve Dictionary
-results = hera.run_ranking(config, nargout=1)
-
-# Access Results
-print(f"Final Ranks: {results['final_rank']}")
-print(f"Effect Sizes (Cliff's Delta): {results['d_vals_all']}")
-print(f"Effect Sizes (Rel Diff): {results['rel_vals_all']}")
-print(f"P-Values: {results['p_vals_all']}")
-
-hera.terminate()
-```
-
-See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference) for a complete list of available fields
-
-### C. Automatic Data Conversion (v1.2.0+)
+#### Automatic Data Conversion (v1.2.0+)
 
 Starting with version 1.2.0, the package includes a smart wrapper that performs **bidirectional** conversion:
 
@@ -165,25 +130,46 @@ results = hera.run_ranking(config, nargout=1)
 print(f"Final Ranks: {results['final_rank']}")
 ```
 
-> **Note:** Explicit termination (`hera.terminate()`) is not required in scripts, as the package handles cleanup automatically.
+> **Note:** Explicit termination (`hera.terminate()`) is optional in scripts, as the package handles cleanup automatically. However, it is recommended for interactive sessions (e.g., Jupyter) to free up resources immediately.
 
-## 3. Build Instructions (For Maintainers)
+#### Manual Data Conversion (Legacy)
 
-To generate the installer and Python package from source (requires MATLAB Compiler SDK):
+```python
+import hera_matlab
+import matlab
 
-1. **Run the Build Helper:**
+# Initialize
+hera = hera_matlab.initialize()
 
-   ```bash
-   ./deploy/build_and_prep_pypi.sh
-   ```
+# Prepare Data (Convert NumPy arrays to MATLAB types)
+# Example: 2 Subjects x 2 Methods
+data_m1 = matlab.double([[0.1, 0.5], [0.2, 0.4]])
+data_m2 = matlab.double([[1.0, 3.0], [1.2, 2.9]])
 
-   This script compiles the MATLAB code, injects the runtime checks, and prepares
-   the distribution artifacts (`.whl`, `.tar.gz`) in `deploy/dist`.
+# Configure Analysis
+config = {
+    'custom_data': [data_m1, data_m2],
+    'metric_names': ['Runtime', 'Accuracy'],
+    'dataset_names': ['Method A', 'Method B'],
+    'ranking_mode': 'M1_M2',
+    'output_dir': 'my_hera_results' # Optional: Specify output folder
+}
 
-2. **Distribution:**
-   Upload the generated artifacts from `deploy/dist` to PyPI or GitHub Releases.
+# Execute Ranking and retrieve Dictionary
+results = hera.run_ranking(config, nargout=1)
 
-## 4. Running the Test Suite
+# Access Results
+print(f"Final Ranks: {results['final_rank']}")
+print(f"Effect Sizes (Cliff's Delta): {results['d_vals_all']}")
+print(f"Effect Sizes (Rel Diff): {results['rel_vals_all']}")
+print(f"P-Values: {results['p_vals_all']}")
+
+hera.terminate()
+```
+
+See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference) for a complete list of available fields
+
+## 3. Running the Test Suite
 
 You can execute the internal HERA verification and test suite (Scientific, System, and Unit tests) directly from Python to ensure the installation is valid and mathematically correct.
 For more details on the test suite, see the [Testing](https://lerdmann1601.github.io/HERA-Matlab/#testing) section in the main documentation.
@@ -204,7 +190,7 @@ hera.terminate()
 
 This is useful for verifying deployments on new machines (e.g., CI/CD).
 
-## 5. Running Convergence Analysis
+## 4. Running Convergence Analysis
 
 You can also trigger the robust convergence analysis directly from Python. This is identical to the MATLAB `HERA.start_ranking('convergence', 'true')` command. For more details on the analysis and its parameters, see [Convergence Analysis](Convergence_Analysis.md).
 
@@ -220,5 +206,32 @@ hera = hera_matlab.initialize()
 # Optional: 'logPath', '/path/to/log' (or 'interactive')
 hera.start_ranking('convergence', 'true', nargout=0)
 
+# Run with custom JSON configuration (Advanced)
+# HERA will automatically load all parameters from the file
+hera.start_ranking('convergence', 'analysis_config.json', nargout=0)
+
 hera.terminate()
 ```
+
+## 5. Build Instructions (For Maintainers)
+
+To generate the installer and Python package from source (requires MATLAB Compiler SDK):
+
+1. **Run the Build Helper:**
+
+   ```bash
+   ./deploy/build_and_prep_pypi.sh
+   ```
+
+   This script compiles the MATLAB code, injects the runtime checks, and prepares
+   the distribution artifacts (`.whl`, `.tar.gz`) in `deploy/dist`.
+
+2. **Distribution:**
+   Upload the generated artifacts from `deploy/dist` to PyPI or GitHub Releases.
+
+> [!IMPORTANT]
+> **Release Scope & Policy**
+>
+> - **Full Suite Releases**: Releases are not just for Python. A release MUST always include all artifacts: the MATLAB Toolbox (`.mltbx`), standalone executables, and the Python distribution.
+> - **Mandatory Review**: All changes must be reviewed and approved by the repository owner before a release is prepared.
+> - **Compliance**: Contributors must strictly follow the rules outlined in [CODE_OF_CONDUCT.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CONTRIBUTING.md).

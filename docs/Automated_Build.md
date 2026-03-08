@@ -49,26 +49,32 @@ To publish the Python package to PyPI, follow this **manual workflow** (since th
    - Environment: `pypi`
 2. **Local Environment**: Ensure you have MATLAB and `python3`, `pip3` installed locally.
 
+> [!IMPORTANT]
+> **Release Scope & Policy**
+>
+> - **Full Suite Releases**: Releases are not just for Python. A release MUST always include all artifacts: the MATLAB Toolbox (`.mltbx`), standalone executables, and the Python distribution.
+> - **Mandatory Review**: All changes must be reviewed and approved by the repository owner before a release is prepared.
+> - **Compliance**: Contributors must strictly follow the rules outlined in [CODE_OF_CONDUCT.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CONTRIBUTING.md).
+
 ### Release Steps
 
 1. **Prepare Artifacts**:
-   Run the helper script locally to build the package and generate the distribution files:
+   Run the helper script locally to build the package, inject metadata (version, license, README), and generate the distribution files:
 
    ```bash
    ./deploy/build_and_prep_pypi.sh
    ```
 
-   This will create a `deploy/dist` folder containing `.whl` and `.tar.gz` files.
+   This script automatically syncs the package version with your current Git tag and applies all necessary patches for PyPI. Artifacts are placed in `deploy/dist`.
 
 2. **Create Release**:
    - Go to GitHub -> Releases -> **Draft a new release**.
-   - Choose a text tag (e.g., `v1.3.1`).
-   - **Upload** the files from `deploy/dist/` to the release.
+   - Push your local tag to GitHub and select it as the release tag (e.g., `v1.3.1`).
+   - **Upload** the `.whl` and `.tar.gz` files from `deploy/dist/` to the release.
    - Publish the release.
 
-3. **Publish**:
+3. **Publish to PyPI**:
    - Go to the **Actions** tab in GitHub.
    - Select **Publish to PyPI**.
-   - Click **Run workflow**.
-   - The action will download the files from your release, patch them with the correct version/metadata, and upload them to PyPI.
-   - **Recommended:** After the action completes, download the *final* artifacts from PyPI (or the Action run) and **replace** the manually uploaded files in your GitHub Release. This ensures the Release artifacts match the PyPI version exactly (including the correct version number and metadata).
+   - Click **Run workflow** and enter the **Release Tag** you just created (e.g. `v1.3.1`).
+   - The action will automatically detect the pre-built artifacts in your release and upload them directly to PyPI. No further patching or replacement is required.
