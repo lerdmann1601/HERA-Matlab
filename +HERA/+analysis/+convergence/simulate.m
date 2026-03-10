@@ -227,7 +227,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
                         pp = map_params(params.bca{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                            s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
                     end
                 end
                 
@@ -239,7 +239,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
                         pp = map_params(params.rnk{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                            s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
                     end
                 end
                 
@@ -251,7 +251,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
                         pp = map_params(params.thr{m});
                         futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang); 
+                            s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N); 
                     end
                 end
                 
@@ -285,7 +285,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         % Minimize IPC overhead: Strip unused variables prior to parfeval
                         task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
                         pp = map_params(params.bca{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
                         scenario_res = assign_result(scenario_res, sc_idx, 2, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -300,7 +300,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         % Minimize IPC overhead: Strip large matrices not needed for ranking
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
                         pp = map_params(params.rnk{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
                         scenario_res = assign_result(scenario_res, sc_idx, 3, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -315,7 +315,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                         % Minimize IPC overhead: Retain core data only for thresholds
                         task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
                         pp = map_params(params.thr{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang);
+                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
                         scenario_res = assign_result(scenario_res, sc_idx, 1, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
                         tests_done_batch = tests_done_batch + 1;
                         global_tests_completed = global_tests_completed + 1;
@@ -361,7 +361,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 end
 
 %% Local Worker Function (Executed by parfeval)
-function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_test(s_idx, m_idx, method_id, sd, param, N, cfg, tmp, styles, lang)
+function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_test(s_idx, m_idx, method_id, sd, param, sample_size, cfg, tmp, styles, lang, num_candidates)
     % Runs a single convergence test and returns ID + Results
     % method_id: 1=Thr, 2=BCa, 3=Rnk
     
@@ -383,7 +383,7 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             % Thresholds
             c = cfg; c.bootstrap_thresholds = param;
             [d_t, ~, ~, ~, ~, ~, ~, conv_B, stab_data, h1, h2, h3, h4] = ...
-                HERA.calculate_thresholds(sd.all_data, N, c, worker_tmp, [], stream, styles, lang);
+                HERA.calculate_thresholds(sd.all_data, sample_size, c, worker_tmp, [], stream, styles, lang);
             
             % Memory Management: Close generated figures to prevent leaks in workers
             to_close = [h1(:); h2(:); h3(:); h4(:)];
@@ -399,7 +399,7 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             % BCa
             c = cfg; c.bootstrap_ci = param;
             [conv_B, ci_d, ~, ~, ~, ~, ~, stab_data, h1, h2, h3, h4, h5] = ...
-                HERA.calculate_bca_ci(sd.all_data, sd.d_vals_all, sd.rel_vals_all, sd.p_idx, N, ...
+                HERA.calculate_bca_ci(sd.all_data, sd.d_vals_all, sd.rel_vals_all, sd.p_idx, sample_size, ...
                 c, c.metric_names, worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
             % Memory Management
@@ -415,7 +415,7 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
             % Ranking
             c = cfg; c.bootstrap_ranks = param;
             [boot_r, conv_B, stab_data, h1, h2] = ...
-                HERA.bootstrap_ranking(sd.all_data, sd.ref_thr_struct, c, sd.ds_names, sd.base_rank, sd.p_idx, N, ...
+                HERA.bootstrap_ranking(sd.all_data, sd.ref_thr_struct, c, sd.ds_names, sd.base_rank, sd.p_idx, sample_size, ...
                 worker_tmp, worker_tmp, [], stream, styles, lang, 'Sim');
             
             % Memory Management
@@ -578,7 +578,7 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
         'ref_thr_struct', ref_thr_struct, 'ref_thr_d', ref_d_t(1), ...
         'ref_bca_width', ref_ci_d(1,2) - ref_ci_d(1,1), ...
         'ref_rnk_mean', mean(boot_r_ref(2,:)), 'ref_seed', ref_seed, 'sim_seed', sim_seed, ...
-        'eff_median', median(abs(d_vals_all(:))));
+        'eff_median', median(abs(d_vals_all(:))), 'n', sc.n);
 end
 
 %% Internal Helpers for Hybrid Execution
