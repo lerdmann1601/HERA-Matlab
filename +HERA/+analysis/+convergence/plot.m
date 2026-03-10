@@ -386,13 +386,13 @@ end
     
     % Fixed dimensions based on standardized 1200x950 resolution
     fig_w = 1200;
-    char_w_norm = 7.0 / fig_w; % 7px per char normalized
-    pad_norm = 20 / fig_w;     % 20px padding
+    char_w_norm = 10.0 / fig_w; % Increased from 7 to 10 to prevent overlap
+    pad_norm = 35 / fig_w;      % Increased from 20 to 35 for academic spacing
     
     % 1. Calculate MAX widths for each column
-    l_idx = length('0'); % Approx width for index
+    l_idx = 2; % Padding for index up to 99
     l_name = length('Scenario');
-    l_n    = length('N');
+    l_n    = 4; % Space for 'n' header and values
     l_dist = length('Distribution');
     l_sum  = length('Data Summary');
     
@@ -403,33 +403,42 @@ end
         l_sum  = max(l_sum,  length(scenarios(i).DataSummary));
     end
     
-    % Define explicit column widths (Content + Padding)
-    w_idx  = 0.04; % Fixed small width for index #
+    % Define explicit column widths
+    w_idx  = 0.04; 
     w_name = (l_name * char_w_norm) + pad_norm;
     w_n    = (l_n    * char_w_norm) + pad_norm;
     w_dist = (l_dist * char_w_norm) + pad_norm;
-    w_sum  = (l_sum  * char_w_norm) + 0.005; % Minimal padding at end
+    w_sum  = (l_sum  * char_w_norm) + (pad_norm/2); 
     
     % 2. Calculate Total Width
     total_w = w_idx + w_name + w_n + w_dist + w_sum;
     
-    % 3. Placement (Left-Aligned with slight margin)
-    x_start = 0.05; 
+    % 3. Dynamic Centering (Consistent with Method Parameters)
+    if total_w < 0.94
+        x_start = (1 - total_w) / 2;
+    else
+        x_start = 0.03;
+        % Squeeze if necessary
+        factor = 0.94 / total_w;
+        w_idx = w_idx * factor; w_name = w_name * factor; w_n = w_n * factor;
+        w_dist = w_dist * factor; w_sum = w_sum * factor;
+        total_w = 0.94;
+    end
     x_end = x_start + total_w;
     
-    % 4. Define Column Positions (Start of each column)
-    c1 = x_start + 0.01;           % Index (with slight offset inside box)
-    c2 = x_start + w_idx;          % Name start
-    c3 = c2 + w_name;              % N start
-    c4 = c3 + w_n;                 % Dist start
-    c5 = c4 + w_dist;              % Summary start
+    % 4. Define Column Positions
+    c1 = x_start + 0.01;           
+    c2 = x_start + w_idx;          
+    c3 = c2 + w_name;              
+    c4 = c3 + w_n;                 
+    c5 = c4 + w_dist;              
     
     cols = {c1, c2, c3, c4, c5}; 
     
     % Draw header background
     rectangle('Position', [x_start, y_top - 0.025, total_w, 0.05], 'FaceColor', [0.95 0.95 0.95], 'EdgeColor', 'none');
 
-    headers = {'', 'Scenario Name', 'n', 'Distribution', 'Data Summary'};
+    headers = {'', 'Scenario', 'n', 'Distribution', 'Data Summary'};
     for i = 1:length(headers)
         text(cols{i}, y_top, headers{i}, 'FontWeight', 'bold', 'FontSize', 11, 'FontName', font_name, 'Color', 'k');
     end
