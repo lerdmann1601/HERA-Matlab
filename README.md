@@ -6,12 +6,12 @@
 # HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
 
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2025b-orange.svg)](https://www.mathworks.com/products/matlab.html)
-[![Statistics Toolbox](https://img.shields.io/badge/Toolbox-Statistics_and_Machine_Learning-blue.svg)](https://www.mathworks.com/products/statistics.html)
-[![Parallel Computing Toolbox](https://img.shields.io/badge/Toolbox-Parallel_Computing-blue.svg)](https://www.mathworks.com/products/parallel-computing.html)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/183089-hera)
+[![View on PyPI](https://img.shields.io/badge/PyPI-View_on_PyPI-blue?logo=pypi)](https://pypi.org/project/hera-matlab/)
+[![PyPI Downloads](https://static.pepy.tech/personalized-badge/hera-matlab?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=PyPI%20Downloads)](https://pepy.tech/projects/hera-matlab)
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
-[![PyPI Downloads](https://static.pepy.tech/personalized-badge/hera-matlab?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=GREEN&left_text=PyPI%20Downloads)](https://pepy.tech/projects/hera-matlab)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18274870-blue.svg)](https://doi.org/10.5281/zenodo.18274870)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0009--3758--7363-green.svg)](https://orcid.org/0009-0009-3758-7363)
 
@@ -145,6 +145,9 @@ HERA.start_ranking('convergence', 'true')
 
 % Run analysis and save log to a specific folder
 HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
+
+% Run analysis using a JSON configuration file
+HERA.start_ranking('convergence', 'path/to/config.json')
 ```
 
 > **Note:** Example use cases with synthetic datasets and results are
