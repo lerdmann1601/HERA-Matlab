@@ -134,6 +134,14 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         clean_suffix = strrep(suffix_name, '_', ' ');
         if isstruct(ref_B), rb_str = sprintf('%d (Dyn)', ref_B.end); else, rb_str = sprintf('%d', ref_B); end
         
+        % Force MATLAB to compute the final layout before saving.
+        % This is a workaround for potential rendering issues with dynamic layouts.
+        set(f, 'Units', 'pixels'); % Enforce units to prevent DPI scaling collapse
+        set(f, 'Position', [100, 100, 1200, 950]); % Re-assert position
+        drawnow;
+        pause(0.1);
+        drawnow; % Double refresh to ensure tiledlayout/alignment expands correctly
+        
         if contains(suffix_name, 'Global_Summary')
             title_str = sprintf('%s Analysis: %s (Ref B = %s)', name, clean_suffix, rb_str);
         else
@@ -277,6 +285,12 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     text(0.5, y_curr, 'Configuration: Data Scenarios', 'HorizontalAlignment', 'center', 'FontSize', 18, 'FontWeight', 'bold', 'FontName', common_font, 'Color', 'k');
     y_curr = y_curr - 0.08; 
     draw_data_section_clean(scenarios, y_curr);
+    
+    % Force MATLAB to compute the final layout before saving.
+    set(f1, 'Units', 'pixels');
+    set(f1, 'Position', [100, 100, 1200, 950]);
+    drawnow; pause(0.1); drawnow;
+    
     axis off;
     
     name_p1 = fullfile(out_path, sprintf('Param_Scenarios_%s.png', ts_str));
@@ -348,6 +362,7 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
         factor = 0.9 / total_w;
         col_lbl_w = col_lbl_w * factor;
         col_w = col_w * factor;
+        total_w = 0.9;
     end
     
     y_curr = y_curr - 0.04; 
@@ -365,6 +380,12 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     y_curr = draw_param_section_clean('2. BCa Confidence Intervals', params.bca, y_curr, x_start, col_lbl_w, col_w);
     y_curr = y_curr - 0.005;
     y_curr = draw_param_section_clean('3. Ranking Stability', params.rnk, y_curr, x_start, col_lbl_w, col_w);
+    
+    % Force MATLAB to compute the final layout before saving.
+    set(f2, 'Units', 'pixels');
+    set(f2, 'Position', [150, 150, 1200, 950]);
+    drawnow; pause(0.1); drawnow;
+    
     axis off;
     
     name_p2 = fullfile(out_path, sprintf('Param_Methods_%s.png', ts_str));
