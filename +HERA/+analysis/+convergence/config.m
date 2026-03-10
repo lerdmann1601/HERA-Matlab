@@ -5,14 +5,16 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
 %   [N, modes, sc, params, refs, lim, cfg, col, ram_gb] = HERA.analysis.convergence.config(n_sims_per_cond)
 %
 % Description:
-%   This function defines the constant parameters, data scenarios, and method configurations
-%   used throughout the robustness study. It ensures that all components (simulate, plot)
-%   share the exact same definitions.
+%   This function defines the parameters and configuration for the convergence robustness study. 
+%   It ensures that all components (simulate, plot) share the exact same definitions. 
+%   Supports dynamic scaling of statistical parameters based on the number of candidates (N).
 %
 % Inputs:
 %   n_sims_per_cond - Not directly used here, but part of the signature for potential dynamic adjustments.
 %   customConfig    - (Optional) Struct loaded from JSON for overriding internal arrays safely.
 %                     Supports fields such as:
+%                       - `N` (Candidate count, should be between 3 and 15)
+%                       - `scenarios` (Array of overrides for n, Step, SD, Base)
 %                       - `target_memory`
 %                       - `bootstrap_seed_offset`
 %                       - `scenario_seed_offset`
@@ -38,25 +40,100 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     end
 
     %% 1. General Settings
-    N = 6; % Number of datasets/candidates
+    N = 6; % Number of datasets/candidates (Default)
+    if isfield(customConfig, 'N') && isnumeric(customConfig.N)
+        N = round(customConfig.N);
+        if N < 3 && N >= 1
+            fprintf('Warning: N = %d is below the recommended minimum of 3. Results may be less representative.\n', N);
+        elseif N > 15
+            fprintf('Warning: N = %d exceeds the recommended maximum of 15.\n', N);
+            fprintf('         This will significantly increase computation time and memory usage.\n');
+            fprintf('         Note: The Holm-Bonferroni correction becomes extremely strict at this level.\n');
+            fprintf('         Please adjust your parameters accordingly.\n');
+        end
+    end
+    % Hard constraint: N must be at least 2 for pairs calculation (nchoosek)
+    if N < 2
+        error('HERA:Analysis:InvalidConfig', 'N must be at least 2 (minimum one pair required). Provided N = %d.', N);
+    end
+    
     modes = {'Relaxed', 'Default', 'Strict'};
     
     %% 2. Data Scenarios
+    % Define the 7 core scenarios with their scaling logic defaults.
+    % Base: Starting mean/offset, Step: Gap between means, SD: Noise.
+    sc_defs = [
+        struct('name', '', 'n', 25,  'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'SD', 2.0); % Default: d = 0.5
+        struct('name', '', 'n', 50,  'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'SD', 2.0); % Default: d = 0.5
+        struct('name', '', 'n', 100, 'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'SD', 2.0); % Default: d = 0.5
+        struct('name', '', 'n', 50,  'Dist', 'Skewed',       'Base', 2.0,  'Step', 0.1, 'SD', 0.4);
+        struct('name', '', 'n', 50,  'Dist', 'Likert',       'Base', 3.0,  'End',  5.0, 'SD', 1.5);
+        struct('name', '', 'n', 50,  'Dist', 'Bimodal',      'Base', 10.0, 'Base2', 15.0, 'Step', 1.5, 'SD', 1.0);
+        struct('name', '', 'n', 50,  'Dist', 'Small Effect', 'Base', 10.0, 'Step', 0.4, 'SD', 2.0); % Small: d = 0.2
+        struct('name', '', 'n', 50,  'Dist', 'Large Effect', 'Base', 10.0, 'Step', 2.0, 'SD', 2.0)  % Large: d = 1.0
+    ];
+
+    % Parse JSON Overrides for Scenarios
+    if isfield(customConfig, 'scenarios') && isstruct(customConfig.scenarios)
+        for i = 1:min(length(sc_defs), length(customConfig.scenarios))
+            ov = customConfig.scenarios(i);
+            % Loop through fields to allow partial overrides
+            f_ov = fieldnames(ov);
+            for f = 1:length(f_ov)
+                if isfield(sc_defs(i), f_ov{f})
+                    sc_defs(i).(f_ov{f}) = ov.(f_ov{f});
+                end
+            end
+        end
+    end
+
     scenarios = struct();
-    scenarios(1).name = 'n = 25 (Normal)';   scenarios(1).n = 25; scenarios(1).Dist = 'Normal'; 
-    scenarios(1).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
-    scenarios(2).name = 'n = 50 (Normal)';   scenarios(2).n = 50; scenarios(2).Dist = 'Normal';
-    scenarios(2).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
-    scenarios(3).name = 'n = 100 (Normal)';  scenarios(3).n = 100; scenarios(3).Dist = 'Normal';
-    scenarios(3).DataSummary = sprintf('%d Datasets, Means 10-%d, SD = 2.0', N, 10 + N - 1);
-    scenarios(4).name = 'n = 50 (Skewed)';   scenarios(4).n = 50; scenarios(4).Dist = 'LogNormal';
-    scenarios(4).DataSummary = sprintf('%d Datasets, Means 2.0-%.1f (Log), SD = 0.4 (Log)', N, 2.0 + (N-1)*0.1);
-    scenarios(5).name = 'n = 50 (Likert)';   scenarios(5).n = 50; scenarios(5).Dist = 'Likert';
-    scenarios(5).DataSummary = sprintf('%d Datasets, Scale 1-7, Means 3-5, SD = 1.5', N);
-    scenarios(6).name = 'n = 50 (Bimodal)';  scenarios(6).n = 50; scenarios(6).Dist = 'Bimodal';
-    scenarios(6).DataSummary = sprintf('%d Datasets, Mix Means 10 & 15, SD = 2.7', N);
-    scenarios(7).name = 'n = 50 (Large Effect)';  scenarios(7).n = 50; scenarios(7).Dist = 'NormalLarge';
-    scenarios(7).DataSummary = sprintf('%d Datasets, Means 10-%.1f, SD = 2.0', N, 10 + (N - 1) * 2.0);
+    for i = 1:length(sc_defs)
+        def = sc_defs(i);
+        
+        % Robustness Check for n (Sample size)
+        if def.n < 20
+            fprintf('Warning (Scenario %d): n = %d is quite small for bootstrap-based accuracy studies.\n', i, def.n);
+        end
+        if def.n < 5
+            fprintf('Error (Scenario %d): n must be at least 5. Setting n = 5.\n', i);
+            def.n = 5;
+        end
+
+        % Generate Dynamic Name if not overridden (simple n = [val])
+        if isempty(def.name)
+            scenarios(i).name = sprintf('n = %d', def.n);
+        else
+            scenarios(i).name = def.name;
+        end
+        
+        scenarios(i).n = def.n;
+        scenarios(i).Dist = def.Dist;
+        
+        % Store scaling parameters for simulate.m
+        scenarios(i).Base = def.Base;
+        scenarios(i).SD   = def.SD;
+        if isfield(def, 'Step'),  scenarios(i).Step = def.Step; end
+        if isfield(def, 'End'),   scenarios(i).End  = def.End;  end
+        if isfield(def, 'Base2'), scenarios(i).Base2 = def.Base2; end
+        
+        % Generate dynamic DataSummary
+        switch def.Dist
+            case {'Normal', 'Large Effect', 'Small Effect'}
+                scenarios(i).DataSummary = sprintf('%d Datasets, Means %.1f-%.1f, SD = %.1f', ...
+                    N, def.Base, def.Base + (N-1)*def.Step, def.SD);
+            case 'Skewed'
+                scenarios(i).DataSummary = sprintf('%d Datasets, Means %.1f-%.1f (Log), SD = %.1f (Log)', ...
+                    N, def.Base, def.Base + (N-1)*def.Step, def.SD);
+            case 'Likert'
+                scenarios(i).DataSummary = sprintf('%d Datasets, Scale 1-7, Means %.1f-%.1f, SD = %.1f', ...
+                    N, def.Base, def.End, def.SD);
+            case 'Bimodal'
+                % For Bimodal, we show both means and the internal SD
+                scenarios(i).DataSummary = sprintf('%d Datasets, Mix Means %.1f & %.1f, Mode SD = %.1f', ...
+                    N, def.Base, def.Base2, def.SD);
+        end
+    end
     
     %% 3. Parameter Sets
     % Thresholds

@@ -8,9 +8,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
 % Description:
 %   This function performs a Monte Carlo study to validate the robustness and accuracy
 %   of the HERA bootstrap algorithms (Thresholds, BCa CI, Ranking). It simulates various 
-%   data scenarios (Normal, LogNormal, Likert, Bimodal) and compares three different 
-%   parameter configurations (Relaxed, Default, Strict) against a high-precision 
-%   Reference ("Truth").
+%   data scenarios (Normal, Skewed, Likert, Bimodal, Small/Large Effects) and compares 
+%   three different parameter configurations (Relaxed, Default, Strict) against 
+%   a high-precision Reference ("Truth"). Supports JSON overrides for N and scenarios.
 %
 % Workflow:
 %   1. User Input & Initialization:
@@ -164,6 +164,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     % Print Header and Config Summary to Console & Log
     fprintf('\n==========================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
+    fprintf('   Configuration: %d Candidates/Datasets (N)\n', N);
     fprintf('==========================================================\n');
     if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
         fprintf(' Memory Limit:          %d MB (User Override)\n', cfg_base.system.target_memory);

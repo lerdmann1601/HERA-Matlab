@@ -2,7 +2,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 % SIMULATE - Executes the parallel simulation core for the convergence robustness study.
 %
 % Syntax:
-%   results = HERA.analysis.convergence.simulate(scen, params, n_sims, refs, cfg, tmp, styles, lang, hWait, ..., N)
+%   results = HERA.analysis.convergence.simulate(scen, params, n_sims, refs, cfg, tmp, styles, lang, hWait, out_dir, ts, final_out, colors, modes, limits, N)
 %
 % Description:
 %   This function manages the computationally intensive part of the analysis using an optimized
@@ -97,7 +97,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 
     
     % Initialize Result Structure
-    scenario_res = repmat(struct('name', '', 'N', 0, 'Dist', '', 'DataSummary', '', ...
+    scenario_res = repmat(struct('name', '', 'n', 0, 'Dist', '', 'DataSummary', '', ...
                                  'thr', init_storage(n_sims_per_cond, num_modes), ...
                                  'bca', init_storage(n_sims_per_cond, num_modes), ...
                                  'rnk', init_storage(n_sims_per_cond, num_modes), ...
@@ -453,33 +453,39 @@ function d_all = generate_data_vectorized(sc, stream, N)
     d_all = zeros(sc.n, N);
     switch sc.Dist
         case 'Normal'
-            means = 10 + (0:N-1);
+            % Medium Effect: Cohen's d = 0.5 (Step 1.0 / SD 2.0)
+            means = sc.Base + (0:N-1) * sc.Step;
             r = randn(stream, sc.n, N);
-            d_all = means + 2.0 * r;
-        case 'LogNormal'
-            means = 2.0 + (0:N-1)*0.1;
+            d_all = means + sc.SD * r;
+        case 'Small Effect'
+            % Small Effect: Cohen's d = 0.2 (Step 0.4 / SD 2.0)
+            means = sc.Base + (0:N-1) * sc.Step;
             r = randn(stream, sc.n, N);
-            d_all = exp(means + 0.4 * r);
+            d_all = means + sc.SD * r;
+        case 'Large Effect'
+            % Large Effect: Cohen's d = 1.0 (Step 2.0 / SD 2.0)
+            means = sc.Base + (0:N-1) * sc.Step;
+            r = randn(stream, sc.n, N);
+            d_all = means + sc.SD * r;
+        case 'Skewed'
+            means = sc.Base + (0:N-1) * sc.Step;
+            r = randn(stream, sc.n, N);
+            d_all = exp(means + sc.SD * r);
         case 'Likert'
-            centers = linspace(3, 5, N);
+            centers = linspace(sc.Base, sc.End, N);
             r = randn(stream, sc.n, N);
-            raw = centers + 1.5 * r;
+            raw = centers + sc.SD * r;
             d_all = min(7, max(1, round(raw)));
         case 'Bimodal'
             for k = 1:N
                 is_mode2 = rand(stream, sc.n, 1) > 0.5;
                 vals = zeros(sc.n, 1);
                 n1 = sum(~is_mode2); n2 = sum(is_mode2);
-                vals(~is_mode2) = 10 + randn(stream, n1, 1);
-                vals(is_mode2)  = 15 + randn(stream, n2, 1);
+                vals(~is_mode2) = sc.Base + sc.SD * randn(stream, n1, 1);
+                vals(is_mode2)  = sc.Base2 + sc.SD * randn(stream, n2, 1);
                 % Adjusted to 1.5 (approx d=0.55) to test robustness, not power
-                d_all(:, k) = vals + (k-1)*1.5;
+                d_all(:, k) = vals + (k-1) * sc.Step;
             end
-        case 'NormalLarge'
-            % Large Effect: Cohen's d = 1.0 (mean diff 2.0 / SD 2.0)
-            means = 10 + (0:N-1) * 2.0;
-            r = randn(stream, sc.n, N);
-            d_all = means + 2.0 * r;
     end
 end
 

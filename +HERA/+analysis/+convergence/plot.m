@@ -9,7 +9,7 @@ function plot(command, varargin)
 %   This function serves as a dispatcher for the various plotting requirements of the robustness study.
 %   It encapsulates the logic for generating the parameter overview (config table) and the 
 %   scientific report plots (2x2 grid: Errors, Deviation, Cost, Failures).
-%   This modular approach keeps the main controller clean.
+%   Automatically adjusts layouts for the configured number of candidates (N) and scenarios.
 %
 % Commands:
 %   'parameter_overview' - Generates a visual summary of the scenarios and parameter sets.

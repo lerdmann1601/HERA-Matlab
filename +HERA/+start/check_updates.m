@@ -5,8 +5,8 @@ function check_updates(lang)
 %   HERA.start.check_updates(lang)
 %
 % Description:
-%   Queries the GitHub API for the latest release tag and compares it with 
-%   the local version. Notifies the user in the console if an update exists.
+%   Queries the GitHub API for the latest release tag and compares it with the local version. 
+%   Notifies the user in the console if an update exists.
 %   It runs only once per session, skips on clusters, and never blocks due to a 2-second timeout.
 %
 % Inputs:
