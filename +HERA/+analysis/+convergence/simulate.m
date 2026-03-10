@@ -168,19 +168,29 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % 1. Generate Data & References (Hybrid Parallelization Strategy)
             sim_data_batch = cell(num_in_batch, 1);
             
-            % Determine parallelization strategy based on worker saturation and task complexity.
+            % Determine separate parallelization strategies for preparation and testing phases.
+            
+            % --- Preparation (Reference calculations) ---
+            % Determine strategy based on worker saturation and task complexity.
             % Threshold A (Batch Size): If batch fills more than 50% of the pool.
             % Threshold B (Complexity): For small batches, switch to Tail Mode (Strategy B) 
             % only if n is large enough to justify parfor management overhead (Crossover n ~ 40).
             % For small n, coarse-grained Strategy A is preferred to avoid dispatch latency.
             if num_in_batch > (num_workers / 2)
-                use_parallel_outer = true;
+                use_parallel_prep = true;
             else
-                % Hybrid logic: Use Strategy A for light loads, Strategy B for heavy loads
-                use_parallel_outer = sc.n < 40; 
+                use_parallel_prep = sc.n < 40; 
             end
             
-                if use_parallel_outer
+            % --- Testing (Thresholds, BCa, Ranking) ---
+            % Since each simulation generates 9 tasks (3 methods x 3 modes), we can 
+            % saturate the worker pool with individual tasks much longer than for Refs. 
+            % Threshold: Only use Tail Mode (Strategy B) if the total number of sub-tasks 
+            % in the batch is smaller than the available worker pool.
+            total_batch_tests = num_in_batch * 3 * num_modes;
+            use_parallel_tests = (total_batch_tests >= num_workers);
+            
+                if use_parallel_prep
                     % Strategy A: Coarse-Grained (High Saturation)
                     % Parallelize the outer loop, one simulation per worker.
                     parfor i = 1:num_in_batch
@@ -191,7 +201,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 else
                     % Strategy B: Fine-Grained (Low Saturation / Tail Processing)
                     % Execute simulation loop serially to enable internal parallelization on the workers.
-                    fprintf(' [Tail Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
+                    fprintf(' [Prepare Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
                     for i = 1:num_in_batch
                         sim_data_batch{i} = prepare_simulation(i, batch_sims, sc, sc_idx, ...
                             base_seed, scenario_seed_offset, reference_seed_offset, reference_step_offset, ...
@@ -210,7 +220,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % Determine strategy for test execution:
             % For small batches, serial-outer execution allows the compute-heavy inner functions 
             % (BCa, Ranking) to utilize the full parallel pool instead of being siloed on a single worker.
-            if use_parallel_outer
+            if use_parallel_tests
                 % Strategy A: Coarse-Grained (High Saturation)
                 % Submit all test combinations to the shared pool using Method-Major scheduling.
                 futures = parallel.FevalFuture.empty(0, 0);
