@@ -14,6 +14,8 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
 %   customConfig    - (Optional) Struct loaded from JSON for overriding internal arrays safely.
 %                     Supports fields such as:
 %                       - `N` (Candidate count, should be between 3 and 15)
+%                       - `selected_scenarios` (Array of indices to run, e.g. [1, 3, 5])
+%                       - `num_scenarios` (Shortcut: Number of first scenarios to run, 1-8)
 %                       - `scenarios` (Array of overrides for n, Step, SD, Base)
 %                       - `target_memory`
 %                       - `bootstrap_seed_offset`
@@ -60,7 +62,7 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     modes = {'Relaxed', 'Default', 'Strict'};
     
     %% 2. Data Scenarios
-    % Define the 7 core scenarios with their scaling logic defaults.
+    % Define the 8 core scenarios with their scaling logic defaults.
     % Base: Starting mean/offset, Step: Gap between means, SD: Noise.
     sc_defs = [
         struct('name', '', 'n', 25,  'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'SD', 2.0); % Default: d = 0.5
@@ -72,7 +74,7 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         struct('name', '', 'n', 50,  'Dist', 'Small Effect', 'Base', 10.0, 'Step', 0.4, 'SD', 2.0); % Small: d = 0.2
         struct('name', '', 'n', 50,  'Dist', 'Large Effect', 'Base', 10.0, 'Step', 2.0, 'SD', 2.0)  % Large: d = 1.0
     ];
-
+    
     % Parse JSON Overrides for Scenarios
     if isfield(customConfig, 'scenarios') && isstruct(customConfig.scenarios)
         for i = 1:min(length(sc_defs), length(customConfig.scenarios))
@@ -86,6 +88,31 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
             end
         end
     end
+
+    % Scenario Selection Logic ID
+    % Default: Run all defined scenarios
+    selected_idx = 1:length(sc_defs);
+   
+    % Selected Scenarios
+    if isfield(customConfig, 'selected_scenarios') && isnumeric(customConfig.selected_scenarios)
+        selected_idx = customConfig.selected_scenarios;
+        % Validate all indices
+        if any(selected_idx < 1 | selected_idx > length(sc_defs))
+            error('HERA:Analysis:InvalidConfig', ...
+                'selected_scenarios contains invalid indices. Must be between 1 and %d.', length(sc_defs));
+        end
+    elseif isfield(customConfig, 'num_scenarios') && isnumeric(customConfig.num_scenarios)
+        num_target = round(customConfig.num_scenarios);
+        if num_target >= 1 && num_target <= length(sc_defs)
+            selected_idx = 1:num_target;
+        else
+             error('HERA:Analysis:InvalidConfig', ...
+                 'num_scenarios must be between 1 and %d. Provided: %d.', length(sc_defs), num_target);
+        end
+    end
+    
+    % Apply Selection
+    sc_defs = sc_defs(selected_idx);
 
     scenarios = struct();
     for i = 1:length(sc_defs)
@@ -110,7 +137,7 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         scenarios(i).n = def.n;
         scenarios(i).Dist = def.Dist;
         
-        % Store scaling parameters for simulate.m
+        % Store scaling parameters and metadata for simulate.m/reports
         scenarios(i).Base = def.Base;
         scenarios(i).SD   = def.SD;
         if isfield(def, 'Step'),  scenarios(i).Step = def.Step; end

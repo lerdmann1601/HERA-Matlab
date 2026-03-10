@@ -164,7 +164,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     % Print Header and Config Summary to Console & Log
     fprintf('\n==========================================================\n');
     fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
-    fprintf('   Configuration: %d Candidates/Datasets (N)\n', N);
+    fprintf('   Configuration: %d Scenarios, %d Candidates (N)\n', length(scenarios), N);
     fprintf('==========================================================\n');
     if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
         fprintf(' Memory Limit:          %d MB (User Override)\n', cfg_base.system.target_memory);
