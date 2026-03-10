@@ -386,13 +386,14 @@ end
     
     % Fixed dimensions based on standardized 1200x950 resolution
     fig_w = 1200;
-    char_w_norm = 10.0 / fig_w; % Increased from 7 to 10 to prevent overlap
-    pad_norm = 35 / fig_w;      % Increased from 20 to 35 for academic spacing
+    % Constants for a compact and dynamic look
+    char_w_norm = 7.0 / fig_w; 
+    pad_norm = 20 / fig_w;      
     
     % 1. Calculate MAX widths for each column
-    l_idx = 2; % Padding for index up to 99
+    l_idx = length('0'); 
     l_name = length('Scenario');
-    l_n    = 4; % Space for 'n' header and values
+    l_n    = length('n');
     l_dist = length('Distribution');
     l_sum  = length('Data Summary');
     
@@ -403,14 +404,14 @@ end
         l_sum  = max(l_sum,  length(scenarios(i).DataSummary));
     end
     
-    % Define explicit column widths
+    % Define explicit column widths (Content + Padding)
     w_idx  = 0.04; 
-    w_name = (l_name * char_w_norm) + pad_norm;
-    w_n    = (l_n    * char_w_norm) + pad_norm;
-    w_dist = (l_dist * char_w_norm) + pad_norm;
-    w_sum  = (l_sum  * char_w_norm) + (pad_norm/2); 
+    w_name = (l_name * char_w_norm) + pad_norm; 
+    w_n    = (l_n    * char_w_norm) + pad_norm; 
+    w_dist = (l_dist * char_w_norm) + pad_norm; 
+    w_sum  = (l_sum  * char_w_norm) + pad_norm; 
     
-    % 2. Calculate Total Width
+    % 2. Calculate Total Width (max 0.94 for safety)
     total_w = w_idx + w_name + w_n + w_dist + w_sum;
     
     % 3. Dynamic Centering (Consistent with Method Parameters)
