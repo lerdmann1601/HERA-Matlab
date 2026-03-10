@@ -65,14 +65,14 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     % Define the 8 core scenarios with their scaling logic defaults.
     % Base: Starting mean/offset, Step: Gap between means, SD: Noise.
     sc_defs = [
-        struct('name', 'Baseline-S',    'n', 25,  'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
-        struct('name', 'Baseline-M',    'n', 50,  'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
-        struct('name', 'Baseline-L',    'n', 100, 'Dist', 'Normal',       'Base', 10.0, 'Step', 1.0, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
+        struct('name', 'Baseline-S',    'n', 25,  'Dist', 'Normal',       'Base', 10.0, 'Step', 0.75, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
+        struct('name', 'Baseline-M',    'n', 50,  'Dist', 'Normal',       'Base', 10.0, 'Step', 0.75, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
+        struct('name', 'Baseline-L',    'n', 100, 'Dist', 'Normal',       'Base', 10.0, 'Step', 0.75, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
         struct('name', 'Skewness',      'n', 50,  'Dist', 'Skewed',       'Base', 2.0,  'Step', 0.1, 'End', NaN,  'Base2', NaN,  'SD', 0.4);
         struct('name', 'Quantization',  'n', 50,  'Dist', 'Likert',       'Base', 3.0,  'Step', NaN, 'End', 5.0,  'Base2', NaN,  'SD', 1.5);
         struct('name', 'Bimodality',    'n', 50,  'Dist', 'Bimodal',      'Base', 10.0, 'Step', 1.5, 'End', NaN,  'Base2', 15.0, 'SD', 1.0);
-        struct('name', 'Sensitivity',   'n', 50,  'Dist', 'Small Effect', 'Base', 10.0, 'Step', 0.4, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
-        struct('name', 'Discrimination','n', 50,  'Dist', 'Large Effect', 'Base', 10.0, 'Step', 2.0, 'End', NaN,  'Base2', NaN,  'SD', 2.0)  
+        struct('name', 'Sensitivity',   'n', 50,  'Dist', 'Small Effect', 'Base', 10.0, 'Step', 0.27, 'End', NaN,  'Base2', NaN,  'SD', 2.0); 
+        struct('name', 'Discrimination','n', 50,  'Dist', 'Large Effect', 'Base', 10.0, 'Step', 1.50, 'End', NaN,  'Base2', NaN,  'SD', 2.0)  
     ];
     
     % Parse JSON Overrides for Scenarios

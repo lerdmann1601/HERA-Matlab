@@ -463,17 +463,20 @@ function d_all = generate_data_vectorized(sc, stream, N)
     d_all = zeros(sc.n, N);
     switch sc.Dist
         case 'Normal'
-            % Medium Effect: Cohen's d = 0.5 (Step 1.0 / SD 2.0)
+            % Medium Effect (Calibrated for Cliff's Delta ~ 0.40)
+            % Median Pairwise Difference approx 1.50 / SD 2.0 (Step 0.75)
             means = sc.Base + (0:N-1) * sc.Step;
             r = randn(stream, sc.n, N);
             d_all = means + sc.SD * r;
         case 'Small Effect'
-            % Small Effect: Cohen's d = 0.2 (Step 0.4 / SD 2.0)
+            % Small Effect (Calibrated for Cliff's Delta ~ 0.15)
+            % Median Pairwise Difference approx 0.54 / SD 2.0 (Step 0.27)
             means = sc.Base + (0:N-1) * sc.Step;
             r = randn(stream, sc.n, N);
             d_all = means + sc.SD * r;
         case 'Large Effect'
-            % Large Effect: Cohen's d = 1.0 (Step 2.0 / SD 2.0)
+            % Large Effect (Calibrated for Cliff's Delta ~ 0.70)
+            % Median Pairwise Difference approx 3.00 / SD 2.0 (Step 1.50)
             means = sc.Base + (0:N-1) * sc.Step;
             r = randn(stream, sc.n, N);
             d_all = means + sc.SD * r;
