@@ -210,7 +210,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         cfg_out.output_dir = log_path_or_mode;
         
         % Ensure we save the effective configuration applied
-        cfg_out.target_memory = cfg_base.system.target_memory;
+        % cfg_out.target_memory = cfg_base.system.target_memory; % Not needed for JSON as this is a system parameter
         if isfield(cfg_base, 'simulation_seed')
             cfg_out.simulation_seed = cfg_base.simulation_seed;
         else
@@ -236,6 +236,10 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             cfg_out.reference_step_offset = 1000;
         end
         
+        % Scientific Parameters (Data Scenarios & Methods)
+        cfg_out.N = N;
+        cfg_out.modes = modes;
+        cfg_out.scenarios = scenarios;
         cfg_out.refs = refs;
         cfg_out.params = params; % Store the Relaxed, Default, Strict settings
         
