@@ -391,7 +391,7 @@ end
     
     % 1. Calculate MAX widths for each column
     l_idx = length('0'); % Approx width for index
-    l_name = length('Scenario Name');
+    l_name = length('Scenario');
     l_n    = length('N');
     l_dist = length('Distribution');
     l_sum  = length('Data Summary');
@@ -413,17 +413,8 @@ end
     % 2. Calculate Total Width
     total_w = w_idx + w_name + w_n + w_dist + w_sum;
     
-    % 3. Center Table
-    if total_w < 0.94
-        x_start = (1 - total_w) / 2;
-    else
-        x_start = 0.03;
-        % Squeeze if necessary (should happen rarely with get_scenarios_width_px)
-        factor = 0.94 / total_w;
-        w_idx = w_idx * factor; w_name = w_name * factor; w_n = w_n * factor;
-        w_dist = w_dist * factor; w_sum = w_sum * factor;
-        total_w = 0.94;
-    end
+    % 3. Placement (Left-Aligned with slight margin)
+    x_start = 0.05; 
     x_end = x_start + total_w;
     
     % 4. Define Column Positions (Start of each column)
