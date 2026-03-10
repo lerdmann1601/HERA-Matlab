@@ -624,5 +624,10 @@
         "ranking_report": "Ranking_Report.pdf",
         "final_report": "Final_Report.pdf",
         "json_analysis_data": "%s_data.json"
+    },
+    "update_check": {
+        "notice": "NOTICE: A newer version of HERA is available!",
+        "current": "Current: %s | Latest: %s",
+        "download": "Download: https://github.com/lerdmann1601/HERA-Matlab/releases"
     }
 }

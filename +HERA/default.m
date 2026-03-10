@@ -28,6 +28,7 @@ function defaults = default()
     defaults.create_reports = true; 
     defaults.plot_theme = 'light';
     defaults.language = 'en';    
+    defaults.check_updates = true; % Enable/disable automatic update checks
     
     %% Statistical Parameters
     defaults.ci_level = 0.95;

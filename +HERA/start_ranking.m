@@ -163,6 +163,19 @@ import HERA.start.Utils
 % Load the language file containing all user-facing strings.
 lang = Utils.language_code('en');
 
+% Optional: Automatic Update Check
+% Only run if enabled in defaults and if not in a specific sub-mode (unit tests, etc.)
+% to avoid interfering with batch or cluster processing.
+try
+    defaults_initial = HERA.default();
+    if isfield(defaults_initial, 'check_updates') && defaults_initial.check_updates && ...
+       nargin == 0 % Only in interactive mode without arguments
+        HERA.start.check_updates(lang);
+    end
+catch
+    % Failure in update check should never block the main app
+end
+
 % HERA Dependency Check
 % (Only check in MATLAB environment; Runtime has them bundled)
 if ~isdeployed

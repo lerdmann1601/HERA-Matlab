@@ -5,9 +5,13 @@ This file enables IntelliSense/Autocompletion for Python users.
 
 from typing import Optional, Dict, Any, Union
 
+__version__: str = ...
+
 def start_ranking(configFile: Optional[str] = ..., runtest: Optional[str] = ..., logPath: Optional[str] = ...) -> None:
     """
     Interactive script to configure and start the ranking.
+    
+    Note: A version check is performed upon initialization to notify the user of updates.
     
     Args:
         configFile: Path to a JSON configuration file for batch mode.

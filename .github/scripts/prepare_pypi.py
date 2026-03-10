@@ -140,8 +140,18 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
 
     # 3b. Sync Version with GitHub Tag or Local Tag
     # MATLAB defaults to '25.2' (R2025b).
-    # We overwrite this with the actual release tag (e.g., v1.1.0 -> 1.1.0).
+    # We attempt to overwrite this with the actual release tag (e.g., v1.1.0 -> 1.1.0).
+    
+    # Try to extract the version already present in setup.py as a baseline
+    version_match = re.search(r"['\"]version['\"]\s*:\s*['\"]([\d\.]+)['\"]", content)
+    if not version_match:
+        print("  - Error: Could not detect version string in setup.py.")
+        sys.exit(1)
+    
+    original_version = version_match.group(1)
+    
     tag_name = os.environ.get('GITHUB_REF_NAME')
+    is_cicd = os.environ.get('GITHUB_ACTIONS') == 'true'
     
     # Fallback for local execution
     if not tag_name:
@@ -153,13 +163,27 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
             tag_name = result.stdout.strip()
             print(f"  - Detected local git tag: {tag_name}")
         except Exception as e:
-            print(f"  - Warning: Could not detect git tag ({e}). Using default version.")
+            if is_cicd:
+                print(f"  - Error: Could not determine version via GITHUB_REF_NAME or git tag in CI/CD.")
+                sys.exit(1)
+            else:
+                # Local fallback: Use what's already in setup.py
+                tag_name = f"v{original_version}"
+                print(f"  - Warning: Could not detect git tag. Using setup.py version as local fallback: {tag_name}")
 
     if tag_name and tag_name.startswith('v'):
         new_version = tag_name[1:] # Strip 'v'
         print(f"  - Syncing version to Tag: {new_version}")
         # Regex replacement to handle 'version': '25.2' inside the dictionary
         content = re.sub(r"['\"]version['\"]\s*:\s*['\"][\d\.]+['\"]", f"'version': '{new_version}'", content)
+    else:
+        # Strict for CI/CD, but allow local to continue if tag_name was somehow set but invalid
+        if is_cicd:
+            print(f"  - Error: No valid Git tag found (expected 'vX.Y.Z', got '{tag_name}').")
+            print("    Aborting to prevent incorrect versioning of the package.")
+            sys.exit(1)
+        else:
+             print(f"  - Warning: Continuing with existing versioning (Tag: {tag_name})")
 
     with open(setup_path, "w") as f:
         f.write(content)
@@ -222,6 +246,9 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
 
     # Python Version Constraint
     setup_dict['python_requires'] = '>=3.9, <3.13'
+    
+    # Add dependencies
+    setup_dict['install_requires'] = ['outdated>=0.2.0']
     # --- INJECTED METADATA END ---
     
     setup(**setup_dict)
@@ -276,11 +303,26 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                 """)
             
             init_func_pattern = "def initialize():"
-            init_check_code = textwrap.dedent("""\
+            init_check_code = textwrap.dedent(f"""\
+                __version__ = "{new_version}"
+
+                def warn_if_outdated():
+                    \"\"\"Checks if a newer version of the package is available on PyPI.\"\"\"
+                    try:
+                        from outdated import warn_if_outdated as _warn
+                        # We use the PyPI name 'hera-matlab' but our local version
+                        _warn("hera-matlab", __version__)
+                    except Exception:
+                        # Silently fail to ensure the user is never blocked
+                        pass
+
                 def initialize():
+                    # Check for updates (non-blocking)
+                    warn_if_outdated()
+                    
                     if _initialization_error:
                         print(f"Error: Failed to initialize MATLAB Runtime.")
-                        print(f"Details: {str(_initialization_error)}")
+                        print(f"Details: {{str(_initialization_error)}}")
                         print("")
                         print("Run the following command to diagnose and fix the issue:")
                         print("    python3 -m hera_matlab.install_runtime")

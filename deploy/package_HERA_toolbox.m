@@ -47,8 +47,17 @@ function package_HERA_toolbox()
         mkdir(outputDir);
     end
 
-    % Get Version
-    version_str = HERA.get_version();
+    % Get Version and validate (Strict for CI/CD)
+    is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
+    if is_cicd
+        version_str = getenv('GITHUB_REF_NAME');
+        if isempty(version_str) || ~startsWith(version_str, 'v')
+            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.3.1) must be set via GITHUB_REF_NAME.');
+        end
+    else
+        % Local build: Use get_version() helper
+        version_str = HERA.get_version();
+    end
     fprintf('Detected Version: %s\n', version_str);
 
     % Clean up problematic files before packaging
