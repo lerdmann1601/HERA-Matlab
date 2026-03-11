@@ -29,7 +29,7 @@ These were held constant because the three parameters we *did* test (regarding d
 
 ### Evaluated Scenarios
 
-We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties. Typical Cliff's Delta effect magnitudes observed in the simulations ranged from 0.29 to 0.86.
+We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties. Typical Cliff's Delta effect magnitudes observed in the simulations ranged from 0.18 to 0.74.
 
 **Data Scenarios:**
 ![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Param_Scenarios_Example.png)
@@ -55,7 +55,7 @@ We evaluated the performance of the Robust Mode based on two key criteria: **Con
 In our analysis, we observed that:
 
 * The **Robust Mode** achieved exceptionally high convergence rates.
-* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in **0.3%** of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
+* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in **0.8%** of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
 * For all other metrics (BCa Intervals, Thresholds), convergence rates were 100%.
 
 ### 2. Accuracy Validation
@@ -91,11 +91,11 @@ Based on these results, we can discuss the theoretical implications of the diffe
 
 ## Conclusion
 
-Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in 99.7% of tested Ranking cases and 100% of other cases, while maintaining high accuracy against reference standards.
+Our analysis confirms that the Default settings provided with HERA should be a safe choice for general usage, achieving convergence in 99.2% of tested Ranking cases and 100% of other cases, while maintaining high accuracy against reference standards.
   
 ## Computational Note
 
-The complete analysis (7 scenarios × 50 independent simulations × 6 different candidates ranked per scenario, comprising 2,100 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 9 hours. For each simulation, high-precision reference values were independently derived (up to B=50,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
+The complete analysis (8 scenarios × 50 independent simulations × 6 different candidates ranked per scenario, comprising 2,400 distinct datasets) was performed on a standard consumer laptop (Base Model Apple 16" 2021 M1 MBP, 16 GB RAM) in approximately 11.5 hours. For each simulation, high-precision reference values were independently derived (up to B=50,000 for BCa), followed by convergence tests for all three modes (Relaxed, Default, Strict) utilizing 10–40 stability trials per B-step. This demonstrates the computational efficiency of the parallelized MATLAB implementation.
 
 ## Full Report
 
