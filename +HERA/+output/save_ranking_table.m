@@ -118,8 +118,8 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
                   lang.ranking.csv_frequency_percent, ... 
                   lang.ranking.csv_frequency_count};     
         
-        % Write the header using comma as delimiter (to match the data fprintf below)
-        fprintf(fileID, '%s\n', strjoin(header, ','));
+        % Write the header using semicolon as delimiter (to match the data writetable below)
+        fprintf(fileID, '%s\n', strjoin(header, ';'));
         fclose(fileID);
         
         % Get the sorting order based on the final rank
@@ -174,7 +174,7 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
         T = table(rank_col, dataset_col, bootstrap_rank_col, freq_percent_col, freq_count_col);
         
         % Write to CSV using writetable
-        writetable(T, csv_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+        writetable(T, csv_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         
         fprintf([lang.ranking.csv_saved '\n'], csv_filename);
         

@@ -23,7 +23,7 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
         return;
     end
     
-    fprintf(pooled_fid, 'Metric,Mode,Median_Error,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Failure_Rate_Percent\n');
+    fprintf(pooled_fid, 'Metric;Mode;Median_Error;IQR_Error;Error_Q1;Error_Q3;CI95_Lower;CI95_Upper;Min_Error;Max_Error;Median_Cost_B;IQR_Cost_B;Cost_Q1;Cost_Q3;Cost_CI95_Lower;Cost_CI95_Upper;Min_Cost;Max_Cost;Failure_Rate_Percent\n');
     fclose(pooled_fid);
     
     metric_names = {'Thresholds', 'BCa', 'Ranking'};
@@ -71,12 +71,16 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
             iqr_err = iqr(err_vals);
             if ~isempty(err_vals)
                  median_err= median(err_vals);
+                 min_err  = min(err_vals);
+                 max_err  = max(err_vals);
                  err_q1   = prctile(err_vals, 25);
                  err_q3   = prctile(err_vals, 75);
                  ci_lower = prctile(err_vals, 2.5);
                  ci_upper = prctile(err_vals, 97.5);
             else
                  median_err= NaN;
+                 min_err  = NaN;
+                 max_err  = NaN;
                  err_q1   = NaN;
                  err_q3   = NaN;
                  ci_lower = NaN;
@@ -86,12 +90,16 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
             iqr_cost = iqr(cost_vals);
             if ~isempty(cost_vals)
                  median_cost   = median(cost_vals);
+                 min_cost      = min(cost_vals);
+                 max_cost      = max(cost_vals);
                  cost_q1       = prctile(cost_vals, 25);
                  cost_q3       = prctile(cost_vals, 75);
                  cost_ci_lower = prctile(cost_vals, 2.5);
                  cost_ci_upper = prctile(cost_vals, 97.5);
             else
                  median_cost   = NaN;
+                 min_cost      = NaN;
+                 max_cost      = NaN;
                  cost_q1       = NaN;
                  cost_q3       = NaN;
                  cost_ci_lower = NaN;
@@ -107,12 +115,12 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
             
             % Form the single row as a cell array and append using writetable
             row_data = {m_name, mode_name, round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
-                round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(median_cost, 1), ...
+                round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(min_err, 4), round(max_err, 4), round(median_cost, 1), ...
                 round(iqr_cost, 1), round(cost_q1, 1), round(cost_q3, 1), round(cost_ci_lower, 1), ...
-                round(cost_ci_upper, 1), round(fail_rate, 1)};
+                round(cost_ci_upper, 1), round(min_cost, 1), round(max_cost, 1), round(fail_rate, 1)};
             
             T = cell2table(row_data);
-            writetable(T, pooled_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+            writetable(T, pooled_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         end
     end
 end
