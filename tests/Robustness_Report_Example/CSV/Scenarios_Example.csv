@@ -1,9 +1,9 @@
-Index,Scenario_Name,n,Distribution,Data_Summary
-1,"Baseline-S",25,"Normal","6 Datasets; Means 10.0-13.8; SD = 2.0"
-2,"Baseline-M",50,"Normal","6 Datasets; Means 10.0-13.8; SD = 2.0"
-3,"Baseline-L",100,"Normal","6 Datasets; Means 10.0-13.8; SD = 2.0"
-4,"Skewness",50,"Skewed","6 Datasets; Means 2.0-2.5 (Log); SD = 0.4 (Log)"
-5,"Quantization",50,"Likert","6 Datasets; Scale 1-7; Means 3.0-5.0; SD = 1.5"
-6,"Bimodality",50,"Bimodal","6 Datasets; Mix Means 10.0 & 15.0; Mode SD = 1.0"
-7,"Sensitivity",50,"Small Effect","6 Datasets; Means 10.0-11.3; SD = 2.0"
-8,"Discrimination",50,"Large Effect","6 Datasets; Means 10.0-17.5; SD = 2.0"
+Index;Scenario_Name;n;Distribution;Data_Summary
+1;Baseline-S;25;Normal;"6 Datasets; Means 10.0-13.8; SD = 2.0"
+2;Baseline-M;50;Normal;"6 Datasets; Means 10.0-13.8; SD = 2.0"
+3;Baseline-L;100;Normal;"6 Datasets; Means 10.0-13.8; SD = 2.0"
+4;Skewness;50;Skewed;"6 Datasets; Means 2.0-2.5 (Log); SD = 0.4 (Log)"
+5;Quantization;50;Likert;"6 Datasets; Scale 1-7; Means 3.0-5.0; SD = 1.5"
+6;Bimodality;50;Bimodal;"6 Datasets; Mix Means 10.0 & 15.0; Mode SD = 1.0"
+7;Sensitivity;50;Small Effect;"6 Datasets; Means 10.0-11.3; SD = 2.0"
+8;Discrimination;50;Large Effect;"6 Datasets; Means 10.0-17.5; SD = 2.0"
