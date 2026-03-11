@@ -83,6 +83,16 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
             f_ov = fieldnames(ov);
             for f = 1:length(f_ov)
                 if isfield(sc_defs(i), f_ov{f})
+                    % Type validation for critical fields
+                    if strcmp(f_ov{f}, 'n') && ~isnumeric(ov.n)
+                        error('HERA:Analysis:InvalidConfig', 'Scenario %d: "n" must be numeric.', i);
+                    end
+                    if strcmp(f_ov{f}, 'Dist') && ~(ischar(ov.Dist) || isstring(ov.Dist))
+                        error('HERA:Analysis:InvalidConfig', 'Scenario %d: "Dist" must be a string.', i);
+                    end
+                    if ismember(f_ov{f}, {'Base','Step','End','Base2','SD'}) && ~isnumeric(ov.(f_ov{f}))
+                        error('HERA:Analysis:InvalidConfig', 'Scenario %d: "%s" must be numeric.', i, f_ov{f});
+                    end
                     sc_defs(i).(f_ov{f}) = ov.(f_ov{f});
                 end
             end
@@ -191,8 +201,10 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     end
     refs.thr = ref_B_thr; refs.bca = ref_B_bca; refs.rnk = ref_B_rnk;
     
-    % Upper limits for visualization
-    limits.thr = p_thr{1}.end; limits.bca = p_bca{1}.end; limits.rnk = p_rank{1}.end;
+    % Upper limits for visualization (max across all modes)
+    limits.thr = max(cellfun(@(x) x.end, p_thr));
+    limits.bca = max(cellfun(@(x) x.end, p_bca));
+    limits.rnk = max(cellfun(@(x) x.end, p_rank));
     
     %% 4. Base Framework Config
     cfg_base = HERA.default();
@@ -311,8 +323,36 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         params.thr = p_thr; params.bca = p_bca; params.rnk = p_rank;
     end
     
-    % Upper limits for visualization (re-evaluating in case it changed)
-    limits.thr = p_thr{1}.end; limits.bca = p_bca{1}.end; limits.rnk = p_rank{1}.end;
+    % Validate parameter ranges (after all overrides applied)
+    validate_convergence_params(p_thr, 'Thresholds');
+    validate_convergence_params(p_bca, 'BCa');
+    validate_convergence_params(p_rank, 'Ranking');
+    
+    % Upper limits for visualization (max across all modes, re-evaluating in case it changed)
+    limits.thr = max(cellfun(@(x) x.end, p_thr));
+    limits.bca = max(cellfun(@(x) x.end, p_bca));
+    limits.rnk = max(cellfun(@(x) x.end, p_rank));
     
     colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4]; 
+end
+
+function validate_convergence_params(p_cells, method_label)
+% VALIDATE_CONVERGENCE_PARAMS - Validates bootstrap convergence parameter ranges.
+    mode_names = {'Relaxed', 'Default', 'Strict'};
+    for i = 1:length(p_cells)
+        p = p_cells{i};
+        label = sprintf('%s/%s', method_label, mode_names{i});
+        if p.start >= p.end
+            error('HERA:Analysis:InvalidConfig', '%s: start (%d) must be < end (%d).', label, p.start, p.end);
+        end
+        if p.step <= 0
+            error('HERA:Analysis:InvalidConfig', '%s: step must be > 0.', label);
+        end
+        if p.tol <= 0
+            error('HERA:Analysis:InvalidConfig', '%s: tol must be > 0.', label);
+        end
+        if p.n < 1
+            error('HERA:Analysis:InvalidConfig', '%s: n (convergence trials) must be >= 1.', label);
+        end
+    end
 end
