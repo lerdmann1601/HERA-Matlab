@@ -151,35 +151,81 @@ HERA.start_ranking('convergence', 'true', 'sims', 50)
 **4. Run with a Custom JSON Configuration:**
 For full control over the analysis parameters like RAM target, random seed offsets or simulation quantities, you can build a `.json` configuration file. This skips the standard `start_ranking` options entirely.
 
-*Note: All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.*
-
 ```matlab
 HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 ```
 
-**Example JSON Configuration file:**
+### JSON Configuration
+
+You can structure your configuration file with a minimal setup, or specify all available parameters for full control.
+
+*Note: All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.*
+
+#### Minimal Example Configuration
 
 ```json
 {
   "userInput": {
-     "n_sims_per_cond": 50,
-     "output_dir": "/Users/Name/Results",
-     "target_memory": 400,
+     "n_sims_per_cond": 10,
+     "output_dir": "/Users/Name/Results"
+  }
+}
+```
+
+#### Full Example Configuration
+
+This example shows **all** possible parameters with their default values for a convergence analysis.
+Parameters inside `system` must be nested correctly as shown.
+
+```json
+{
+  "userInput": {
+     "n_sims_per_cond": 15,
+     "output_dir": " ",
+     "num_workers": "auto",
+
+     "system": {
+         "target_memory": "auto"
+     },
+
+     "N": 6,
+     "num_scenarios": 8,
+     "selected_scenarios": [1, 2, 3, 4, 5, 6, 7, 8],
+     "scenarios": [
+         { "name": "Baseline-S",     "n": 25,  "Dist": "Normal",       "Base": 10.0, "Step": 0.75, "End": null, "Base2": null, "SD": 2.0 },
+         { "name": "Baseline-M",     "n": 50,  "Dist": "Normal",       "Base": 10.0, "Step": 0.75, "End": null, "Base2": null, "SD": 2.0 },
+         { "name": "Baseline-L",     "n": 100, "Dist": "Normal",       "Base": 10.0, "Step": 0.75, "End": null, "Base2": null, "SD": 2.0 },
+         { "name": "Skewness",       "n": 50,  "Dist": "Skewed",       "Base": 2.0,  "Step": 0.10, "End": null, "Base2": null, "SD": 0.4 },
+         { "name": "Quantization",   "n": 50,  "Dist": "Likert",       "Base": 3.0,  "Step": null, "End": 5.0,  "Base2": null, "SD": 1.5 },
+         { "name": "Bimodality",     "n": 50,  "Dist": "Bimodal",      "Base": 10.0, "Step": 1.50, "End": null, "Base2": 15.0, "SD": 1.0 },
+         { "name": "Sensitivity",    "n": 50,  "Dist": "Small Effect", "Base": 10.0, "Step": 0.27, "End": null, "Base2": null, "SD": 2.0 },
+         { "name": "Discrimination", "n": 50,  "Dist": "Large Effect", "Base": 10.0, "Step": 1.50, "End": null, "Base2": null, "SD": 2.0 }
+     ],
+
      "simulation_seed": 123,
      "bootstrap_seed_offset": 1000,
      "scenario_seed_offset": 10000,
      "reference_seed_offset": 5000,
      "reference_step_offset": 1000,
+
      "modes": {
-         "Default": {
-              "thr": { "n": 25, "sm": 3, "st": 3, "tol": 0.01, "start": 100, "step": 100, "end": 10000 },
-              "bca": { "n": 30, "sm": 3, "st": 3, "tol": 0.03, "start": 100, "step": 200, "end": 20000 },
-              "rnk": { "n": 15, "sm": 3, "st": 3, "tol": 0.005, "start": 50, "step": 25, "end": 2500 }
-         },
          "Relaxed": {
-              "bca": { "tol": 0.05 }
+              "thr": { "n": 15, "sm": 2, "st": 2, "tol": 0.01,  "start": 100, "step": 100, "end": 10000 },
+              "bca": { "n": 20, "sm": 2, "st": 2, "tol": 0.03,  "start": 100, "step": 200, "end": 20000 },
+              "rnk": { "n": 10, "sm": 2, "st": 2, "tol": 0.005, "start": 50,  "step": 25,  "end": 2500 }
+         },
+         "Default": {
+              "thr": { "n": 25, "sm": 3, "st": 3, "tol": 0.01,  "start": 100, "step": 100, "end": 10000 },
+              "bca": { "n": 30, "sm": 3, "st": 3, "tol": 0.03,  "start": 100, "step": 200, "end": 20000 },
+              "rnk": { "n": 15, "sm": 3, "st": 3, "tol": 0.005, "start": 50,  "step": 25,  "end": 2500 }
+         },
+         "Strict": {
+              "thr": { "n": 35, "sm": 4, "st": 4, "tol": 0.01,  "start": 100, "step": 100, "end": 10000 },
+              "bca": { "n": 40, "sm": 4, "st": 4, "tol": 0.03,  "start": 100, "step": 200, "end": 20000 },
+              "rnk": { "n": 20, "sm": 4, "st": 4, "tol": 0.005, "start": 50,  "step": 25,  "end": 2500 }
          }
      },
+
      "refs": {
          "thr": 25000,
          "bca": 50000,
@@ -189,14 +235,41 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 }
 ```
 
-* `target_memory`: Overrides the dynamic RAM detection algorithm with a fixed limit (in MB).
-  * **What it means:** It caps the memory footprint allowed per parallel worker during bootstrap batch processing. If the estimated memory for all iterations exceeds this limit, they are automatically split into smaller chunks to prevent out-of-memory errors.
-  * **Default Calculation:** If omitted, HERA automatically detects your system's available RAM to optimize performance. It reserves a safe memory buffer (**25 MB per 1 GB of RAM**, e.g., 400 MB for a 16 GB system) to prevent system overloads and automatically balances the number of simultaneous simulations based on your CPU cores and this memory limit to ensure the analysis runs as fast as possible without crashing.
-* `simulation_seed`: Seeds the main study. Can be locked for strict reproduction (fallback: 123).
-* `bootstrap_seed_offset`: Keeps the internal evaluations structurally independent of the outer iterations (fallback: 1000).
-* `scenario_seed_offset`: Ensures different tested scenarios don't overlap in their RNG seeds. HERA automatically scales this offset based on the number of simulations to ensure each scenario stays in its own unique random sequence.
-* `reference_seed_offset`: Establishes the gap between simulated data generated and reference calculations executed (fallback: 5000).
-* `reference_step_offset`: Ensures that the high-precision reference values for Thresholds, BCa, and Ranking are statistically independent of each other by applying multipliers ($1 \cdot \text{offset}$, $2 \cdot \text{offset}$, $3 \cdot \text{offset}$) to the reference base seed (fallback: 1000).
-* `modes`: You can specify missing details (`Relaxed`, `Default`, `Strict`) specifically for each of the three algorithms (`thr` for Thresholds, `bca` for BCa CI, `rnk` for Ranking), down to single parameters (`start`, `step`, `end`, `sm`, `st`, `tol`). Missing properties will automatically fall back to the package defaults. 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
-* `refs`: Defines the number of bootstrap iterations for the high-precision reference values ("The Truth").
-  * **Default:** Thresholds $25{,}000$, BCa Confidence Intervals $50{,}000$, Ranking Stability $10{,}000$.
+#### Parameter Dictionary
+
+| Category | Parameter | Type | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **Input/Output** | `output_dir` | string | `-` | Path to save results and reports. Empty defaults to `Documents/HERA_convergence_Log`. |
+| **Logic** | `n_sims_per_cond` | int | `15` | Number of simulations per scenario. Higher values (e.g. 50-100) provide more robust statistics but take longer to run. |
+| **Data Scenarios** | `N` | int | `6` | Number of candidates in the scenarios (recommended 3-15, min 2). |
+| | `num_scenarios` | int | `8` | Shortcut to run only the first `X` scenarios (1-8). |
+| | `selected_scenarios` | array | `[1..8]` | Array of specific scenario indices to execute (e.g., `[1, 3, 5]`). |
+| | `scenarios` | array | `[...]` | Array of objects to customize core data scenarios. You can fully customize defaults or only overwrite specific fields. |
+| | `scenarios.name` | string | `-` | Name of the specific scenario. |
+| | `scenarios.n` | int | `-` | True sample size $n$ drawn per dataset (minimum 5). |
+| | `scenarios.Dist` | string | `-` | Probability Distribution (`Normal`, `Skewed`, `Likert`, `Bimodal`, `Small Effect`, `Large Effect`). |
+| | `scenarios.Base` | double | `-` | The starting mean ($\mu_0$) for the first candidate. |
+| | `scenarios.Step` | double | `-` | The mean gap increment ($\mu_{i+1} = \mu_i + \text{Step}$) for scaling datasets dynamically via $N$. Can be `null` if the distribution uses fixed boundaries (e.g., Likert). |
+| | `scenarios.End` | double | `null` | Max value boundary. Usually `null`, except when required by bounded distributions like Likert. |
+| | `scenarios.Base2` | double | `null` | Secondary Mean $\mu_2$. Usually `null`, except when rendering a mixed `Bimodal` distribution layout. |
+| | `scenarios.SD` | double | `-` | Standard Deviation / underlying noise ($\sigma$). |
+| **System** | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers` to utilize all local available cores. |
+| | `system.target_memory` | int/str | `"auto"` | Target memory per chunk (MB). Overrides dynamic RAM detection with fixed limit. Capping the memory footprint per parallel worker prevents out-of-memory errors during batch processing. If `"auto"`, HERA detects available RAM (reserves 25 MB per 1 GB) and automatically balances simultaneous simulations. |
+| **Seeds & RNG** | `simulation_seed` | int | `123` | Seeds the main study. Can be locked for strict reproduction. |
+| | `bootstrap_seed_offset` | int | `1000` | Keeps the internal evaluations structurally independent of the outer iterations. |
+| | `scenario_seed_offset` | int | `10000` | Ensures different tested scenarios don't overlap in their RNG seeds. HERA automatically scales this offset based on the number of simulations. |
+| | `reference_seed_offset` | int | `5000` | Establishes the gap between simulated data generated and reference calculations executed. |
+| | `reference_step_offset` | int | `1000` | Ensures that high-precision references for Thresholds, BCa, and Ranking are statistically independent by applying multipliers ($1 \cdot \text{offset}$, $2 \cdot \text{offset}$, $3 \cdot \text{offset}$) to the reference base seed. |
+| **Convergence Modes** | `modes` | struct | `-` | Specify profiles (`Relaxed`, `Default`, `Strict`). Missing properties fall back to package defaults. Each profile contains sub-objects for algorithms (`thr`, `bca`, `rnk`). |
+| | `modes.[Profile].[Algo].n` | int | `-` | Number of Bootstrap checks per evaluation batch. Default: `15`, `25`, `35` (Thr); `20`, `30`, `40` (BCa); `10`, `15`, `20` (Rnk). |
+| | `modes.[Profile].[Algo].sm` | int | `-` | Smoothing Window: A rolling average to mitigate local bootstrap noise. Defaults match `st`. |
+| | `modes.[Profile].[Algo].st` | int | `-` | Streak parameter: Required consecutive successes within tolerance to achieve convergence. Default: `2`, `3`, `4`. |
+| | `modes.[Profile].[Algo].tol` | double | `-` | Precision Tolerance: Allowed deviation for stability. Default: `0.01` (Thr), `0.03` (BCa), `0.005` (Rnk). |
+| | `modes.[Profile].[Algo].start` | int | `-` | Starting Iterator threshold (Min B). Default: `100` (Thr, BCa), `50` (Rnk). |
+| | `modes.[Profile].[Algo].step` | int | `-` | Step size: Amount of iterations executed between evaluations. Default: `100` (Thr), `200` (BCa), `25` (Rnk). |
+| | `modes.[Profile].[Algo].end` | int | `-` | End limit (Max B): Fallback point if convergence is not reached. Default: `10000` (Thr), `20000` (BCa), `2500` (Rnk). |
+| **References** | `refs.thr` | int | `25000` | Iterations for the high-precision reference values ("The Truth") for Thresholds. |
+| | `refs.bca` | int | `50000` | Iterations for the high-precision reference values for BCa Confidence Intervals. |
+| | `refs.rnk` | int | `10000` | Iterations for the high-precision reference values for Ranking Stability. |
+
+👉 For an in-depth explanation on how exactly `sm`, `st`, `tol` and the iteration limits operate during runtime, see: [Convergence Modes](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes) & [Bootstrap Configuration (Auto-Convergence)](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
