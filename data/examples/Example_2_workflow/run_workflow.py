@@ -117,7 +117,7 @@ class HERAWorkflow:
         """Initializes the workflow with default data and results directories."""
         self.data_dir: Path = DATA_DIR
         self.results_dir: Path = RESULTS_DIR
-        self._hera_package = None
+        self._hera_package: Any = None
 
     def setup_directories(self) -> None:
         """1. Ensures the directory structure exists.
@@ -253,7 +253,7 @@ class HERAWorkflow:
         """
         # 1. Check Environment Variable
         if HERA_DEPLOY_DIR_ENV:
-             custom_path = Path(HERA_DEPLOY_DIR_ENV) / (HERA_EXECUTABLE_NAME_ENV or DEFAULT_EXE_NAME)
+             custom_path = Path(HERA_DEPLOY_DIR_ENV) / str(HERA_EXECUTABLE_NAME_ENV or DEFAULT_EXE_NAME)
              if custom_path.exists():
                  return custom_path
         
@@ -557,8 +557,8 @@ class HERAWorkflow:
         # Sort results by Alpha Descending (High -> Low)
         results.sort(key=lambda x: x["Alpha"], reverse=True)
         # Identify Overlaps
-        to_keep_indices = set()
-        first_overlap_index = -1
+        to_keep_indices: set[int] = set()
+        first_overlap_index: int = -1
         
         for i, res in enumerate(results):
             g_stats = res["Stats"].get("Method G", {})
@@ -668,7 +668,7 @@ class HERAWorkflow:
                 ))
              
             plt.subplots_adjust(bottom=0.25)
-            props = dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            props = {'boxstyle': 'round', 'facecolor': 'wheat', 'alpha': 0.5}
             plt.figtext(0.5, 0.02, textstr, ha='center', fontsize=10, bbox=props)
 
         plt.xlabel("Alpha (%)")
