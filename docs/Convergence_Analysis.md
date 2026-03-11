@@ -67,7 +67,7 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
 * The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with acceptably small deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%, while for Cliff's Delta thresholds, the absolute deviation remained consistently minimal (typically < 0.05).
+* The results confirmed that the Robust Mode produces estimates with negligible deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%. For Cliff's Delta thresholds, the **median absolute deviation remained perfectly at 0**, with the interquartile range (IQR) typically below $0.02$, and 95% of all estimates falling within an absolute deviation of $\pm 0.10$ from the reference.
 * This confirms that the averaged convergence criteria in HERA ensure high precision across all metrics.
 
 ### Global Results Summary
