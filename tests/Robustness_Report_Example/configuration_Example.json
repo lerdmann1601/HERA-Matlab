@@ -1,12 +1,107 @@
 {
   "n_sims_per_cond": 50,
   "output_dir": "",
-  "target_memory": 400,
   "simulation_seed": 123,
   "bootstrap_seed_offset": 1000,
   "scenario_seed_offset": 10000,
   "reference_seed_offset": 5000,
   "reference_step_offset": 1000,
+  "N": 6,
+  "modes": [
+    "Relaxed",
+    "Default",
+    "Strict"
+  ],
+  "scenarios": [
+    {
+      "name": "Baseline-S",
+      "n": 25,
+      "Dist": "Normal",
+      "Base": 10,
+      "Step": 0.75,
+      "End": null,
+      "Base2": null,
+      "SD": 2,
+      "DataSummary": "6 Datasets, Means 10.0-13.8, SD = 2.0"
+    },
+    {
+      "name": "Baseline-M",
+      "n": 50,
+      "Dist": "Normal",
+      "Base": 10,
+      "Step": 0.75,
+      "End": null,
+      "Base2": null,
+      "SD": 2,
+      "DataSummary": "6 Datasets, Means 10.0-13.8, SD = 2.0"
+    },
+    {
+      "name": "Baseline-L",
+      "n": 100,
+      "Dist": "Normal",
+      "Base": 10,
+      "Step": 0.75,
+      "End": null,
+      "Base2": null,
+      "SD": 2,
+      "DataSummary": "6 Datasets, Means 10.0-13.8, SD = 2.0"
+    },
+    {
+      "name": "Skewness",
+      "n": 50,
+      "Dist": "Skewed",
+      "Base": 2,
+      "Step": 0.1,
+      "End": null,
+      "Base2": null,
+      "SD": 0.4,
+      "DataSummary": "6 Datasets, Means 2.0-2.5 (Log), SD = 0.4 (Log)"
+    },
+    {
+      "name": "Quantization",
+      "n": 50,
+      "Dist": "Likert",
+      "Base": 3,
+      "Step": null,
+      "End": 5,
+      "Base2": null,
+      "SD": 1.5,
+      "DataSummary": "6 Datasets, Scale 1-7, Means 3.0-5.0, SD = 1.5"
+    },
+    {
+      "name": "Bimodality",
+      "n": 50,
+      "Dist": "Bimodal",
+      "Base": 10,
+      "Step": 1.5,
+      "End": null,
+      "Base2": 15,
+      "SD": 1,
+      "DataSummary": "6 Datasets, Mix Means 10.0 & 15.0, Mode SD = 1.0"
+    },
+    {
+      "name": "Sensitivity",
+      "n": 50,
+      "Dist": "Small Effect",
+      "Base": 10,
+      "Step": 0.27,
+      "End": null,
+      "Base2": null,
+      "SD": 2,
+      "DataSummary": "6 Datasets, Means 10.0-11.3, SD = 2.0"
+    },
+    {
+      "name": "Discrimination",
+      "n": 50,
+      "Dist": "Large Effect",
+      "Base": 10,
+      "Step": 1.5,
+      "End": null,
+      "Base2": null,
+      "SD": 2,
+      "DataSummary": "6 Datasets, Means 10.0-17.5, SD = 2.0"
+    }
+  ],
   "refs": {
     "thr": 25000,
     "bca": 50000,
