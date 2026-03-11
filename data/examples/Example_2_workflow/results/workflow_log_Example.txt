@@ -1,4 +1,4 @@
-[Info] Logging started. Output saved to: /HERA-Matlab/data/examples/Example_2_workflow/results/workflow_log_20251223_144445.txt
+[Info] Logging started. Output saved to: /HERA-Matlab/data/examples/Example_2_workflow/results/workflow_log_Example.txt
 
 --- Starting Processing Loop ---
  -> Running HERA using: HERA-Matlab/deploy/output/run_HERA_Runtime.sh
