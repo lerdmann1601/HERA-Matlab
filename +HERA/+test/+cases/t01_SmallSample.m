@@ -1,4 +1,4 @@
-function passed = t01_SmallSample(default_config, thresholds, ~, ~, ~)
+function passed = t01_SmallSample(default_config, thresholds, ~, ~, lang)
 % T01_SMALLSAMPLE - Test Case 1: Small Sample Size Boundary (Exact Wilcoxon N=10)
 %
 % Description:
@@ -52,7 +52,7 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, ~)
     
     try
         % Run Ranking calculation for just this data with full output (suppress internal logs)
-        [~] = evalc('[final_order, ~, all_sig, ~, p_vals_small] = calculate_ranking({data_small}, eff_small, thresholds, config, {''A'',''B''}, [1 2]);');
+        [~] = evalc('[final_order, ~, all_sig, ~, p_vals_small] = calculate_ranking({data_small}, eff_small, thresholds, config, {''A'',''B''}, [1 2], lang);');
         p_val = p_vals_small{1}(1,2);
         
         % --- Assertion 1: P-Value is Valid ---

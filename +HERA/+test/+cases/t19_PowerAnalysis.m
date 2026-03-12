@@ -53,7 +53,7 @@ function passed = t19_PowerAnalysis(default_config, thresholds, ~, ~, lang)
     eff_pwr = TestHelper.calculate_real_effects(all_data_pwr, 1);
     
     % Calculate Alpha Matrices first (needed as input for power_analysis)
-    [~, ~, ~, all_alphas_pwr, ~] = calculate_ranking(all_data_pwr, eff_pwr, thresholds, config_pwr, ds_names_pwr, pairs_pwr);
+    [~, ~, ~, all_alphas_pwr, ~] = calculate_ranking(all_data_pwr, eff_pwr, thresholds, config_pwr, ds_names_pwr, pairs_pwr, lang);
     
     % Simulation Settings
     n_sims = 100; % Low number for unit test speed
