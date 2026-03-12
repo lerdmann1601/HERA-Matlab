@@ -239,15 +239,35 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         % Scientific Parameters (Data Scenarios & Methods)
         cfg_out.N = N;
         cfg_out.selected_methods = cfg_base.system.selected_methods;
-        cfg_out.modes = modes;
+        cfg_out.selected_modes = modes;
         cfg_out.scenarios = scenarios;
         cfg_out.refs = refs;
-        cfg_out.params = params; % Store the Relaxed, Default, Strict settings
+        
+        % Reconstruct full 'modes' dict for clean JSON export
+        cfg_out_modes = struct();
+        for m_idx = 1:length(modes)
+            m_name = modes{m_idx};
+            m_struct = struct();
+            if isfield(params, 'thr') && length(params.thr) >= m_idx
+                m_struct.thr = params.thr{m_idx};
+            end
+            if isfield(params, 'bca') && length(params.bca) >= m_idx
+                m_struct.bca = params.bca{m_idx};
+            end
+            if isfield(params, 'rnk') && length(params.rnk) >= m_idx
+                m_struct.rnk = params.rnk{m_idx};
+            end
+            cfg_out_modes.(m_name) = m_struct;
+        end
+        cfg_out.modes = cfg_out_modes;
         
         if exist('customConfig', 'var') && isstruct(customConfig)
             % Ensure we don't duplicate existing top-level fields
             fnames = fieldnames(customConfig);
             for i=1:length(fnames)
+                if ismember(fnames{i}, {'selected_modes', 'modes', 'params'})
+                    continue; % Prevent rewriting the dynamically generated fields
+                end
                 cfg_out.(fnames{i}) = customConfig.(fnames{i});
             end
         end

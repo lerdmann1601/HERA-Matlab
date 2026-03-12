@@ -190,6 +190,7 @@ Parameters inside `system` must be nested correctly as shown.
 
      "N": 6,
      "selected_methods": ["thr", "bca", "rnk"],
+     "selected_modes": ["Relaxed", "Default", "Strict"],
      "num_scenarios": 8,
      "selected_scenarios": [1, 2, 3, 4, 5, 6, 7, 8],
      "scenarios": [
@@ -243,6 +244,7 @@ Parameters inside `system` must be nested correctly as shown.
 | **Input/Output** | `output_dir` | string | `-` | Path to save results and reports. Empty defaults to `Documents/HERA_convergence_Log`. |
 | **Logic** | `n_sims_per_cond` | int | `15` | Number of simulations per scenario. Higher values (e.g. 50-100) provide more robust statistics but take longer to run. |
 | | `selected_methods` | array | `["thr", "bca", "rnk"]` | Array of strings specifying which components to validate. Any combination of `"thr"`, `"bca"`, `"rnk"`. *(Note: Thresholds are always calculated internally to provide underlying baseline references for BCa and Ranking)*. |
+| | `selected_modes` | array | `["Relaxed", "Default", "Strict"]` | Array of strings specifying which bootstrap convergence parameter profiles to evaluate. Any combination of `"Relaxed"`, `"Default"`, `"Strict"`. |
 | **Data Scenarios** | `N` | int | `6` | Number of candidates in the scenarios (recommended 3-15, min 2). |
 | | `num_scenarios` | int | `8` | Shortcut to run only the first `X` scenarios (1-8). |
 | | `selected_scenarios` | array | `[1..8]` | Array of specific scenario indices to execute (e.g., `[1, 3, 5]`). |

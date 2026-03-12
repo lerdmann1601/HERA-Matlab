@@ -7,7 +7,12 @@
   "reference_seed_offset": 5000,
   "reference_step_offset": 1000,
   "N": 6,
-  "modes": [
+  "selected_methods": [
+    "thr",
+    "bca",
+    "rnk"
+  ],
+  "selected_modes": [
     "Relaxed",
     "Default",
     "Strict"
@@ -107,9 +112,9 @@
     "bca": 50000,
     "rnk": 10000
   },
-  "params": {
-    "thr": [
-      {
+  "modes": {
+    "Relaxed": {
+      "thr": {
         "n": 15,
         "sm": 2,
         "st": 2,
@@ -118,7 +123,27 @@
         "step": 100,
         "end": 10000
       },
-      {
+      "bca": {
+        "n": 20,
+        "sm": 2,
+        "st": 2,
+        "tol": 0.03,
+        "start": 100,
+        "step": 200,
+        "end": 20000
+      },
+      "rnk": {
+        "n": 10,
+        "sm": 2,
+        "st": 2,
+        "tol": 0.005,
+        "start": 50,
+        "step": 25,
+        "end": 2500
+      }
+    },
+    "Default": {
+      "thr": {
         "n": 25,
         "sm": 3,
         "st": 3,
@@ -127,27 +152,7 @@
         "step": 100,
         "end": 10000
       },
-      {
-        "n": 35,
-        "sm": 4,
-        "st": 4,
-        "tol": 0.01,
-        "start": 100,
-        "step": 100,
-        "end": 10000
-      }
-    ],
-    "bca": [
-      {
-        "n": 20,
-        "sm": 2,
-        "st": 2,
-        "tol": 0.03,
-        "start": 100,
-        "step": 200,
-        "end": 20000
-      },
-      {
+      "bca": {
         "n": 30,
         "sm": 3,
         "st": 3,
@@ -156,27 +161,7 @@
         "step": 200,
         "end": 20000
       },
-      {
-        "n": 40,
-        "sm": 4,
-        "st": 4,
-        "tol": 0.03,
-        "start": 100,
-        "step": 200,
-        "end": 20000
-      }
-    ],
-    "rnk": [
-      {
-        "n": 10,
-        "sm": 2,
-        "st": 2,
-        "tol": 0.005,
-        "start": 50,
-        "step": 25,
-        "end": 2500
-      },
-      {
+      "rnk": {
         "n": 15,
         "sm": 3,
         "st": 3,
@@ -184,8 +169,28 @@
         "start": 50,
         "step": 25,
         "end": 2500
+      }
+    },
+    "Strict": {
+      "thr": {
+        "n": 35,
+        "sm": 4,
+        "st": 4,
+        "tol": 0.01,
+        "start": 100,
+        "step": 100,
+        "end": 10000
       },
-      {
+      "bca": {
+        "n": 40,
+        "sm": 4,
+        "st": 4,
+        "tol": 0.03,
+        "start": 100,
+        "step": 200,
+        "end": 20000
+      },
+      "rnk": {
         "n": 20,
         "sm": 4,
         "st": 4,
@@ -194,6 +199,6 @@
         "step": 25,
         "end": 2500
       }
-    ]
+    }
   }
 }

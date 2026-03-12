@@ -180,11 +180,12 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         end
         
         yline(0, '--k', 'LineWidth', 1.2, 'HandleVisibility', 'off');
-        for m = 1:3
+        num_modes = length(modes);
+        for m = 1:num_modes
              boxchart(m * ones(size(d_plot,1),1), d_plot(:,m), 'BoxFaceColor', colors(m,:), ...
                  'BoxEdgeColor', 'k', 'WhiskerLineColor', 'k', 'MarkerStyle', '.', 'MarkerColor', 'k', 'BoxFaceAlpha', 0.6);
         end
-        xticks(1:3); xticklabels(modes);
+        xticks(1:num_modes); xticklabels(modes);
         ylabel(label_str, 'FontWeight', 'bold', 'Color', 'k');
         title('Error Distribution', 'Color', 'k', 'FontSize', 12);
         ylim([-y_err_max, y_err_max]);
@@ -197,11 +198,15 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         elseif n_points < 200, sz = 15; alpha_val = 0.6;
         else, sz = 8;  alpha_val = 0.4;
         end
-        h_sc = gobjects(1,3);
+        num_modes = length(modes);
+        h_sc = gobjects(1,num_modes);
         % Small horizontal offset to prevent overlapping points from hiding each other
         % Y-values stay unchanged to accurately represent the actual error
-        jitter_offset = [-0.15, 0, 0.15];  % Relaxed left, Default center, Strict right
-        for m = 1:3
+        if num_modes == 1, jitter_offset = 0;
+        elseif num_modes == 2, jitter_offset = [-0.15, 0.15];
+        else, jitter_offset = [-0.15, 0, 0.15]; end % Relaxed left, Default center, Strict right
+        
+        for m = 1:num_modes
             x_jittered = (1:n_points) + jitter_offset(m);
             h_sc(m) = scatter(x_jittered, d_plot(:,m), sz, colors(m,:), 'filled', ...
                 'MarkerFaceAlpha', alpha_val, 'MarkerEdgeColor', 'none', 'DisplayName', modes{m});
@@ -217,11 +222,11 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         
         % 3. Computational Cost (Boxplot)
         nexttile; hold on;
-        for m = 1:3
+        for m = 1:num_modes
             boxchart(m * ones(size(d_val.cost,1),1), d_val.cost(:,m), 'BoxFaceColor', colors(m,:), ...
                  'BoxEdgeColor', 'k', 'WhiskerLineColor', 'k', 'MarkerStyle', '+', 'MarkerColor', 'k', 'BoxFaceAlpha', 0.6);
         end
-        xticks(1:3); xticklabels(modes);
+        xticks(1:num_modes); xticklabels(modes);
         ylabel('Bootstrap Steps (B)', 'FontWeight', 'bold', 'Color', 'k');
         title('Computational Cost', 'Color', 'k', 'FontSize', 12);
         max_cost = max(d_val.cost(:), [], 'all', 'omitnan');
@@ -232,7 +237,12 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         % 4. Failure Rate (Bar)
         nexttile;
         fail_rate = mean(d_val.fail, 1) * 100;
-        b = bar(fail_rate, 'FaceColor', 'flat'); b.CData = colors;
+        b = bar(1:num_modes, fail_rate(:)', 'FaceColor', 'flat'); 
+        if num_modes == 1
+            b.FaceColor = colors(1, :); 
+        else
+            b.CData = colors;
+        end
         xticklabels(modes);
         ylabel('Failure Rate (%)', 'FontWeight', 'bold', 'Color', 'k');
         title(sprintf('Convergence Failures (Limit: %d)', limit_B), 'Color', 'k', 'FontSize', 12);

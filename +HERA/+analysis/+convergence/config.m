@@ -59,7 +59,19 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         error('HERA:Analysis:InvalidConfig', 'N must be at least 2 (minimum one pair required). Provided N = %d.', N);
     end
     
-    modes = {'Relaxed', 'Default', 'Strict'};
+    full_modes = {'Relaxed', 'Default', 'Strict'};
+    
+    selected_modes = full_modes;
+    if isfield(customConfig, 'selected_modes') && (iscellstr(customConfig.selected_modes) || isstring(customConfig.selected_modes))
+        input_modes = cellstr(customConfig.selected_modes);
+        for idx = 1:length(input_modes)
+            if ~ismember(input_modes{idx}, full_modes)
+                error('HERA:Analysis:InvalidConfig', 'Invalid mode "%s" in selected_modes. Must be a combination of "Relaxed", "Default", "Strict".', input_modes{idx});
+            end
+        end
+        selected_modes = input_modes;
+    end
+    modes = full_modes; % Initially all modes, filtered at the end
     
     selected_methods = {'thr', 'bca', 'rnk'};
     if isfield(customConfig, 'selected_methods') && (iscellstr(customConfig.selected_methods) || isstring(customConfig.selected_methods))
@@ -346,12 +358,27 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     validate_convergence_params(p_bca, 'BCa');
     validate_convergence_params(p_rank, 'Ranking');
     
-    % Upper limits for visualization (max across all modes, re-evaluating in case it changed)
-    limits.thr = max(cellfun(@(x) x.end, p_thr));
-    limits.bca = max(cellfun(@(x) x.end, p_bca));
-    limits.rnk = max(cellfun(@(x) x.end, p_rank));
+    % Subset modes and parameters according to selected_modes
+    mode_indices = find(ismember(full_modes, selected_modes));
+    modes = full_modes(mode_indices); % Ensure correct output format and order
     
-    colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4]; 
+    if ismember('thr', selected_methods), p_thr = p_thr(mode_indices); end
+    if ismember('bca', selected_methods), p_bca = p_bca(mode_indices); end
+    if ismember('rnk', selected_methods), p_rank = p_rank(mode_indices); end
+    
+    % Update params struct with subset arrays
+    if ismember('thr', selected_methods), params.thr = p_thr; end
+    if ismember('bca', selected_methods), params.bca = p_bca; end
+    if ismember('rnk', selected_methods), params.rnk = p_rank; end
+    
+    % Upper limits for visualization (max across all modes, re-evaluating in case it changed)
+    limits = struct();
+    if ismember('thr', selected_methods), limits.thr = max(cellfun(@(x) x.end, p_thr)); else, limits.thr = NaN; end
+    if ismember('bca', selected_methods), limits.bca = max(cellfun(@(x) x.end, p_bca)); else, limits.bca = NaN; end
+    if ismember('rnk', selected_methods), limits.rnk = max(cellfun(@(x) x.end, p_rank)); else, limits.rnk = NaN; end
+    
+    full_colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4]; 
+    colors = full_colors(mode_indices, :);
 end
 
 function validate_convergence_params(p_cells, method_label)

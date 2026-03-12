@@ -651,7 +651,8 @@ function scenario_res = assign_result(scenario_res, sc_idx, ret_method_id, ret_s
     end
     
     % Store scenario-wide constant metadata (once per simulation)
-    if ret_method_id == 1 % arbitrary choice
+    % Only assign if it hasn't been set yet (eff_all initialized as zeros)
+    if scenario_res(sc_idx).eff_all(ret_s_idx) == 0
         i_in_batch = ret_s_idx - batch_start + 1;
         scenario_res(sc_idx).eff_all(ret_s_idx) = sim_data_batch{i_in_batch}.eff_median;
     end
