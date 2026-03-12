@@ -61,6 +61,18 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     
     modes = {'Relaxed', 'Default', 'Strict'};
     
+    selected_methods = {'thr', 'bca', 'rnk'};
+    if isfield(customConfig, 'selected_methods') && (iscellstr(customConfig.selected_methods) || isstring(customConfig.selected_methods))
+        valid_methods = {'thr', 'bca', 'rnk'};
+        input_methods = cellstr(customConfig.selected_methods);
+        for idx = 1:length(input_methods)
+            if ~ismember(input_methods{idx}, valid_methods)
+                error('HERA:Analysis:InvalidConfig', 'Invalid method "%s" in selected_methods. Must be a combination of "thr", "bca", "rnk".', input_methods{idx});
+            end
+        end
+        selected_methods = input_methods;
+    end
+    
     %% 2. Data Scenarios
     % Define the 8 core scenarios with their scaling logic defaults.
     % Base: Starting mean/offset, Step: Gap between means, SD: Noise.
@@ -188,7 +200,10 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     p_rank{2} = struct('n', 15, 'sm', 3, 'st', 3, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2500);
     p_rank{3} = struct('n', 20, 'sm', 4, 'st', 4, 'tol', 0.005, 'start', 50, 'step', 25, 'end', 2500); 
     
-    params.thr = p_thr; params.bca = p_bca; params.rnk = p_rank;
+    params = struct();
+    if ismember('thr', selected_methods), params.thr = p_thr; end
+    if ismember('bca', selected_methods), params.bca = p_bca; end
+    if ismember('rnk', selected_methods), params.rnk = p_rank; end
 
     % Reference settings (High B values for "Truth")
     ref_B_thr = 25000; ref_B_bca = 50000; ref_B_rnk = 10000;
@@ -248,10 +263,11 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         fprintf('Error in RAM detection. Using fallback: %d MB.\n', target_mem);
     end
     if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
-        target_mem = customConfig.target_memory;
-        fprintf('Overriding memory via Config: %d MB.\n', target_mem);
+        target_memory = customConfig.target_memory;
+        fprintf('Overriding memory via Config: %d MB.\n', target_memory);
     end
     cfg_base.system.target_memory = target_mem;
+    cfg_base.system.selected_methods = selected_methods;
     
     cfg_base.simulation_seed = 123;
     if isfield(customConfig, 'simulation_seed') && isnumeric(customConfig.simulation_seed)
@@ -319,8 +335,10 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
                 end
             end
         end
-        % Re-assign to params
-        params.thr = p_thr; params.bca = p_bca; params.rnk = p_rank;
+        % Re-assign to params based on selected_methods
+        if ismember('thr', selected_methods), params.thr = p_thr; end
+        if ismember('bca', selected_methods), params.bca = p_bca; end
+        if ismember('rnk', selected_methods), params.rnk = p_rank; end
     end
     
     % Validate parameter ranges (after all overrides applied)

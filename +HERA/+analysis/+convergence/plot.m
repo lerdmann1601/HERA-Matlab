@@ -109,11 +109,16 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
     % Generates a 2x2 summary tiled layout for a specific dataset/scenario.
     % Layout: Error (Boxplot), Deviation (Scatter), Cost (Boxplot), Failure (Bar).
     
-    metrics = { ...
-        'Thresholds (Delta)', data.thr, 'Error (Abs)',   'Thresholds', refs.thr, limits.thr; ...
-        'BCa CI (Width)',     data.bca, 'Width Dev (%)', 'BCa',      refs.bca, limits.bca; ...
-        'Ranking (Mean)',     data.rnk, 'Rank Dev (%)',  'Ranking',  refs.rnk, limits.rnk ...
-    };
+    metrics = cell(0, 6);
+    if ~all(isnan(data.thr.err(:)))
+        metrics(end+1, :) = {'Thresholds (Delta)', data.thr, 'Error (Abs)',   'Thresholds', refs.thr, limits.thr};
+    end
+    if ~all(isnan(data.bca.err(:)))
+        metrics(end+1, :) = {'BCa CI (Width)',     data.bca, 'Width Dev (%)', 'BCa',      refs.bca, limits.bca};
+    end
+    if ~all(isnan(data.rnk.err(:)))
+        metrics(end+1, :) = {'Ranking (Mean)',     data.rnk, 'Rank Dev (%)',  'Ranking',  refs.rnk, limits.rnk};
+    end
     if ~iscell(pdf_paths), pdf_paths = {pdf_paths}; end
 
     for i = 1:size(metrics, 1)
@@ -345,9 +350,9 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     
     % Helper to check param values
     check_p = @(p) check_param_struct_len(p);
-    max_val = max(max_val, check_p(params.thr));
-    max_val = max(max_val, check_p(params.bca));
-    max_val = max(max_val, check_p(params.rnk));
+    if isfield(params, 'thr'), max_val = max(max_val, check_p(params.thr)); end
+    if isfield(params, 'bca'), max_val = max(max_val, check_p(params.bca)); end
+    if isfield(params, 'rnk'), max_val = max(max_val, check_p(params.rnk)); end
     
     col_w = max(min_col, max_val * char_w + pad);
     num_modes = length(modes);
@@ -375,11 +380,17 @@ function plot_parameter_overview(params, scenarios, modes, refs, out_path, ts_st
     end
     plot([x_start, x_start + total_w], [y_curr - 0.015, y_curr - 0.015], 'k-', 'LineWidth', 1.5);
     y_curr = y_curr - 0.035;  
-    y_curr = draw_param_section_clean('1. Bootstrap Thresholds', params.thr, y_curr, x_start, col_lbl_w, col_w);
-    y_curr = y_curr - 0.005; 
-    y_curr = draw_param_section_clean('2. BCa Confidence Intervals', params.bca, y_curr, x_start, col_lbl_w, col_w);
-    y_curr = y_curr - 0.005;
-    y_curr = draw_param_section_clean('3. Ranking Stability', params.rnk, y_curr, x_start, col_lbl_w, col_w);
+    if isfield(params, 'thr')
+        y_curr = draw_param_section_clean('1. Bootstrap Thresholds', params.thr, y_curr, x_start, col_lbl_w, col_w);
+        y_curr = y_curr - 0.005; 
+    end
+    if isfield(params, 'bca')
+        y_curr = draw_param_section_clean('2. BCa Confidence Intervals', params.bca, y_curr, x_start, col_lbl_w, col_w);
+        y_curr = y_curr - 0.005;
+    end
+    if isfield(params, 'rnk')
+        y_curr = draw_param_section_clean('3. Ranking Stability', params.rnk, y_curr, x_start, col_lbl_w, col_w);
+    end
     
     % Force MATLAB to compute the final layout before saving.
     set(f2, 'Units', 'pixels');

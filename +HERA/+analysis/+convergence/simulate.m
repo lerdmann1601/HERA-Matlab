@@ -56,7 +56,15 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
 % Author: Lukas von Erdmannsdorff
 
     %% Main Execution Loop
-    num_modes = length(params.thr);
+    if isfield(params, 'thr')
+        num_modes = length(params.thr);
+    elseif isfield(params, 'bca')
+        num_modes = length(params.bca);
+    elseif isfield(params, 'rnk')
+        num_modes = length(params.rnk);
+    else
+        num_modes = 3;
+    end
     
     % Memory configuration
     if isfield(cfg_base, 'system') && isfield(cfg_base.system, 'target_memory')
@@ -106,7 +114,11 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                           length(scenarios), 1);
                       
     % Global Progress Tracking
-    total_tests_global = length(scenarios) * n_sims_per_cond * 3 * num_modes;
+    num_selected_global = 0;
+    if isfield(params, 'thr'), num_selected_global = num_selected_global + 1; end
+    if isfield(params, 'bca'), num_selected_global = num_selected_global + 1; end
+    if isfield(params, 'rnk'), num_selected_global = num_selected_global + 1; end
+    total_tests_global = length(scenarios) * n_sims_per_cond * num_selected_global * num_modes;
     global_tests_completed = 0;
 
     % Loop over Scenarios
@@ -128,7 +140,9 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
         % Determine peak B-value from parameters for realistic RAM estimation
         max_B = 0;
         for m_cfg = 1:num_modes
-            max_B = max([max_B, params.thr{m_cfg}.end, params.bca{m_cfg}.end, params.rnk{m_cfg}.end]);
+            if isfield(params, 'thr'), max_B = max(max_B, params.thr{m_cfg}.end); end
+            if isfield(params, 'bca'), max_B = max(max_B, params.bca{m_cfg}.end); end
+            if isfield(params, 'rnk'), max_B = max(max_B, params.rnk{m_cfg}.end); end
         end
         if isfield(refs, 'bca') && isnumeric(refs.bca), max_B = max(max_B, refs.bca); end
         if isfield(refs, 'thr') && isnumeric(refs.thr), max_B = max(max_B, refs.thr); end
@@ -187,7 +201,11 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % saturate the worker pool with individual tasks much longer than for Refs. 
             % Threshold: Only use Tail Mode (Strategy B) if the total number of sub-tasks 
             % in the batch is smaller than the available worker pool.
-            total_batch_tests = num_in_batch * 3 * num_modes;
+            num_selected = 0;
+            if isfield(params, 'thr'), num_selected = num_selected + 1; end
+            if isfield(params, 'bca'), num_selected = num_selected + 1; end
+            if isfield(params, 'rnk'), num_selected = num_selected + 1; end
+            total_batch_tests = num_in_batch * num_selected * num_modes;
             use_parallel_tests = (total_batch_tests >= num_workers);
             
                 if use_parallel_prep
@@ -230,38 +248,44 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                 % Final complexity order: Method-Major (BCa > Ranking > Thresholds) ensures full core utilization.
                 
                 % 1. BCa (Method ID = 2) - Most expensive
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Strip unused variables prior to parfeval
-                        task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
-                        pp = map_params(params.bca{m});
-                        futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                if isfield(params, 'bca')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Strip unused variables prior to parfeval
+                            task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
+                            pp = map_params(params.bca{m});
+                            futures(end+1) = parfeval(@run_single_test, 6, ...
+                                s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                        end
                     end
                 end
                 
                 % 2. Ranking (Method ID = 3) - Medium expense
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Strip large matrices not needed for ranking
-                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
-                        pp = map_params(params.rnk{m});
-                        futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                if isfield(params, 'rnk')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Strip large matrices not needed for ranking
+                            task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
+                            pp = map_params(params.rnk{m});
+                            futures(end+1) = parfeval(@run_single_test, 6, ...
+                                s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                        end
                     end
                 end
                 
                 % 3. Thresholds (Method ID = 1) - Least expensive
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Retain core data only for thresholds
-                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
-                        pp = map_params(params.thr{m});
-                        futures(end+1) = parfeval(@run_single_test, 6, ...
-                            s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N); 
+                if isfield(params, 'thr')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Retain core data only for thresholds
+                            task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
+                            pp = map_params(params.thr{m});
+                            futures(end+1) = parfeval(@run_single_test, 6, ...
+                                s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N); 
+                        end
                     end
                 end
                 
@@ -277,59 +301,65 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                     
                     tests_done_batch = tests_done_batch + 1;
                     global_tests_completed = global_tests_completed + 1;
-                    update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond);
+                    update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond, num_selected);
                 end
             else
                 % Strategy B: Fine-Grained (Low Saturation / Tail Processing)
                 % Execute simulation loops serially on the client to enable internal parfor 
                 % in BCa/Ranking to saturate the pool. 
                 fprintf(' [Tail Mode: Serial Outer Loop (%d sim(s) across %d workers)] ', num_in_batch, num_workers);
-                tests_in_batch = num_in_batch * 3 * num_modes;
+                tests_in_batch = total_batch_tests;
                 tests_done_batch = 0;
                 
                 % Method-Major scheduling consistency (BCa -> Ranking -> Thresholds)
                 % 1. BCa (Method ID = 2) - Most expensive
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Strip unused variables prior to parfeval
-                        task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
-                        pp = map_params(params.bca{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
-                        scenario_res = assign_result(scenario_res, sc_idx, 2, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
-                        tests_done_batch = tests_done_batch + 1;
-                        global_tests_completed = global_tests_completed + 1;
-                        update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond);
+                if isfield(params, 'bca')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Strip unused variables prior to parfeval
+                            task_sd = rmfield(sim_data_batch{i}, {'ref_thr_struct', 'ds_names', 'base_rank', 'ref_thr_d', 'ref_rnk_mean'});
+                            pp = map_params(params.bca{m});
+                            [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 2, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                            scenario_res = assign_result(scenario_res, sc_idx, 2, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
+                            tests_done_batch = tests_done_batch + 1;
+                            global_tests_completed = global_tests_completed + 1;
+                            update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond, num_selected);
+                        end
                     end
                 end
                 
                 % 2. Ranking (Method ID = 3) - Medium expense
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Strip large matrices not needed for ranking
-                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
-                        pp = map_params(params.rnk{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
-                        scenario_res = assign_result(scenario_res, sc_idx, 3, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
-                        tests_done_batch = tests_done_batch + 1;
-                        global_tests_completed = global_tests_completed + 1;
-                        update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond);
+                if isfield(params, 'rnk')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Strip large matrices not needed for ranking
+                            task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'ref_thr_d', 'ref_bca_width'});
+                            pp = map_params(params.rnk{m});
+                            [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 3, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                            scenario_res = assign_result(scenario_res, sc_idx, 3, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
+                            tests_done_batch = tests_done_batch + 1;
+                            global_tests_completed = global_tests_completed + 1;
+                            update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond, num_selected);
+                        end
                     end
                 end
                 
                 % 3. Thresholds (Method ID = 1) - Least expensive
-                for m = num_modes:-1:1
-                    for i = 1:num_in_batch
-                        s_idx = batch_sims(i);
-                        % Minimize IPC overhead: Retain core data only for thresholds
-                        task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
-                        pp = map_params(params.thr{m});
-                        [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
-                        scenario_res = assign_result(scenario_res, sc_idx, 1, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
-                        tests_done_batch = tests_done_batch + 1;
-                        global_tests_completed = global_tests_completed + 1;
-                        update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond);
+                if isfield(params, 'thr')
+                    for m = num_modes:-1:1
+                        for i = 1:num_in_batch
+                            s_idx = batch_sims(i);
+                            % Minimize IPC overhead: Retain core data only for thresholds
+                            task_sd = rmfield(sim_data_batch{i}, {'d_vals_all', 'rel_vals_all', 'p_idx', 'ds_names', 'base_rank', 'ref_thr_struct', 'ref_bca_width', 'ref_rnk_mean'});
+                            pp = map_params(params.thr{m});
+                            [~, ~, ~, ret_val, ret_cost, ret_fail] = run_single_test(s_idx, m, 1, task_sd, pp, sc.n, cfg_base, temp_dir, styles, lang, N);
+                            scenario_res = assign_result(scenario_res, sc_idx, 1, s_idx, m, ret_val, ret_cost, ret_fail, sim_data_batch, batch_start);
+                            tests_done_batch = tests_done_batch + 1;
+                            global_tests_completed = global_tests_completed + 1;
+                            update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond, num_selected);
+                        end
                     end
                 end
             end
@@ -339,7 +369,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
             % 3. Cleanup & Report
             % Close graphics (excluding waitbar)
             all_figs = findall(0, 'Type', 'figure');
-            if isvalid(hWait)
+            if isscalar(hWait) && isgraphics(hWait) && isvalid(hWait)
                 all_figs(all_figs == hWait) = [];
             end
             close(all_figs);
@@ -455,7 +485,7 @@ end
 
 function s = init_storage(n, num_modes)
     if nargin < 2, num_modes = 3; end
-    s.err = zeros(n, num_modes); s.cost = zeros(n, num_modes); s.fail = false(n, num_modes); 
+    s.err = NaN(n, num_modes); s.cost = NaN(n, num_modes); s.fail = false(n, num_modes); 
 end
 
 function d_all = generate_data_vectorized(sc, stream, N)
@@ -555,34 +585,42 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     
     % Ref: BCa (Internal parfor activates if called from client thread)
     ref_seed_bca = ref_seed + 2 * reference_step_offset;
-    refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_bca);
-    if isstruct(refs.bca)
-        c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
-        man_bca = [];
-    else
-        c_ref_bca = cfg_base; man_bca = refs.bca;
-    end
-    [~, ref_ci_d, ~, ~, ~, ~, ~, ~, h1, h2, h3, h4, h5] = HERA.calculate_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.n, ...
-        c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
+    if isfield(cfg_base.system, 'selected_methods') && ismember('bca', cfg_base.system.selected_methods)
+        refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_bca);
+        if isstruct(refs.bca)
+            c_ref_bca = cfg_base; c_ref_bca.bootstrap_ci = map_params(refs.bca);
+            man_bca = [];
+        else
+            c_ref_bca = cfg_base; man_bca = refs.bca;
+        end
+        [~, ref_ci_d, ~, ~, ~, ~, ~, ~, h1, h2, h3, h4, h5] = HERA.calculate_bca_ci(all_data, d_vals_all, rel_vals_all, p_idx_sim, sc.n, ...
+            c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
 
-    % Memory Management
-    close([h1(:); h2(:); h3(:); h4(:); h5(:)]);
+        % Memory Management
+        close([h1(:); h2(:); h3(:); h4(:); h5(:)]);
+    else
+        ref_ci_d = [0 0];
+    end
 
     % Ref: Ranking
     [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim, lang);
     ref_seed_rnk = ref_seed + 3 * reference_step_offset;
-    refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
-    if isstruct(refs.rnk)
-        c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
-        man_rnk = [];
-    else
-        c_ref_rnk = cfg_base; man_rnk = refs.rnk;
-    end
-    [boot_r_ref, ~, ~, h1, h2] = HERA.bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.n, ...
-        worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
+    if isfield(cfg_base.system, 'selected_methods') && ismember('rnk', cfg_base.system.selected_methods)
+        refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
+        if isstruct(refs.rnk)
+            c_ref_rnk = cfg_base; c_ref_rnk.bootstrap_ranks = map_params(refs.rnk);
+            man_rnk = [];
+        else
+            c_ref_rnk = cfg_base; man_rnk = refs.rnk;
+        end
+        [boot_r_ref, ~, ~, h1, h2] = HERA.bootstrap_ranking(all_data, ref_thr_struct, c_ref_rnk, ds_names, base_rank, p_idx_sim, sc.n, ...
+            worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
 
-    % Memory Management
-    close([h1(:); h2(:)]);
+        % Memory Management
+        close([h1(:); h2(:)]);
+    else
+        boot_r_ref = [0 0; 0 0];
+    end
     
     % Store Package
     sim_entry = struct(...
@@ -619,16 +657,20 @@ function scenario_res = assign_result(scenario_res, sc_idx, ret_method_id, ret_s
     end
 end
 
-function update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond)
+function update_progress(hWait, scenarios, sc, sc_idx, batch_start, batch_end, tests_done_batch, tests_in_batch, global_tests_completed, total_tests_global, num_modes, n_sims_per_cond, num_selected)
     % Updates the global waitbar and console info
-    if ~isvalid(hWait), return; end
+    if isempty(hWait) || ~isgraphics(hWait) || ~isvalid(hWait), return; end
+    
+    if nargin < 13
+        num_selected = 3;
+    end
     
     global_pct = global_tests_completed / total_tests_global;
     if global_pct >= 1 && tests_done_batch < tests_in_batch
         global_pct = 0.99;
     end
     
-    tests_per_sim = 3 * num_modes;
+    tests_per_sim = num_selected * num_modes;
     total_tests_in_scenario = n_sims_per_cond * tests_per_sim;
     tests_done_in_scenario = (batch_start - 1) * tests_per_sim + tests_done_batch;
     sims_done_in_scenario = batch_start - 1 + ceil(tests_done_batch / tests_per_sim);

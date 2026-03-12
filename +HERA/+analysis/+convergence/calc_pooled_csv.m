@@ -11,7 +11,7 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
 % Author: Lukas von Erdmannsdorff
 
 
-    if isempty(results)
+    if isempty(results) || length(results) <= 1
         return;
     end
     
@@ -26,8 +26,20 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
     fprintf(pooled_fid, 'Metric;Mode;Median_Error;IQR_Error;Error_Q1;Error_Q3;CI95_Lower;CI95_Upper;Min_Error;Max_Error;Median_Cost_B;IQR_Cost_B;Cost_Q1;Cost_Q3;Cost_CI95_Lower;Cost_CI95_Upper;Min_Cost;Max_Cost;Failure_Rate_Percent\n');
     fclose(pooled_fid);
     
-    metric_names = {'Thresholds', 'BCa', 'Ranking'};
-    metric_fields = {'thr', 'bca', 'rnk'};
+    metric_names = {};
+    metric_fields = {};
+    if ~all(isnan(results(1).thr.err(:)))
+        metric_names{end+1} = 'Thresholds';
+        metric_fields{end+1} = 'thr';
+    end
+    if ~all(isnan(results(1).bca.err(:)))
+        metric_names{end+1} = 'BCa';
+        metric_fields{end+1} = 'bca';
+    end
+    if ~all(isnan(results(1).rnk.err(:)))
+        metric_names{end+1} = 'Ranking';
+        metric_fields{end+1} = 'rnk';
+    end
     
     for m_id = 1:length(metric_fields)
         field = metric_fields{m_id};

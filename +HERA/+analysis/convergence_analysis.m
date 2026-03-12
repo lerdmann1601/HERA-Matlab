@@ -238,6 +238,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         
         % Scientific Parameters (Data Scenarios & Methods)
         cfg_out.N = N;
+        cfg_out.selected_methods = cfg_base.system.selected_methods;
         cfg_out.modes = modes;
         cfg_out.scenarios = scenarios;
         cfg_out.refs = refs;
@@ -305,10 +306,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         
         plot('scientific_reports', results, modes, styles, refs, limits, params, final_out_dir, base_name, char(ts_str));
 
-        % Pooled CSV results of across all simulations
-        fprintf('Evaluating Pooled Statistics... ');
-        HERA.analysis.convergence.calc_pooled_csv(results, modes, dir_csv, ts_str);
-        fprintf('Done.\n');
+        % Pooled CSV results of across all simulations (only if multiple scenarios exist)
+        if length(results) > 1
+            fprintf('Evaluating Pooled Statistics... ');
+            HERA.analysis.convergence.calc_pooled_csv(results, modes, dir_csv, ts_str);
+            fprintf('Done.\n');
+        end
 
         % Final duration logging
         t_duration = toc(t_start);
@@ -334,14 +337,16 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('Summary Report (PDF):  %s\n', pdf_full);
         fprintf('Configuration (JSON):  %s\n', json_file);
         fprintf('Global Data (CSV):     %s\n', fullfile(out_dir, ['Global_Summary_' char(ts_str) '.csv']));
-        fprintf('Pooled Results (CSV):  %s\n', fullfile(out_dir, ['Pooled_Results_' char(ts_str) '.csv']));
+        if length(results) > 1
+            fprintf('Pooled Results (CSV):  %s\n', fullfile(out_dir, ['Pooled_Results_' char(ts_str) '.csv']));
+        end
         fprintf('Detailed Results:      %s\n', fullfile(final_out_dir, 'CSV', ['Results_' char(ts_str)]));
         fprintf('Graphics Folder:       %s\n', dir_graphics);
         fprintf('PDF Folder:            %s\n', dirty_pdfs);
         fprintf('Log File:              %s\n', log_filename);
 
         fprintf('\nIf you use this software and find it helpful, please cite:\n');
-        fprintf('von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.3.1). https://doi.org/10.5281/zenodo.18274870\n');
+        fprintf('von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.0). https://doi.org/10.5281/zenodo.18274870\n');
     catch ME
         % Note: diary is automatically closed by cleanupDiary (onCleanup)
         fprintf('\nError occurred during study: %s\n', ME.message);

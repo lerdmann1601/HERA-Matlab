@@ -54,8 +54,20 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
                 fprintf(p_fid, 'Metric;Parameter;%s\n', mode_str);
                 fclose(p_fid);
                 
-                param_metrics = {'Bootstrap Thresholds', 'BCa Confidence Intervals', 'Ranking Stability'};
-                param_structs = {params.thr, params.bca, params.rnk};
+                param_metrics = {};
+                param_structs = {};
+                if isfield(params, 'thr')
+                    param_metrics{end+1} = 'Bootstrap Thresholds';
+                    param_structs{end+1} = params.thr;
+                end
+                if isfield(params, 'bca')
+                    param_metrics{end+1} = 'BCa Confidence Intervals';
+                    param_structs{end+1} = params.bca;
+                end
+                if isfield(params, 'rnk')
+                    param_metrics{end+1} = 'Ranking Stability';
+                    param_structs{end+1} = params.rnk;
+                end
                 lbls = {'Trials (n)', 'Smoothing (sm)', 'Streak (st)', 'Tolerance (tol)', 'Step Size (B)', 'B Range'};
                 fields = {'n', 'sm', 'st', 'tol', 'step', 'range'};
                 
@@ -131,9 +143,20 @@ function save_results_csv(results, modes, out_dir, ts_str)
         warning('Could not create/open Global Summary CSV: %s', global_filename);
     end
 
-    metric_names = {'Thresholds', 'BCa', 'Ranking'};
-    metric_fields = {'thr', 'bca', 'rnk'};
-    
+    metric_names = {};
+    metric_fields = {};
+    if ~all(isnan(results(1).thr.err(:)))
+        metric_names{end+1} = 'Thresholds';
+        metric_fields{end+1} = 'thr';
+    end
+    if ~all(isnan(results(1).bca.err(:)))
+        metric_names{end+1} = 'BCa';
+        metric_fields{end+1} = 'bca';
+    end
+    if ~all(isnan(results(1).rnk.err(:)))
+        metric_names{end+1} = 'Ranking';
+        metric_fields{end+1} = 'rnk';
+    end
     try
         % Iterate over each scenario
         for s = 1:length(results)
