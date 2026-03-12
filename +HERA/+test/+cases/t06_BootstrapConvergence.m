@@ -63,7 +63,7 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     thr_dummy = struct('d_thresh', [0.15], 'rel_thresh', [0.05]); 
     config_conv = default_config;
     config_conv.metric_names = {'TestMetric'};
-    [~, rank_base] = calculate_ranking(all_data_conv, eff_conv, thr_dummy, config_conv, ds_names_conv, p_idx_conv);
+    [~, rank_base] = calculate_ranking(all_data_conv, eff_conv, thr_dummy, config_conv, ds_names_conv, p_idx_conv, lang);
 
     % Define Base Configurations for the 3 algorithms
     bs_thr = struct('B_start', 100, 'B_step', 100, 'B_end', 5000, 'n_trials', 25, 'min_steps_for_convergence_check', 3, 'smoothing_window', 3, ...

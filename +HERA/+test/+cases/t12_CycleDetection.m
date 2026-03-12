@@ -54,7 +54,11 @@ function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
     % Suppress warning for expected cycle detection
     warnState = warning('off', 'all'); 
     cleanupObj = onCleanup(@() warning(warnState));
-    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data}, eff, thresholds, config, ds_names, nchoosek(1:3, 2));
+    
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+    
+    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data}, eff, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
     warning('on', 'all');
     
     % Result

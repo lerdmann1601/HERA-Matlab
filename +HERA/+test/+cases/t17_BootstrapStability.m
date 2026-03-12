@@ -67,7 +67,7 @@ function passed = t17_BootstrapStability(default_config, ~, n_subj, styles, lang
         eff_full = struct('d_vals_all', d_v, 'rel_vals_all', r_v);
         
         [~, final_rank, ~, ~, ~] = calculate_ranking(...
-            all_data_full, eff_full, thr_full, config_full, ds_names_full, p_idx);
+            all_data_full, eff_full, thr_full, config_full, ds_names_full, p_idx, lang);
         
         % 3. Run Cluster Bootstrap
         % Measures variability of ranks

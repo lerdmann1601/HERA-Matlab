@@ -63,7 +63,7 @@ function passed = t14_DynamicCycle(default_config, ~, n_subj, styles, lang)
         % Step 2: Run Ranking
         warnState = warning('off', 'all'); 
         cleanupObj = onCleanup(@() warning(warnState));
-        [final_order_pipe, ~, all_sig, ~, ~] = calculate_ranking(all_data_pipe, eff_pipe, thr_pipe, config_pipe, ds_names_4, p_i_p);
+        [final_order_pipe, ~, all_sig, ~, ~] = calculate_ranking(all_data_pipe, eff_pipe, thr_pipe, config_pipe, ds_names_4, p_i_p, lang);
         warning('on', 'all');
         
         % Check if M2 cycle is truly significant (pairwise wins should form cycle)

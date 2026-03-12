@@ -72,7 +72,7 @@ function passed = t16_FullIntegration(default_config, ~, n_subj, styles, lang)
         end
         TestHelper.print_auto_table(h_thr, thr_data, d_align_thr, h_align_thr);
         
-        [final_order_full, ~, sig_mats, ~, p_mats, swap_det] = calculate_ranking(all_data_full, eff_full, thr_full, config_full, ds_names_full, p_i_full);
+        [final_order_full, ~, sig_mats, ~, p_mats, swap_det] = calculate_ranking(all_data_full, eff_full, thr_full, config_full, ds_names_full, p_i_full, lang);
         
         % Pairwise Effect Sizes (Representative Within-Tier Pairs)
         fprintf('\n[Pairwise Effect Sizes: Within-Tier Representatives]\n');

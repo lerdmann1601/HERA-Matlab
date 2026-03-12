@@ -55,7 +55,10 @@ function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, ~)
     eff = TestHelper.calculate_real_effects({m1_data, m2_data, m3_data}, 3);
     pairs_15 = nchoosek(1:15, 2);
     
-    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data, m3_data}, eff, thresholds, config, ds_names_15, pairs_15);
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+
+    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data, m3_data}, eff, thresholds, config, ds_names_15, pairs_15, lang_t);
     
     % Validation by Tier logic
     % Calculate average rank of each tier to verify separation

@@ -55,9 +55,12 @@ function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
 
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+
     % Run ranking on noise data
     % We are interested in 'all_alphas' output
-    [~, ~, ~, all_alphas, all_p_vals] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb);
+    [~, ~, ~, all_alphas, all_p_vals] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb, lang_t);
     
     % Validation 1: The strictest alpha should be Base / Num_Pairs (Classical Check)
     min_alpha_observed = min(all_alphas{1}(:));

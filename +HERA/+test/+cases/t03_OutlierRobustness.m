@@ -74,8 +74,11 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     d_p2 = eff_robust.d_vals_all(6, 1); 
     r_p2 = eff_robust.rel_vals_all(6, 1);
     
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+
     % Run Ranking
-    [~, ~, all_sig_rob, ~, all_p_value_matrices] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2));
+    [~, ~, all_sig_rob, ~, all_p_value_matrices] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2), lang_t);
     
     p_p1 = all_p_value_matrices{1}(1, 2);
     p_p2 = all_p_value_matrices{1}(3, 4);

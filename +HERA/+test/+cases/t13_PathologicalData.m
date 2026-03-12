@@ -49,10 +49,13 @@ function passed = t13_PathologicalData(default_config, thresholds, n_subj, ~, ~)
     warnState = warning('off', 'all'); 
     cleanupObj = onCleanup(@() warning(warnState));
     
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+
     % Run with full output capture (suppress internal logs)
     eff_efron = TestHelper.calculate_real_effects({m1_data, m2_data}, 2);
     pairs_4 = nchoosek(1:4, 2);
-    [~] = evalc('[final_order, ~, all_sig, ~, ~] = calculate_ranking({m1_data, m2_data}, eff_efron, thresholds, config, ds_names_4, pairs_4);');
+    [~] = evalc('[final_order, ~, all_sig, ~, ~] = calculate_ranking({m1_data, m2_data}, eff_efron, thresholds, config, ds_names_4, pairs_4, lang_t);');
     warning('on', 'all');
     
     % --- Assertion 1: Valid Permutation ---

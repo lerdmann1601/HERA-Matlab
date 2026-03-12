@@ -95,14 +95,14 @@ function analysis_results = execute_analysis(all_data, num_probanden, dataset_na
         perm_thresholds = struct('d_thresh', perm_d_thresh, 'rel_thresh', perm_rel_thresh);
         
         % Calculate the ranking for the current permutation and store the result.
-        [~, single_run_rank] = calculate_ranking(perm_all_data, perm_effect_sizes, perm_thresholds, perm_config, dataset_names, pair_idx_all);
+        [~, single_run_rank] = calculate_ranking(perm_all_data, perm_effect_sizes, perm_thresholds, perm_config, dataset_names, pair_idx_all, lang);
         all_permutation_ranks(:, p) = single_run_rank;
 
         % The first permutation (p=1) is the primary hierarchy; store its detailed results.
         if p == 1
              % Call with the original (primary) data and config (which now includes ranking_mode)
              [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-                 calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all);
+                 calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, lang);
         end
     end
 

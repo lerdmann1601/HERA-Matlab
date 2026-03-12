@@ -288,7 +288,10 @@ classdef TestHelper
             pairs = nchoosek(1:num_d, 2);
             
             eff = TestHelper.calculate_real_effects(all_data, numel(all_data));
-            [final_order, final_rank, ~, ~, p_vals] = calculate_ranking(all_data, eff, thresholds, config, names, pairs);
+            % Get production resources for testing (including lang)
+            [lang_test, ~] = TestHelper.get_test_resources();
+            
+            [final_order, final_rank, ~, ~, p_vals] = calculate_ranking(all_data, eff, thresholds, config, names, pairs, lang_test);
         end
         
         function [final_rank, final_order] = run_single_test(all_data, thresholds, config, names)

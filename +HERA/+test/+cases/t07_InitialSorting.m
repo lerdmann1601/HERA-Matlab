@@ -90,8 +90,10 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_inj, table_data, d_align, h_align);
     
-    import HERA.calculate_ranking
-    [final_order_2, ~, ~, ~, ~] = calculate_ranking({m1_data_noise}, effect_sizes, thresholds, config, ds_names, nchoosek(1:3, 2));
+    % Load lang for calculation
+    lang_t = HERA.get_language();
+    
+    [final_order_2, ~, ~, ~, ~] = calculate_ranking({m1_data_noise}, effect_sizes, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
     
     % Result Table
     fprintf('\n[Result]\n');
@@ -130,7 +132,7 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
     eff_mean = TestHelper.calculate_real_effects({m1_data_mean}, 1);
     eff_mean.d_vals_all(:) = 0; % Force Delta to 0 to simulate perfect stochastic equality
     
-    [final_order_3, ~, ~, ~, ~] = calculate_ranking({m1_data_mean}, eff_mean, thresholds, config, ds_names, nchoosek(1:3, 2));
+    [final_order_3, ~, ~, ~, ~] = calculate_ranking({m1_data_mean}, eff_mean, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
     
     % Result Table
     fprintf('\n[Result]\n');

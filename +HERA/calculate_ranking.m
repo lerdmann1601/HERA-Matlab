@@ -1,10 +1,10 @@
 function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices, is_clean)
+            calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, lang, subset_indices, is_clean)
 % CALCULATE_RANKING - Calculates the ranking of datasets based on a hierarchical metric system.
 %
 % Syntax:
 %   [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_value_matrices, swap_details, intermediate_orders] = ...
-%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, subset_indices, [is_clean])
+%       calculate_ranking(all_data, effect_sizes, thresholds, config, dataset_names, pair_idx_all, lang, [subset_indices], [is_clean])
 %
 % Description:
 %   This function implements a multi-stage ranking algorithm to determine the order of datasets.
@@ -36,6 +36,7 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 %   config               - Struct with general configurations (must include 'ranking_mode').
 %   dataset_names        - Cell array with the names of the datasets.
 %   pair_idx_all         - Indices of all pairwise comparisons.
+%   lang                 - Language package struct loaded from a JSON file.
 %   subset_indices       - (Optional) Vector of row indices to use from all_data (virtual view).
 %   is_clean             - (Optional) Boolean flag. If true, bypasses NaN checks for performance.
 %
@@ -58,6 +59,7 @@ arguments
     config (1,1) struct
     dataset_names (1,:) cell
     pair_idx_all
+    lang (1,1) struct
     subset_indices = []
     is_clean (1,1) logical = false
 end
@@ -294,7 +296,7 @@ if num_metrics >= 2 && (strcmp(ranking_mode, 'M1_M2') || strcmp(ranking_mode, 'M
         % If the sorting loop does not converge (cycle), revert to the stable ranking 
         % from the previous stage to ensure determinism.
         if ~quiet_mode
-            warning('Ranking stopped at max iterations. Cycle detected. Reverting to initial order.');
+            warning(lang.warnings.cycle_detected_m2);
         end
         final_order = backup_order_m2;
         swap_count_metric2 = 0;
@@ -411,7 +413,7 @@ elseif num_metrics == 3 && strcmp(ranking_mode, 'M1_M2_M3')
         % If the sorting loop does not converge (cycle), revert to the stable ranking 
         % from the previous stage to ensure determinism.
         if ~quiet_mode
-            warning('Ranking stopped at max iterations. Cycle detected. Reverting to previous order.');
+            warning(lang.warnings.cycle_detected_m3);
         end
         final_order = backup_order_3b;
         swap_count_metric3b = 0;

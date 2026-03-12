@@ -569,7 +569,7 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     close([h1(:); h2(:); h3(:); h4(:); h5(:)]);
 
     % Ref: Ranking
-    [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim);
+    [~, base_rank] = HERA.calculate_ranking(all_data, eff, ref_thr_struct, cfg_base, ds_names, p_idx_sim, lang);
     ref_seed_rnk = ref_seed + 3 * reference_step_offset;
     refStream = RandStream('mlfg6331_64', 'Seed', ref_seed_rnk);
     if isstruct(refs.rnk)
