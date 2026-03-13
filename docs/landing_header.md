@@ -7,7 +7,7 @@ This platform serves as the **comprehensive reference guide** for the HERA frame
 
 While the [source code](https://github.com/lerdmann1601/HERA-Matlab) contains the raw files, this site is optimized to offer a **streamlined reading experience** for the entire framework—including detailed installation guides, parameter configuration, hierarchical-compensatory ranking logic, and bootstrap validation mechanisms.
 
-## Get HERA (v1.4.0)
+## Get HERA (v1.3.1)
 
 You can download the latest version of the toolbox directly:
 
