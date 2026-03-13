@@ -20,7 +20,7 @@ A candidate $A$ only "wins" over candidate $B$ if the difference satisfies three
 2. **Stochastic Dominance**: $|d| \geq \theta_d$ (Cliff's Delta must exceed the data-driven threshold).
 3. **Practical Magnitude**: $\text{RelDiff} \geq \theta_{\text{RelDiff}}$ (Relative Mean Difference must exceed the threshold).
 
-> [!TIP]
+> [!IMPORTANT]
 > **SEM Lower Bound**: To prevent "wins" based on trivial noise (e.g low-variance datasets), $\theta_{\text{RelDiff}}$ always enforces a minimum bound based on the Standard Error of the Mean (SEM).
 
 ---

@@ -18,6 +18,7 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
     from FWER corrections makes detecting true differences unlikely. However,
     it is possible to use HERA with *N* > 15 and you can just give it a try.
 
+> [!WARNING]
 > **Visual Limit (*N* ≤ 20)**: While HERA should technically compute rankings
 > for any *N* (exported to CSV/JSON), the generated plots (e.g. Win-Loss Matrix,
 > Final Summary) visually degrade beyond *N* = 20. For *N* > 20, I recommend
@@ -47,6 +48,7 @@ required.
     but linearly scales runtime. *n* ≫ 5,000 may be computationally
     impractical due to extensive bootstrapping.
 
+> [!IMPORTANT]
 > **Recommendation:** Perform an *a priori* power analysis to estimate the
 > required *n* for your chosen *N*.
 
@@ -67,6 +69,7 @@ HERA is robust against missing data (`NaN`) but handling it comes with trade-off
 * **Automatic Warning**: A warning is issued if valid data drops below 80% for
     any comparison however it is not a strict requirement.
 
+> [!IMPORTANT]
 > **Recommendation**: Minimize `NaN`s to preserve statistical power and
 > performance. For critical analyses with substantial data loss, use
 > validated imputation methods (e.g., MICE) *before* running HERA.
@@ -91,6 +94,7 @@ based on the following methodological considerations:
     adjustments approaches zero, while the complexity of the decision model
     increases disproportionately.
 
+> [!IMPORTANT]
 > **Recommendation:**
 > If you want to consider more than 3 metrics and use HERA you could first
 > perform a check for collinearity (e.g., using a correlation matrix).

@@ -4,7 +4,7 @@ HERA can be compiled into a standalone application for macOS, Linux, and
 Windows. The build process generates an **installer** that automatically
 downloads the required MATLAB Runtime, making it easy to distribute.
 
-> [!TIP]
+> [!IMPORTANT]
 > **Download:** A pre-built installer for macOS (Apple Silicon) is available as
 > a ZIP archive in the [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases)
 > section.
