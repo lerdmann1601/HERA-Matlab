@@ -1,7 +1,11 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
-> **Note:** Only the latest version is actively supported. Previous versions (including all versions prior to 1.4.0) are considered legacy. Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
+
+> [!WARNING]
+> For the time being, only the latest version is actively supported.
+> Previous versions (including all versions prior to 1.3.1) are considered legacy.
+> Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ## [Unreleased]
 
@@ -11,6 +15,7 @@ All notable changes to this project will be documented in this file.
 - **JSON Scenario Configuration**: All convergence analysis scenarios are now fully customizable through the JSON configuration file.
 - **Automatic Update Checks**: HERA now automatically checks for newer versions on startup for both MATLAB (Toolbox) and Python (PyPI).
 - **Min/Max Columns in CSV**: Added `Min` and `Max` columns for Error and Cost metrics in convergence CSV exports.
+- **Python Interface Optimization**: Significant performance boost for NumPy and Pandas data via direct buffer access and enhanced recursive type conversion logic.
 
 ### Fixed
 
@@ -89,7 +94,7 @@ All notable changes to this project will be documented in this file.
 
 - **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...HEAD
 [1.3.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.1
 [1.3.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.0
 [1.2.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.2.1
