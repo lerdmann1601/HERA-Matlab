@@ -161,7 +161,7 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 > provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
->
+
 > [!NOTE]
 > HERA is designed for high-performance scientific computing, featuring
 > **fully parallelized bootstrap procedures** and **automatic memory management**
