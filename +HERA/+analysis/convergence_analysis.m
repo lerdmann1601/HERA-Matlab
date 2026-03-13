@@ -242,8 +242,13 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         
         % Scientific Parameters (Data Scenarios & Methods)
         cfg_out.N = N;
-        if exist('customConfig', 'var') && isfield(customConfig, 'selected_scenarios')
-            cfg_out.selected_scenarios = customConfig.selected_scenarios;
+        if exist('customConfig', 'var')
+            if isfield(customConfig, 'num_scenarios')
+                cfg_out.num_scenarios = customConfig.num_scenarios;
+            end
+            if isfield(customConfig, 'selected_scenarios')
+                cfg_out.selected_scenarios = customConfig.selected_scenarios;
+            end
         end
         cfg_out.selected_methods = cfg_base.system.selected_methods;
         cfg_out.selected_modes = modes;
@@ -272,7 +277,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             % Ensure we don't duplicate existing top-level fields
             fnames = fieldnames(customConfig);
             for i=1:length(fnames)
-                if ismember(fnames{i}, {'selected_modes', 'modes', 'params', 'system', 'num_workers', 'target_memory', 'selected_scenarios'})
+                if ismember(fnames{i}, {'selected_modes', 'modes', 'params', 'system', 'num_workers', 'target_memory', 'selected_scenarios', 'num_scenarios'})
                     continue; % Prevent rewriting the dynamically generated fields or system parameters
                 end
                 cfg_out.(fnames{i}) = customConfig.(fnames{i});
