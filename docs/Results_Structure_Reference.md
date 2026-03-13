@@ -29,16 +29,18 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `all_alpha_matrices` | `{1 x M}` | Cell array of Holm-Bonferroni corrected alphas. |
 | `all_sig_matrices` | `{1 x M}` | Logical matrices indicating significant wins. |
 | **Diagnostics** | | |
-| `swap_details(1..).metric_idx` | int | Index of the metric where a rank swap occurred. |
-| `swap_details(1..).swapped_pair` | `[2 x 1]` | Indices of the two datasets whose ranks were swapped. |
-| `swap_details(1..).reason` | string | Description of *why* the metrics triggered the change. |
-| `intermediate_orders(1..M).metric_idx` | int | Current metric hierarchy layer being evaluated. |
-| `intermediate_orders(1..M).order` | `[1 x N]` | Ranking order determined after this step. |
-| `borda_results.consensus_rank` | `[N x 1]` | Global Borda count result (1 = Best). |
-| `borda_results.borda_scores` | `[N x 1]` | Accumulated Borda scores for each dataset. |
-| `power_results.achieved_power_d` | `[Pairs x M]` | Post-hoc power probability for detecting Cliff's Delta effects. |
-| `power_results.achieved_power_rel` | `[Pairs x M]` | Post-hoc power probability for detecting RelDiff effects. |
-| `power_results.simulated_n` | int | Iterations run per simulation to determine the power. |
+| `swap_details.metric1_wins` | `[N x 1]` | Counts of how many significant wins each dataset had on metric 1. (Global sorting is only performed for the primary metric). |
+| `swap_details.pairwise_swaps_metricX` | `[Pairs x 5]` | Details of all significant/relevant pairwise wins for metric X (`X` in 1..3). |
+| `swap_details.results_metricX` | `{Pairs x 7}` | Cell array of raw comparison data for metric X (`X` in 1..3). Contains: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
+| `swap_details.metric2_global_swaps` | `[Swaps x 2]` | Indices of datasets swapped during the iterative sorting of the Metric 2 hierarchy. |
+| `swap_details.metric3_swaps_a` | `[Swaps x 2]` | Swaps performed via Logic 3A (Tie-break if Metric 1 or 2 was neutral). |
+| `swap_details.metric3_swaps_b` | `[Swaps x 2]` | Swaps performed via Logic 3B (Iterative if both previous metrics neutral). |
+| `intermediate_orders.after_metricX` | `[1 x N]` | Ranking order determined after processing metric X (`X` in 1..3). |
+| `borda_results.rank` | `[N x 1]` | Global Borda count consensus rank (1 = Best). |
+| `borda_results.score` | `[N x 1]` | Normalized Borda consensus score (0-100%). |
+| `borda_results.rank_distribution` | `{N x 1}` | Cell array containing rank frequency matrices `[Rank, Count]` per dataset. |
+| `borda_results.dataset_names` | `{1 x N}` | Dataset names in the same order as the Borda results. |
+| `power_results.power_matrices` | `{1 x M}` | Cell array containing `[N x N]` matrices of win probabilities (Significant AND Relevant) for each metric. |
 | `all_permutation_ranks` | `[N x Perms]` | Ranks for every metric permutation tested. |
 | `selected_permutations` | `[Perms x M]` | Indices of metrics for each permutation. |
 | **Metadata & Configuration** | | |
@@ -52,12 +54,12 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `meta.metric_list` | `{1 x M}` | Names of the evaluated metrics in hierarchical order. |
 | `meta.stability_analysis.thresholds.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for threshold convergence. |
 | `meta.stability_analysis.thresholds.global_stability` | `[1 x Steps]` | Aggregated IQR/Median stability measure per step. |
-| `meta.stability_analysis.thresholds.detailed_stability` | `[EffectTypes x M x Steps]` | Per-metric stability values (IQR/Median) for each effect type. |
+| `meta.stability_analysis.thresholds.detailed_stability` | `[2 x M x Steps]` | Per-metric stability (IQR/Median) for Cliff's Delta and RelDiff. |
 | `meta.stability_analysis.thresholds.converged` | bool | True if threshold estimates safely stabilized. |
 | `meta.stability_analysis.thresholds.elbow_indices` | `[1 x Curves]` | Elbow-point indices (fallback if convergence not reached). |
 | `meta.stability_analysis.ci.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for CI convergence. |
 | `meta.stability_analysis.ci.global_stability` | `[1 x Steps]` | Aggregated IQR/Median stability measure per step. |
-| `meta.stability_analysis.ci.detailed_stability` | `[EffectTypes x M x Steps]` | Per-metric CI width stability values for each effect type. |
+| `meta.stability_analysis.ci.detailed_stability` | `[2 x M x Steps]` | Per-metric CI width stability for each effect type. |
 | `meta.stability_analysis.ci.converged` | bool | True if BCa CI widths safely stabilized. |
 | `meta.stability_analysis.ci.elbow_indices` | `[1 x Curves]` | Elbow-point indices (fallback if convergence not reached). |
 | `meta.stability_analysis.ranks.B_vector` | `[1 x Steps]` | Bootstrap sample sizes tested for rank convergence. |
