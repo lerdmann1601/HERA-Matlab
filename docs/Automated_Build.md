@@ -1,6 +1,7 @@
 # Automated Build (GitHub Actions)
 
-> **Note:** The automated build workflow requires a valid MATLAB license to be configured
+> [!NOTE]
+> The automated build workflow requires a valid MATLAB license to be configured
 > as a secret(`MATLAB_LICENSE`) in the repository settings.
 > I sadly can not provide a license for this respository.
 > Student licenses may not support this feature.

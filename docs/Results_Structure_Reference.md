@@ -29,18 +29,24 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `all_alpha_matrices` | `{1 x M}` | Cell array of Holm-Bonferroni corrected alphas. |
 | `all_sig_matrices` | `{1 x M}` | Logical matrices indicating significant wins. |
 | **Diagnostics** | | |
-| `swap_details.metric1_wins` | `[N x 1]` | Counts of how many significant wins each dataset had on metric 1. (Global sorting is only performed for the primary metric). |
-| `swap_details.pairwise_swaps_metricX` | `[Pairs x 5]` | Details of all significant/relevant pairwise wins for metric X (`X` in 1..3). |
-| `swap_details.results_metricX` | `{Pairs x 7}` | Cell array of raw comparison data for metric X (`X` in 1..3). Contains: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
-| `swap_details.metric2_global_swaps` | `[Swaps x 2]` | Indices of datasets swapped during the iterative sorting of the Metric 2 hierarchy. |
+| `swap_details.metric1_wins` | `[N x 1]` | Counts of how many significant wins each dataset had on metric 1. (Initial sorting basis). |
+| `swap_details.pairwise_swaps_metric1` | `[Pairs x 5]` | Significant wins for Metric 1: [Winner_Idx, Loser_Idx, p_val, d_val, r_val]. |
+| `swap_details.pairwise_swaps_metric2` | `[Pairs x 5]` | Significant wins for Metric 2: [Winner_Idx, Loser_Idx, p_val, d_val, r_val]. |
+| `swap_details.pairwise_swaps_metric3` | `[Pairs x 5]` | Significant wins for Metric 3: [Winner_Idx, Loser_Idx, p_val, d_val, r_val]. |
+| `swap_details.results_metric1` | `{Pairs x 7}` | Raw comparison data for Metric 1: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
+| `swap_details.results_metric2` | `{Pairs x 7}` | Raw comparison data for Metric 2: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
+| `swap_details.results_metric3` | `{Pairs x 7}` | Raw comparison data for Metric 3: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
+| `swap_details.metric2_global_swaps` | `[Swaps x 2]` | Indices [Winner, Loser] of datasets swapped during the iterative sorting of Metric 2 hierarchy. |
 | `swap_details.metric3_swaps_a` | `[Swaps x 2]` | Swaps performed via Logic 3A (Tie-break if Metric 1 or 2 was neutral). |
 | `swap_details.metric3_swaps_b` | `[Swaps x 2]` | Swaps performed via Logic 3B (Iterative if both previous metrics neutral). |
-| `intermediate_orders.after_metricX` | `[1 x N]` | Ranking order determined after processing metric X (`X` in 1..3). |
+| `intermediate_orders.after_metric1` | `[1 x N]` | Ranking order determined after processing Metric 1. |
+| `intermediate_orders.after_metric2` | `[1 x N]` | Ranking order determined after processing Metric 2. |
+| `intermediate_orders.after_metric3` | `[1 x N]` | Ranking order determined after processing Metric 3. |
 | `borda_results.rank` | `[N x 1]` | Global Borda count consensus rank (1 = Best). |
 | `borda_results.score` | `[N x 1]` | Normalized Borda consensus score (0-100%). |
 | `borda_results.rank_distribution` | `{N x 1}` | Cell array containing rank frequency matrices `[Rank, Count]` per dataset. |
-| `borda_results.dataset_names` | `{1 x N}` | Dataset names in the same order as the Borda results. |
-| `power_results.power_matrices` | `{1 x M}` | Cell array containing `[N x N]` matrices of win probabilities (Significant AND Relevant) for each metric. |
+| `borda_results.dataset_names` | `{1 x N}` | Dataset names in the same order as provided in the analysis. |
+| `power_results.power_matrices` | `{1 x M}` | Cell array containing `[Pairs x 1]` vectors of win probabilities for each metric. |
 | `all_permutation_ranks` | `[N x Perms]` | Ranks for every metric permutation tested. |
 | `selected_permutations` | `[Perms x M]` | Indices of metrics for each permutation. |
 | **Metadata & Configuration** | | |
@@ -70,3 +76,28 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains:
 | `meta.bootstrap_B.thresholds` | int | Final determined B used for Thresholds computation. |
 | `meta.bootstrap_B.ci` | int | Final determined B used for BCa CI computation. |
 | `meta.bootstrap_B.ranks` | int | Final determined B used for Rank computation. |
+
+## Definitions & Glossary
+
+| Term | Full Name | Description |
+| --- | --- | --- |
+| `p_val` | p-value | Probability of observing the results by chance (Wilcoxon Signed-Rank Test). |
+| `d_val` | Cliff's Delta | Non-parametric effect size measuring the probability of one dataset outperforming another. Range: [-1, 1]. |
+| `r_val` | RelDiff | Percentage-based relative difference of the means between two datasets. |
+| `sig` | Significant | Logical `true` if `p_val <= alpha` (Holm-Bonferroni corrected). |
+| `rel` | Relevant | Logical `true` if `abs(d_val) >= d_thresh` AND `r_val >= rel_thresh`. |
+
+## Ranking Logic & Hierarchy
+
+The final ranking is achieved through a multi-stage sequential process:
+
+1. **Initial Ranking (Metric 1)**: Datasets are sorted using a 3-step tie-break logic:
+    * **Step 1: Win Count**: Datasets are primarily sorted by the number of significant and relevant wins.
+    * **Step 2: Cliff's Delta (d)**: If Win Counts are equal, the pairwise stochastic dominance (`d_val`) between the tied datasets decides.
+    * **Step 3: Mean Value**: If `d_val` is neutral (within epsilon), the raw mean value of Metric 1 serves as the final tie-breaker.
+2. **Global Correction (Metric 2)**: The ranking from Step 1 is iteratively adjusted. If a lower-ranked dataset shows a significant and relevant win over a higher-ranked one according to Metric 2, they are swapped. This correction takes precedence over Metric 1 results treating Metric 2 as a set of non-negotiable concerns (e.g., safety, fundamental accuracy) that must be satisfied regardless of primary performance.
+3. **Targeted Correction (Metric 3)**: Metric 3 (using Logic 3A and 3B) specifically adjusts pairs that were "neutral" in the preceding hierarchy:
+    * **Logic 3A**: Swaps adjacent datasets if Metric 2 was neutral but Metric 3 shows a significant win.
+    * **Logic 3B**: Swaps adjacent datasets if both Metric 1 AND 2 were neutral but Metric 3 shows a significant win.
+
+For more details on the possible ranking logics, see [Ranking Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained).

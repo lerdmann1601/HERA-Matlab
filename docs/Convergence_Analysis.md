@@ -159,7 +159,8 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 
 You can structure your configuration file with a minimal setup, or specify all available parameters for full control.
 
-*Note: All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.*
+> [!NOTE]
+> All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.
 
 #### Minimal Example Configuration
 

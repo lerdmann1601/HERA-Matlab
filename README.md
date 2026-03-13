@@ -156,12 +156,14 @@ HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
 HERA.start_ranking('convergence', 'path/to/config.json')
 ```
 
-> **Note:** Example use cases with synthetic datasets and results are
+> [!NOTE]
+> Example use cases with synthetic datasets and results are
 > provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
 >
-> **Note:** HERA is designed for high-performance scientific computing, featuring
+> [!NOTE]
+> HERA is designed for high-performance scientific computing, featuring
 > **fully parallelized bootstrap procedures** and **automatic memory management**
 > to optimize efficiency. However, specifically due to the extensive use of
 > bootstrapping, it remains a **CPU-intensive application**. Please ensure you

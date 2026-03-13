@@ -7,11 +7,14 @@
     `convergence_streak_needed` consecutive stable steps.
 * **Fallback Convergence** (Elbow Method): Triggered if the primary
     plateau criterion is not met. It uses a heuristic to detect the point of
-    diminishing returns. **Warning:** This is a diagnostic aid, not a guarantee!
-    Results should be treated as a suggestion to be verified by visual inspection
-    and for further analysis (for more details see Troubleshooting Convergence).
+    diminishing returns.
+    > [!WARNING]
+    > This is a diagnostic aid, not a guarantee!
+    > Results should be treated as a suggestion to be verified by visual inspection
+    > and for further analysis (for more details see Troubleshooting Convergence).
 
-> **Note:** The different parameters used in the **Robust Mode** for
+> [!NOTE]
+> The different parameters used in the **Robust Mode** for
 > convergence checking have been validated in a empirical Convergence Analysis.
 > The default parameters were found to be sufficient for the majority of scenarios.
 > However it is not a guarantee!
@@ -49,6 +52,7 @@ variance or flat likelihood landscapes may fail to converge within
     early (e.g., in robust mode), you can make the parameters stricter (e.g.,
     decrease `convergence_tolerance` or increase `B_step` and/or `B_start`).
 
+> [!IMPORTANT]
 > **Reproducibility Note:** Visual inspection of convergence plots is strongly
 > recommended for final reporting! All procedures should use the same fixed
 > random seed for full reproducibility.

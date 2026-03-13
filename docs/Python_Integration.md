@@ -4,7 +4,8 @@ HERA provides a compiled Python interface that allows seamless integration into
 Python-based data science pipelines. This package wraps the MATLAB functions and
 provides them as native Python objects.
 
-> **Note:** The package utilizes the **MATLAB Runtime**. It must be installed separately
+> [!NOTE]
+> The package utilizes the **MATLAB Runtime**. It must be installed separately
 > as described below.
 
 ## 1. Installation (For End Users)
@@ -71,8 +72,9 @@ This mode replicates the MATLAB batch processing workflow.
 It runs the complete analysis based on a JSON configuration file and
 automatically generates all PDF reports and plots on disk.
 
-> **Note:** The interactive command-line interface (CLI) is **not supported**
-in the Python package. You must use a configuration file.
+> [!NOTE]
+> The interactive command-line interface (CLI) is **not supported**
+> in the Python package. You must use a configuration file.
 
 ```python
 import hera_matlab
@@ -130,7 +132,8 @@ results = hera.run_ranking(config, nargout=1)
 print(f"Final Ranks: {results['final_rank']}")
 ```
 
-> **Note:** Explicit termination (`hera.terminate()`) is optional in scripts, as the package handles cleanup automatically. However, it is recommended for interactive sessions (e.g., Jupyter) to free up resources immediately.
+> [!NOTE]
+> Explicit termination (`hera.terminate()`) is optional in scripts, as the package handles cleanup automatically. However, it is recommended for interactive sessions (e.g., Jupyter) to free up resources immediately.
 
 #### Manual Data Conversion (Legacy)
 
