@@ -45,17 +45,20 @@ For more information please refer to the Project
 
 ## Key Features
 
-* **Hierarchical-Compensatory Logic**: Define primary and secondary metrics. Secondary
-  metrics can act as tie-breakers or rank correctors (e.g., `M1_M2`,
-  `M1_M2_M3`).
+* **Hierarchical-Compensatory Logic**: Define primary and secondary metrics
+  for the sequential comparison. Secondary metrics can act as tie-breakers or
+  iterative rank correctors (e.g., `M1_M2`, `M1_M2_M3`).
 * **Data-Driven Thresholds**: Automatically calculates adaptive effect size
-  thresholds using Percentile Bootstrapping.
+  thresholds via Percentile Bootstrapping, utilizing a dynamic SEM guardrail to
+  maintain practical relevance relative to measurement noise.
 * **Robustness**: Utilizes Bias-Corrected and Accelerated (BCa) confidence
-  intervals and Cluster Bootstrapping for rank stability.
-* **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey
-  Diagrams, and machine-readable JSON/CSV exports.
-* **Reproducibility**: Supports fixed-seed execution and configuration
-  file-based workflows.
+  intervals for effect sizes and Cluster Bootstrapping for rank stability.
+* **Automated Reporting**: Generates PDF reports with high-resolution graphics
+  (e.g., Win-Loss matrices, Sankey diagrams) and machine-readable JSON/CSV
+  exports including the complete analysis and statistics.
+* **Reproducibility**: Features automated convergence control to determine
+  optimal bootstrap iterations ($B$) without guesswork, alongside
+  fixed-seed execution and configuration-based workflows.
 
 ---
 
@@ -166,6 +169,8 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 ---
 
 ## Documentation
+
+👉 [Version History (Changelog)](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CHANGELOG.md)
 
 👉 [Repository Structure](https://lerdmann1601.github.io/HERA-Matlab/Repository_Structure)
 
@@ -299,7 +304,7 @@ If you use HERA in your research, please cite:
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven
   Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.3.1},
+  version = {1.4.0},
   doi = {10.5281/zenodo.18274870},
   year = {2026}
 }
