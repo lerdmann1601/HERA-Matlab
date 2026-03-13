@@ -1,5 +1,15 @@
 # Methodological Guidelines & Limitations
 
+> [!WARNING]
+> **Heuristic Nature & Data Responsibility:**
+> Although HERA implements a rigorous statistical framework, the sequential
+> ranking logic remains a heuristic—similar to most benchmarking methodologies.
+> Results should be treated as a decision-support tool and must always be critically
+> evaluated within your specific application context. Furthermore, HERA cannot
+> compensate for improper experimental design or the incorrect use of data;
+> the validity of the output is fundamentally dependent on the quality and
+> appropriateness of the input data.
+
 The statistical rigor of HERA (e.g., Holm-Bonferroni correction, Bootstrapping)
 imposes practical limits on the number of datasets (*N*) and sample size (*n*).
 Therefore the following guidelines are provided as theoretical considerations
