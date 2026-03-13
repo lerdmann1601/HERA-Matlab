@@ -209,8 +209,12 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         cfg_out.n_sims_per_cond = n_sims_per_cond;
         cfg_out.output_dir = log_path_or_mode;
         
+        % Not needed to add to JSON as this is a system parameter
+        % cfg_out.system = struct();
+        % cfg_out.system.num_workers = cfg_base.num_workers;
+        % cfg_out.system.target_memory = cfg_base.system.target_memory;
+        
         % Ensure we save the effective configuration applied
-        % cfg_out.target_memory = cfg_base.system.target_memory; % Not needed for JSON as this is a system parameter
         if isfield(cfg_base, 'simulation_seed')
             cfg_out.simulation_seed = cfg_base.simulation_seed;
         else
@@ -238,6 +242,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         
         % Scientific Parameters (Data Scenarios & Methods)
         cfg_out.N = N;
+        if exist('customConfig', 'var') && isfield(customConfig, 'selected_scenarios')
+            cfg_out.selected_scenarios = customConfig.selected_scenarios;
+        end
         cfg_out.selected_methods = cfg_base.system.selected_methods;
         cfg_out.selected_modes = modes;
         cfg_out.scenarios = scenarios;
@@ -265,8 +272,8 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
             % Ensure we don't duplicate existing top-level fields
             fnames = fieldnames(customConfig);
             for i=1:length(fnames)
-                if ismember(fnames{i}, {'selected_modes', 'modes', 'params'})
-                    continue; % Prevent rewriting the dynamically generated fields
+                if ismember(fnames{i}, {'selected_modes', 'modes', 'params', 'system', 'num_workers', 'target_memory', 'selected_scenarios'})
+                    continue; % Prevent rewriting the dynamically generated fields or system parameters
                 end
                 cfg_out.(fnames{i}) = customConfig.(fnames{i});
             end
@@ -305,13 +312,26 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         
         % Parallel Pool
         pool = gcp('nocreate');
-        if isempty(pool)
-            fprintf('Starting new parallel pool...\n');
-            pool = parpool('SpmdEnabled', false);
-        else
-            fprintf('Reusing existing parallel pool (%d workers).\n', pool.NumWorkers);
+
+        % Determine target workers from config
+        target_workers = cfg_base.num_workers;
+        if (ischar(target_workers) && strcmp(target_workers, 'auto')) || ...
+           (isstring(target_workers) && target_workers == "auto")
+            target_workers = parcluster('local').NumWorkers;
         end
-        % num_workers = pool.NumWorkers; % Unused
+
+        if isempty(pool)
+            fprintf('Starting new parallel pool (%d workers)...\n', target_workers);
+            pool = parpool(target_workers, 'SpmdEnabled', false);
+        else
+            if pool.NumWorkers ~= target_workers
+                fprintf('Restarting parallel pool to match config (%d -> %d workers)...\n', pool.NumWorkers, target_workers);
+                delete(pool);
+                pool = parpool(target_workers, 'SpmdEnabled', false);
+            else
+                fprintf('Reusing existing parallel pool (%d workers).\n', pool.NumWorkers);
+            end
+        end
         cfg_base.num_workers = pool.NumWorkers;
         fprintf('\n');
 

@@ -43,7 +43,10 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
 
     %% 1. General Settings
     N = 6; % Number of datasets/candidates (Default)
-    if isfield(customConfig, 'N') && isnumeric(customConfig.N)
+    if isfield(customConfig, 'N')
+        if ~isnumeric(customConfig.N)
+            error('HERA:Analysis:InvalidConfig', 'Parameter "N" must be numeric.');
+        end
         N = round(customConfig.N);
         if N < 3 && N >= 1
             fprintf('Warning: N = %d is below the recommended minimum of 3. Results may be less representative.\n', N);
@@ -274,11 +277,40 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         target_mem = 200;
         fprintf('Error in RAM detection. Using fallback: %d MB.\n', target_mem);
     end
-    if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
-        target_memory = customConfig.target_memory;
-        fprintf('Overriding memory via Config: %d MB.\n', target_memory);
+    % Support customConfig.system.target_memory or top-level target_memory (fallback)
+    if isfield(customConfig, 'system') && isstruct(customConfig.system) && isfield(customConfig.system, 'target_memory')
+        if ~isnumeric(customConfig.system.target_memory)
+            error('HERA:Analysis:InvalidConfig', 'system.target_memory must be numeric.');
+        end
+        target_mem = customConfig.system.target_memory;
+        fprintf('Overriding memory via Config (system): %d MB.\n', target_mem);
+    elseif isfield(customConfig, 'target_memory')
+        if ~isnumeric(customConfig.target_memory)
+            error('HERA:Analysis:InvalidConfig', 'target_memory must be numeric.');
+        end
+        target_mem = customConfig.target_memory;
+        fprintf('Overriding memory via Config: %d MB.\n', target_mem);
     end
     cfg_base.system.target_memory = target_mem;
+
+    % Support customConfig.system.num_workers or top-level num_workers (fallback)
+    if isfield(customConfig, 'system') && isstruct(customConfig.system) ...
+        && isfield(customConfig.system, 'num_workers') && ~isempty(customConfig.system.num_workers)
+        cfg_base.num_workers = customConfig.system.num_workers;
+    elseif isfield(customConfig, 'num_workers') && ~isempty(customConfig.num_workers)
+        cfg_base.num_workers = customConfig.num_workers;
+    else
+        cfg_base.num_workers = 'auto'; % Default
+    end
+    
+    % Final Validation for num_workers
+    is_auto = (ischar(cfg_base.num_workers) && strcmp(cfg_base.num_workers, 'auto')) || ...
+              (isstring(cfg_base.num_workers) && cfg_base.num_workers == "auto");
+    if ~is_auto && (~isnumeric(cfg_base.num_workers) || cfg_base.num_workers < 1)
+        fprintf('Warning: Invalid num_workers provided. Falling back to "auto".\n');
+        cfg_base.num_workers = 'auto';
+    end
+
     cfg_base.system.selected_methods = selected_methods;
     
     cfg_base.simulation_seed = 123;
@@ -313,37 +345,28 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
             if isfield(customConfig.modes, f) && isstruct(customConfig.modes.(f))
                 cu = customConfig.modes.(f);
                 
-                % Parse 'thr' sub-struct if provided
-                if isfield(cu, 'thr') && isstruct(cu.thr)
-                    if isfield(cu.thr, 'n'), p_thr{i}.n = cu.thr.n; end
-                    if isfield(cu.thr, 'sm'), p_thr{i}.sm = cu.thr.sm; end
-                    if isfield(cu.thr, 'st'), p_thr{i}.st = cu.thr.st; end
-                    if isfield(cu.thr, 'tol'), p_thr{i}.tol = cu.thr.tol; end
-                    if isfield(cu.thr, 'start'), p_thr{i}.start = cu.thr.start; end
-                    if isfield(cu.thr, 'step'), p_thr{i}.step = cu.thr.step; end
-                    if isfield(cu.thr, 'end'), p_thr{i}.end = cu.thr.end; end
-                end
-                
-                % Parse 'bca' sub-struct if provided
-                if isfield(cu, 'bca') && isstruct(cu.bca)
-                    if isfield(cu.bca, 'n'), p_bca{i}.n = cu.bca.n; end
-                    if isfield(cu.bca, 'sm'), p_bca{i}.sm = cu.bca.sm; end
-                    if isfield(cu.bca, 'st'), p_bca{i}.st = cu.bca.st; end
-                    if isfield(cu.bca, 'tol'), p_bca{i}.tol = cu.bca.tol; end
-                    if isfield(cu.bca, 'start'), p_bca{i}.start = cu.bca.start; end
-                    if isfield(cu.bca, 'step'), p_bca{i}.step = cu.bca.step; end
-                    if isfield(cu.bca, 'end'), p_bca{i}.end = cu.bca.end; end
-                end
-                
-                % Parse 'rnk' sub-struct if provided
-                if isfield(cu, 'rnk') && isstruct(cu.rnk)
-                    if isfield(cu.rnk, 'n'), p_rank{i}.n = cu.rnk.n; end
-                    if isfield(cu.rnk, 'sm'), p_rank{i}.sm = cu.rnk.sm; end
-                    if isfield(cu.rnk, 'st'), p_rank{i}.st = cu.rnk.st; end
-                    if isfield(cu.rnk, 'tol'), p_rank{i}.tol = cu.rnk.tol; end
-                    if isfield(cu.rnk, 'start'), p_rank{i}.start = cu.rnk.start; end
-                    if isfield(cu.rnk, 'step'), p_rank{i}.step = cu.rnk.step; end
-                    if isfield(cu.rnk, 'end'), p_rank{i}.end = cu.rnk.end; end
+                % Parse 'thr', 'bca', 'rnk' sub-structs if provided
+                sub_methods = {'thr', 'bca', 'rnk'};
+                for s_idx = 1:length(sub_methods)
+                    sm = sub_methods{s_idx};
+                    if isfield(cu, sm) && isstruct(cu.(sm))
+                        sub_data = cu.(sm);
+                        fn = fieldnames(sub_data);
+                        for f_idx = 1:length(fn)
+                            fname = fn{f_idx};
+                            % We only override if it's a known numeric parameter
+                            if ismember(fname, {'n', 'sm', 'st', 'tol', 'start', 'step', 'end'})
+                                if ~isnumeric(sub_data.(fname))
+                                    error('HERA:Analysis:InvalidConfig', 'Mode %s/%s: Field "%s" must be numeric.', f, sm, fname);
+                                end
+                                switch sm
+                                    case 'thr', p_thr{i}.(fname) = sub_data.(fname);
+                                    case 'bca', p_bca{i}.(fname) = sub_data.(fname);
+                                    case 'rnk', p_rank{i}.(fname) = sub_data.(fname);
+                                end
+                            end
+                        end
+                    end
                 end
             end
         end

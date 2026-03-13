@@ -175,16 +175,16 @@ You can structure your configuration file with a minimal setup, or specify all a
 #### Full Example Configuration
 
 This example shows **all** possible parameters with their default values for a convergence analysis.
-Parameters inside `system` must be nested correctly as shown.
+Parameters (e.g., inside `system`, `modes`, `scenarios`, or `refs`) must be nested correctly as shown.
 
 ```json
 {
   "userInput": {
      "n_sims_per_cond": 15,
      "output_dir": " ",
-     "num_workers": "auto",
 
      "system": {
+         "num_workers": "auto",
          "target_memory": "auto"
      },
 
