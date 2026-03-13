@@ -38,6 +38,9 @@ This ensures that a "win" is only counted if it is both **statistically
 significant** and **practically relevant**, providing a robust and nuanced
 ranking system.
 
+For more information please refer to the Project
+[Website](https://lerdmann1601.github.io/HERA-Matlab/).
+
 ---
 
 ## Key Features
