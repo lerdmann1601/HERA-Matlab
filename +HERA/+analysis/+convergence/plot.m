@@ -88,7 +88,7 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
         if is_incremental
              target_pdfs = {pdf_sc};
         else
-             target_pdfs = {pdf_sc, pdf_full};
+             target_pdfs = {pdf_full};
         end
         
         plot_single_report(dat, safe_name, modes, colors, refs, limits, dir_graphics, char(ts_str), target_pdfs);
