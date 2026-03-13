@@ -20,7 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.3.1] - 2026-03-05
+## [1.3.1] - 2026-03-09
 
 ### Added
 
@@ -34,7 +34,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.3.0] - 2026-02-28
+## [1.3.0] - 2026-03-03
 
 ### Added
 
@@ -45,7 +45,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.2.1] - 2026-02-14
+## [1.2.1] - 2026-02-01
 
 ### Added
 
@@ -57,7 +57,7 @@ All notable changes to this project will be documented in this file.
 
 ---
 
-## [1.2.0] - 2026-02-06
+## [1.2.0] - 2026-01-30
 
 ### Added
 
@@ -73,19 +73,19 @@ All notable changes to this project will be documented in this file.
 
 ## Archived Versions (Deprecated)
 
-### [1.1.2] - 2025-11-20
+### [1.1.2] - 2026-01-26
 
 - Maintenance update for example workflows and installation logic refinements.
 
-### [1.1.1] - 2025-11-15
+### [1.1.1] - 2025-01-18
 
 - MkDocs integration and DOI (Zenodo) metadata sync.
 
-### [1.1.0] - 2025-11-10
+### [1.1.0] - 2026-01-16
 
 - Initial release of the Python Interface and MATLAB Toolbox (`.mltbx`).
 
-### [1.0.0] - 2025-06-01
+### [1.0.0] - 2025-12-17
 
 - **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
