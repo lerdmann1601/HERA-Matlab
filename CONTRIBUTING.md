@@ -4,9 +4,17 @@ First off, thank you for considering contributing to HERA! It's people like you
 that make the open source community such an amazing place to learn, inspire, and
 create. Any contribution you make is **greatly appreciated**.
 
-This document provides guidelines for contributing to the project. These are
-mostly guidelines, not rules. Use your best judgment, and feel free to propose
-changes to this document in a pull request.
+This document provides guidelines for contributing to the project.
+
+## Collaborator Access
+
+To maintain a clear overview of all ongoing developments and ensure efficient coordination,
+**contributions are currently managed via collaborator access**.
+
+Everyone is still warmly invited to contribute! If you would like to help improve HERA,
+please reach out by opening a [Discussion](https://github.com/lerdmann1601/HERA-Matlab/discussions)
+or an Issue to be added as a collaborator. This helps me keep track of who is working on what
+and avoid duplicate efforts.
 
 ## Code of Conduct
 
@@ -29,8 +37,8 @@ Issue with the label `question`.
 If you spot a bug, please help us by reporting it!
 
 1. **Search existing issues** to see if it has already been reported.
-2. If not, open a new Issue.
-3. Provide as much detail as possible:
+2. If not, open a new Issue using the **Bug Report template**.
+3. Provide all requested details in the template:
     * Your Operating System and MATLAB version.
     * Steps to reproduce the error.
     * Screenshots or code snippets if applicable.
@@ -57,7 +65,7 @@ git checkout -b feature/AmazingFeature
 
 Implement your feature or bug fix.
 
-* **Code Style**: Please follow standard MATLAB coding conventions.
+* **Code Style**: Please follow standard MATLAB and Python coding conventions.
 * **Documentation**: Update the `README.md` or add comments if you are introducing new functionality.
 
 ### 4. Run Tests
@@ -81,9 +89,11 @@ git push origin feature/AmazingFeature
 
 Go to the original HERA repository and open a Pull Request.
 
+* **Use the Pull Request template**: GitHub will automatically populate the description field with our template.
+Please fill it out completely.
 * Describe your changes clearly.
 * Link to any relevant issues (e.g., "Fixes #123").
-* Wait for review! We will do our best to review your contribution as soon as possible.
+* Wait for review! I will do my best to review your contribution as soon as possible.
 
 ---
 
