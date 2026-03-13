@@ -119,10 +119,18 @@ class HeraSmartWrapper:
             # Check for numeric type
             if np.issubdtype(data.dtype, np.number):
                 try:
-                    return matlab.double(data.tolist())
+                    # PERFORMANCE OPTIMIZATION (R2022a+):
+                    # Modern MATLAB supports direct conversion from NumPy arrays via the
+                    # buffer protocol. This is significantly faster than .tolist().
+                    return matlab.double(data)
                 except Exception:
-                    # Fallback or pass through if conversion fails
-                    return data
+                    # FALLBACK: Use .tolist() for older versions or edge cases
+                    # where direct buffer access might fail.
+                    try:
+                        return matlab.double(data.tolist())
+                    except Exception:
+                        # Fallback or pass through if conversion fails
+                        return data
             else:
                 return data
         
