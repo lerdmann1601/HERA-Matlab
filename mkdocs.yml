@@ -1,11 +1,12 @@
 site_name: HERA
-site_description: HERA is a MATLAB toolbox for robust, statistical benchmarking and ranking of algorithms using hierarchical logic, effect sizes, and bootstrapping.
+site_description: HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a Scientific Ranking Framework for Paired Benchmarking.
 site_url: https://lerdmann1601.github.io/HERA-Matlab/
 repo_url: https://github.com/lerdmann1601/HERA-Matlab
 repo_name: lerdmann1601/HERA-Matlab
 
 theme:
   name: material
+  custom_dir: docs/overrides # Required for theme overrides (e.g., Google site verification)
   logo: assets/hera_logo.svg
   favicon: assets/hera_logo.svg
   features:
