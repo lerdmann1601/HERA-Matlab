@@ -8,10 +8,13 @@
 * **Fallback Convergence** (Elbow Method): Triggered if the primary
     plateau criterion is not met. It uses a heuristic to detect the point of
     diminishing returns.
-    > [!WARNING]
-    > This is a diagnostic aid, not a guarantee!
-    > Results should be treated as a suggestion to be verified by visual inspection
-    > and for further analysis (for more details see Troubleshooting Convergence).
+
+> [!WARNING]
+> The Ellbow Fallback is a diagnostic aid, not a guarantee!
+> Results should be treated as a suggestion to be verified by visual inspection
+> and for further analysis (for more details see Troubleshooting Convergence).
+
+---
 
 > [!NOTE]
 > The different parameters used in the **Robust Mode** for
