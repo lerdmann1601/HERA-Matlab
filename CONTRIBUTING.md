@@ -66,7 +66,7 @@ git checkout -b feature/AmazingFeature
 Implement your feature or bug fix.
 
 * **Code Style**: Please follow standard MATLAB and Python coding conventions.
-* **Documentation**: Update the `README.md` or add comments if you are introducing new functionality.
+* **Documentation**: Update the `CHANGELOG.md` and add appropriate comments if you are introducing new functionality.
 
 ### 4. Run Tests
 
