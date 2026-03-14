@@ -159,7 +159,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
     diary(log_filename);
     cleanupDiary = onCleanup(@() diary('off'));  % Ensures diary closes on ANY exit (incl. Ctrl+C)
 
-    pdf_full = fullfile(final_out_dir, ['Full_Combined_Report_', char(ts_str), '.pdf']);
+    pdf_full = fullfile(final_out_dir, ['Global_Summary_', char(ts_str), '.pdf']);
     
     % Print Header and Config Summary to Console & Log
     fprintf('\n==========================================================\n');
@@ -243,11 +243,10 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         % Scientific Parameters (Data Scenarios & Methods)
         cfg_out.N = N;
         if exist('customConfig', 'var')
-            if isfield(customConfig, 'num_scenarios')
-                cfg_out.num_scenarios = customConfig.num_scenarios;
-            end
             if isfield(customConfig, 'selected_scenarios')
                 cfg_out.selected_scenarios = customConfig.selected_scenarios;
+            elseif isfield(customConfig, 'num_scenarios')
+                cfg_out.num_scenarios = customConfig.num_scenarios;
             end
         end
         cfg_out.selected_methods = cfg_base.system.selected_methods;

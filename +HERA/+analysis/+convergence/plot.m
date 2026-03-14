@@ -56,7 +56,7 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
     if ~exist(dir_graphics, 'dir'), mkdir(dir_graphics); end
     if ~exist(dirty_pdfs, 'dir'), mkdir(dirty_pdfs); end
 
-    pdf_full = fullfile(final_out_dir, ['Full_Combined_Report_', char(ts_str), '.pdf']);
+    pdf_full = fullfile(final_out_dir, ['Global_Summary_', char(ts_str), '.pdf']);
     
     % NOTE: The parameter overview tables are created BEFORE simulation in convergence_analysis.m and appended to pdf_full there.
     % Aggregate global results
@@ -65,7 +65,7 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
         glob.bca = stack_results(res_struct, 'bca');
         glob.rnk = stack_results(res_struct, 'rnk');
         
-        pdf_global = fullfile(dirty_pdfs, ['Global_Summary_', char(ts_str), '.pdf']);
+        pdf_global = fullfile(dirty_pdfs, ['Pooled_Results_', char(ts_str), '.pdf']);
         
         % Re-evaluate targets for global since pdf_global name is now known
         if is_incremental
@@ -74,7 +74,7 @@ function generate_scientific_reports(res_struct, modes, styles, refs, limits, pa
              target_pdfs = {pdf_global, pdf_full};
         end
         
-        plot_single_report(glob, 'Global_Summary', modes, colors, refs, limits, dir_graphics, char(ts_str), target_pdfs);
+        plot_single_report(glob, 'Pooled_Results', modes, colors, refs, limits, dir_graphics, char(ts_str), target_pdfs);
     end
     
     % Create Per-Scenario Reports
