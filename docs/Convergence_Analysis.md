@@ -101,7 +101,7 @@ The complete analysis (8 scenarios × 50 independent simulations × 6 different 
 
 For a comprehensive look at the data, including specific breakdowns for each distribution type, please refer to the generated PDF report:
 
-[**Download Full Combined Report (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Full_Combined_Report_Example.pdf)
+[**Download Full Report of all Results (PDF)**](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Global_Summary_Example.pdf)
 
 ## Running Your Own Analysis
 
