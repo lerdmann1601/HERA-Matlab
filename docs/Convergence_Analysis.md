@@ -73,13 +73,13 @@ Beyond simply checking for convergence, we also validated the **accuracy** of th
 ### Global Results Summary
 
 **Ranking Convergence:**
-![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_Ranking_Example.png)
+![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Ranking_Example.png)
 
 **BCa Confidence Interval Convergence:**
-![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_BCa_Example.png)
+![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_BCa_Example.png)
 
 **Threshold Calculations:**
-![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Global_Summary_Thresholds_Example.png)
+![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Thresholds_Example.png)
 
 ## Discussion: Convergence Modes
 
