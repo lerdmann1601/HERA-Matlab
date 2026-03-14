@@ -80,7 +80,7 @@ Parallel pool active (8 workers). Run "delete(gcp)" to free memory.
 ==================================
    Study Completed Successfully
 ==================================
-Summary Report (PDF):  /Users/lukasvonerdmannsdorff/Documents/HERA_convergence_Log/Robustness_Report_Example/Full_Combined_Report_Example.pdf
+Summary Report (PDF):  /Users/lukasvonerdmannsdorff/Documents/HERA_convergence_Log/Robustness_Report_Example/Global_Summary_Example.pdf
 Configuration (JSON):  /Users/lukasvonerdmannsdorff/Documents/HERA_convergence_Log/Robustness_Report_Example/configuration_Example.json
 Global Data (CSV):     /Users/lukasvonerdmannsdorff/Documents/HERA_convergence_Log/Global_Summary_Example.csv
 Pooled Results (CSV):  /Users/lukasvonerdmannsdorff/Documents/HERA_convergence_Log/Pooled_Results_Example.csv

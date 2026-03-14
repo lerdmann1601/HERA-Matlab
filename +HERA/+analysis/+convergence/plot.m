@@ -147,7 +147,7 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         pause(0.1);
         drawnow; % Double refresh to ensure tiledlayout/alignment expands correctly
         
-        if contains(suffix_name, 'Global_Summary')
+        if contains(suffix_name, 'Pooled_Results')
             title_str = sprintf('%s Analysis: %s (Ref B = %s)', name, clean_suffix, rb_str);
         else
             % Add Median Cliff's d to the title for context
