@@ -19,6 +19,8 @@ A candidate $A$ only "wins" over candidate $B$ if the difference satisfies three
 1. **Statistical Significance**: $p < \alpha_{\text{Holm}}$ (Wilcoxon signed-rank test with Holm-Bonferroni correction).
 2. **Stochastic Dominance**: $|d| \geq \theta_d$ (Cliff's Delta must exceed the data-driven threshold).
 3. **Practical Magnitude**: $\text{RelDiff} \geq \theta_{\text{RelDiff}}$ (Relative Mean Difference must exceed the threshold).
+   The Relative Mean Difference (RelDiff) is defined for group means $\bar{x}$ and $\bar{y}$ as:
+   $$\text{RelDiff} = \frac{|\bar{x} - \bar{y}|}{|\frac{1}{2}(\bar{x} + \bar{y})|}$$
 
 ### Data-Driven Threshold Calculation
 
@@ -83,5 +85,5 @@ Resolves remaining "neutral" clusters where Metric 1 or 2 could not establish a 
 To ensure the ranking is not an artifact of a specific configuration or point estimate, HERA provides several steps to assess the sensitivity and stability of the ranking.
 
 - **Borda Count**: Re-runs the analysis for all permutations of the metric hierarchy to help identify candidates that are robustly superior regardless of prioritization and to asses the sensitivity of a ranked candidate to the choice of metric hierarchy.
-- **Cluster Bootstrap**: Resamples participants as whole clusters and performs the whole ranking process in each bootstrap sample to generate a *95% Rank Confidence Interval*, visualizing the stability of each position and the relative frequency of each candidate for a specific rank under resampling.
+- **Cluster Bootstrap**: Resamples participants as whole clusters and performs the whole ranking process in each bootstrap sample to generate a *95% Rank Confidence Interval* with the percentile method, to assess the stability of each position and the relative frequency of each candidate for a specific rank under resampling.
 - **Empirical Power Analysis**: Estimates the possibility of replicating a "win", "loss", or "neutral" result through simulation (cluster bootstrap) given the data characteristics. High empirical power (>80%) combined with a neutral result suggests that the true difference is likely negligible, whereas low power indicates that the dataset may be too small or noisy to draw robust conclusions.
