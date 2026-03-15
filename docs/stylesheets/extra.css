@@ -42,14 +42,15 @@ figcaption::before {
     font-weight: bold;
 }
 
-/* Ensure tables can wrap text if needed, especially for long identifiers */
+/* Allow tables to wrap text naturally */
 .md-typeset table:not([class]) th,
 .md-typeset table:not([class]) td {
-    word-break: break-word;
-    min-width: 100px;
+    overflow-wrap: break-word;
 }
 
-/* Specifically for code-like identifiers in tables */
+/* Handle long identifiers in tables more gracefully */
 .md-typeset table:not([class]) td code {
-    word-break: break-all;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    white-space: normal;
 }
