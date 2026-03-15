@@ -38,7 +38,6 @@ span.math.inline {
 
 /**
  * 4. Automatic Figure Numbering
- *    Counts <figure> elements and prefixes <figcaption> with "Fig. X: "
  */
 .md-content__inner {
     counter-reset: fig-count;
@@ -55,26 +54,54 @@ figcaption::before {
 
 /**
  * 5. Table Scaling & Responsiveness
- *    Ensures tables look good on mobile and desktop without layout breaks.
- *    Note: Horizontal scrolling for wide tables is enabled via mkdocs.yml.
+ *    Priority: Utilize horizontal scrolling to preserve identifier integrity.
  */
-.md-typeset table:not([class]) {
+
+/* Container for table scrolling (MkDocs Material standard) */
+.md-typeset__table {
+    overflow-x: auto !important;
+    display: block;
     width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset table:not([class]) {
+    width: auto;
+    min-width: 100%;
     margin-bottom: 1em;
+    border-collapse: collapse;
 }
 
 .md-typeset table:not([class]) th,
 .md-typeset table:not([class]) td {
     padding: 12px;
-    /* Prefers natural breaks but allows breaking anywhere if overflow would occur. */
-    overflow-wrap: anywhere;
+    /* word-break: keep-all prevents mid-word breaks for normal text. */
+    word-break: keep-all; 
+    overflow-wrap: break-word;
 }
 
-/* Specific handling for code identifiers in tables (e.g. snake_case_names) */
+/**
+ * Handling for code identifiers (e.g. min_steps_for_convergence_check)
+ * If the name is extremely long, we allow the browser to break at natural points 
+ * (like underscores or dots) if supported, but prioritize keeping it on one line 
+ * to trigger the scrollbar.
+ */
 .md-typeset table:not([class]) td code {
-    white-space: pre-wrap;
-    /* Preserve spacing while allowing wrapping */
-    overflow-wrap: anywhere;
-    /* Allows breaking at underscores or dots */
+    white-space: pre;      /* Initially try to stay on one line to trigger scroll */
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+/* On very narrow screens, we allow identifiers to wrap at natural points if they exceed container width */
+@media screen and (max-width: 450px) {
+    .md-typeset table:not([class]) td code {
+        white-space: pre-wrap; /* Allows wrapping if the scrollbar isn't preferred */
+        overflow-wrap: break-word; /* Prefers breaking at underscores/points if possible */
+    }
+}
+
+/* Ensure description columns (last column) always wrap naturally at spaces */
+.md-typeset table:not([class]) td:last-child {
+    white-space: normal;
     word-break: normal;
 }
