@@ -41,3 +41,15 @@ figcaption::before {
     content: "Fig. " counter(fig-count) ": ";
     font-weight: bold;
 }
+
+/* Ensure tables can wrap text if needed, especially for long identifiers */
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+    word-break: break-word;
+    min-width: 100px;
+}
+
+/* Specifically for code-like identifiers in tables */
+.md-typeset table:not([class]) td code {
+    word-break: break-all;
+}
