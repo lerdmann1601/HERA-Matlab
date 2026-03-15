@@ -48,7 +48,9 @@ HERA quantifies differences using statistical significance and effect sizes to e
 - **Significance**: $p < \alpha_{\text{Holm}}$ (Holm-Bonferroni corrected). Pairwise comparisons use the Wilcoxon signed-rank test [@Wilcoxon1945], with p-values corrected using the step-down Holm-Bonferroni method [@Holm1979] to control the Family-Wise Error Rate (FWER).
 - **Stochastic Dominance (Cliff's Delta)**:  Cliff's Delta ($d = P(X>Y) - P(Y>X)$) quantifies distribution overlap, is robust to outliers, and relates to common-language effect sizes [@Cliff1993; @Vargha2000]. The effect size $d$ must exceed a bootstrapped threshold $\theta_d$.
 - **Magnitude (Relative Difference)**: The Relative Mean Difference (RelDiff) quantifies effect magnitude on the original metric scale, defined for group means $\bar{x}$ and $\bar{y}$ as:
-$$\text{RelDiff} = \frac{|\bar{x} - \bar{y}|}{|\frac{1}{2}(\bar{x} + \bar{y})|}$$
+
+$$\text{RelDiff} = \frac{\vert\bar{x} - \bar{y}\vert}{\vert\frac{1}{2}(\bar{x} + \bar{y})\vert}$$
+
 This normalization is formally identical to the Symmetric Mean Absolute Percentage Error (SMAPE) used in forecasting [@Makridakis1993]. However, by being applied to group means rather than individual observations, it becomes a distinct between-group measure of practical magnitude, conceptually related to the Response Ratio in meta-analysis [@Hedges1999]. The metric enables scale-independent comparisons and facilitates the interpretation of percentage changes [@Kampenes2007]. RelDiff must exceed a threshold $\theta_r$.
 
 **Complementary Criteria & SEM Lower Bound**

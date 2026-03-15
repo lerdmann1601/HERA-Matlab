@@ -20,7 +20,7 @@ A candidate $A$ only "wins" over candidate $B$ if the difference satisfies three
 2. **Stochastic Dominance**: $|d| \geq \theta_d$ (Cliff's Delta must exceed the data-driven threshold).
 3. **Practical Magnitude**: $\text{RelDiff} \geq \theta_{\text{RelDiff}}$ (Relative Mean Difference must exceed the threshold).
    The Relative Mean Difference (RelDiff) is defined for group means $\bar{x}$ and $\bar{y}$ as:
-   $$\text{RelDiff} = \frac{|\bar{x} - \bar{y}|}{|\frac{1}{2}(\bar{x} + \bar{y})|}$$
+   $\text{RelDiff} = \frac{\vert\bar{x} - \bar{y}\vert}{\vert\frac{1}{2}(\bar{x} + \bar{y})\vert}$
 
 ### Data-Driven Threshold Calculation
 
