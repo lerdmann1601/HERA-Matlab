@@ -30,7 +30,7 @@ In scientific disciplines ranging from clinical research to machine learning, re
 
 The scientific community increasingly recognizes the pitfalls of relying on simple summary statistics or p-values alone [@Wasserstein2016]. In benchmarking studies, specifically, several issues persist:
 
-1. **Ignoring Variance**: Ranking based on mean scores fails to account for the stability of performance across different subjects or folds. A method might achieve a high average score due to exceptional performance on a few easy cases while failing catastrophically on others, yet still outrank a more consistent competitor.
+1. **Ignoring Variance**: Ranking based on mean scores fails to account for the stability of performance across different subjects or folds. A method might achieve a high average score due to exceptional performance on a few easy cases while failing catastrophically on others, yet still outrank a more consistent competitor [@Demsar2006].
 2. **Statistical vs. Practical Significance**: A result can be statistically significant but practically irrelevant, especially in large datasets where even trivial differences yield $p < 0.05$. Standard tests do not inherently distinguish between these cases, potentially leading to the adoption of methods that offer no tangible benefit [@Sullivan2012].
 3. **Subjectivity in Aggregation**: Many MCDM methods require users to assign subjective weights to metrics (e.g., "Accuracy is 0.7, Speed is 0.3"). These weights are often chosen post-hoc or lack empirical justification, introducing researcher bias that can be manipulated to favor a specific outcome [@Taherdoost2023].
 4. **Distributional Assumptions**: Parametric tests (e.g., t-test) assume normality, which is often violated in real-world benchmarks where performance metrics may be skewed, bounded, or ordinal [@Romano2006].
@@ -59,10 +59,10 @@ The ranking process is structured as a multi-stage tournament. It does not use a
 ![Hierarchical-Compensatory Ranking Logic](images/hierarchical_logic.png){height=85%}
 
 - **Stage 1 (Initial Sort)**: Methods are initially ranked based on the win count of the primary metric $M_1$. In case of a tie in adjacent ranks, Cliff's Delta is used to break the tie. If Cliff's Delta is zero, the raw mean values are used to break the tie.
-- **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked method can "swap" places with a higher-ranked method if it shows a statistically significant and relevant superiority in a secondary metric $M_2$. This effectively implements a lexicographic ordering with a compensatory component [@Keeney1976], allowing a method that is slightly worse in the primary metric but vastly superior in a secondary metric to improve its standing.
-- **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two sub-logics to ensure a total ordering:
-  - **Sublogic 3a**: A one-time correction if the previous metric is "neutral" based on the HERA criteria. This handles cases where two methods are indistinguishable in the second metric while still respecting the initial ranking.
-  - **Sublogic 3b**: To resolve groups of remaining undecided methods, an iterative correction loop is applied if both $M_1$ and $M_2$ are "neutral", iteratively using metric $M_3$ until a final stable ranking is found.
+- **Stage 2 (Compensatory Correction)**: This stage addresses the trade-off between metrics. A lower-ranked candidate can "swap" places with a higher-ranked one if it demonstrates a statistically significant and relevant superiority in the secondary metric $M_2$. In this hierarchy, $M_2$ acts as a **strict veto** mechanism: a significant disadvantage in this critical metric cannot be offset by any magnitude of advantage in $M_1$. This effectively implements a hierarchical-compensatory ordering [@Keeney1976], allowing candidates that are worse in the primary metric but superior in a secondary metric to improve their standing.
+- **Stage 3 (Tie-Breaking)**: This stage resolves "neutral" results using a tertiary metric $M_3$. It applies two distinct sub-logics to ensure a total ordering while maintaining hierarchical stability:
+  - **Sublogic 3a (Local Correction)**: A one-time correction for adjacent pairs if the previous metric ($M_2$) is neutral. This handles cases where two methods are indistinguishable in high-priority criteria, allowing $M_3$ to locally overrule the initial order without triggering cascading chain reactions that could destabilize the global hierarchy.
+  - **Sublogic 3b (Indifference Resolution)**: To resolve clusters of remaining undecided methods, an iterative correction loop is applied to subsets where both $M_1$ and $M_2$ are "neutral," utilizing metric $M_3$ until a final stable order is found.
 
 ### Validation and Uncertainty
 
@@ -70,7 +70,7 @@ HERA integrates advanced resampling methods to quantify uncertainty:
 
 - **BCa Confidence Intervals**: Bias-Corrected and Accelerated (BCa) intervals are calculated for all effect sizes [@Efron1987].
 - **Cluster Bootstrap**: To assess the stability of the final ranking, HERA performs a cluster bootstrap resampling subjects with replacement [@Field2007]. This yields a 95% confidence interval for the rank of each method.
-- **Power Analysis**: A post-hoc simulation with bootstrap estimates the probability of detecting a "win", "loss" or "neutral" in all tested metrics given the data characteristics.
+- **Power Analysis**: A post-hoc simulation with bootstrap estimates the relative frequency of detecting a "win", "loss" or "neutral" in all tested metrics given the data characteristics.
 - **Sensitivity Analysis**: The algorithm permutes the metric hierarchy and aggregates the resulting rankings using a Borda Count [@Young1974] to evaluate the robustness of the decision against hierarchy changes.
 
 ## Software Features
@@ -81,9 +81,11 @@ HERA offers a flexible configuration of up to three metrics (see Fig. 2). This a
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
 - **Convergence Analysis**: To avoid the common pitfall of using an arbitrary number of bootstrap iterations, HERA implements an adaptive algorithm. It automatically monitors the stability of the estimated confidence intervals and effect size thresholds, continuing the resampling process until the estimates converge within a specified tolerance, thus determining the optimal number of iterations $B$ dynamically [@Pattengale2010]. If the characteristics of the data for bootstrapping are known, the number of bootstrap iterations can be set manually.
 - **Data Integration**: HERA supports seamless data import from standard formats (CSV, Excel) and MATLAB tables, facilitating integration into existing research pipelines. Example datasets and workflows demonstrating practical applications are included in the repository.
-- **Accessibility**: HERA can be easily installed by cloning the GitHub repository and running a setup script, or deployed as a standalone application that requires no MATLAB license. An interactive command-line interface guides users through the analysis without requiring programming expertise, while an API and JSON Configuration allow for automated batch processing.
+- **Accessibility**: HERA can be installed by cloning the GitHub repository, via the `hera-matlab` Python interface on PyPI, or deployed as a standalone application that requires no MATLAB license. The Python interface with automatic NumPy and Pandas data conversion enables license-free integration into standard data science pipelines, requiring only a MATLAB Runtime. The MATLAB toolbox and standalone application feature an interactive CLI that guides users through the analysis without programming expertise, while an API and JSON Configuration allow for automated batch processing.
 
 ![Flexible Configuration options for Ranking Logic](images/features.png)
+
+For detailed information on the algorithmic background, we refer to the [Ranking Logic and Methodology](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained), the [Bootstrap Logic and Convergence](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes), and the [Methodological Guidelines and Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations) pages.
 
 ## Acknowledgements
 
