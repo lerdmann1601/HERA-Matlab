@@ -57,12 +57,12 @@ nav:
   - User Guide:
     - Theoretical Background: Methodology.md
     - Ranking Modes: Ranking_Modes_Explained.md
-    - Input Specification: Input_Data_Specification.md
-    - Example Analysis: Example_Analysis.md
+    - Convergence Modes: Convergence_Modes.md
     - Methodological Guidelines: Methodological_Guidelines_&_Limitations.md
+    - Example Analysis: Example_Analysis.md
+    - Input Specification: Input_Data_Specification.md
     - Configuration & Parameters: Configuration_&_Parameters.md
     - Bootstrap Settings: Bootstrap_Configuration.md
-    - Convergence Modes: Convergence_Modes.md
     - Convergence Analysis: Convergence_Analysis.md
     - Advanced Usage: Advanced_Usage.md
     - Results Structure: Results_Structure_Reference.md

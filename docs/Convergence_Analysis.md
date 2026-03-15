@@ -1,6 +1,6 @@
 # Convergence Analysis for Robust Mode
 
-This document provides an overview of the validation performed for the **Robust Convergence Mode** in HERA.
+This document provides an overview of the validation performed for the *Robust Convergence Mode* in HERA.
 
 ## Overview
 
@@ -10,7 +10,7 @@ Additionally, we evaluated the accuracy of the results by comparing them against
 
 The results confirm that the default settings are appropriate for the vast majority of scenarios, yielding both stable and accurate outcomes.
 
-To ensure **reproducibility** and fair comparability, we utilized a **deterministic seeding scheme** for all simulations. A fixed base seed controls the synthetic data generation, guaranteeing that both the convergence checks and the reference benchmarks operate on **identical datasets**. The bootstrap resampling seeds, however, are deliberately offset to ensure **statistical independence** between the convergence tests and the high-precision reference computations.
+To ensure *reproducibility* and fair comparability, we utilized a *deterministic seeding scheme* for all simulations. A fixed base seed controls the synthetic data generation, guaranteeing that both the convergence checks and the reference benchmarks operate on *identical datasets*. The bootstrap resampling seeds, however, are deliberately offset to ensure *statistical independence* between the convergence tests and the high-precision reference computations.
 
 ## Analysis Design & Constraints
 
@@ -18,7 +18,7 @@ To validate the robustness of the default parameters, we simulated a diverse set
 
 ### Fixed Parameters
 
-It is important to note that the following parameters were treated as **constants** and thus their influence was not explicitly tested in this analysis:
+It is important to note that the following parameters were treated as *constants* and thus their influence was not explicitly tested in this analysis:
 
 * **Step Size ($B_{step}$)**
 * **Tolerance ($Tol$)**
@@ -41,33 +41,33 @@ We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) 
 
 To isolate the behavior of individual convergence algorithms, the following principles and simplifications were applied:
 
-* **Accuracy Metrics**: To assess the overarching robustness, we quantify the estimation error against the high-precision references. For **BCa Confidence Intervals** and **Rankings**, we calculate the relative percentage error. For **Cliff's Delta Thresholds** ($\theta_d$), which operate on a fixed $[0, 1]$ interval, we use the absolute deviation to ensure stable validation even for very small reference values.
+* **Accuracy Metrics**: To assess the overarching robustness, we quantify the estimation error against the high-precision references. For *BCa Confidence Intervals* and *Rankings*, we calculate the relative percentage error. For *Cliff's Delta Thresholds* ($\theta_d$), which operate on a fixed $[0, 1]$ interval, we use the absolute deviation to ensure stable validation even for very small reference values.
 * **Effect Size Calculation**: Both Cliff's Delta and Relative Difference are always calculated, and the convergence criterion is based on the averaged stability of both. This design choice allows us to test whether the averaged convergence approach produces accurate individual estimates despite relying on a combined stability indicator.
 * **Ranking Stability**: A single-metric ranking (M1 only) was used to provide a stable reference point. Multi-metric rankings (M1_M2, M1_M2_M3) may exhibit different convergence characteristics due to increased complexity.
 * **Thresholds for Ranking**: Pre-calculated reference thresholds were used to isolate the ranking convergence behavior from threshold estimation variability.
 
 ## Validation Results
 
-We evaluated the performance of the Robust Mode based on two key criteria: **Convergence Success** (did it finish?) and **Accuracy** (were the results correct?).
+We evaluated the performance of the Robust Mode based on two key criteria: *Convergence Success* (did it finish?) and *Accuracy* (were the results correct?).
 
 ### 1. Convergence Frequency
 
 In our analysis, we observed that:
 
 * The **Robust Mode** achieved exceptionally high convergence rates.
-* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in **0.8%** of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
+* The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in *0.8%* of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
 * For all other metrics (BCa Intervals, Thresholds), convergence rates were 100%.
 
 ### 2. Accuracy Validation
 
-Beyond simply checking for convergence, we also validated the **accuracy** of the results.
+Beyond simply checking for convergence, we also validated the *accuracy* of the results.
 
 * We compared the outcomes of the Robust Mode against "Gold Standard" reference values generated with very high bootstrap iteration counts:
   * **Thresholds**: $B_{ref} = 25{,}000$
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
-* The goal was to analyze the **distribution of errors** (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with negligible deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%. For Cliff's Delta thresholds, the **median absolute deviation remained perfectly at 0**, with the interquartile range (IQR) typically below $0.02$, and 95% of all estimates falling within an absolute deviation of $\pm 0.10$ from the reference.
+* The goal was to analyze the *distribution of errors* (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
+* The results confirmed that the Robust Mode produces estimates with negligible deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%. For Cliff's Delta thresholds, the *median absolute deviation remained perfectly at 0*, with the interquartile range (IQR) typically below $0.02$, and 95% of all estimates falling within an absolute deviation of $\pm 0.10$ from the reference.
 * This confirms that the averaged convergence criteria in HERA ensure high precision across all metrics.
 
 ### Global Results Summary
@@ -160,7 +160,7 @@ HERA.start_ranking('convergence', 'path/to/convergence_config.json')
 You can structure your configuration file with a minimal setup, or specify all available parameters for full control.
 
 > [!NOTE]
-> All parameters in the JSON configuration are entirely **optional**. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.
+> All parameters in the JSON configuration are entirely *optional*. The minimal required JSON file is just an empty `userInput` object (`{ "userInput": {} }`), from which standard defaults will fill all missing values.
 
 #### Minimal Example Configuration
 
@@ -175,7 +175,7 @@ You can structure your configuration file with a minimal setup, or specify all a
 
 #### Full Example Configuration
 
-This example shows **all** possible parameters with their default values for a convergence analysis.
+This example shows *all* possible parameters with their default values for a convergence analysis.
 Parameters (e.g., inside `system`, `modes`, `scenarios`, or `refs`) must be nested correctly as shown.
 
 ```json

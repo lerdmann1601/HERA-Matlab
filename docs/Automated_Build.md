@@ -9,21 +9,21 @@
 To enable GitHub Actions for building and testing, you need to provide a valid
 MATLAB license:
 
-1. Go to your repository's **Settings** > **Secrets and variables** > **Actions**.
-2. Click **New repository secret**.
+1. Go to your repository's *Settings* > *Secrets and variables* > *Actions*.
+2. Click *New repository secret*.
 3. Name the secret `MATLAB_LICENSE` and paste the contents of your license file.
 
 ## Running the Build
 
-This workflow is set to **manual execution** (`workflow_dispatch`) to save
-resources. It is currently configured **not** to trigger automatically on new tags because I, the repository owner, do not have a MATLAB license for the GitHub runner.
+This workflow is set to *manual execution* (`workflow_dispatch`) to save
+resources. It is currently configured *not* to trigger automatically on new tags because I, the repository owner, do not have a MATLAB license for the GitHub runner.
 
 > [!NOTE]
 > **Info for Forks:** If you have a valid MATLAB license configured, you can re-enable automatic builds by uncommenting the `release` trigger in `.github/workflows/build_release.yml`.
 
-1. Navigate to the **Actions** tab in the repository.
-2. Select **Build HERA Runtime** from the sidebar.
-3. Click the **Run workflow** button.
+1. Navigate to the *Actions* tab in the repository.
+2. Select *Build HERA Runtime* from the sidebar.
+3. Click the *Run workflow* button.
 
 The workflow performs the following steps:
 
@@ -40,7 +40,7 @@ The workflow performs the following steps:
 
 ## Publishing to PyPI
 
-To publish the Python package to PyPI, follow this **manual workflow** (since the GitHub Runner cannot build the package due to licensing):
+To publish the Python package to PyPI, follow this *manual workflow* (since the GitHub Runner cannot build the package due to licensing):
 
 ### Prerequisites
 
@@ -70,13 +70,13 @@ To publish the Python package to PyPI, follow this **manual workflow** (since th
    This script automatically syncs the package version with your current Git tag and applies all necessary patches for PyPI. Artifacts are placed in `deploy/dist`.
 
 2. **Create Release**:
-   - Go to GitHub -> Releases -> **Draft a new release**.
+   - Go to GitHub -> Releases -> *Draft a new release*.
    - Push your local tag to GitHub and select it as the release tag (e.g., `v1.3.1`).
-   - **Upload** the `.whl` and `.tar.gz` files from `deploy/dist/` to the release.
+   - *Upload* the `.whl` and `.tar.gz` files from `deploy/dist/` to the release.
    - Publish the release.
 
 3. **Publish to PyPI**:
-   - Go to the **Actions** tab in GitHub.
-   - Select **Publish to PyPI**.
-   - Click **Run workflow** and enter the **Release Tag** you just created (e.g. `v1.3.1`).
+   - Go to the *Actions* tab in GitHub.
+   - Select *Publish to PyPI*.
+   - Click *Run workflow* and enter the *Release Tag* you just created (e.g. `v1.3.1`).
    - The action will automatically detect the pre-built artifacts in your release and upload them directly to PyPI. No further patching or replacement is required.

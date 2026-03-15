@@ -5,7 +5,11 @@
 > Although HERA implements a rigorous statistical framework, the sequential
 > ranking logic remains a heuristic—similar to most benchmarking methodologies.
 > Results should be treated as a decision-support tool and must always be critically
-> evaluated within your specific application context. Furthermore, HERA cannot
+> evaluated within your specific application context. Importantly, while ranking
+> based on quality metrics identifies top-performing candidates, these metrics
+> alone cannot guarantee effectiveness in real-world applications. Consequently,
+> any identified top candidates should still be scientifically and responsibly
+> evaluated within their actual intended application. Furthermore, HERA cannot
 > compensate for improper experimental design or the incorrect use of data;
 > the validity of the output is fundamentally dependent on the quality and
 > appropriateness of the input data.
@@ -34,7 +38,10 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 > Final Summary) visually degrade beyond *N* = 20. For *N* > 20, I recommend
 > relying on the machine-readable and text-based outputs. You can disable plots
 > (`create_reports: false`) to save runtime.
->
+
+---
+
+> [!IMPORTANT]
 > **Recommendation:**
 > If you have a large pool of candidates (*N* >> 15), it could be a good idea to
 > apply a global screening method (e.g., **Friedman Test** followed by Nemenyi post-hoc)
@@ -49,10 +56,12 @@ required.
 
 * **Minimum (*n* = 16)**: Required for the Wilcoxon test to use the Normal
     Approximation in Matlab.
-* **Robust Min (*n* ≈ 25–30)**: Necessary for stable BCa confidence
-    intervals and Jackknife estimates (Although it automatically switches
-    to Percentil Bootstrap if Bias or Jackknife estimates become unstable).
-* **Optimal (*n* ≈ 50–300)**: Best balance of power, stability, and
+* **Robust Min (*n* ≈ 25–30)**: Necessary for stable confidence
+    intervals for ranks, BCa and Jackknife estimates.
+    For BCa it automatically switches to Percentil Bootstrap if Bias and
+    Jackknife estimates become unstable. If one of the two is unstable,
+    it falls back to a partially bias-corrected bootstrap.
+* **Optimal (*n* ≈ 50–500)**: Best balance of power, stability, and
     runtime.
 * **Upper Limit (*n* ≈ 1,000–5,000)**: Higher *n* improves statistics
     but linearly scales runtime. *n* ≫ 5,000 may be computationally
@@ -111,8 +120,14 @@ based on the following methodological considerations:
 > Strongly correlated metrics could be aggregated into a common factor
 > (e.g., via Principal Component Analysis (PCA)) before running the HERA
 > analysis with up to 3 metrics.
->
+
+---
+
+> [!WARNING]
 > If your study design requires the **simultaneous integration** of a large number
 > of metrics ($M \gg 3$) HERA is not feasible and compensatory or outranking MCDA
 > methods are methodologically more appropriate. In this case, approaches like
-> **TOPSIS** or **PROMETHEE** might be a better choice.
+> **TOPSIS** or **PROMETHEE** might be a better choice. Also, for highly complex
+> decision-making scenarios where underlying data generating processes must be
+> explicitly modeled, advanced **Bayesian hierarchical frameworks** might be a
+> better choice than HERA.

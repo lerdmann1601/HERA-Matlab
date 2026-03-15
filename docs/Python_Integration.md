@@ -89,6 +89,8 @@ hera.start_ranking('configFile', 'analysis_config.json', nargout=0)
 hera.terminate()
 ```
 
+See [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_%26_Parameters) for a complete list of available options.
+
 ### B. Direct Data Integration (NumPy/Pandas)
 
 This mode allows you to use HERA as a computational engine within your Python
@@ -98,7 +100,7 @@ integration into larger data science pipelines.
 
 #### Automatic Data Conversion (v1.2.0+)
 
-Starting with version 1.2.0, the package includes a smart wrapper that performs **bidirectional** conversion:
+Starting with version 1.2.0, the package includes a wrapper that performs **bidirectional** conversion:
 
 1. **Input:** Automatically converts **NumPy arrays** and **Pandas DataFrames** to the required MATLAB types.
 2. **Output:** Automatically converts returned MATLAB data (e.g., `matlab.double`) back into **NumPy arrays** for easy processing in Python.
@@ -133,42 +135,8 @@ print(f"Final Ranks: {results['final_rank']}")
 ```
 
 > [!NOTE]
-> Explicit termination (`hera.terminate()`) is optional in scripts, as the package handles cleanup automatically. However, it is recommended for interactive sessions (e.g., Jupyter) to free up resources immediately.
-
-#### Manual Data Conversion (Legacy)
-
-```python
-import hera_matlab
-import matlab
-
-# Initialize
-hera = hera_matlab.initialize()
-
-# Prepare Data (Convert NumPy arrays to MATLAB types)
-# Example: 2 Subjects x 2 Methods
-data_m1 = matlab.double([[0.1, 0.5], [0.2, 0.4]])
-data_m2 = matlab.double([[1.0, 3.0], [1.2, 2.9]])
-
-# Configure Analysis
-config = {
-    'custom_data': [data_m1, data_m2],
-    'metric_names': ['Runtime', 'Accuracy'],
-    'dataset_names': ['Method A', 'Method B'],
-    'ranking_mode': 'M1_M2',
-    'output_dir': 'my_hera_results' # Optional: Specify output folder
-}
-
-# Execute Ranking and retrieve Dictionary
-results = hera.run_ranking(config, nargout=1)
-
-# Access Results
-print(f"Final Ranks: {results['final_rank']}")
-print(f"Effect Sizes (Cliff's Delta): {results['d_vals_all']}")
-print(f"Effect Sizes (Rel Diff): {results['rel_vals_all']}")
-print(f"P-Values: {results['p_vals_all']}")
-
-hera.terminate()
-```
+> Explicit termination (`hera.terminate()`) is optional in scripts, as the package handles cleanup automatically.
+> However, it is recommended for interactive sessions (e.g., Jupyter) to free up resources immediately.
 
 See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference) for a complete list of available fields
 

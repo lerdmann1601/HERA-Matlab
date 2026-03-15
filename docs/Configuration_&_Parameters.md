@@ -1,6 +1,6 @@
 # Configuration Reference
 
-To run HERA in **Batch Mode**, create a `.json` file (e.g.,
+To run HERA in *Batch Mode*, create a `.json` file (e.g.,
 `analysis_config.json`). Below is the complete list of available parameters.
 
 > [!IMPORTANT]
