@@ -1,16 +1,22 @@
-/* Center all images in the content area */
+/* =========================
+   HERA Documentation Styles
+   ========================= */
+
+/**
+ * 1. Images & Figures
+ *    Centered images with subtle shadow for better contrast.
+ */
 .md-content__inner img {
     display: block;
     margin: 0 auto;
-}
-
-/* Optional: Add a slight shadow/border to images for better visibility on white background */
-.md-content__inner img {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
 }
 
-/* Bibliography styling */
+/**
+ * 2. Bibliography (Pandoc/Refs)
+ *    Styling for references and citations.
+ */
 #refs {
     font-size: 0.9em;
 }
@@ -21,14 +27,19 @@
     text-indent: -2em;
 }
 
-/* Pandoc MathJax/HTML math rendering */
+/**
+ * 3. Typography & Math Highlighting
+ */
 span.math.inline {
     display: inline !important;
     float: none !important;
     margin: 0 !important;
 }
 
-/* Automatic Figure Numbering */
+/**
+ * 4. Automatic Figure Numbering
+ *    Counts <figure> elements and prefixes <figcaption> with "Fig. X: "
+ */
 .md-content__inner {
     counter-reset: fig-count;
 }
@@ -42,15 +53,28 @@ figcaption::before {
     font-weight: bold;
 }
 
-/* Allow tables to wrap text naturally */
-.md-typeset table:not([class]) th,
-.md-typeset table:not([class]) td {
-    overflow-wrap: break-word;
+/**
+ * 5. Table Scaling & Responsiveness
+ *    Ensures tables look good on mobile and desktop without layout breaks.
+ *    Note: Horizontal scrolling for wide tables is enabled via mkdocs.yml.
+ */
+.md-typeset table:not([class]) {
+    width: 100%;
+    margin-bottom: 1em;
 }
 
-/* Handle long identifiers in tables more gracefully */
-.md-typeset table:not([class]) td code {
-    word-break: normal;
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+    padding: 12px;
+    /* Prefers natural breaks but allows breaking anywhere if overflow would occur. */
     overflow-wrap: anywhere;
-    white-space: normal;
+}
+
+/* Specific handling for code identifiers in tables (e.g. snake_case_names) */
+.md-typeset table:not([class]) td code {
+    white-space: pre-wrap;
+    /* Preserve spacing while allowing wrapping */
+    overflow-wrap: anywhere;
+    /* Allows breaking at underscores or dots */
+    word-break: normal;
 }
