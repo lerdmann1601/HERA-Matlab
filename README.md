@@ -33,10 +33,10 @@ p-values, HERA employs a **hierarchical-compensatory logic** that integrates:
 
 * **Significance Testing**: Wilcoxon signed-rank tests for paired data.
 * **Effect Sizes**: Cliff's Delta and Relative Mean Difference for practical relevance.
-* **Bootstrapping**: Data-driven thresholds and BCa confidence intervals.
+* **Bootstrapping**: Data-driven thresholds and confidence intervals.
 
-This ensures that a "win" is only counted if it is both **statistically
-significant** and **practically relevant**, providing a robust and nuanced
+This ensures that a "win" is only counted if it is both **statistically significant** and
+**practically relevant**, providing a robust and nuanced
 ranking system.
 
 For more information please refer to the Project
@@ -53,7 +53,8 @@ For more information please refer to the Project
   thresholds via Percentile Bootstrapping, utilizing a dynamic SEM guardrail to
   maintain practical relevance relative to measurement noise.
 * **Robustness**: Utilizes Bias-Corrected and Accelerated (BCa) confidence
-  intervals for effect sizes and Cluster Bootstrapping for rank stability.
+  intervals for effect sizes and Cluster Bootstrapping using the percentile method
+  for rank stability.
 * **Automated Reporting**: Generates PDF reports with high-resolution graphics
   (e.g., Win-Loss matrices, Sankey diagrams) and machine-readable JSON/CSV
   exports including the complete analysis and statistics.
@@ -73,7 +74,7 @@ For more information please refer to the Project
 
 ### Setup
 
-#### Option A: MATLAB Toolbox (Recommended)
+#### Option A: MATLAB Toolbox (Recommended for MATLAB Users)
 
 1. Download the latest `HERA_v1.4.0.mltbx` from the
    [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
@@ -98,11 +99,11 @@ For more information please refer to the Project
     setup_HERA
     ```
 
+#### Option C: Standalone Runtime and Python Integration
+
 👉 [Standalone Runtime](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime)
 
 👉 [Python Integration](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration)
-
-👉 [Automated Build (GitHub Actions)](https://lerdmann1601.github.io/HERA-Matlab/Automated_Build)
 
 ---
 
@@ -162,7 +163,7 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 > provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a
 > walkthrough of the example use cases and visual examples of the ranking
 > outputs.
-
+---
 > [!NOTE]
 > HERA is designed for high-performance scientific computing, featuring
 > **fully parallelized bootstrap procedures** and **automatic memory management**
@@ -181,21 +182,21 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 
 👉 [Ranking Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained)
 
-👉 [Input Data Specification](https://lerdmann1601.github.io/HERA-Matlab/Input_Data_Specification)
+👉 [Convergence Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes)
+
+👉 [Methodological Guidelines & Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations)
 
 👉 [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis)
 
-👉 [Methodological Guidelines & Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations)
+👉 [Input Data Specification](https://lerdmann1601.github.io/HERA-Matlab/Input_Data_Specification)
 
 👉 [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters)
 
 👉 [Bootstrap Configuration](https://lerdmann1601.github.io/HERA-Matlab/Bootstrap_Configuration)
 
-👉 [Convergence Modes](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes)
-
 👉 [Convergence Analysis](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Analysis)
 
-👉 [Advanced Usage (Developer Mode)](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage)
+👉 [Advanced Usage (MATLAB Users)](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage)
 
 👉 [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference)
 
