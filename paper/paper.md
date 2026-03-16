@@ -1,33 +1,8 @@
----
-title: 'HERA: A Hierarchical-Compensatory Ranking Framework for Paired Benchmarking with Data-Driven Effect-Size Thresholds'
-tags:
-  - MATLAB
-  - ranking
-  - statistics
-  - benchmarking
-  - bootstrap
-  - effect size
-  - multi-criteria decision making
-authors:
-  - name: Lukas von Erdmannsdorff
-    orcid: 0009-0009-3758-7363
-    affiliation: 1
-
-affiliations:
- - name: Institute of Neuroradiology, Goethe University Frankfurt
-   index: 1
-date: 15 March 2026
-bibliography: paper.bib
----
-
-<div align="center">
 
 # HERA: A Hierarchical-Compensatory Ranking Framework for Paired Benchmarking with Data-Driven Effect-Size Thresholds
 
 **Lukas von Erdmannsdorff**  
 *Institute of Neuroradiology, Goethe University Frankfurt*
-
-</div>
 
 ---
 

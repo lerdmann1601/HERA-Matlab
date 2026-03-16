@@ -29,7 +29,7 @@ These were held constant because the three parameters we *did* test (regarding d
 
 ### Evaluated Scenarios
 
-We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes, as well as varying method properties. Typical Cliff's Delta effect magnitudes observed in the simulations ranged from 0.18 to 0.74.
+We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) and sample sizes ($n = 25 - 100$), as well as varying method properties. To ensure robust findings, each of the eight scenarios was evaluated using $N_{\text{sim}} = 50$ independent simulations, totaling 400 simulations across 2,400 distinct datasets and 3,600 benchmarked bootstrap settings. Typical Cliff's Delta effect magnitudes observed in the simulations ranged from 0.18 to 0.74.
 
 **Data Scenarios:**
 ![Scenario Parameters](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Param_Scenarios_Example.png)
@@ -71,7 +71,7 @@ In our analysis, we observed that:
 
 Beyond simply checking for convergence, we also validated the *accuracy* of the results.
 
-We compared the outcomes of the Robust Mode against "Gold Standard" reference values generated with very high bootstrap iteration counts:
+We compared the outcomes of the Robust Mode against "Gold Standard" reference values generated with very high bootstrap iteration counts independently for each simulation within the different scenarios:
 
 * **Thresholds**: $B_{ref} = 25{,}000$
 * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
