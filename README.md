@@ -24,9 +24,11 @@
 
 ## Overview
 
-**HERA** is a MATLAB toolbox designed to automate the objective comparison of
-algorithms, experimental conditions, or datasets across multiple quality
-metrics. Unlike traditional ranking methods that rely solely on mean values or
+**HERA** is a MATLAB based scientific ranking framework for paired benchmarking,
+designed to automate the objective comparison of algorithms, experimental
+conditions, or other methods with repeated measurements across single or
+multiple quality metrics.
+Unlike traditional ranking methods that rely solely on mean values or
 p-values, HERA employs a **hierarchical-compensatory logic** that integrates:
 
 * **Significance Testing**: Wilcoxon signed-rank tests for paired data.
@@ -73,7 +75,7 @@ For more information please refer to the Project
 
 #### Option A: MATLAB Toolbox (Recommended)
 
-1. Download the latest `HERA_v1.3.1.mltbx` from the
+1. Download the latest `HERA_v1.4.0.mltbx` from the
    [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
 2. Double-click the file to install it.
 3. Done! HERA is now available as a command (`HERA.start_ranking`) in MATLAB.
@@ -305,7 +307,7 @@ If you use HERA in your research, please cite:
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven
   Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.3.1},
+  version = {1.4.0},
   doi = {10.5281/zenodo.18274870},
   year = {2026}
 }

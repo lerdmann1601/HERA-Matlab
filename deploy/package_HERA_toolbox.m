@@ -52,7 +52,7 @@ function package_HERA_toolbox()
     if is_cicd
         version_str = getenv('GITHUB_REF_NAME');
         if isempty(version_str) || ~startsWith(version_str, 'v')
-            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.3.1) must be set via GITHUB_REF_NAME.');
+            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.0) must be set via GITHUB_REF_NAME.');
         end
     else
         % Local build: Use get_version() helper
@@ -119,8 +119,8 @@ function package_HERA_toolbox()
     opts.AuthorEmail = ''; % Optional: Leave empty or fill if known
     
     % Description
-    opts.Summary = 'HERA: A High-Efficiency Ranking Tool for MCDA';
-    opts.Description = 'HERA provides tools for Multi-Criteria Decision Analysis, including ranking, visualization, and validation.';
+    opts.Summary = 'A Scientific Ranking Framework for Paired Benchmarking';
+    opts.Description = 'HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across multiple quality metrics. It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings. For more information, visit the project website: https://lerdmann1601.github.io/HERA-Matlab/';
     
     % Define essential files and directories to include in the toolbox.
     % Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).

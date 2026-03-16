@@ -9,6 +9,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-03-16
+
 ### Added
 
 - **8th Convergence Scenario**: Introduced a new `Sensitivity` scenario to the convergence analysis suite.
@@ -94,7 +96,8 @@ All notable changes to this project will be documented in this file.
 
 - **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.3.1...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.4.0
 [1.3.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.1
 [1.3.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.0
 [1.2.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.2.1

@@ -107,6 +107,10 @@ Starting with version 1.2.0, the package includes a wrapper that performs **bidi
 
 This eliminates the need for manual conversion in both directions.
 
+> [!IMPORTANT]
+> **Performance (v1.4.0+):** Input conversion utilizes modern MATLAB direct buffer access (R2022a+).
+> This avoids unnecessary Python list overhead.
+
 ```python
 import hera_matlab
 import numpy as np
