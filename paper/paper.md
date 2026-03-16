@@ -74,7 +74,7 @@ HERA integrates advanced resampling methods to quantify uncertainty:
 
 ## Software Features
 
-HERA offers a flexible configuration of up to three metrics (see Fig. 2). This allows users to adapt the ranking logic to different study designs and needs. It also provides a range of reporting options, data integration, and reproducibility features.
+HERA offers a flexible configuration of up to three metrics (see Fig. 2). This allows users to adapt the ranking logic to different study designs and needs. It also combines this flexibility with a range of reporting options, data integration, and reproducibility features. By providing robust default parameters for all statistical and convergence settings, researchers can focus exclusively on core scientific decisions—such as the selection of metrics, the choice of ranking logic, and the assignment of metrics to the specific stages—while all technical tuning and validation steps are fully automated. This allows the ranking process to directly reflect the user's scientific expertise without requiring ad-hoc parameterization.
 
 - **Automated Reporting**: Generates PDF reports, Win-Loss Matrices, Sankey Diagrams, and machine-readable JSON/CSV exports.
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.

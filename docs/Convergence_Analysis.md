@@ -39,14 +39,18 @@ We tested against multiple distribution types (Normal, Bimodal, Skewed, Likert) 
 
 ### Analysis Scope
 
-To isolate the behavior of individual convergence algorithms, the following principles and simplifications were applied:
+To isolate the behavior of individual convergence algorithms and ensure valid results across scenarios, the following principles and simplifications were applied:
 
-* **Accuracy Metrics**: To assess the overarching robustness, we quantify the estimation error against the high-precision references. For *BCa Confidence Intervals* and *Rankings*, we calculate the relative percentage error. For *Cliff's Delta Thresholds* ($\theta_d$), which operate on a fixed $[0, 1]$ interval, we use the absolute deviation to ensure stable validation even for very small reference values.
-* **Effect Size Calculation**: Both Cliff's Delta and Relative Difference are always calculated, and the convergence criterion is based on the averaged stability of both. This design choice allows us to test whether the averaged convergence approach produces accurate individual estimates despite relying on a combined stability indicator.
-* **Ranking Stability**: A single-metric ranking (M1 only) was used to provide a stable reference point. Multi-metric rankings (M1_M2, M1_M2_M3) may exhibit different convergence characteristics due to increased complexity.
-* **Thresholds for Ranking**: Pre-calculated reference thresholds were used to isolate the ranking convergence behavior from threshold estimation variability.
+* **Accuracy Metrics**: To assess robustness, we quantify the estimation error against high-precision references.
+  * For *BCa Confidence Intervals* and *Rankings*, we use the relative percentage error to capture scaled deviations.
+  * For *Cliff's Delta Thresholds* ($\theta_d$), which operate on a fixed $[0, 1]$ interval, we use the absolute deviation. This hybrid approach ensures stable validation even when reference values are near zero, preventing disproportionately high percentage errors.
+* **Metric Focus (Cliff's Delta vs. Relative Difference)**:
+  * **Thresholds**: The validation focuses primarily on the Cliff's Delta threshold ($\theta_d$). As a non-parametric effect size, Cliff's Delta is the main driver for determining the direction of superiority (dominance) in HERA's ranking system. The *Relative Difference threshold* ($\theta_{\text{rel}}$) was excluded from direct convergence validation because its final value can be capped by a SEM-based lower limit (see [Ranking Logic](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained)), meaning the raw bootstrap estimate alone does not fully reflect the intended algorithmic output for that specific metric.
+  * **BCa Intervals**: We specifically evaluate the accuracy of the *width* of the Cliff's Delta confidence interval. Width is the primary determinant of statistical precision and uncertainty quantification in the BCa method. This assessment is performed on a *single, representative pairwise comparison* per dataset, which serves as a proxy for the stability of the entire resampling process across all pairs. Cliff's Delta was chosen as its precision is more important for the ranking logic.
+* **Ranking Stability**: A *single-metric ranking (Stage 1 only)* using the *Mean Rank* was chosen as a robust proxy for the overall stability of the discrete order. Multi-metric rankings (e.g., Stage 1 & 2) involve more complex hierarchies that can mask fundamental convergence characteristics. Validating Stage 1 ensures better traceability of the bootstrap behavior.
+* **Isolation of Ranking Convergence**: To focus purely on the ranking bootstrap's stability, the ranking phase was validated using *fixed reference thresholds* ($\theta_d, \theta_{\text{rel}}$) derived from the separate high-precision run. This prevents variability in threshold estimation from confounding the results for ranking convergence. Therefore, we cannot assess the sensitivity of the ranking convergence to the variability of the thresholds.
 
-## Validation Results
+## Results
 
 We evaluated the performance of the Robust Mode based on two key criteria: *Convergence Success* (did it finish?) and *Accuracy* (were the results correct?).
 
@@ -58,7 +62,7 @@ In our analysis, we observed that:
 * The **Ranking** phase was the only area where non-convergence was observed, and even then, it occurred in *0.8%* of ranking cases. In these instances, the Elbow Method fallback was engaged, and the inclusion of these fallback estimates did not negatively impact the aggregate error rates.
 * For all other metrics (BCa Intervals, Thresholds), convergence rates were 100%.
 
-### 2. Accuracy Validation
+### 2. Accuracy
 
 Beyond simply checking for convergence, we also validated the *accuracy* of the results.
 
@@ -66,28 +70,51 @@ Beyond simply checking for convergence, we also validated the *accuracy* of the 
   * **Thresholds**: $B_{ref} = 25{,}000$
   * **BCa Confidence Intervals**: $B_{ref} = 50{,}000$
   * **Ranking Stability**: $B_{ref} = 10{,}000$
-* The goal was to analyze the *distribution of errors* (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with the theoretical limits.
-* The results confirmed that the Robust Mode produces estimates with negligible deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%. For Cliff's Delta thresholds, the *median absolute deviation remained perfectly at 0*, with the interquartile range (IQR) typically below $0.02$, and 95% of all estimates falling within an absolute deviation of $\pm 0.10$ from the reference.
+* The goal was to analyze the pooled *distribution of errors* (deviation from reference) to ensure that the convergence method yields results that are not just stable, but also practically in line with high-precision reference benchmarks in a variety of data distributions and sample size scenarios.
+* The results confirmed that the Robust Mode produces estimates with negligible deviation from reference values across all simulated scenarios. For BCa and Ranking, relative errors were typically well below 5%. For Cliff's Delta thresholds, the pooled *median absolute deviation* was 0, with the *interquartile range (IQR)* typically below $0.02$, and 95% of the pooled estimates ranged within an absolute deviation of $\pm 0.10$ from the reference.
 * This confirms that the averaged convergence criteria in HERA ensure high precision across all metrics.
 
-### Global Results Summary
+### Pooled Results
 
 **Ranking Convergence:**
-![Ranking Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Ranking_Example.png)
+![Pooled Ranking Results](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Ranking_Example.png)
 
 **BCa Confidence Interval Convergence:**
-![BCa Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_BCa_Example.png)
+![Pooled BCa Results](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_BCa_Example.png)
 
-**Threshold Calculations:**
-![Thresholds Summary](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Thresholds_Example.png)
+**Threshold Convergence:**
+![Pooled Threshold Results](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/tests/Robustness_Report_Example/Graphics/Pooled_Results_Thresholds_Example.png)
 
-## Discussion: Convergence Modes
+## Discussion
 
-Based on these results, we can discuss the theoretical implications of the different convergence parameters one could set in HERA compared to the default settings:
+The convergence analysis confirms that HERA's adaptive algorithm effectively determines stable estimates without *a priori* defined iteration counts. Pooled median errors remain near zero relative to high-precision reference values across all scenarios.
 
-* **Relaxed**: Prioritizes speed. While significantly faster, it carries a higher risk of terminating before true stability is reached, especially in complex scenarios and BCa confidence intervals.
-* **Strict**: Prioritizes guaranteed stability. It enforces rigorous checks that may lead to very high iteration counts. While safer, this can be computationally expensive and potentially overkill for well-behaved datasets where the Default mode would suffice. Also it could lead to non-convergence in some cases for the desired tolerance.
-* **Default**: Designed to balance efficiency and reliability, it seems to be the best option for general usage. Interestingly, in some tested scenarios it provides higher accuracy for the BCa confidence intervals compared to stricter settings when comparing to the reference values. This is likely because stricter settings with more iterations can occasionally include rare extreme bootstrap samples that increase variance without improving the central estimate.
+### Stability Drivers
+
+* **Precision of Thresholds**: Precision is exceptionally high because thresholds are derived from the distribution of *medians*, which naturally strongly resists resampling fluctuations (pooled median absolute error was 0.00).
+* **Resistance of Ranks**: The minimal percentage error in Ranking results (pooled IQR of $[-0.2\%, +0.2\%]$) is largely due to the *discrete, ordinal nature of ranks*. Unlike continuous metrics, ranks only shift when differences cross distinct, quantized intervals, making them inherently resistant to minor bootstrap fluctuations.
+
+### Parameter Sensitivity
+
+The validation utilized three experimental parameter sets—*Relaxed*, *Strict*, and the standard *Default*—to benchmark the algorithm's susceptibility to changes in `smoothing_window`, `n_trials`, and `convergence_streak_needed`. These are not intended as user-facing "modes" but served as a sensitivity analysis.
+
+* **Relaxed (Benchmarking Speed)**: Prioritizes speed. While significantly faster, this configuration carries a higher risk of terminating before true stability is reached, especially for BCa intervals.
+* **Strict (Benchmarking Rigor)**: Prioritizes high stability. It enforces rigorous checks that may lead to very high iteration counts, which can be computationally expensive and potentially redundant, leading to non-convergence in more cases when the algorithm fails to confirm the satisfaction of the specified tolerance.
+* **Default (Practical Standard)**: Designed to balance efficiency and reliability. Interestingly, the Default mode occasionally yielded better BCa interval accuracy than the Strict setting. This suggests that excessively high iteration counts can capture rare extreme bootstrap samples that increase variance without improving the central estimate.
+
+Overall, the results suggest that the algorithmic decisions are largely insensitive to variations in the tested parameters and confirm that the *Default* settings should provide a safe and effective balance for most general applications without requiring manual tuning.
+
+## Limitations
+
+Despite the overall high precision, several methodological limitations should be considered.
+
+* **Global Stability vs. Individual Metrics**: Algorithmic convergence is determined by a *global stability indicator*. While this averaged approach shows excellent accuracy, it is theoretically possible for the global curve to satisfy the stopping criteria before every individual metric or effect size has fully stabilized. Visual inspection of individual convergence trajectories remains recommended.
+* **Outliers & Boundary Sensitivity**: While the median error is zero, absolute deviations of up to approximately 0.26 occurred as extreme outliers in scenarios with small sample sizes or large true effects. In cases where the true effect is near a threshold boundary, deviations of this magnitude could influence the final ranking outcome.
+* **Non-Convergence Risk**: Rare cases ($0.8\%$) of non-convergence in the ranking phase demonstrate that automated checks are not an absolute guarantee. In these instances, the *Elbow Method* is utilized, which represents a pragmatic compromise to provide a heuristic fallback that should be critically evaluated by the user.
+
+> [!WARNING]
+> **Users should always critically evaluate the automatically generated diagnostic convergence plots** to verify stability in their specific application context. If plots indicate residual instability or premature termination, stability parameters should be adjusted.
+> For practical advice, see **[Troubleshooting Convergence](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes#troubleshooting-convergence)**.
 
 ## Conclusion
 
