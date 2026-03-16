@@ -1,5 +1,5 @@
 ---
-title: 'HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm'
+title: 'HERA: A Hierarchical-Compensatory Ranking Framework for Paired Benchmarking with Data-Driven Effect-Size Thresholds'
 tags:
   - MATLAB
   - ranking
@@ -18,6 +18,17 @@ affiliations:
    index: 1
 date: 15 March 2026
 bibliography: paper.bib
+---
+
+<div align="center">
+
+# HERA: A Hierarchical-Compensatory Ranking Framework for Paired Benchmarking with Data-Driven Effect-Size Thresholds
+
+**Lukas von Erdmannsdorff**  
+*Institute of Neuroradiology, Goethe University Frankfurt*
+
+</div>
+
 ---
 
 ## Summary

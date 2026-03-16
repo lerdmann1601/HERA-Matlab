@@ -158,6 +158,7 @@ HERA.start_ranking('convergence', 'true', 'logPath', '/path/to/logs')
 HERA.start_ranking('convergence', 'path/to/config.json')
 ```
 
+---
 > [!NOTE]
 > Example use cases with synthetic datasets and results are
 > provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a
