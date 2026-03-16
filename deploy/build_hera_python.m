@@ -1,4 +1,4 @@
-function build_HERA_python()
+function build_hera_python()
 % BUILD_HERA_PYTHON - Compiles HERA into a Python Package.
 %
 % Syntax:
@@ -70,8 +70,8 @@ clc
     % Define Resources to Include
     % Note: +HERA package is automatically analyzed by the compiler, 
     % but explicit assets/languages need to be added.
+    % Note: From now on I exclude 'assets' to keep the distribution lean. 
     additionalFiles = [ ...
-        string(fullfile(projectRoot, 'assets')), ...
         string(fullfile(projectRoot, '+HERA', 'language')) ...
     ];
 

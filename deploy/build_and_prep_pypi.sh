@@ -46,10 +46,10 @@ echo "Cleanup complete."
 # Check if MATLAB is available to run the build automatically
 if ! command -v matlab &> /dev/null; then
     echo "Warning: 'matlab' command not found. Assuming you have already run the MATLAB build manually."
-    echo "If not, please run 'build_HERA_python()' in MATLAB first."
+    echo "If not, please run 'build_hera_python()' in MATLAB first."
 else
     echo "Starting MATLAB build (this might take a while)..."
-     matlab -batch "addpath('$SCRIPT_DIR'); try, build_HERA_python(); catch e, disp(e.message); exit(1); end; exit(0);"
+     matlab -batch "addpath('$SCRIPT_DIR'); try, build_hera_python(); catch e, disp(e.message); exit(1); end; exit(0);"
 fi
 
 # 2. Verification
