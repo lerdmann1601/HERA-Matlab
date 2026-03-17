@@ -7,23 +7,37 @@ All notable changes to this project will be documented in this file.
 > Previous versions (including all versions prior to 1.3.1) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
+---
+
 ## [Unreleased]
+
+---
+
+## [1.4.1] - 2026-03-17
+
+### Changed
+
+* **Reduced Package Size:** Significantly reduced the size of both the MATLAB Toolbox (`.mltbx`) and the Python distribution packages.
+* **Refined Build Scripts:** Updated deployment scripts to ensure cleaner package generation across all platforms.
+* **Documentation Overhaul:** Comprehensive updates to the scientific methodology sections for HERA to provide a better wiki on the GitHub page.
+
+---
 
 ## [1.4.0] - 2026-03-16
 
 ### Added
 
-- **8th Convergence Scenario**: Introduced a new `Sensitivity` scenario to the convergence analysis suite.
-- **JSON Scenario Configuration**: All convergence analysis scenarios are now fully customizable through the JSON configuration file.
-- **Automatic Update Checks**: HERA now automatically checks for newer versions on startup for both MATLAB (Toolbox) and Python (PyPI).
-- **Min/Max Columns in CSV**: Added `Min` and `Max` columns for Error and Cost metrics in convergence CSV exports.
-- **Python Interface Optimization**: Significant performance boost for NumPy and Pandas data via direct buffer access and enhanced recursive type conversion logic.
+* **8th Convergence Scenario**: Introduced a new `Sensitivity` scenario to the convergence analysis suite.
+* **JSON Scenario Configuration**: All convergence analysis scenarios are now fully customizable through the JSON configuration file.
+* **Automatic Update Checks**: HERA now automatically checks for newer versions on startup for both MATLAB (Toolbox) and Python (PyPI).
+* **Min/Max Columns in CSV**: Added `Min` and `Max` columns for Error and Cost metrics in convergence CSV exports.
+* **Python Interface Optimization**: Significant performance boost for NumPy and Pandas data via direct buffer access and enhanced recursive type conversion logic.
 
 ### Fixed
 
-- **Parallel Scheduling**: Optimized worker saturation by separating strategies for simulation preparation and testing phases.
-- **CSV Delimiter**: Switched remaining CSV output to semicolon delimiters for consistent spreadsheet compatibility.
-- **Figure Rendering**: Forced layout computation before saving to prevent rendering issues in automated Convergence Analysis reports.
+* **Parallel Scheduling**: Optimized worker saturation by separating strategies for simulation preparation and testing phases.
+* **CSV Delimiter**: Switched remaining CSV output to semicolon delimiters for consistent spreadsheet compatibility.
+* **Figure Rendering**: Forced layout computation before saving to prevent rendering issues in automated Convergence Analysis reports.
 
 ---
 
@@ -31,13 +45,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Citation Request**: Added an automated citation request to the console output.
-- **Dynamic Confidence Intervals**: CI levels are now dynamically displayed across plots, logs, and output tables.
+* **Citation Request**: Added an automated citation request to the console output.
+* **Dynamic Confidence Intervals**: CI levels are now dynamically displayed across plots, logs, and output tables.
 
 ### Changed
 
-- **Plot Optimization**: Adjusted x-axis limits with dynamic margins and removed KDE from BCa distribution plots for improved accuracy.
-- **Simplified Branding**: Simplified the software's full title across all documentation.
+* **Plot Optimization**: Adjusted x-axis limits with dynamic margins and removed KDE from BCa distribution plots for improved accuracy.
+* **Simplified Branding**: Simplified the software's full title across all documentation.
 
 ---
 
@@ -45,10 +59,10 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Convergence Analysis v2.0**: Massive update featuring a JSON-driven configuration engine for automated studies.
-- **Resource-Aware Scaling (DRAS)**: Intelligent workload management that calculates simulation density based on available system memory.
-- **Bit-Perfect Reproducibility**: Multi-tier seeding architecture ensuring strictly isolated random streams across hardware.
-- **Absolute Error Metrics**: Transitioned threshold convergence calculations to absolute deviation for better representation of small errors.
+* **Convergence Analysis v2.0**: Massive update featuring a JSON-driven configuration engine for automated studies.
+* **Resource-Aware Scaling (DRAS)**: Intelligent workload management that calculates simulation density based on available system memory.
+* **Bit-Perfect Reproducibility**: Multi-tier seeding architecture ensuring strictly isolated random streams across hardware.
+* **Absolute Error Metrics**: Transitioned threshold convergence calculations to absolute deviation for better representation of small errors.
 
 ---
 
@@ -56,11 +70,11 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Deployment Infrastructure**: Included the complete `deploy/` directory (build scripts for MATLAB, Python, and Standalone) in the distributed toolbox.
+* **Deployment Infrastructure**: Included the complete `deploy/` directory (build scripts for MATLAB, Python, and Standalone) in the distributed toolbox.
 
 ### Fixed
 
-- **Ranking Robustness**: Added epsilon-based comparisons in `calculate_ranking.m` to prevent instabilities when effect sizes are near zero.
+* **Ranking Robustness**: Added epsilon-based comparisons in `calculate_ranking.m` to prevent instabilities when effect sizes are near zero.
 
 ---
 
@@ -68,13 +82,13 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-- **Scientific Validation Mode**: Introduced a dedicated **Convergence Analysis** mode to validate the stability of robust convergence parameters.
-- **Smart Type Conversion**: The Python wrapper now automatically detects and converts **NumPy arrays** and **Pandas DataFrames/Series**.
-- **Python Type Stubs**: Added `.pyi` files for better autocompletion and static analysis.
+* **Scientific Validation Mode**: Introduced a dedicated **Convergence Analysis** mode to validate the stability of robust convergence parameters.
+* **Smart Type Conversion**: The Python wrapper now automatically detects and converts **NumPy arrays** and **Pandas DataFrames/Series**.
+* **Python Type Stubs**: Added `.pyi` files for better autocompletion and static analysis.
 
 ### Changed
 
-- **Documentation Overhaul**: Updated README and guides to match the first official toolbox and Python release structure.
+* **Documentation Overhaul**: Updated README and guides to match the first official toolbox and Python release structure.
 
 ---
 
@@ -82,21 +96,22 @@ All notable changes to this project will be documented in this file.
 
 ### [1.1.2] - 2026-01-26
 
-- Maintenance update for example workflows and installation logic refinements.
+* Maintenance update for example workflows and installation logic refinements.
 
 ### [1.1.1] - 2025-01-18
 
-- MkDocs integration and DOI (Zenodo) metadata sync.
+* MkDocs integration and DOI (Zenodo) metadata sync.
 
 ### [1.1.0] - 2026-01-16
 
-- Initial release of the Python Interface and MATLAB Toolbox (`.mltbx`).
+* Initial release of the Python Interface and MATLAB Toolbox (`.mltbx`).
 
 ### [1.0.0] - 2025-12-17
 
-- **Initial Release of the HERA MATLAB Runtime for MacOS.**
+* **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.4.0
 [1.3.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.1
 [1.3.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.0

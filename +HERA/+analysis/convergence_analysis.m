@@ -390,7 +390,7 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
         fprintf('Log File:              %s\n', log_filename);
 
         fprintf('\nIf you use this software and find it helpful, please cite:\n');
-        fprintf('von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.0). https://doi.org/10.5281/zenodo.18274870\n');
+        fprintf('von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.1). https://doi.org/10.5281/zenodo.18274870\n');
     catch ME
         % Note: diary is automatically closed by cleanupDiary (onCleanup)
         fprintf('\nError occurred during study: %s\n', ME.message);
