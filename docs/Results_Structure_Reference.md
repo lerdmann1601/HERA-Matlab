@@ -20,8 +20,8 @@ The final ranking is achieved through a multi-stage sequential process:
     * **Step 3: Mean Value**: If `d_val` is neutral (within epsilon), the raw mean value of Metric 1 serves as the final tie-breaker.
 2. **Global Correction (Metric 2)**: The ranking from Step 1 is iteratively adjusted. If a lower-ranked dataset shows a significant and relevant win over a higher-ranked one according to Metric 2, they are swapped. This correction takes precedence over Metric 1 results treating Metric 2 as a set of non-negotiable concerns (e.g., safety, fundamental accuracy) that must be satisfied regardless of primary performance.
 3. **Targeted Correction (Metric 3)**: Metric 3 (using Logic 3A and 3B) specifically adjusts pairs that were "neutral" in the preceding hierarchy:
-    * **Logic 3A**: Swaps adjacent datasets if Metric 2 was neutral but Metric 3 shows a significant win.
-    * **Logic 3B**: Swaps adjacent datasets if both Metric 1 AND 2 were neutral but Metric 3 shows a significant win.
+    * **Logic 3A**: One-time swap of adjacent datasets if Metric 2 was neutral but Metric 3 shows a significant win.
+    * **Logic 3B**: Iterative swaps of adjacent datasets if both Metric 1 AND 2 were neutral but Metric 3 shows a significant win.
 
 For more details on the possible ranking logics, see [Ranking Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained).
 

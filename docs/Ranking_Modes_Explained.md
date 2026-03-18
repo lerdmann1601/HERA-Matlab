@@ -64,8 +64,8 @@ This acts as a "veto" logic—no matter how well a method performs in Metric 1, 
 
 Resolves remaining "neutral" clusters where Metric 1 or 2 could not establish a robust difference:
 
-- **Logic 3A**: Swaps adjacent datasets if Metric 2 was neutral but Metric 3 shows a clear win. In the full hierarchy mode (`M1_M2_M3`), this serves as a local secondary correction for subordinate constraints. In `M1_M3A` mode, however, it functions as a classic tie-breaker for Metric 1.
-- **Logic 3B**: Swaps adjacent datasets within a cluster if *both* Metric 1 AND 2 were neutral to achieve a final ordering.
+- **Logic 3A**: One-time swap of adjacent datasets if Metric 2 was neutral but Metric 3 shows a clear win. In the full hierarchy mode (`M1_M2_M3`), this serves as a local secondary one-time correction for subordinate constraints. In `M1_M3A` mode, however, it functions as a classic tie-breaker for Metric 1.
+- **Logic 3B**: Iterative swaps of adjacent datasets within clusters where *both* Metric 1 AND 2 were neutral until a final ordering is achieved.
 
 ---
 
