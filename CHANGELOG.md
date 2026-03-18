@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.3.1) are considered legacy.
+> Previous versions (including all versions prior to 1.4.1) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
