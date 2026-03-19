@@ -52,7 +52,7 @@ function package_HERA_toolbox()
     if is_cicd
         version_str = getenv('GITHUB_REF_NAME');
         if isempty(version_str) || ~startsWith(version_str, 'v')
-            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.1) must be set via GITHUB_REF_NAME.');
+            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.2) must be set via GITHUB_REF_NAME.');
         end
     else
         % Local build: Use get_version() helper

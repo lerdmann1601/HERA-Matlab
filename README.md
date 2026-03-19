@@ -76,7 +76,7 @@ For more information please refer to the Project
 
 #### Option A: MATLAB Toolbox (Recommended for MATLAB Users)
 
-1. Download the latest `HERA_v1.4.1.mltbx` from the
+1. Download the latest `HERA_v1.4.2.mltbx` from the
    [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
 2. Double-click the file to install it.
 3. Done! HERA is now available as a command (`HERA.start_ranking`) in MATLAB.
@@ -309,7 +309,7 @@ If you use HERA in your research, please cite:
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven
   Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.4.1},
+  version = {1.4.2},
   doi = {10.5281/zenodo.18274870},
   year = {2026}
 }

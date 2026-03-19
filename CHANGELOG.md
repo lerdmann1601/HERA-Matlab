@@ -4,12 +4,26 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.1) are considered legacy.
+> Previous versions (including all versions prior to 1.4.2) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
 
 ## [Unreleased]
+
+---
+
+## [1.4.2] - 2026-03-19
+
+### Added
+
+* **Configuration Management:** Enhanced reproducibility display and refactored configuration handling to ensure a consistent state.
+* **Legacy Config Support:** Added migration logic for specific fields from old nested configuration structures.
+* **Others:** Localized some error messages and added input sanitization for all possible inputs (e.g. json config) not only for CLI inputs.
+
+### Fixed
+
+* **Infinite Loop Prevention:** Fixed a potential infinite loop when providing an invalid path for the output directory.
 
 ---
 
@@ -110,7 +124,8 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.1...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.2...HEAD
+[1.4.2]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.4.0
 [1.3.1]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.3.1

@@ -242,7 +242,7 @@
         "json_save_success": "Machine-readable JSON saved to: %s",
         "ranking_finished": "Ranking finished.\nAll outputs successfully saved in: \"%s\"",
         "closing_pool": "Closing parallel pool.",
-        "cite_request": "\nIf you use this software and find it helpful, please cite:\nvon Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.1). https://doi.org/10.5281/zenodo.18274870"
+        "cite_request": "\nIf you use this software and find it helpful, please cite:\nvon Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.2). https://doi.org/10.5281/zenodo.18274870"
     },
     "load_data": {
         "import_header": "Importing data from folder: %s",
