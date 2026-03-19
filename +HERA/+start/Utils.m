@@ -175,7 +175,7 @@ classdef Utils
                         elseif isstring(c_val) || ischar(c_val)
                              % Convert numeric strings (e.g. "3") to doubles
                              num_val = str2double(c_val);
-                             if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
+                             if all(~isnan(num_val), 'all') && all(~isinf(num_val), 'all') && all(isreal(num_val), 'all')
                                  val{k} = num_val;
                              end
                         end
@@ -188,7 +188,7 @@ classdef Utils
                 elseif isstring(val) || ischar(val)
                      % Convert numeric strings (e.g. "3") to doubles
                      num_val = str2double(val);
-                     if ~isnan(num_val) && ~isinf(num_val) && isreal(num_val)
+                     if all(~isnan(num_val), 'all') && all(~isinf(num_val), 'all') && all(isreal(num_val), 'all')
                          s.(fields{i}) = num_val;
                      end
                 end

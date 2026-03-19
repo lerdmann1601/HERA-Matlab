@@ -68,6 +68,9 @@ function results = convergence_analysis(n_sims_per_cond, log_path_or_mode)
                         customConfig = loadedData;
                     end
                     
+                    % Sanitize configuration (convert string numbers to pure doubles)
+                    customConfig = HERA.start.Utils.clean_struct(customConfig);
+                    
                     % Extract n_sims_per_cond 
                     if isfield(customConfig, 'n_sims_per_cond') && isnumeric(customConfig.n_sims_per_cond)
                         n_sims_per_cond = customConfig.n_sims_per_cond;

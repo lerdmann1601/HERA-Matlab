@@ -239,6 +239,11 @@ else
                         userInput.available_metrics = {}; 
                     end
                     fprintf([lang.start_ranking.batch_defaults_filled '\n']);
+                    
+                    % Sanitize configuration to ensure data integrity.
+                    % Also handles string-to-number conversion for manual entries.
+                    userInput = Utils.clean_struct(userInput);
+                    
                     % Call the main analysis function with the complete configuration.
                     run_ranking(userInput);
                 else

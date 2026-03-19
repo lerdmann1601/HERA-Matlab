@@ -150,7 +150,9 @@
         "json_save_error": "Could not open or write JSON file: %s",
         "json_save_error_details": "ERROR saving JSON file: %s",
         "invalid_start_arguments": "Invalid arguments. Please provide a userInput struct, 'configFile', 'runtest', or 'convergence'.",
-        "save_bootstrap_rank_error": "Error saving bootstrap rank CSV: %s"
+        "save_bootstrap_rank_error": "Error saving bootstrap rank CSV: %s",
+        "missing_data_source": "Input structure must contain either \"folderPath\" (for file mode) or \"custom_data\" (for developer mode).",
+        "invalid_output_path": "Failed to create output directory: %s\nReason: %s"
     },
     "warnings": {
         "incomplete_config": "WARNING: Paths and metrics are missing in the loaded file.\nThese must now be set interactively.",

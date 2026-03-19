@@ -34,11 +34,6 @@ function [userInput, setupData] = setup_environment(userInput)
     % Import the HERA namespace to find internal functions
     import HERA.*
 
-    % Check if at least one data source is provided (File or Memory).
-    if ~isfield(userInput, 'folderPath') && ~isfield(userInput, 'custom_data')
-        error('HERA:InvalidInput', 'Input structure must contain either "folderPath" (for file mode) or "custom_data" (for developer mode).');
-    end
-
     % Load Central Defaults 
     defaults = HERA.default(); 
 
@@ -50,6 +45,11 @@ function [userInput, setupData] = setup_environment(userInput)
     % Load the specified language pack to localize all console and plot outputs.
     lang = language_code(userInput.language); 
 
+    % Check if at least one data source is provided (File or Memory).
+    if ~isfield(userInput, 'folderPath') && ~isfield(userInput, 'custom_data')
+        error('HERA:InvalidInput', lang.errors.missing_data_source);
+    end
+
     % Validate Metric Names (Critical: Cannot be defaulted)
     if ~isfield(userInput, 'metric_names')
         error(lang.errors.metric_names_missing);
@@ -58,6 +58,9 @@ function [userInput, setupData] = setup_environment(userInput)
 
     % Use Utils helper for deep merge of defaults (ensures nested structs like 'system' are merged)
     userInput = HERA.start.Utils.fill_defaults(userInput, defaults);
+
+    % Sanitize configuration (handles string-to-number conversion for JSON or manual input)
+    userInput = HERA.start.Utils.clean_struct(userInput);
 
     % Automatic Target Memory Calculation
     % If target_memory is empty (default), calculate it based on system RAM
@@ -160,7 +163,7 @@ function [userInput, setupData] = setup_environment(userInput)
         % If status is 0, it means an error occurred (e.g., invalid path, no permissions).
         % We must abort to prevent an infinite loop.
         if status == 0
-            error('HERA:InvalidOutputPath', 'Failed to create output directory: %s\nReason: %s', output_dir, msg);
+            error('HERA:InvalidOutputPath', lang.errors.invalid_output_path, char(output_dir), msg);
         end
         
         % Success if we created it (msgID is empty). If msgID is 'DirectoryExists', retry.
