@@ -26,8 +26,7 @@
 
 **HERA** is a MATLAB-based scientific ranking framework for paired benchmarking,
 designed to automate the objective comparison of algorithms, experimental
-conditions, or other methods with repeated measurements across single or
-multiple quality metrics.
+conditions, or other methods with repeated measurements across one, two, or three quality metrics.
 Unlike traditional ranking methods that rely solely on mean values or
 p-values, HERA employs a **hierarchical-compensatory logic** that integrates:
 
@@ -46,9 +45,10 @@ For more information please refer to the Project
 
 ## Key Features
 
-* **Hierarchical-Compensatory Logic**: Define primary and secondary metrics
-  for the sequential comparison. Secondary metrics can act as tie-breakers or
-  iterative rank correctors (e.g., `M1_M2`, `M1_M2_M3`).
+* **Hierarchical-Compensatory Logic**: Define primary, secondary, and tertiary metrics
+  for the sequential comparison. Secondary and tertiary metrics act as iterative rank correctors
+  or tie-breakers (e.g., `M1_M2`, `M1_M3A`). Overall, the primary metric sorts, the secondary metric
+  corrects, and the tertiary metric finalizes the ranking (e.g., `M1_M2_M3`).
 * **Data-Driven Thresholds**: Automatically calculates adaptive effect size
   thresholds via Percentile Bootstrapping, utilizing a dynamic SEM guardrail to
   maintain practical relevance relative to measurement noise.
