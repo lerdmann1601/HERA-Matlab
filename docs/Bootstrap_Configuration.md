@@ -1,5 +1,11 @@
 # Bootstrap Configuration (Auto-Convergence)
 
+> [!IMPORTANT]
+> **Use Default Parameters:** It is strongly recommended to use the provided
+> default parameters to ensure methodological consistency. If different parameters
+> are used, they should be scientifically justified and clearly documented in
+> your research methodology.
+
 The `bootstrap_*` structs (e.g., `bootstrap_thresholds`) support the following
 nested parameters to control the convergence algorithm:
 

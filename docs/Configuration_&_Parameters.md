@@ -94,7 +94,9 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
       "smoothing_window": 3,
       "convergence_streak_needed": 3,
       "min_steps_for_convergence_check": 1
-    }
+    },
+
+    "selected_permutations": []
   }
 }
 ```
@@ -110,6 +112,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | | `language` | string | `"en"` | Output language code. |
 | **Logic** | `ranking_mode` | string | `"M1_M2_M3"` | Logic mode (`M1`, `M1_M2`, `M1_M3A`, `M1_M2_M3`). |
 | | `run_sensitivity_analysis` | bool | `true` | Run ranking for all metric permutations. |
+| | `selected_permutations` | array | `[]` | List of custom permutations to test (empty = all). |
 | | `run_power_analysis` | bool | `true` | Run post-hoc power analysis. |
 | | `min_data_completeness` | double | `0.80` | Min fraction of valid pairs required (0.8 = 80%). |
 | **Statistics** | `ci_level` | double | `0.95` | Confidence interval level (e.g., 0.95 for 95%). |
