@@ -26,7 +26,7 @@
 
 **HERA** is a MATLAB-based scientific ranking framework for paired benchmarking,
 designed to automate the objective comparison of algorithms, experimental
-conditions, or other methods with repeated measurements across one, two, or three quality metrics.
+conditions, or other methods with repeated measurements across up to three quality metrics.
 Unlike traditional ranking methods that rely solely on mean values or
 p-values, HERA employs a **hierarchical-compensatory logic** that integrates:
 
