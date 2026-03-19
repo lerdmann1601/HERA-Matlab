@@ -238,7 +238,12 @@ function [userInput, setupData] = setup_environment(userInput)
     % Display a summary of the chosen bootstrap configurations in the console.
     fprintf('--------------------------------------------------\n');
     fprintf([lang.run_ranking.cpu_cores '\n'], num2str(userInput.num_workers));
-    fprintf([lang.run_ranking.reproducibility '\n'], mat2str(userInput.reproducible), userInput.seed); pause(0.5);
+    if userInput.reproducible
+        fprintf([lang.run_ranking.reproducibility_true '\n'], userInput.seed); 
+    else
+        fprintf([lang.run_ranking.reproducibility_false '\n']); 
+    end
+    pause(0.5);
 
     % Display settings for threshold calculation.
     cfg = config; % local alias

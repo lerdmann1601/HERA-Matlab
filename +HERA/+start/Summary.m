@@ -50,6 +50,13 @@ function Summary(userInput, configLoadedFromFile, lang)
         pause(0.5);
         fprintf(' -> %s: %s\n', lang.summary.data_folder, userInput.folderPath);
         pause(0.5);
+        if userInput.reproducible
+            repro_str = sprintf(lang.summary.reproducible_yes, userInput.seed);
+        else
+            repro_str = lang.summary.reproducible_no;
+        end
+        fprintf(' -> %s: %s\n', lang.summary.reproducibility, repro_str);
+        pause(0.5);
         fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, UserInterface.get_bootstrap_string(userInput.config, lang)); 
         pause(0.5);
         fprintf(' -> %s:\n', sprintf(lang.summary.metric_hierarchy, logic_mode_str)); 
@@ -100,6 +107,13 @@ function Summary(userInput, configLoadedFromFile, lang)
         fprintf(['\n' lang.start_ranking.config_loaded_from_file '\n']);
         pause(0.5);
         fprintf(' -> %s: %s\n', lang.summary.data_folder, userInput.folderPath);
+        pause(0.5);
+        if userInput.reproducible
+            repro_str = sprintf(lang.summary.reproducible_yes, userInput.seed);
+        else
+            repro_str = lang.summary.reproducible_no;
+        end
+        fprintf(' -> %s: %s\n', lang.summary.reproducibility, repro_str);
         pause(0.5);
         fprintf(' -> %s:\n%s\n', lang.summary.bootstrap_config, UserInterface.get_bootstrap_string(userInput.config, lang)); 
         pause(0.5);

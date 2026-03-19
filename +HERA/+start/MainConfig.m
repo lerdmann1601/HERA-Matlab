@@ -30,7 +30,12 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
 
     % Display a summary of the standard (default) settings to the user.
     fprintf('\n%s\n', lang.start_ranking.default_intro); pause(0.5);
-    fprintf([' - ' lang.start_ranking.default_reproducibility '\n'], mat2str(defaults.reproducible), defaults.seed); pause(0.5);
+    if defaults.reproducible
+        fprintf([' - ' lang.start_ranking.default_reproducibility_true '\n'], defaults.seed); 
+    else
+        fprintf([' - ' lang.start_ranking.default_reproducibility_false '\n']); 
+    end
+    pause(0.5);
     fprintf([' - ' lang.start_ranking.default_ci_level '\n'], defaults.ci_level); pause(0.5);
     fprintf([' - ' lang.start_ranking.default_alpha '\n']); pause(0.5);
     fprintf([' - ' lang.start_ranking.default_bootstrap '\n']); pause(0.5);
@@ -62,9 +67,9 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
             % Case 1: Use standard settings.
             case lang.general.standard_char
                 % For standard mode, ensure manual bootstrap values are cleared to trigger automatic mode.
-                config.manual_B_thr = [];
-                config.manual_B_ci = [];
-                config.manual_B_rank = [];
+                userInput.manual_B_thr = [];
+                userInput.manual_B_ci = [];
+                userInput.manual_B_rank = [];
                 
                 % Explicitly set key parameters to their default values.
                 userInput.reproducible = defaults.reproducible;
@@ -75,6 +80,7 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
                 userInput.power_simulations = defaults.power_simulations;
                 userInput.plot_theme = defaults.plot_theme;
                 userInput.ranking_mode = defaults.ranking_mode; 
+                config = userInput;
                 break; % Exit the choice loop.
             % Case 2: Manual configuration.
             case lang.general.manual_char
@@ -94,16 +100,17 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
                 
                 % Individual bootstrap settings for each analysis step.
                 fprintf('\n%s:\n', lang.prompts.bootstrap_thresholds);
-                [config.manual_B_thr, config.bootstrap_thresholds] = UserInterface.configure_bootstrap_step(defaults.bootstrap_thresholds, ...
+                [userInput.manual_B_thr, userInput.bootstrap_thresholds] = UserInterface.configure_bootstrap_step(defaults.bootstrap_thresholds, ...
                     defaults.manual_B_thr, lang.prompts.bootstrap_thresholds, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_bca);
-                [config.manual_B_ci, config.bootstrap_ci] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ci, ...
+                [userInput.manual_B_ci, userInput.bootstrap_ci] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ci, ...
                     defaults.manual_B_ci, lang.prompts.bootstrap_bca, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_ranking);
-                [config.manual_B_rank, config.bootstrap_ranks] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ranks, ...
+                [userInput.manual_B_rank, userInput.bootstrap_ranks] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ranks, ...
                     defaults.manual_B_rank, lang.prompts.bootstrap_ranking, lang);
+                config = userInput;
                 break; % Exit the choice loop.
             % Case 3: Load configuration from a file.
             case lang.general.load_char
@@ -145,8 +152,15 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
                             fprintf('%s\n', lang.prompts.load_success);
                             configLoadedFromFile = true; % Flag that config is complete.
                         end                    
-                        % Restore the nested config structure from the loaded file.
-                        config = userInput.config;
+                        
+                        % Restore the nested config structure from the loaded file and sync to root.
+                        if isfield(userInput, 'config')
+                            cfg_fields = fieldnames(userInput.config);
+                            for i = 1:numel(cfg_fields)
+                                userInput.(cfg_fields{i}) = userInput.config.(cfg_fields{i});
+                            end
+                        end
+                        config = userInput;
                         break; % Exit the choice loop.
                     else
                         % If file is invalid, inform user and restart the choice loop.
