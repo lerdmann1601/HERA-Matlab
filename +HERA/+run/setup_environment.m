@@ -155,7 +155,13 @@ function [userInput, setupData] = setup_environment(userInput)
         output_dir = fullfile(userInput.output_dir, output_dir_name);
         
         % Try to create directory
-        [status, ~, msgID] = mkdir(output_dir);
+        [status, msg, msgID] = mkdir(output_dir);
+        
+        % If status is 0, it means an error occurred (e.g., invalid path, no permissions).
+        % We must abort to prevent an infinite loop.
+        if status == 0
+            error('HERA:InvalidOutputPath', 'Failed to create output directory: %s\nReason: %s', output_dir, msg);
+        end
         
         % Success if we created it (msgID is empty). If msgID is 'DirectoryExists', retry.
         if status == 1 && isempty(msgID)
