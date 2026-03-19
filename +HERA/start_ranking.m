@@ -395,10 +395,13 @@ while true
                 if ischar(file) % Check if a valid file name was provided (not cancelled).
                     try
                         % Wrap the userInput struct in another struct to match the loading format.
-                        % Remove target_memory before saving
+                        % Remove internal target_memory and redundant config struct before saving
                         userInputToSave = userInput;
-                        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system') && isfield(userInputToSave.config.system, 'target_memory')
-                             userInputToSave.config.system = rmfield(userInputToSave.config.system, 'target_memory');
+                        if isfield(userInputToSave, 'system') && isfield(userInputToSave.system, 'target_memory')
+                             userInputToSave.system = rmfield(userInputToSave.system, 'target_memory');
+                        end
+                        if isfield(userInputToSave, 'config')
+                             userInputToSave = rmfield(userInputToSave, 'config');
                         end
                         data_to_save = struct('userInput', userInputToSave);
                         % Encode the MATLAB struct into a nicely formatted JSON string.

@@ -205,13 +205,9 @@ function [userInput, setupData] = setup_environment(userInput)
             end
         end
         
-        % Clean nested config.system struct
-        if isfield(userInputToSave, 'config') && isfield(userInputToSave.config, 'system')
-            for hf = heuristic_fields
-                if isfield(userInputToSave.config.system, hf{1})
-                    userInputToSave.config.system = rmfield(userInputToSave.config.system, hf{1});
-                end
-            end
+        % Remove redundant internal config struct before saving
+        if isfield(userInputToSave, 'config')
+            userInputToSave = rmfield(userInputToSave, 'config');
         end
         
         data_to_save = struct('userInput', userInputToSave);

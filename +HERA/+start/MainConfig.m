@@ -153,11 +153,19 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
                             configLoadedFromFile = true; % Flag that config is complete.
                         end                    
                         
-                        % Restore the nested config structure from the loaded file and sync to root.
+                        % Restore the specific nested config structure fields from older
+                        % split-brain JSON files to the root level.
                         if isfield(userInput, 'config')
-                            cfg_fields = fieldnames(userInput.config);
-                            for i = 1:numel(cfg_fields)
-                                userInput.(cfg_fields{i}) = userInput.config.(cfg_fields{i});
+                            % Only copy the fields that were stored in 'config' in prior versions
+                            target_fields = {'manual_B_thr', 'bootstrap_thresholds', ...
+                                             'manual_B_ci', 'bootstrap_ci', ...
+                                             'manual_B_rank', 'bootstrap_ranks', ...
+                                             'ci_level', 'alphas'};
+                            for i = 1:numel(target_fields)
+                                tf = target_fields{i};
+                                if isfield(userInput.config, tf)
+                                    userInput.(tf) = userInput.config.(tf);
+                                end
                             end
                         end
                         config = userInput;
