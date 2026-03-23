@@ -1,6 +1,6 @@
-# Advanced Usage (Developer Mode)
+# Advanced Usage (MATLAB)
 
-Developers can call `HERA.run_ranking` directly with data matrices, bypassing
+MATLAB users can call `HERA.run_ranking` directly with data matrices, bypassing
 file I/O. This is useful for integration into other pipelines or simulation
 studies.
 

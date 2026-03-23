@@ -1,8 +1,7 @@
 # Python Integration
 
-HERA provides a compiled Python interface that allows seamless integration into
-Python-based data science pipelines. This package wraps the MATLAB functions and
-provides them as native Python objects.
+A compiled interface allows HERA to be integrated directly into your Python data science pipelines.
+It wraps the underlying MATLAB functions and provides them as native objects.
 
 > [!NOTE]
 > The package utilizes the **MATLAB Runtime**. It must be installed separately
