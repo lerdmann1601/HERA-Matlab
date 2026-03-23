@@ -3,7 +3,7 @@
 
 <img src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/hera_logo.svg" alt="HERA Logo" width="300"/>
 
-# HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
+# Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
 
 [![MATLAB](https://img.shields.io/badge/MATLAB-R2025b-orange.svg)](https://www.mathworks.com/products/matlab.html)
 [![File Exchange](https://www.mathworks.com/matlabcentral/images/matlab-file-exchange.svg)](https://www.mathworks.com/matlabcentral/fileexchange/183089-hera)
@@ -24,7 +24,8 @@
 
 ## Overview
 
-**HERA** is a MATLAB-based scientific ranking framework for paired benchmarking,
+**HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm)**
+is a MATLAB-based scientific ranking framework for paired benchmarking,
 designed to automate the objective comparison of algorithms, experimental
 conditions, or other methods with repeated measurements across up to three quality metrics.
 Unlike traditional ranking methods that rely solely on mean values or
