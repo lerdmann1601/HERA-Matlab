@@ -93,8 +93,4 @@ HERA offers a flexible configuration of up to three metrics (see Fig. 2). This a
 
 For detailed information on the algorithmic background, we refer to the [Ranking Logic and Methodology](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained), the [Bootstrap Logic and Convergence](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes), and the [Methodological Guidelines and Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations) pages. An [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) using HERA on synthetic data is also available.
 
-## Acknowledgements
-
-This software was developed at the Institute of Neuroradiology, Goethe University Frankfurt. I acknowledge Dr. med. Christophe Arendt (Institute of Neuroradiology, Goethe University Frankfurt) for his supervision and support throughout the project. I also thank Rejane Golbach PhD (Institute of Biostatistics and Mathematical Modeling, Goethe University Frankfurt) for her valuable feedback on the statistical methodology.
-
 ## References
