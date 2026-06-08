@@ -10,7 +10,7 @@ Additionally, we evaluated the accuracy of the results by comparing them against
 
 The results confirm that the default settings are appropriate for the vast majority of scenarios, yielding both stable and accurate outcomes.
 
-To ensure *reproducibility* and fair comparability, we utilized a *deterministic seeding scheme* for all simulations. A fixed base seed controls the synthetic data generation, guaranteeing that both the convergence checks and the reference benchmarks operate on *identical datasets*. The bootstrap resampling seeds, however, are deliberately offset to ensure *statistical independence* between the convergence tests and the high-precision reference computations.
+To ensure *reproducibility* and fair comparability, we utilized a *deterministic seeding scheme* for all simulations. A fixed base seed controls the synthetic data generation, guaranteeing that both the convergence checks and the reference benchmarks operate on *identical datasets*. The bootstrap resampling seeds, however, are deliberately offset to ensure *statistical independence* between the convergence tests and the high-precision reference computations. The detailed results of this validation study can be viewed in the repository under [tests](https://github.com/lerdmann1601/HERA-Matlab/tree/main/tests/Robustness_Report_Example).
 
 ## Analysis Design & Constraints
 
