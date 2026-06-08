@@ -22,7 +22,7 @@ data/
 
 ## Usage
 
-You can use the datasets in `examples/` to run HERA. Please use enough CPU cores to speed up the analysis.
+You can use the datasets in `examples/` to run HERA. To reproduce the results, you can adjust the `configuration.json` files from the HERA_Example folders in the results directory. Please use enough CPU cores to speed up the analysis.
 
 ---
 
