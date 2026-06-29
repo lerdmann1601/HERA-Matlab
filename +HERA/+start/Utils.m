@@ -58,7 +58,7 @@ classdef Utils
                 elseif isempty(loadedInput.(fieldName))
                      % Define a list of "dynamic" fields that should NOT be auto-filled if they are empty.
                      % These fields usually require specific user input (paths, file types, specific choices).
-                     is_dynamic_path = any(strcmpi(fieldName, {'output_dir', 'folderPath', 'metric_names', 'fileType', 'selected_permutations', 'ranking_mode'})); 
+                     is_dynamic_path = any(strcmpi(fieldName, {'output_dir', 'folderPath', 'metric_names', 'fileType', 'selected_permutations', 'ranking_mode', 'manual_B_thr', 'manual_B_ci', 'manual_B_rank'})); 
                      
                      % Only fill with default if it is NOT a dynamic path field.
                      if ~is_dynamic_path
