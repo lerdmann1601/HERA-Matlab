@@ -15,6 +15,7 @@ slprj/
 *.fdb_latexmk
 
 # Python
+pyenv/
 *.pyc
 __pycache__
 .venv
