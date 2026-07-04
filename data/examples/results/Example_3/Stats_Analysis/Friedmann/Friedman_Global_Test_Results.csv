@@ -1,0 +1,4 @@
+Metric,Friedman Chi-Square Statistic,Degrees of Freedom (k-1),p-value,Significance
+AUC,414.85,9,9.29E-84,"*** (p < 0.001)"
+Sensitivity,398.89,9,2.36E-80,"*** (p < 0.001)"
+Specificity,434.94,9,4.75E-88,"*** (p < 0.001)"

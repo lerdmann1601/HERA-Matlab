@@ -1,0 +1,13 @@
+Metric;Effect Size;Correction Factor;Median;Mean;Min;Max
+"Recall";"Cliff's Delta";"Bias (z0)";"+0.000";"+0.012";"-0.311";"+0.159"
+"Recall";"Cliff's Delta";"Skewness (a)";"+0.000";"+0.004";"-0.057";"+0.056"
+"Recall";"Relative Difference";"Bias (z0)";"-0.002";"-0.002";"-0.136";"+0.060"
+"Recall";"Relative Difference";"Skewness (a)";"+0.001";"-0.000";"-0.016";"+0.019"
+"F1";"Cliff's Delta";"Bias (z0)";"-0.020";"-0.015";"-0.202";"+0.190"
+"F1";"Cliff's Delta";"Skewness (a)";"-0.002";"-0.010";"-0.151";"+0.090"
+"F1";"Relative Difference";"Bias (z0)";"-0.002";"-0.064";"-1.627";"+0.034"
+"F1";"Relative Difference";"Skewness (a)";"-0.003";"-0.002";"-0.033";"+0.012"
+"Precision";"Cliff's Delta";"Bias (z0)";"+0.000";"-0.033";"-0.323";"+0.144"
+"Precision";"Cliff's Delta";"Skewness (a)";"+0.000";"-0.007";"-0.131";"+0.130"
+"Precision";"Relative Difference";"Bias (z0)";"-0.002";"-0.030";"-1.150";"+0.037"
+"Precision";"Relative Difference";"Skewness (a)";"+0.000";"-0.000";"-0.020";"+0.015"

@@ -1,0 +1,11 @@
+"Borda Rank";"Borda Score (%)";"Dataset";"AUC -> Sensitivity -> Specificity";"AUC -> Specificity -> Sensitivity";"Sensitivity -> AUC -> Specificity";"Sensitivity -> Specificity -> AUC";"Specificity -> AUC -> Sensitivity";"Specificity -> Sensitivity -> AUC"
+1;"74.1%";"LogisticRegression";4;4;4;2;3;3
+2;"72.2%";"GradientBoosting";2;5;1;5;4;4
+3;"70.4%";"AdaBoost";6;1;5;3;2;5
+4;"70.4%";"MLP";1;6;2;7;5;1
+5;"61.1%";"RandomForest";3;7;3;6;6;2
+6;"59.3%";"SVM_Linear";7;3;6;4;1;7
+7;"38.9%";"NaiveBayes";10;2;8;1;8;10
+8;"35.2%";"ExtraTrees";5;8;7;8;7;6
+9;"14.8%";"KNN";8;9;9;9;9;8
+10;"3.7%";"DecisionTree";9;10;10;10;10;9

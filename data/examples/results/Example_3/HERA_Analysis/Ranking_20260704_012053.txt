@@ -1,0 +1,708 @@
+=======================
+Ranking is starting...
+=======================
+Version: v1.4.2
+
+Configuration loaded.
+--------------------------------------------------
+CPU cores for ranking: auto
+Reproducibility: true (Seed: 42)
+
+-> Percentile-Bootstrap for Thresholds
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:100:10000
+   Trials per B:   25
+   Tolerance:      1.00%
+
+-> BCa-Bootstrap for Confidence Intervals
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:200:20000
+   Trials per B:   30
+   Tolerance:      3.00%
+
+-> Cluster-Bootstrap for Ranking
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        50:25:2500
+   Trials per B:   15
+   Tolerance:      0.50%
+--------------------------------------------------
+
+RNG stream set to reproducible seed 42.
+Starting parallel pool with default setting (8 CPU cores).
+Starting parallel pool (parpool) using the 'Processes' profile ...
+Connected to parallel pool with 8 workers.
+
+Importing data from folder: /Users/Clinical_Data
+ -> Reading metric 1: /Users/Clinical_Data/AUC.csv
+ -> Reading metric 2: /Users/Clinical_Data/Sensitivity.csv
+ -> Reading metric 3: /Users/Clinical_Data/Specificity.csv
+
+Data successfully loaded.
+-------------------------------------------
+Number of subjects (rows): 50
+Number of datasets (columns): 10
+
+The following datasets will be analyzed:
+  -> RandomForest
+  -> GradientBoosting
+  -> SVM_Linear
+  -> LogisticRegression
+  -> DecisionTree
+  -> KNN
+  -> NaiveBayes
+  -> AdaBoost
+  -> ExtraTrees
+  -> MLP
+
+Primary analysis for the ranking:
+AUC -> Sensitivity -> Specificity
+
+Validating imported data
+Checking completeness for each pairwise comparison:
+  Metric: AUC
+  Metric: Sensitivity
+  Metric: Specificity
+-------------------------------------------
+All data validated for analysis.
+
+Calculating statistical thresholds
+
+Searching for optimal Percentile-Bootstrap count (B) for thresholds
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 1.0% change, starting after 1 runs up to B max 10000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 25 Trials
+ -> Checking stability with B = 200 and 25 Trials
+ -> Checking stability with B = 300 and 25 Trials
+ -> Checking stability with B = 400 and 25 Trials
+    Convergence at -0.54% in run 1/3
+ -> Checking stability with B = 500 and 25 Trials
+    Relative stability change: 1.33%
+ -> Checking stability with B = 600 and 25 Trials
+    Relative stability change: -2.33%
+ -> Checking stability with B = 700 and 25 Trials
+    Relative stability change: 2.17%
+ -> Checking stability with B = 800 and 25 Trials
+    Convergence at -0.06% in run 1/3
+ -> Checking stability with B = 900 and 25 Trials
+    Relative stability change: 1.66%
+ -> Checking stability with B = 1000 and 25 Trials
+    Relative stability change: 1.62%
+ -> Checking stability with B = 1100 and 25 Trials
+    Convergence at 0.06% in run 1/3
+ -> Checking stability with B = 1200 and 25 Trials
+    Convergence at 0.49% in run 2/3
+ -> Checking stability with B = 1300 and 25 Trials
+    Convergence at 0.46% in run 3/3
+Convergence reached at 0.46%.
+Stability in 3 consecutive runs
+B-value after convergence: 1300
+Convergence plot for thresholds saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Threshold_Analysis/Convergence_Thresholds_Global_20260704_012053.png
+Convergence plot for thresholds saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Threshold_Analysis/Convergence_Thresholds_Detailed_20260704_012053.png
+Histogram plot for threshold distribution saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_20260704_012053.png
+Histogram plot for effect sizes saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_20260704_012053.png
+
+Calculating BCa confidence intervals
+
+Searching for optimal Bias-corrected and accelerated Bootstrap count (B) for effect size CIs
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 3.0% change, starting after 1 runs up to B max 20000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 30 trials
+ -> Checking stability with B = 300 and 30 trials
+ -> Checking stability with B = 500 and 30 trials
+ -> Checking stability with B = 700 and 30 trials
+    Relative stability change: 33.05%
+ -> Checking stability with B = 900 and 30 trials
+    Relative stability change: 17.02%
+ -> Checking stability with B = 1100 and 30 trials
+    Relative stability change: 14.76%
+ -> Checking stability with B = 1300 and 30 trials
+    Relative stability change: 9.71%
+ -> Checking stability with B = 1500 and 30 trials
+    Relative stability change: 9.26%
+ -> Checking stability with B = 1700 and 30 trials
+    Relative stability change: 6.73%
+ -> Checking stability with B = 1900 and 30 trials
+    Relative stability change: 6.08%
+ -> Checking stability with B = 2100 and 30 trials
+    Relative stability change: 4.37%
+ -> Checking stability with B = 2300 and 30 trials
+    Relative stability change: 5.78%
+ -> Checking stability with B = 2500 and 30 trials
+    Relative stability change: 6.04%
+ -> Checking stability with B = 2700 and 30 trials
+    Relative stability change: 4.54%
+ -> Checking stability with B = 2900 and 30 trials
+    Relative stability change: 3.11%
+ -> Checking stability with B = 3100 and 30 trials
+    Convergence at 2.78% in run 1/3
+ -> Checking stability with B = 3300 and 30 trials
+    Relative stability change: 4.18%
+ -> Checking stability with B = 3500 and 30 trials
+    Convergence at 2.53% in run 1/3
+ -> Checking stability with B = 3700 and 30 trials
+    Convergence at 2.99% in run 2/3
+ -> Checking stability with B = 3900 and 30 trials
+    Relative stability change: 3.13%
+ -> Checking stability with B = 4100 and 30 trials
+    Relative stability change: 4.05%
+ -> Checking stability with B = 4300 and 30 trials
+    Relative stability change: 3.91%
+ -> Checking stability with B = 4500 and 30 trials
+    Convergence at 1.95% in run 1/3
+ -> Checking stability with B = 4700 and 30 trials
+    Convergence at 0.77% in run 2/3
+ -> Checking stability with B = 4900 and 30 trials
+    Convergence at 1.19% in run 3/3
+Convergence reached at 1.19%.
+Stability in 3 consecutive runs
+B-value after convergence: 4900
+Convergence plot for BCa-CI saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/CI_Histograms/Convergence_BCa_CI_Global_20260704_012053.png
+Convergence plot for BCa-CI saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/CI_Histograms/Convergence_BCa_CI_Detailed_20260704_012053.png
+
+Calculating CI and correction factors for: AUC
+Calculating CI and correction factors for: Sensitivity
+Calculating CI and correction factors for: Specificity
+
+=== Correction Factors for all 45 Pairwise Comparisons ===
+
+AUC:
+Correction Factor     | Median |  Mean  |  Min   |  Max   
+----------------------------------------------------------
+Bias (z0) Delta       | +0.000 | -0.014 | -0.652 | +0.270 
+Skewness (a) Delta    | +0.000 | +0.002 | -0.125 | +0.111 
+Bias (z0) RelDiff     | -0.001 | -0.003 | -0.054 | +0.034 
+Skewness (a) RelDiff  | -0.001 | -0.001 | -0.014 | +0.017 
+----------------------------------------------------------
+
+Sensitivity:
+Correction Factor     | Median |  Mean  |  Min   |  Max   
+----------------------------------------------------------
+Bias (z0) Delta       | +0.000 | -0.014 | -0.223 | +0.257 
+Skewness (a) Delta    | +0.000 | +0.000 | -0.054 | +0.111 
+Bias (z0) RelDiff     | +0.007 | -0.006 | -0.477 | +0.060 
+Skewness (a) RelDiff  | -0.000 | +0.001 | -0.012 | +0.023 
+----------------------------------------------------------
+
+Specificity:
+Correction Factor     | Median |  Mean  |  Min   |  Max   
+----------------------------------------------------------
+Bias (z0) Delta       | +0.000 | -0.046 | -0.623 | +0.175 
+Skewness (a) Delta    | +0.000 | -0.006 | -0.114 | +0.112 
+Bias (z0) RelDiff     | +0.001 | -0.005 | -0.070 | +0.023 
+Skewness (a) RelDiff  | -0.001 | -0.003 | -0.025 | +0.009 
+----------------------------------------------------------
+
+Saving BCa correction factors as CSV file
+CSV file successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Output/BCa_Correction_Factors_20260704_012053.csv
+Histogram plot for z0 distribution saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_20260704_012053.png
+Histogram plot for a distribution saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_20260704_012053.png
+Histogram plot for CI width distribution saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/CI_Histograms/Distribution_CI_Widths_20260704_012053.png
+
+Calculating ranking for 6 hierarchy permutation(s)
+ -> Permutation 1/6: AUC -> Sensitivity -> Specificity
+ -> Permutation 2/6: AUC -> Specificity -> Sensitivity
+ -> Permutation 3/6: Sensitivity -> AUC -> Specificity
+ -> Permutation 4/6: Sensitivity -> Specificity -> AUC
+ -> Permutation 5/6: Specificity -> AUC -> Sensitivity
+ -> Permutation 6/6: Specificity -> Sensitivity -> AUC
+
+Calculating Borda ranking from permutations
+
+Performing bootstrap analysis of rank stability for primary metric hierarchy
+
+Searching for optimal Cluster-Bootstrap count (B) for rank CIs
+ -> Checking stability with B = 50 and 15 Trials
+ -> Checking stability with B = 75 and 15 Trials
+ -> Checking stability with B = 100 and 15 Trials
+ -> Checking stability with B = 125 and 15 Trials
+    Relative stability change: 30.43%
+ -> Checking stability with B = 150 and 15 Trials
+    Relative stability change: -12.50%
+ -> Checking stability with B = 175 and 15 Trials
+    Relative stability change: -11.11%
+ -> Checking stability with B = 200 and 15 Trials
+    Relative stability change: -10.00%
+ -> Checking stability with B = 225 and 15 Trials
+    Relative stability change: 54.55%
+ -> Checking stability with B = 250 and 15 Trials
+    Relative stability change: -20.00%
+ -> Checking stability with B = 275 and 15 Trials
+    Relative stability change: 66.67%
+ -> Checking stability with B = 300 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 325 and 15 Trials
+    Relative stability change: -12.50%
+ -> Checking stability with B = 350 and 15 Trials
+    Relative stability change: -200.00%
+ -> Checking stability with B = 375 and 15 Trials
+    Relative stability change: -11.11%
+ -> Checking stability with B = 400 and 15 Trials
+    Relative stability change: 30.00%
+ -> Checking stability with B = 425 and 15 Trials
+    Relative stability change: 85.71%
+ -> Checking stability with B = 450 and 15 Trials
+    Relative stability change: 100.00%
+ -> Checking stability with B = 475 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 500 and 15 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 525 and 15 Trials
+    Convergence at 0.00% in run 3/3
+Convergence reached at 0.00%.
+Stability in 3 consecutive runs
+B-value after convergence: 525
+Convergence graphic for rank stability saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Ranking/Convergence_Rank_Stability_20260704_012053.png
+
+=== Bootstrap Rank Distribution (B = 525) ===
+
+| Final Rank |Dataset             |Bootstrap Rank (%)                             
+----------------------------------------------------------------------------------
+|     1      |MLP                 |1: 84.0%, 2: 16.0%                             
+----------------------------------------------------------------------------------
+|     2      |GradientBoosting    |1: 16.0%, 2: 76.4%, 3: 7.6%                    
+----------------------------------------------------------------------------------
+|     3      |RandomForest        |2: 1.0%, 3: 50.1%, 4: 42.3%, 5: 6.5%, 6: 0.2%  
+----------------------------------------------------------------------------------
+|     4      |LogisticRegression  |4: 42.5%, 5: 57.5%                             
+----------------------------------------------------------------------------------
+|     5      |ExtraTrees          |4: 1.3%, 5: 29.1%, 6: 14.7%, 7: 54.9%          
+----------------------------------------------------------------------------------
+|     6      |AdaBoost            |2: 6.7%, 3: 42.3%, 4: 0.2%, 5: 5.5%, 6: 45.3%  
+----------------------------------------------------------------------------------
+|     7      |SVM_Linear          |4: 13.7%, 5: 1.3%, 6: 39.8%, 7: 45.1%          
+----------------------------------------------------------------------------------
+|     8      |KNN                 |8: 100.0%                                      
+----------------------------------------------------------------------------------
+|     9      |DecisionTree        |9: 100.0%                                      
+----------------------------------------------------------------------------------
+|     10     |NaiveBayes          |10: 100.0%                                     
+----------------------------------------------------------------------------------
+
+Saving Bootstrap Rank Distribution as CSV file
+Bootstrap rank distribution CSV saved: /Users/Clinical_Output/Ranking_20260704_012053/Output/bootstrap_rank_20260704_012053.csv
+Histogram graphic for rank distribution saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Ranking/Distribution_Bootstrap_Ranks_20260704_012053.png
+
+Calculating post-hoc power analysis to estimate the probability of finding a significant and relevant comparison
+  Bootstrap Power Analysis with 10000 simulations per comparison.
+
+Creating final outputs
+
+=== Statistical Analysis of Differences across all Datasets in AUC, Sensitivity, Specificity ===
+
+For each dataset, mean and standard deviation were calculated for the following metric(s):
+ -> AUC 
+ -> Sensitivity 
+ -> Specificity 
+
+Significance, Comparisons with Cliff's Delta, and Relative Mean Differences:
+All 45 possible pairs of the 10 datasets from 50 subjects were compared regarding AUC, Sensitivity, Specificity.
+The Wilcoxon signed-rank test is used to check for a consistent and significant difference between datasets within subjects.
+The effect size Cliff's Delta (+1 to -1) robustly assesses the difference between the distributions of the datasets.
+Additionally, the relative mean difference between datasets is calculated as a criterion for the practical relevance of the effect.
+
+Threshold for Cliff's Delta (lower 95% CI of the 50th percentile of Cliff's Delta of all dataset comparisons):
+ AUC: 0.674
+ Sensitivity: 0.727
+ Specificity: 0.936
+
+Threshold for relative mean differences (lower 95% CI of the 50th percentile of relative mean differences):
+ AUC: 0.048
+ Sensitivity: 0.069
+ Specificity: 0.091
+
+Protection against small mean differences and influence from slight noise/signal fluctuations:
+-> Minimum threshold for relative mean differences based on the 95% CI of the 50th percentile of the SEM of all datasets
+ AUC: 0.008
+ Sensitivity: 0.011
+ Specificity: 0.009
+
+Criteria for a significant and relevant comparison between two datasets:
+ 1. p-value is significant (Holm-Bonferroni corrected)
+ 2. Cliff's Delta is above the threshold
+ 3. Relative difference is above the threshold
+
+A Percentile-Bootstrap with B = 1300 was used to calculate the thresholds.
+A BCa-Bootstrap with B = 4900 was performed to calculate the 95% CI of the dataset comparisons.
+To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 525.
+
+=== AUC Comparison: Analysis and Initial Ranking ===
+
+1. Initial ranking formed by the number of won comparisons per dataset
+Criteria for a win: p < Holm-Bonferroni threshold, Delta (d) >= 0.674, Rel. Diff. (r) >= 0.048
+2. In case of a tie, Cliff's Delta (d) decides. If d = 0 the mean value is used.
+
+Significant and relevant AUC comparisons (-> Swap by logic 1 and 2 marked. See log file for more details):
+
+ (1/2) |     Dataset 1      | > |     Dataset 2      | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
+-----------------------------------------------------------------------------------------------------------------------------
+  (1)  |        RandomForest| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.193    | [0.186, 0.200] 
+  (1)  |        RandomForest| > |KNN                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.131    | [0.124, 0.137] 
+  (1)  |        RandomForest| > |NaiveBayes          | 0.0000  |  +0.911   | [+0.834, +0.955] |    0.072    | [0.064, 0.079] 
+  (1)  |    GradientBoosting| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.230    | [0.222, 0.238] 
+  (1)  |    GradientBoosting| > |KNN                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.168    | [0.162, 0.174] 
+  (1)  |    GradientBoosting| > |NaiveBayes          | 0.0000  |  +0.999   | [+0.984, +1.000] |    0.109    | [0.103, 0.116] 
+  (1)  |    GradientBoosting| > |ExtraTrees          | 0.0000  |  +0.914   | [+0.837, +0.957] |    0.061    | [0.057, 0.064] 
+  (1)  |          SVM_Linear| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.218    | [0.210, 0.227] 
+  (1)  |          SVM_Linear| > |KNN                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.156    | [0.150, 0.163] 
+  (1)  |          SVM_Linear| > |NaiveBayes          | 0.0000  |  +0.991   | [+0.946, +1.000] |    0.098    | [0.091, 0.104] 
+  (1)  |          SVM_Linear| > |ExtraTrees          | 0.0000  |  +0.822   | [+0.723, +0.893] |    0.049    | [0.045, 0.053] 
+  (1)  |  LogisticRegression| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.218    | [0.210, 0.226] 
+  (1)  |  LogisticRegression| > |KNN                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.156    | [0.149, 0.161] 
+  (1)  |  LogisticRegression| > |NaiveBayes          | 0.0000  |  +0.990   | [+0.954, +0.998] |    0.097    | [0.091, 0.104] 
+  (1)  |  LogisticRegression| > |ExtraTrees          | 0.0000  |  +0.815   | [+0.714, +0.886] |    0.048    | [0.044, 0.052] 
+  (1)  |                 KNN| > |DecisionTree        | 0.0000  |  -0.895   | [-0.948, -0.809] |    0.063    | [0.053, 0.072] 
+  (1)  |          NaiveBayes| > |DecisionTree        | 0.0000  |  -0.998   | [-1.000, -0.988] |    0.121    | [0.111, 0.132] 
+  (1)  |          NaiveBayes| > |KNN                 | 0.0000  |  -0.859   | [-0.924, -0.764] |    0.059    | [0.052, 0.065] 
+  (1)  |            AdaBoost| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.222    | [0.214, 0.230] 
+  (1)  |            AdaBoost| > |KNN                 | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.160    | [0.154, 0.166] 
+  (1)  |            AdaBoost| > |NaiveBayes          | 0.0000  |  -0.996   | [-1.000, -0.976] |    0.101    | [0.095, 0.108] 
+  (1)  |            AdaBoost| > |ExtraTrees          | 0.0000  |  +0.848   | [+0.756, +0.914] |    0.053    | [0.049, 0.057] 
+  (1)  |          ExtraTrees| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.170    | [0.162, 0.177] 
+  (1)  |          ExtraTrees| > |KNN                 | 0.0000  |  -0.997   | [-1.000, -0.981] |    0.108    | [0.101, 0.113] 
+  (1)  |          ExtraTrees| > |NaiveBayes          | 0.0000  |  -0.750   | [-0.835, -0.646] |    0.049    | [0.042, 0.056] 
+  (1)  |                 MLP| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.224    | [0.216, 0.231] 
+  (1)  |                 MLP| > |KNN                 | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.161    | [0.156, 0.167] 
+  (1)  |                 MLP| > |NaiveBayes          | 0.0000  |  -0.999   | [-1.000, -0.988] |    0.103    | [0.097, 0.109] 
+  (1)  |                 MLP| > |ExtraTrees          | 0.0000  |  -0.882   | [-0.938, -0.792] |    0.054    | [0.050, 0.058] 
+  (2)  |        RandomForest| > |ExtraTrees          | 0.0000  |  +0.446   | [+0.358, +0.534] |    0.023    | [0.020, 0.026] 
+  (2)  |    GradientBoosting| > |SVM_Linear          | 0.0000  |  +0.255   | [+0.182, +0.322] |    0.012    | [0.009, 0.014] 
+  (2)  |    GradientBoosting| > |LogisticRegression  | 0.0000  |  +0.270   | [+0.194, +0.345] |    0.012    | [0.010, 0.015] 
+  (2)  |    GradientBoosting| > |AdaBoost            | 0.0000  |  +0.177   | [+0.122, +0.225] |    0.008    | [0.006, 0.009] 
+  (2)  |    GradientBoosting| > |MLP                 | 0.0000  |  +0.166   | [+0.099, +0.229] |    0.006    | [0.005, 0.008] 
+  (2)  |          SVM_Linear| > |LogisticRegression  | 0.1284  |  +0.016   | [-0.024, +0.046] |    0.001    | [0.000, 0.001] 
+  (2)  |            AdaBoost| > |SVM_Linear          | 0.0009  |  -0.086   | [-0.142, -0.024] |    0.004    | [0.002, 0.006] 
+  (2)  |            AdaBoost| > |LogisticRegression  | 0.0004  |  -0.100   | [-0.155, -0.038] |    0.004    | [0.002, 0.007] 
+  (2)  |                 MLP| > |SVM_Linear          | 0.0010  |  -0.099   | [-0.166, -0.010] |    0.005    | [0.002, 0.008] 
+  (2)  |                 MLP| > |LogisticRegression  | 0.0003  |  -0.118   | [-0.186, -0.030] |    0.006    | [0.003, 0.009] 
+  (2)  |                 MLP| > |AdaBoost            | 0.2861  |  -0.011   | [-0.066, +0.061] |    0.001    | [0.000, 0.004] 
+-----------------------------------------------------------------------------------------------------------------------------
+
+Ranking after AUC comparison:
+
+  1. GradientBoosting       Mean AUC: 0.797
+  2. MLP                    Mean AUC: 0.792
+  3. AdaBoost               Mean AUC: 0.791
+  4. SVM_Linear             Mean AUC: 0.788
+  5. LogisticRegression     Mean AUC: 0.787
+  6. RandomForest           Mean AUC: 0.768
+  7. ExtraTrees             Mean AUC: 0.750
+  8. NaiveBayes             Mean AUC: 0.715
+  9. KNN                    Mean AUC: 0.674
+ 10. DecisionTree           Mean AUC: 0.633
+
+=== Sensitivity Comparison: Analysis and Rank Correction ===
+
+Iterative rank swapping of all datasets based on Sensitivity
+Criteria for significance and relevance: p < Holm-Bonferroni, Delta (d) >= 0.727, Rel. Diff. (r) >= 0.069
+
+Significant and relevant Sensitivity comparisons (-> See log file for more details on rank swaps):
+
+     Dataset 1      | > |     Dataset 2      | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
+---------------------------------------------------------------------------------------------------------------------
+    GradientBoosting| > |AdaBoost            | 0.0000  |  +0.827   | [+0.732, +0.897] |    0.071    | [0.066, 0.076] 
+                 MLP| > |LogisticRegression  | 0.0000  |  -0.970   | [-0.990, -0.924] |    0.106    | [0.099, 0.113] 
+                 MLP| > |ExtraTrees          | 0.0000  |  -0.944   | [-0.977, -0.884] |    0.091    | [0.083, 0.098] 
+    GradientBoosting| > |SVM_Linear          | 0.0000  |  +0.880   | [+0.793, +0.937] |    0.088    | [0.082, 0.095] 
+  LogisticRegression| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.669    | [0.656, 0.682] 
+                 MLP| > |GradientBoosting    | 0.0000  |  -0.886   | [-0.944, -0.798] |    0.072    | [0.067, 0.078] 
+                 MLP| > |SVM_Linear          | 0.0000  |  -1.000   | [-1.000, -0.994] |    0.160    | [0.151, 0.169] 
+                 MLP| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.166    | [0.154, 0.180] 
+                 MLP| > |AdaBoost            | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.143    | [0.136, 0.150] 
+    GradientBoosting| > |KNN                 | 0.0000  |  +0.975   | [+0.930, +0.992] |    0.128    | [0.115, 0.140] 
+                 MLP| > |KNN                 | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.199    | [0.189, 0.210] 
+    GradientBoosting| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.699    | [0.686, 0.714] 
+          SVM_Linear| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.620    | [0.607, 0.634] 
+                 KNN| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.584    | [0.567, 0.603] 
+            AdaBoost| > |NaiveBayes          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.636    | [0.622, 0.651] 
+        RandomForest| > |SVM_Linear          | 0.0000  |  +0.904   | [+0.802, +0.957] |    0.086    | [0.075, 0.098] 
+                 MLP| > |NaiveBayes          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.761    | [0.749, 0.777] 
+        RandomForest| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.697    | [0.682, 0.716] 
+          ExtraTrees| > |KNN                 | 0.0000  |  -0.934   | [-0.971, -0.860] |    0.109    | [0.096, 0.122] 
+          ExtraTrees| > |NaiveBayes          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.682    | [0.668, 0.699] 
+        DecisionTree| > |NaiveBayes          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.614    | [0.595, 0.638] 
+        RandomForest| > |KNN                 | 0.0000  |  +0.984   | [+0.945, +0.996] |    0.126    | [0.113, 0.140] 
+  LogisticRegression| > |KNN                 | 0.0000  |  +0.896   | [+0.804, +0.947] |    0.094    | [0.082, 0.107] 
+        RandomForest| > |DecisionTree        | 0.0000  |  +0.943   | [+0.872, +0.976] |    0.093    | [0.081, 0.104] 
+        RandomForest| > |AdaBoost            | 0.0000  |  +0.832   | [+0.725, +0.903] |    0.069    | [0.060, 0.079] 
+    GradientBoosting| > |DecisionTree        | 0.0000  |  +0.935   | [+0.843, +0.972] |    0.095    | [0.081, 0.108] 
+                 MLP| > |RandomForest        | 0.0000  |  -0.883   | [-0.942, -0.787] |    0.074    | [0.066, 0.081] 
+          ExtraTrees| > |DecisionTree        | 0.0000  |  -0.839   | [-0.920, -0.714] |    0.076    | [0.063, 0.088] 
+          ExtraTrees| > |SVM_Linear          | 0.0000  |  -0.759   | [-0.854, -0.631] |    0.069    | [0.057, 0.080] 
+---------------------------------------------------------------------------------------------------------------------
+
+Ranking after Sensitivity correction:
+
+  1. MLP                    Mean Sensitivity: 0.744
+  2. GradientBoosting       Mean Sensitivity: 0.692
+  3. RandomForest           Mean Sensitivity: 0.691
+  4. ExtraTrees             Mean Sensitivity: 0.679
+  5. LogisticRegression     Mean Sensitivity: 0.669
+  6. AdaBoost               Mean Sensitivity: 0.644
+  7. SVM_Linear             Mean Sensitivity: 0.634
+  8. KNN                    Mean Sensitivity: 0.609
+  9. DecisionTree           Mean Sensitivity: 0.629
+ 10. NaiveBayes             Mean Sensitivity: 0.334
+
+=== Specificity Comparison: Analysis and Final Rank Correction ===
+
+1. If Sensitivity comparison criteria are not met: One-time comparison between two ranks based on Specificity
+2. Iterative swap if AUC and Sensitivity comparison criteria are not met, based on Specificity
+Criteria for significance and relevance: p < Holm-Bonferroni, Delta (d) >= 0.936, Rel. Diff. (r) >= 0.091
+
+Significant and relevant Specificity comparisons (-> Swap by logic 1 and 2 marked. See log file for more details):
+
+ (1/2) |     Dataset 1      | > |     Dataset 2      | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
+-----------------------------------------------------------------------------------------------------------------------------
+  (1)  |  LogisticRegression| > |ExtraTrees          | 0.0000  |  +0.965   | [+0.906, +0.989] |    0.098    | [0.090, 0.106] 
+       |    GradientBoosting| > |MLP                 | 0.0000  |  +0.936   | [+0.871, +0.973] |    0.091    | [0.086, 0.096] 
+       |  LogisticRegression| > |MLP                 | 0.0000  |  +0.946   | [+0.881, +0.978] |    0.094    | [0.088, 0.099] 
+       |          NaiveBayes| > |GradientBoosting    | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.119    | [0.112, 0.125] 
+       |            AdaBoost| > |MLP                 | 0.0000  |  +0.996   | [+0.967, +1.000] |    0.121    | [0.116, 0.127] 
+       |          SVM_Linear| > |ExtraTrees          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.141    | [0.134, 0.147] 
+       |          SVM_Linear| > |MLP                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.137    | [0.131, 0.142] 
+       |          NaiveBayes| > |LogisticRegression  | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.115    | [0.109, 0.122] 
+       |          NaiveBayes| > |KNN                 | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.283    | [0.274, 0.292] 
+       |          SVM_Linear| > |RandomForest        | 0.0000  |  -0.993   | [-1.000, -0.965] |    0.114    | [0.106, 0.121] 
+       |            AdaBoost| > |ExtraTrees          | 0.0000  |  +0.998   | [+0.966, +1.000] |    0.126    | [0.119, 0.133] 
+       |    GradientBoosting| > |ExtraTrees          | 0.0000  |  +0.959   | [+0.903, +0.985] |    0.095    | [0.088, 0.102] 
+       |          NaiveBayes| > |MLP                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.209    | [0.201, 0.217] 
+       |            AdaBoost| > |KNN                 | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.197    | [0.185, 0.206] 
+       |            AdaBoost| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.231    | [0.221, 0.242] 
+       |    GradientBoosting| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.201    | [0.190, 0.212] 
+       |  LogisticRegression| > |KNN                 | 0.0000  |  +0.999   | [+0.987, +1.000] |    0.169    | [0.159, 0.178] 
+       |          NaiveBayes| > |ExtraTrees          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.213    | [0.204, 0.222] 
+       |            AdaBoost| > |RandomForest        | 0.0000  |  -0.979   | [-0.996, -0.934] |    0.099    | [0.091, 0.106] 
+       |    GradientBoosting| > |KNN                 | 0.0000  |  +0.999   | [+0.984, +1.000] |    0.166    | [0.156, 0.175] 
+       |          NaiveBayes| > |RandomForest        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.186    | [0.177, 0.195] 
+       |          SVM_Linear| > |KNN                 | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.212    | [0.202, 0.220] 
+       |  LogisticRegression| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.204    | [0.193, 0.216] 
+       |          SVM_Linear| > |DecisionTree        | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.246    | [0.236, 0.257] 
+       |          NaiveBayes| > |DecisionTree        | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.317    | [0.306, 0.328] 
+       |                 MLP| > |DecisionTree        | 0.0000  |  -0.963   | [-0.989, -0.905] |    0.111    | [0.098, 0.123] 
+       |          ExtraTrees| > |DecisionTree        | 0.0000  |  -0.956   | [-0.984, -0.901] |    0.106    | [0.095, 0.117] 
+       |        RandomForest| > |DecisionTree        | 0.0000  |  +0.988   | [+0.955, +0.997] |    0.133    | [0.122, 0.145] 
+-----------------------------------------------------------------------------------------------------------------------------
+
+Final ranking after Specificity comparison:
+
+  1. MLP                    Mean Specificity: 0.710
+  2. GradientBoosting       Mean Specificity: 0.778
+  3. RandomForest           Mean Specificity: 0.727
+  4. LogisticRegression     Mean Specificity: 0.780
+  5. ExtraTrees             Mean Specificity: 0.707
+  6. AdaBoost               Mean Specificity: 0.802
+  7. SVM_Linear             Mean Specificity: 0.815
+  8. KNN                    Mean Specificity: 0.659
+  9. DecisionTree           Mean Specificity: 0.636
+ 10. NaiveBayes             Mean Specificity: 0.876
+
+==== Ranking Result based on AUC, Sensitivity, Specificity Comparisons ====
+
+ Rank |      Dataset       | Rank CI (95%)  | Mean AUC (± SD) | Mean Sensitivity (± SD) | Mean Specificity (± SD) 
+------------------------------------------------------------------------------------------------------------------
+  1   |        MLP         |  [1.00, 2.00]  |  0.792 ± 0.019  |      0.744 ± 0.023      |      0.710 ± 0.027      
+  2   |  GradientBoosting  |  [1.00, 3.00]  |  0.797 ± 0.019  |      0.692 ± 0.024      |      0.778 ± 0.024      
+  3   |    RandomForest    |  [3.00, 5.00]  |  0.768 ± 0.021  |      0.691 ± 0.024      |      0.727 ± 0.026      
+  4   | LogisticRegression |  [4.00, 5.00]  |  0.787 ± 0.020  |      0.669 ± 0.027      |      0.780 ± 0.025      
+  5   |     ExtraTrees     |  [5.00, 7.00]  |  0.750 ± 0.020  |      0.679 ± 0.026      |      0.707 ± 0.026      
+  6   |      AdaBoost      |  [2.00, 6.00]  |  0.791 ± 0.020  |      0.644 ± 0.026      |      0.802 ± 0.022      
+  7   |     SVM_Linear     |  [4.00, 7.00]  |  0.788 ± 0.020  |      0.634 ± 0.028      |      0.815 ± 0.023      
+  8   |        KNN         |  [8.00, 8.00]  |  0.674 ± 0.018  |      0.609 ± 0.025      |      0.659 ± 0.027      
+  9   |    DecisionTree    |  [9.00, 9.00]  |  0.633 ± 0.018  |      0.629 ± 0.023      |      0.636 ± 0.024      
+  10  |     NaiveBayes     | [10.00, 10.00] |  0.715 ± 0.022  |      0.334 ± 0.023      |      0.876 ± 0.023      
+------------------------------------------------------------------------------------------------------------------
+
+Final results table saved: /Users/Clinical_Output/Ranking_20260704_012053/Output/results_20260704_012053.csv
+
+==== Results of the Sensitivity Analysis ====
+
+ Borda Rank  |  Borda Score (%)  |       Dataset        |  AUC -> Sensitivity -> Specificity  |  AUC -> Specificity -> Sensitivity  |  Sensitivity -> AUC -> Specificity  |  Sensitivity -> Specificity -> AUC  |  Specificity -> AUC -> Sensitivity  |  Specificity -> Sensitivity -> AUC 
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     1       |       74.1%       | LogisticRegression   |                  4                  |                  4                  |                  4                  |                  2                  |                  3                  |                  3                 
+     2       |       72.2%       | GradientBoosting     |                  2                  |                  5                  |                  1                  |                  5                  |                  4                  |                  4                 
+     3       |       70.4%       | AdaBoost             |                  6                  |                  1                  |                  5                  |                  3                  |                  2                  |                  5                 
+     4       |       70.4%       | MLP                  |                  1                  |                  6                  |                  2                  |                  7                  |                  5                  |                  1                 
+     5       |       61.1%       | RandomForest         |                  3                  |                  7                  |                  3                  |                  6                  |                  6                  |                  2                 
+     6       |       59.3%       | SVM_Linear           |                  7                  |                  3                  |                  6                  |                  4                  |                  1                  |                  7                 
+     7       |       38.9%       | NaiveBayes           |                 10                  |                  2                  |                  8                  |                  1                  |                  8                  |                 10                 
+     8       |       35.2%       | ExtraTrees           |                  5                  |                  8                  |                  7                  |                  8                  |                  7                  |                  6                 
+     9       |       14.8%       | KNN                  |                  8                  |                  9                  |                  9                  |                  9                  |                  9                  |                  8                 
+     10      |       3.7%        | DecisionTree         |                  9                  |                 10                  |                 10                  |                 10                  |                 10                  |                  9                 
+
+Sensitivity analysis results saved: /Users/Clinical_Output/Ranking_20260704_012053/Output/sensitivity_details_20260704_012053.csv
+
+=== Log of all Dataset Comparisons ===
+
+     Dataset 1      | vs |     Dataset 2      |    Test     | p-value | p-Thr  | Delta  |     d 95% CI     | Delta-Thr | RelDiff |    r 95% CI    | Rel-Thr | Win | Power (%) | Swap |Reason                                        
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    RandomForest    | vs |  GradientBoosting  |     AUC     | 0.0000  | 0.0011 | -0.674 | [-0.762, -0.584] |   0.674   |  0.037  | [0.034, 0.041] |  0.048  |  0  |    0.0    |      |(1) Decision by number of wins                
+    RandomForest    | vs |     SVM_Linear     |     AUC     | 0.0000  | 0.0042 | -0.504 | [-0.605, -0.400] |   0.674   |  0.026  | [0.021, 0.030] |  0.048  |  0  |    0.0    |      |(1) Decision by number of wins                
+    RandomForest    | vs | LogisticRegression |     AUC     | 0.0000  | 0.0056 | -0.483 | [-0.586, -0.376] |   0.674   |  0.025  | [0.021, 0.030] |  0.048  |  0  |    0.0    |      |(1) Decision by number of wins                
+    RandomForest    | vs |    DecisionTree    |     AUC     | 0.0000  | 0.0012 | +1.000 | [+1.000, +1.000] |   0.674   |  0.193  | [0.186, 0.200] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    RandomForest    | vs |        KNN         |     AUC     | 0.0000  | 0.0012 | +1.000 | [+1.000, +1.000] |   0.674   |  0.131  | [0.124, 0.137] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    RandomForest    | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0012 | +0.911 | [+0.834, +0.955] |   0.674   |  0.072  | [0.064, 0.079] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    RandomForest    | vs |      AdaBoost      |     AUC     | 0.0000  | 0.0036 | -0.558 | [-0.652, -0.463] |   0.674   |  0.030  | [0.026, 0.033] |  0.048  |  0  |    0.0    |      |(1) Decision by number of wins                
+    RandomForest    | vs |        MLP         |     AUC     | 0.0000  | 0.0013 | -0.590 | [-0.680, -0.497] |   0.674   |  0.031  | [0.027, 0.035] |  0.048  |  0  |    0.0    |      |(1) Decision by number of wins                
+  GradientBoosting  | vs |    DecisionTree    |     AUC     | 0.0000  | 0.0013 | +1.000 | [+1.000, +1.000] |   0.674   |  0.230  | [0.222, 0.238] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+  GradientBoosting  | vs |        KNN         |     AUC     | 0.0000  | 0.0013 | +1.000 | [+1.000, +1.000] |   0.674   |  0.168  | [0.162, 0.174] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+  GradientBoosting  | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0014 | +0.999 | [+0.984, +1.000] |   0.674   |  0.109  | [0.103, 0.116] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+  GradientBoosting  | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0014 | +0.914 | [+0.837, +0.957] |   0.674   |  0.061  | [0.057, 0.064] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     SVM_Linear     | vs |    DecisionTree    |     AUC     | 0.0000  | 0.0014 | +1.000 | [+1.000, +1.000] |   0.674   |  0.218  | [0.210, 0.227] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     SVM_Linear     | vs |        KNN         |     AUC     | 0.0000  | 0.0015 | +1.000 | [+1.000, +1.000] |   0.674   |  0.156  | [0.150, 0.163] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     SVM_Linear     | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0015 | +0.991 | [+0.946, +1.000] |   0.674   |  0.098  | [0.091, 0.104] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     SVM_Linear     | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0016 | +0.822 | [+0.723, +0.893] |   0.674   |  0.049  | [0.045, 0.053] |  0.048  |  1  |   61.3    |      |(1) Decision by number of wins                
+ LogisticRegression | vs |    DecisionTree    |     AUC     | 0.0000  | 0.0016 | +1.000 | [+1.000, +1.000] |   0.674   |  0.218  | [0.210, 0.226] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+ LogisticRegression | vs |        KNN         |     AUC     | 0.0000  | 0.0017 | +1.000 | [+1.000, +1.000] |   0.674   |  0.156  | [0.149, 0.161] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+ LogisticRegression | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0017 | +0.990 | [+0.954, +0.998] |   0.674   |  0.097  | [0.091, 0.104] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+ LogisticRegression | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0018 | +0.815 | [+0.714, +0.886] |   0.674   |  0.048  | [0.044, 0.052] |  0.048  |  1  |   50.3    |      |(1) Decision by number of wins                
+    DecisionTree    | vs |        KNN         |     AUC     | 0.0000  | 0.0019 | -0.895 | [-0.948, -0.809] |   0.674   |  0.063  | [0.053, 0.072] |  0.048  |  1  |   99.8    |      |(1) Decision by number of wins                
+    DecisionTree    | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0019 | -0.998 | [-1.000, -0.988] |   0.674   |  0.121  | [0.111, 0.132] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    DecisionTree    | vs |      AdaBoost      |     AUC     | 0.0000  | 0.0020 | -1.000 | [-1.000, -1.000] |   0.674   |  0.222  | [0.214, 0.230] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    DecisionTree    | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0021 | -1.000 | [-1.000, -1.000] |   0.674   |  0.170  | [0.162, 0.177] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+    DecisionTree    | vs |        MLP         |     AUC     | 0.0000  | 0.0011 | -1.000 | [-1.000, -1.000] |   0.674   |  0.224  | [0.216, 0.231] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+        KNN         | vs |     NaiveBayes     |     AUC     | 0.0000  | 0.0033 | -0.859 | [-0.924, -0.764] |   0.674   |  0.059  | [0.052, 0.065] |  0.048  |  1  |   99.9    |      |(1) Decision by number of wins                
+        KNN         | vs |      AdaBoost      |     AUC     | 0.0000  | 0.0022 | -1.000 | [-1.000, -1.000] |   0.674   |  0.160  | [0.154, 0.166] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+        KNN         | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0023 | -0.997 | [-1.000, -0.981] |   0.674   |  0.108  | [0.101, 0.113] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+        KNN         | vs |        MLP         |     AUC     | 0.0000  | 0.0024 | -1.000 | [-1.000, -1.000] |   0.674   |  0.161  | [0.156, 0.167] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     NaiveBayes     | vs |      AdaBoost      |     AUC     | 0.0000  | 0.0025 | -0.996 | [-1.000, -0.976] |   0.674   |  0.101  | [0.095, 0.108] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+     NaiveBayes     | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0026 | -0.750 | [-0.835, -0.646] |   0.674   |  0.049  | [0.042, 0.056] |  0.048  |  1  |   51.7    |      |(1) Decision by number of wins                
+     NaiveBayes     | vs |        MLP         |     AUC     | 0.0000  | 0.0028 | -0.999 | [-1.000, -0.988] |   0.674   |  0.103  | [0.097, 0.109] |  0.048  |  1  |   100.0   |      |(1) Decision by number of wins                
+      AdaBoost      | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0029 | +0.848 | [+0.756, +0.914] |   0.674   |  0.053  | [0.049, 0.057] |  0.048  |  1  |   99.1    |      |(1) Decision by number of wins                
+     ExtraTrees     | vs |        MLP         |     AUC     | 0.0000  | 0.0031 | -0.882 | [-0.938, -0.792] |   0.674   |  0.054  | [0.050, 0.058] |  0.048  |  1  |   99.8    |      |(1) Decision by number of wins                
+    RandomForest    | vs |     ExtraTrees     |     AUC     | 0.0000  | 0.0038 | +0.446 | [+0.358, +0.534] |   0.674   |  0.023  | [0.020, 0.026] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+  GradientBoosting  | vs |     SVM_Linear     |     AUC     | 0.0000  | 0.0050 | +0.255 | [+0.182, +0.322] |   0.674   |  0.012  | [0.009, 0.014] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+  GradientBoosting  | vs | LogisticRegression |     AUC     | 0.0000  | 0.0045 | +0.270 | [+0.194, +0.345] |   0.674   |  0.012  | [0.010, 0.015] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+  GradientBoosting  | vs |      AdaBoost      |     AUC     | 0.0000  | 0.0063 | +0.177 | [+0.122, +0.225] |   0.674   |  0.008  | [0.006, 0.009] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+  GradientBoosting  | vs |        MLP         |     AUC     | 0.0000  | 0.0071 | +0.166 | [+0.099, +0.229] |   0.674   |  0.006  | [0.005, 0.008] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+     SVM_Linear     | vs | LogisticRegression |     AUC     | 0.1284  | 0.0250 | +0.016 | [-0.024, +0.046] |   0.674   |  0.001  | [0.000, 0.001] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+     SVM_Linear     | vs |      AdaBoost      |     AUC     | 0.0009  | 0.0125 | -0.086 | [-0.142, -0.024] |   0.674   |  0.004  | [0.002, 0.006] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+     SVM_Linear     | vs |        MLP         |     AUC     | 0.0010  | 0.0167 | -0.099 | [-0.166, -0.010] |   0.674   |  0.005  | [0.002, 0.008] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+ LogisticRegression | vs |      AdaBoost      |     AUC     | 0.0004  | 0.0100 | -0.100 | [-0.155, -0.038] |   0.674   |  0.004  | [0.002, 0.007] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+ LogisticRegression | vs |        MLP         |     AUC     | 0.0003  | 0.0083 | -0.118 | [-0.186, -0.030] |   0.674   |  0.006  | [0.003, 0.009] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+      AdaBoost      | vs |        MLP         |     AUC     | 0.2861  | 0.0500 | -0.011 | [-0.066, +0.061] |   0.674   |  0.001  | [0.000, 0.004] |  0.048  |  0  |    0.0    |      |(2) Decision by Cliff's d                     
+    RandomForest    | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0025 | +0.832 | [+0.725, +0.903] |   0.727   |  0.069  | [0.060, 0.079] |  0.069  |  1  |   50.6    |  1   |                                              
+  GradientBoosting  | vs |        MLP         | Sensitivity | 0.0000  | 0.0013 | -0.886 | [-0.944, -0.798] |   0.727   |  0.072  | [0.067, 0.078] |  0.069  |  1  |   86.4    |  1   |                                              
+     SVM_Linear     | vs |     ExtraTrees     | Sensitivity | 0.0000  | 0.0036 | -0.759 | [-0.854, -0.631] |   0.727   |  0.069  | [0.057, 0.080] |  0.069  |  1  |   45.5    |  1   |                                              
+    DecisionTree    | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0021 | +1.000 | [+1.000, +1.000] |   0.727   |  0.614  | [0.595, 0.638] |  0.069  |  1  |   100.0   |  1   |                                              
+        KNN         | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0016 | +1.000 | [+1.000, +1.000] |   0.727   |  0.584  | [0.567, 0.603] |  0.069  |  1  |   100.0   |  1   |                                              
+    RandomForest    | vs |     SVM_Linear     | Sensitivity | 0.0000  | 0.0017 | +0.904 | [+0.802, +0.957] |   0.727   |  0.086  | [0.075, 0.098] |  0.069  |  1  |   99.8    |  0   |Ranking already correct                       
+    RandomForest    | vs |    DecisionTree    | Sensitivity | 0.0000  | 0.0024 | +0.943 | [+0.872, +0.976] |   0.727   |  0.093  | [0.081, 0.104] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+    RandomForest    | vs |        KNN         | Sensitivity | 0.0000  | 0.0022 | +0.984 | [+0.945, +0.996] |   0.727   |  0.126  | [0.113, 0.140] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+    RandomForest    | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0019 | +1.000 | [+1.000, +1.000] |   0.727   |  0.697  | [0.682, 0.716] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+    RandomForest    | vs |        MLP         | Sensitivity | 0.0000  | 0.0029 | -0.883 | [-0.942, -0.787] |   0.727   |  0.074  | [0.066, 0.081] |  0.069  |  1  |   88.4    |  0   |Ranking already correct                       
+  GradientBoosting  | vs |     SVM_Linear     | Sensitivity | 0.0000  | 0.0012 | +0.880 | [+0.793, +0.937] |   0.727   |  0.088  | [0.082, 0.095] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+  GradientBoosting  | vs |    DecisionTree    | Sensitivity | 0.0000  | 0.0028 | +0.935 | [+0.843, +0.972] |   0.727   |  0.095  | [0.081, 0.108] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+  GradientBoosting  | vs |        KNN         | Sensitivity | 0.0000  | 0.0014 | +0.975 | [+0.930, +0.992] |   0.727   |  0.128  | [0.115, 0.140] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+  GradientBoosting  | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0015 | +1.000 | [+1.000, +1.000] |   0.727   |  0.699  | [0.686, 0.714] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+  GradientBoosting  | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0011 | +0.827 | [+0.732, +0.897] |   0.727   |  0.071  | [0.066, 0.076] |  0.069  |  1  |   77.5    |  0   |Ranking already correct                       
+     SVM_Linear     | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0016 | +1.000 | [+1.000, +1.000] |   0.727   |  0.620  | [0.607, 0.634] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+     SVM_Linear     | vs |        MLP         | Sensitivity | 0.0000  | 0.0013 | -1.000 | [-1.000, -0.994] |   0.727   |  0.160  | [0.151, 0.169] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+ LogisticRegression | vs |        KNN         | Sensitivity | 0.0000  | 0.0023 | +0.896 | [+0.804, +0.947] |   0.727   |  0.094  | [0.082, 0.107] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+ LogisticRegression | vs |     NaiveBayes     | Sensitivity | 0.0000  | 0.0013 | +1.000 | [+1.000, +1.000] |   0.727   |  0.669  | [0.656, 0.682] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+ LogisticRegression | vs |        MLP         | Sensitivity | 0.0000  | 0.0012 | -0.970 | [-0.990, -0.924] |   0.727   |  0.106  | [0.099, 0.113] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+    DecisionTree    | vs |     ExtraTrees     | Sensitivity | 0.0000  | 0.0033 | -0.839 | [-0.920, -0.714] |   0.727   |  0.076  | [0.063, 0.088] |  0.069  |  1  |   84.0    |  0   |Ranking already correct                       
+    DecisionTree    | vs |        MLP         | Sensitivity | 0.0000  | 0.0014 | -1.000 | [-1.000, -1.000] |   0.727   |  0.166  | [0.154, 0.180] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+        KNN         | vs |     ExtraTrees     | Sensitivity | 0.0000  | 0.0019 | -0.934 | [-0.971, -0.860] |   0.727   |  0.109  | [0.096, 0.122] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+        KNN         | vs |        MLP         | Sensitivity | 0.0000  | 0.0015 | -1.000 | [-1.000, -1.000] |   0.727   |  0.199  | [0.189, 0.210] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+     NaiveBayes     | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0017 | -1.000 | [-1.000, -1.000] |   0.727   |  0.636  | [0.622, 0.651] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+     NaiveBayes     | vs |     ExtraTrees     | Sensitivity | 0.0000  | 0.0020 | -1.000 | [-1.000, -1.000] |   0.727   |  0.682  | [0.668, 0.699] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+     NaiveBayes     | vs |        MLP         | Sensitivity | 0.0000  | 0.0018 | -1.000 | [-1.000, -1.000] |   0.727   |  0.761  | [0.749, 0.777] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+      AdaBoost      | vs |        MLP         | Sensitivity | 0.0000  | 0.0014 | -1.000 | [-1.000, -1.000] |   0.727   |  0.143  | [0.136, 0.150] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+     ExtraTrees     | vs |        MLP         | Sensitivity | 0.0000  | 0.0012 | -0.944 | [-0.977, -0.884] |   0.727   |  0.091  | [0.083, 0.098] |  0.069  |  1  |   100.0   |  0   |Ranking already correct                       
+    RandomForest    | vs |  GradientBoosting  | Sensitivity | 0.4294  | 0.0500 | -0.067 | [-0.215, +0.085] |   0.727   |  0.002  | [0.000, 0.006] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+    RandomForest    | vs | LogisticRegression | Sensitivity | 0.0000  | 0.0056 | +0.432 | [+0.274, +0.573] |   0.727   |  0.032  | [0.021, 0.042] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+    RandomForest    | vs |     ExtraTrees     | Sensitivity | 0.0001  | 0.0071 | +0.234 | [+0.106, +0.358] |   0.727   |  0.017  | [0.010, 0.024] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+  GradientBoosting  | vs | LogisticRegression | Sensitivity | 0.0000  | 0.0031 | +0.480 | [+0.372, +0.583] |   0.727   |  0.034  | [0.028, 0.040] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+  GradientBoosting  | vs |     ExtraTrees     | Sensitivity | 0.0001  | 0.0083 | +0.289 | [+0.134, +0.438] |   0.727   |  0.019  | [0.010, 0.027] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+     SVM_Linear     | vs | LogisticRegression | Sensitivity | 0.0000  | 0.0011 | -0.642 | [-0.741, -0.542] |   0.727   |  0.055  | [0.050, 0.059] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+     SVM_Linear     | vs |    DecisionTree    | Sensitivity | 0.3073  | 0.0250 | +0.106 | [-0.124, +0.312] |   0.727   |  0.007  | [0.000, 0.020] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+     SVM_Linear     | vs |        KNN         | Sensitivity | 0.0000  | 0.0063 | +0.495 | [+0.313, +0.664] |   0.727   |  0.040  | [0.025, 0.054] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+     SVM_Linear     | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0050 | -0.232 | [-0.321, -0.148] |   0.727   |  0.017  | [0.012, 0.022] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+ LogisticRegression | vs |    DecisionTree    | Sensitivity | 0.0000  | 0.0042 | +0.727 | [+0.557, +0.844] |   0.727   |  0.061  | [0.046, 0.076] |  0.069  |  0  |   14.4    |  0   |Criteria for Sensitivity win not met          
+ LogisticRegression | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0026 | +0.498 | [+0.390, +0.611] |   0.727   |  0.038  | [0.032, 0.043] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+ LogisticRegression | vs |     ExtraTrees     | Sensitivity | 0.0062  | 0.0167 | -0.211 | [-0.374, -0.041] |   0.727   |  0.015  | [0.004, 0.025] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+    DecisionTree    | vs |        KNN         | Sensitivity | 0.0003  | 0.0100 | +0.477 | [+0.248, +0.660] |   0.727   |  0.033  | [0.017, 0.049] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+    DecisionTree    | vs |      AdaBoost      | Sensitivity | 0.0012  | 0.0125 | -0.350 | [-0.532, -0.131] |   0.727   |  0.024  | [0.009, 0.037] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+        KNN         | vs |      AdaBoost      | Sensitivity | 0.0000  | 0.0045 | -0.672 | [-0.797, -0.510] |   0.727   |  0.057  | [0.043, 0.070] |  0.069  |  0  |    4.1    |  0   |Criteria for Sensitivity win not met          
+      AdaBoost      | vs |     ExtraTrees     | Sensitivity | 0.0000  | 0.0038 | -0.656 | [-0.773, -0.520] |   0.727   |  0.052  | [0.042, 0.062] |  0.069  |  0  |    0.0    |  0   |Criteria for Sensitivity win not met          
+ LogisticRegression | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0028 | +0.965 | [+0.906, +0.989] |   0.936   |  0.098  | [0.090, 0.106] |  0.091  |  1  |   91.6    |  1   |(1) Sensitivity neutral                       
+    RandomForest    | vs |     SVM_Linear     | Specificity | 0.0000  | 0.0014 | -0.993 | [-1.000, -0.965] |   0.936   |  0.114  | [0.106, 0.121] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+    RandomForest    | vs |    DecisionTree    | Specificity | 0.0000  | 0.0038 | +0.988 | [+0.955, +0.997] |   0.936   |  0.133  | [0.122, 0.145] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+    RandomForest    | vs |     NaiveBayes     | Specificity | 0.0000  | 0.0024 | -1.000 | [-1.000, -1.000] |   0.936   |  0.186  | [0.177, 0.195] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+    RandomForest    | vs |      AdaBoost      | Specificity | 0.0000  | 0.0021 | -0.979 | [-0.996, -0.934] |   0.936   |  0.099  | [0.091, 0.106] |  0.091  |  1  |   97.4    |  0   |(1/2) No comparison -> Sensitivity win        
+  GradientBoosting  | vs |    DecisionTree    | Specificity | 0.0000  | 0.0018 | +1.000 | [+1.000, +1.000] |   0.936   |  0.201  | [0.190, 0.212] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+  GradientBoosting  | vs |        KNN         | Specificity | 0.0000  | 0.0022 | +0.999 | [+0.984, +1.000] |   0.936   |  0.166  | [0.156, 0.175] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+  GradientBoosting  | vs |     NaiveBayes     | Specificity | 0.0000  | 0.0012 | -1.000 | [-1.000, -1.000] |   0.936   |  0.119  | [0.112, 0.125] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+  GradientBoosting  | vs |        MLP         | Specificity | 0.0000  | 0.0011 | +0.936 | [+0.871, +0.973] |   0.936   |  0.091  | [0.086, 0.096] |  0.091  |  1  |   32.6    |  0   |(1/2) No comparison -> Sensitivity win        
+     SVM_Linear     | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0013 | +1.000 | [+1.000, +1.000] |   0.936   |  0.141  | [0.134, 0.147] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+     SVM_Linear     | vs |        MLP         | Specificity | 0.0000  | 0.0013 | +1.000 | [+1.000, +1.000] |   0.936   |  0.137  | [0.131, 0.142] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+ LogisticRegression | vs |        KNN         | Specificity | 0.0000  | 0.0019 | +0.999 | [+0.987, +1.000] |   0.936   |  0.169  | [0.159, 0.178] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+ LogisticRegression | vs |     NaiveBayes     | Specificity | 0.0000  | 0.0014 | -1.000 | [-1.000, -1.000] |   0.936   |  0.115  | [0.109, 0.122] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+ LogisticRegression | vs |        MLP         | Specificity | 0.0000  | 0.0012 | +0.946 | [+0.881, +0.978] |   0.936   |  0.094  | [0.088, 0.099] |  0.091  |  1  |   65.6    |  0   |(1/2) No comparison -> Sensitivity win        
+    DecisionTree    | vs |     NaiveBayes     | Specificity | 0.0000  | 0.0031 | -1.000 | [-1.000, -1.000] |   0.936   |  0.317  | [0.306, 0.328] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+    DecisionTree    | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0036 | -0.956 | [-0.984, -0.901] |   0.936   |  0.106  | [0.095, 0.117] |  0.091  |  1  |   86.8    |  0   |(1/2) No comparison -> Sensitivity win        
+    DecisionTree    | vs |        MLP         | Specificity | 0.0000  | 0.0033 | -0.963 | [-0.989, -0.905] |   0.936   |  0.111  | [0.098, 0.123] |  0.091  |  1  |   91.7    |  0   |(1/2) No comparison -> Sensitivity win        
+        KNN         | vs |     NaiveBayes     | Specificity | 0.0000  | 0.0014 | -1.000 | [-1.000, -1.000] |   0.936   |  0.283  | [0.274, 0.292] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+     NaiveBayes     | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0020 | +1.000 | [+1.000, +1.000] |   0.936   |  0.213  | [0.204, 0.222] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+     NaiveBayes     | vs |        MLP         | Specificity | 0.0000  | 0.0016 | +1.000 | [+1.000, +1.000] |   0.936   |  0.209  | [0.201, 0.217] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+      AdaBoost      | vs |        MLP         | Specificity | 0.0000  | 0.0012 | +0.996 | [+0.967, +1.000] |   0.936   |  0.121  | [0.116, 0.127] |  0.091  |  1  |   100.0   |  0   |(1/2) No comparison -> Sensitivity win        
+  GradientBoosting  | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0015 | +0.959 | [+0.903, +0.985] |   0.936   |  0.095  | [0.088, 0.102] |  0.091  |  1  |   81.0    |  0   |(2) No comparison -> AUC win                  
+     SVM_Linear     | vs |    DecisionTree    | Specificity | 0.0000  | 0.0029 | +1.000 | [+1.000, +1.000] |   0.936   |  0.246  | [0.236, 0.257] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+     SVM_Linear     | vs |        KNN         | Specificity | 0.0000  | 0.0025 | +1.000 | [+1.000, +1.000] |   0.936   |  0.212  | [0.202, 0.220] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+ LogisticRegression | vs |    DecisionTree    | Specificity | 0.0000  | 0.0026 | +1.000 | [+1.000, +1.000] |   0.936   |  0.204  | [0.193, 0.216] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+    DecisionTree    | vs |      AdaBoost      | Specificity | 0.0000  | 0.0017 | -1.000 | [-1.000, -1.000] |   0.936   |  0.231  | [0.221, 0.242] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+        KNN         | vs |      AdaBoost      | Specificity | 0.0000  | 0.0016 | -1.000 | [-1.000, -1.000] |   0.936   |  0.197  | [0.185, 0.206] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+      AdaBoost      | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0015 | +0.998 | [+0.966, +1.000] |   0.936   |  0.126  | [0.119, 0.133] |  0.091  |  1  |   100.0   |  0   |(2) No comparison -> AUC win                  
+    DecisionTree    | vs |        KNN         | Specificity | 0.0000  | 0.0167 | -0.464 | [-0.626, -0.290] |   0.936   |  0.035  | [0.023, 0.048] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+    RandomForest    | vs |  GradientBoosting  | Specificity | 0.0000  | 0.0019 | -0.851 | [-0.918, -0.745] |   0.936   |  0.068  | [0.060, 0.074] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+    RandomForest    | vs | LogisticRegression | Specificity | 0.0000  | 0.0042 | -0.869 | [-0.936, -0.765] |   0.936   |  0.071  | [0.063, 0.079] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+    RandomForest    | vs |     ExtraTrees     | Specificity | 0.0000  | 0.0083 | +0.405 | [+0.286, +0.520] |   0.936   |  0.027  | [0.021, 0.034] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+  GradientBoosting  | vs | LogisticRegression | Specificity | 0.0890  | 0.0250 | -0.048 | [-0.142, +0.076] |   0.936   |  0.003  | [0.000, 0.008] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+     SVM_Linear     | vs | LogisticRegression | Specificity | 0.0000  | 0.0011 | +0.679 | [+0.595, +0.762] |   0.936   |  0.043  | [0.039, 0.046] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+     SVM_Linear     | vs |      AdaBoost      | Specificity | 0.0000  | 0.0100 | +0.304 | [+0.212, +0.394] |   0.936   |  0.015  | [0.011, 0.019] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+ LogisticRegression | vs |      AdaBoost      | Specificity | 0.0000  | 0.0071 | -0.461 | [-0.557, -0.369] |   0.936   |  0.028  | [0.024, 0.032] |  0.091  |  0  |    0.0    |  0   |(1)/(2) Criteria for Specificity win not met  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Detailed comparison log saved: /Users/Clinical_Output/Ranking_20260704_012053/Output/log_20260704_012053.csv
+
+Starting creation of COLOURBLIND LIGHT graphics...
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Ranking_Metric1_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_AUC_Part1_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_AUC_Part2_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Correction_Metric2_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_Sensitivity_Part1_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_Sensitivity_Part2_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Correction_Metric3_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_Specificity_Part1_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Detail_Comparison/Detailplot_Specificity_Part2_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Ranking/Win_Loss_Matrix_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Ranking/Sankey_Rank_Shifts_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Final_Ranking_20260704_012053.png
+  Graphic successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Graphics/Ranking/Borda_Plot_20260704_012053.png
+  PDF report successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/PDF/Convergence_Report_20260704_012053.pdf
+  PDF report successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/PDF/Bootstrap_Report_20260704_012053.pdf
+  PDF report successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/PDF/Ranking_Report_20260704_012053.pdf
+  PDF report successfully saved: /Users/Clinical_Output/Ranking_20260704_012053/Final_Report_20260704_012053.pdf
+All graphics successfully created.
+
+Saving ranking data to JSON
+Machine-readable JSON saved to: /Users/Clinical_Output/Ranking_20260704_012053/Output/data_20260704_012053.json
+
+Ranking finished.
+All outputs successfully saved in: "/Users/Clinical_Output/Ranking_20260704_012053"
+
+Total execution time: 11 minutes and 52.86 seconds.
+
+If you use this software and find it helpful, please cite:
+von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.2). https://doi.org/10.5281/zenodo.18274870

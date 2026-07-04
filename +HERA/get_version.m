@@ -10,7 +10,7 @@ function version_str = get_version()
 %
 %   If the Git command fails (e.g., Git not installed, not a repository, 
 %   or no tags found), it falls back to defined default version. 
-%   The fallback version is currently defined as 'v1.4.2'. 
+%   The fallback version is currently defined as 'v1.4.3'. 
 %   Please make sure to update this version if a new tag is created!
 %
 % Outputs:
@@ -19,7 +19,7 @@ function version_str = get_version()
 % Author: Lukas von Erdmannsdorff
 
     % Default fallback version used if dynamic retrieval fails
-    fallback_version = 'v1.4.2'; 
+    fallback_version = 'v1.4.3'; 
 
     try
         % Attempt to run git describe.

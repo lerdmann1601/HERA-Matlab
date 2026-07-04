@@ -63,10 +63,10 @@ While the automated check should work for most datasets, "difficult" data with h
 variance or flat likelihood landscapes may fail to converge within
 `B_end`. In this case, you can try the following:
 
-1. **Check the Elbow**: Inspect the generated stability plots. If you see a
-    clear "elbow" where the curve flattens but fluctuates slightly above the
-    strict `convergence_tolerance`, the convergence parameters might be too strict
-    for your data's noise level.
+1. **Check the Elbow**: Inspect the generated stability plots:
+    * If you see a clear "elbow" where the curve flattens but fluctuates slightly above the strict `convergence_tolerance`, the convergence parameters might be too strict for your data's noise level.
+    * If the elbow method selected a point very close to `B_end` and the curve has already approached a plateau, it is recommended to increase `B_end` (e.g., to 15,000) before changing other parameters.
+    * Alternatively, you can simply accept the suggested elbow point if it represents a reasonable location where both the global convergence curve and individual plots have clearly reached a stable plateau.
 
 2. **Adjust Parameters**: You can relax `convergence_tolerance` (e.g., to
     0.02) or increase `n_trials` and/ or `smoothing_window` in the configuration.

@@ -1,0 +1,13 @@
+Metric;Effect Size;Correction Factor;Median;Mean;Min;Max
+"AUC";"Cliff's Delta";"Bias (z0)";"+0.000";"-0.014";"-0.652";"+0.270"
+"AUC";"Cliff's Delta";"Skewness (a)";"+0.000";"+0.002";"-0.125";"+0.111"
+"AUC";"Relative Difference";"Bias (z0)";"-0.001";"-0.003";"-0.054";"+0.034"
+"AUC";"Relative Difference";"Skewness (a)";"-0.001";"-0.001";"-0.014";"+0.017"
+"Sensitivity";"Cliff's Delta";"Bias (z0)";"+0.000";"-0.014";"-0.223";"+0.257"
+"Sensitivity";"Cliff's Delta";"Skewness (a)";"+0.000";"+0.000";"-0.054";"+0.111"
+"Sensitivity";"Relative Difference";"Bias (z0)";"+0.007";"-0.006";"-0.477";"+0.060"
+"Sensitivity";"Relative Difference";"Skewness (a)";"-0.000";"+0.001";"-0.012";"+0.023"
+"Specificity";"Cliff's Delta";"Bias (z0)";"+0.000";"-0.046";"-0.623";"+0.175"
+"Specificity";"Cliff's Delta";"Skewness (a)";"+0.000";"-0.006";"-0.114";"+0.112"
+"Specificity";"Relative Difference";"Bias (z0)";"+0.001";"-0.005";"-0.070";"+0.023"
+"Specificity";"Relative Difference";"Skewness (a)";"-0.001";"-0.003";"-0.025";"+0.009"

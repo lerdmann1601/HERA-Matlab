@@ -4,12 +4,25 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.2) are considered legacy.
+> Previous versions (including all versions prior to 1.4.3) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
 
 ## [Unreleased]
+
+---
+
+## [1.4.3] - 2026-07-05
+
+### Added
+
+* **New Datasets:** Added new clinical and weather benchmarking datasets (Examples 3 and 4) derived from OpenML Cardiovascular Disease and WeatherAUS datasets to showcase HERA's domain-agnostic versatility.
+* **Documentation Enhancements:** Added reproducibility instructions, configuration parameter updates, convergence troubleshooting advice, and refined descriptions for the hierarchical-compensatory logic and Python integration.
+
+### Fixed
+
+* **Bootstrap Configuration Override:** Fixed an issue where manual bootstrap fields (`manual_B_thr`, `manual_B_ci`, `manual_B_rank`) in the dynamic configuration list were overridden by automatic convergence settings.
 
 ---
 
@@ -124,7 +137,8 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.2...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.3...HEAD
+[1.4.3]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/lerdmann1601/HERA-Matlab/releases/tag/v1.4.0
