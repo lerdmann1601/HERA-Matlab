@@ -23,180 +23,182 @@ function package_HERA_toolbox()
 %
 % Author: Lukas von Erdmannsdorff
 
-    clc
-    %% 1. Initialization and Path Detection
-    fprintf('Initializing Toolbox Packaging...\n');
+clc
+%% 1. Initialization and Path Detection
+fprintf('Initializing Toolbox Packaging...\n');
 
-    % Get the full path of this script
-    scriptPath = mfilename('fullpath');
-    
-    % Get the directory containing this script (the 'deploy' folder)
-    deployDir = fileparts(scriptPath);
-    
-    % Get the parent directory (the Project Root)
-    projectRoot = fileparts(deployDir);
-    
-    % Verify that the +HERA package exists in the root
-    if ~exist(fullfile(projectRoot, '+HERA'), 'dir')
-        error('Could not locate +HERA package. Expected at: %s', fullfile(projectRoot, '+HERA'));
-    end
-    
-    % Define and create the output directory.
-    outputDir = fullfile(projectRoot, 'deploy', 'output', 'toolbox');
-    if ~exist(outputDir, 'dir')
-        mkdir(outputDir);
-    end
+% Get the full path of this script
+scriptPath = mfilename('fullpath');
 
-    % Get Version and validate (Strict for CI/CD)
-    is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
-    if is_cicd
-        version_str = getenv('GITHUB_REF_NAME');
-        if isempty(version_str) || ~startsWith(version_str, 'v')
-            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.3) must be set via GITHUB_REF_NAME.');
+% Get the directory containing this script (the 'deploy' folder)
+deployDir = fileparts(scriptPath);
+
+% Get the parent directory (the Project Root)
+projectRoot = fileparts(deployDir);
+
+% Verify that the +HERA package exists in the root
+if ~exist(fullfile(projectRoot, '+HERA'), 'dir')
+    error('Could not locate +HERA package. Expected at: %s', fullfile(projectRoot, '+HERA'));
+end
+
+% Define and create the output directory.
+outputDir = fullfile(projectRoot, 'deploy', 'output', 'toolbox');
+if ~exist(outputDir, 'dir')
+    mkdir(outputDir);
+end
+
+% Get Version and validate (Strict for CI/CD)
+is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
+if is_cicd
+    version_str = getenv('GITHUB_REF_NAME');
+    if isempty(version_str) || ~startsWith(version_str, 'v')
+        error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.3) must be set via GITHUB_REF_NAME.');
+    end
+else
+    % Local build: Use get_version() helper
+    version_str = HERA.get_version();
+end
+fprintf('Detected Version: %s\n', version_str);
+
+% Clean up problematic files before packaging
+% These files can cause File Exchange upload validation to fail
+fprintf('Cleaning up temporary/unwanted files...\n');
+
+% Patterns to delete (relative to projectRoot)
+cleanupPatterns = {'**/__pycache__', '**/*.pyc', '**/.DS_Store'};
+
+totalDeleted = 0;
+for i = 1:length(cleanupPatterns)
+    pattern = cleanupPatterns{i};
+    files = dir(fullfile(projectRoot, pattern));
+    for j = 1:length(files)
+        itemPath = fullfile(files(j).folder, files(j).name);
+
+        % Skip .venv, .git, deploy/output, deploy/dist, and release folders
+        if contains(itemPath, fullfile(projectRoot, '.venv')) || ...
+                contains(itemPath, fullfile(projectRoot, '.git')) || ...
+                contains(itemPath, fullfile(projectRoot, 'deploy', 'output')) || ...
+                contains(itemPath, fullfile(projectRoot, 'deploy', 'dist')) || ...
+                contains(itemPath, fullfile(projectRoot, 'release'))
+            continue;
         end
-    else
-        % Local build: Use get_version() helper
-        version_str = HERA.get_version();
-    end
-    fprintf('Detected Version: %s\n', version_str);
 
-    % Clean up problematic files before packaging
-    % These files can cause File Exchange upload validation to fail
-    fprintf('Cleaning up temporary/unwanted files...\n');
-    
-    % Patterns to delete (relative to projectRoot)
-    cleanupPatterns = {'**/__pycache__', '**/*.pyc', '**/.DS_Store'};
-    
-    totalDeleted = 0;
-    for i = 1:length(cleanupPatterns)
-        pattern = cleanupPatterns{i};
-        files = dir(fullfile(projectRoot, pattern));
-        for j = 1:length(files)
-            itemPath = fullfile(files(j).folder, files(j).name);
-            
-            % Skip .venv, .git, deploy/output, deploy/dist, and release folders
-            if contains(itemPath, fullfile(projectRoot, '.venv')) || ...
-               contains(itemPath, fullfile(projectRoot, '.git')) || ...
-               contains(itemPath, fullfile(projectRoot, 'deploy', 'output')) || ...
-               contains(itemPath, fullfile(projectRoot, 'deploy', 'dist')) || ...
-               contains(itemPath, fullfile(projectRoot, 'release'))
-               continue;
+        try
+            if files(j).isdir
+                rmdir(itemPath, 's');
+            else
+                delete(itemPath);
             end
-
-            try
-                if files(j).isdir
-                    rmdir(itemPath, 's');
-                else
-                    delete(itemPath);
-                end
-                totalDeleted = totalDeleted + 1;
-                % Only print if it's a file inside project sources to reduce noise
-                if ~contains(itemPath, '.venv')
-                    fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
-                end
-            catch
-                % Suppress warnings for expected conflicts
+            totalDeleted = totalDeleted + 1;
+            % Only print if it's a file inside project sources to reduce noise
+            if ~contains(itemPath, '.venv')
+                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
             end
+        catch
+            % Suppress warnings for expected conflicts
         end
     end
-    fprintf('Cleanup complete. Removed %d items.\n', totalDeleted);
+end
+fprintf('Cleanup complete. Removed %d items.\n', totalDeleted);
 
-    %% 2. Toolbox Configuration
-    fprintf('Configuring Toolbox Options...\n');
-    
-    % Define Toolbox Name
-    toolboxName = 'HERA';
-    
-    % Create ToolboxOptions object
-    % syntax: ToolboxOptions(toolboxPath, toolboxName)
-    % We point it to projectRoot as the source of files
-    opts = matlab.addons.toolbox.ToolboxOptions(projectRoot, toolboxName);
-    
-    % Metadata
-    opts.ToolboxName = 'HERA'; % The display name
-    opts.ToolboxVersion = replace(version_str, 'v', '');
-    opts.AuthorName = 'Lukas von Erdmannsdorff';
-    opts.AuthorEmail = ''; % Optional: Leave empty or fill if known
-    
-    % Description
-    opts.Summary = 'A Scientific Ranking Framework for Paired Benchmarking';
-    opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across up to three quality metrics. ' ...
+%% 2. Toolbox Configuration
+fprintf('Configuring Toolbox Options...\n');
+
+% Define Toolbox Name
+toolboxName = 'HERA';
+
+% Create ToolboxOptions object
+% syntax: ToolboxOptions(toolboxPath, toolboxName)
+% We point it to projectRoot as the source of files
+opts = matlab.addons.toolbox.ToolboxOptions(projectRoot, toolboxName);
+
+% Metadata
+opts.ToolboxName = 'HERA'; % The display name
+opts.ToolboxVersion = replace(version_str, 'v', '');
+opts.AuthorName = 'Lukas von Erdmannsdorff';
+opts.AuthorEmail = ''; % Optional: Leave empty or fill if known
+
+% Description
+opts.Summary = 'A Scientific Ranking Framework for Paired Benchmarking';
+opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across up to three quality metrics. ' ...
     'It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings. ' ...
     'For more information, visit the project website: https://lerdmann1601.github.io/HERA-Matlab/'];
-    
-    % Define essential files and directories to include in the toolbox.
-    % Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).
-    % Note: ToolboxOptions automatically handles +NAmespace folders (like +HERA) if listed.
-    
-    % NOTE: From now on I exclude 'docs' and 'assets' to keep the toolbox lean. 
-    % Internal deployment scripts and raw test files are also excluded 
-    % to ensure a professional production distribution.
-    includedPaths = { ...
-        fullfile(projectRoot, '+HERA'), ...
-        fullfile(projectRoot, 'data', 'README.md'), ...
-        fullfile(projectRoot, 'data', 'examples', 'Example_1'), ...
-        fullfile(projectRoot, 'data', 'examples', 'Example_2'), ...
-        fullfile(projectRoot, 'data', 'examples', 'Example_2_workflow'), ...
-        fullfile(projectRoot, 'deploy', 'readme.txt'), ...
-        fullfile(projectRoot, 'deploy', 'dependencies'), ...
-        fullfile(projectRoot, 'deploy', 'python_assets'), ...
-        fullfile(projectRoot, 'deploy', 'wrappers'), ...
-        fullfile(projectRoot, 'tests', 'HERA_Validation_Example.txt'), ...
-        fullfile(projectRoot, 'CITATION.cff'), ...
-        fullfile(projectRoot, 'CODE_OF_CONDUCT.md'), ...
-        fullfile(projectRoot, 'CONTRIBUTING.md'), ...
-        fullfile(projectRoot, 'license.txt'), ...
-        fullfile(projectRoot, 'README.md'), ...
-        fullfile(projectRoot, 'setup_HERA.m') ...
+
+% Define essential files and directories to include in the toolbox.
+% Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).
+% Note: ToolboxOptions automatically handles +NAmespace folders (like +HERA) if listed.
+
+% NOTE: From now on I exclude 'docs' and 'assets' to keep the toolbox lean.
+% Internal deployment scripts and raw test files are also excluded
+% to ensure a professional production distribution.
+includedPaths = { ...
+    fullfile(projectRoot, '+HERA'), ...
+    fullfile(projectRoot, 'data', 'README.md'), ...
+    fullfile(projectRoot, 'data', 'examples', 'Example_1'), ...
+    fullfile(projectRoot, 'data', 'examples', 'Example_2'), ...
+    fullfile(projectRoot, 'data', 'examples', 'Example_3'), ...
+    fullfile(projectRoot, 'data', 'examples', 'Example_4'), ...
+    fullfile(projectRoot, 'data', 'examples', 'Example_2_workflow'), ...
+    fullfile(projectRoot, 'deploy', 'readme.txt'), ...
+    fullfile(projectRoot, 'deploy', 'dependencies'), ...
+    fullfile(projectRoot, 'deploy', 'python_assets'), ...
+    fullfile(projectRoot, 'deploy', 'wrappers'), ...
+    fullfile(projectRoot, 'tests', 'HERA_Validation_Example.txt'), ...
+    fullfile(projectRoot, 'CITATION.cff'), ...
+    fullfile(projectRoot, 'CODE_OF_CONDUCT.md'), ...
+    fullfile(projectRoot, 'CONTRIBUTING.md'), ...
+    fullfile(projectRoot, 'license.txt'), ...
+    fullfile(projectRoot, 'README.md'), ...
+    fullfile(projectRoot, 'setup_HERA.m') ...
     };
 
-    % Filter to ensuring they exist before adding
-    validFiles = {};
-    for i = 1:length(includedPaths)
-        if exist(includedPaths{i}, 'file') || exist(includedPaths{i}, 'dir')
-             validFiles{end+1} = includedPaths{i};
-        else
-             fprintf('Warning: Resource not found, skipping: %s\n', includedPaths{i});
-        end
+% Filter to ensuring they exist before adding
+validFiles = {};
+for i = 1:length(includedPaths)
+    if exist(includedPaths{i}, 'file') || exist(includedPaths{i}, 'dir')
+        validFiles{end+1} = includedPaths{i};
+    else
+        fprintf('Warning: Resource not found, skipping: %s\n', includedPaths{i});
     end
-    
-    if isempty(validFiles)
-        error('No valid files found to include in the toolbox.');
+end
+
+if isempty(validFiles)
+    error('No valid files found to include in the toolbox.');
+end
+
+opts.ToolboxFiles = validFiles;
+
+% MATLAB Path Setup
+% By default, the root of the installed toolbox is added to the path.
+% That is sufficient for +HERA to work.
+
+opts.OutputFile = fullfile(outputDir, [toolboxName '_' version_str '.mltbx']);
+
+%% 3. Packaging
+fprintf('==================================\n');
+fprintf('Starting HERA Toolbox Packaging...\n');
+fprintf('==================================\n');
+
+try
+    fprintf('Creating .mltbx file...\n');
+    matlab.addons.toolbox.packageToolbox(opts);
+
+    fprintf('\n========================================\n');
+    fprintf('SUCCESS!\n');
+    fprintf('Toolbox File: %s\n', opts.OutputFile);
+    fprintf('----------------------------------------\n');
+    fprintf('Ready for Release! Upload the .mltbx file to GitHub/FileExchange.\n');
+    fprintf('========================================\n');
+
+catch ME
+    % Error Handling
+    fprintf('\n========================================\n');
+    fprintf('Packaging Failed:\n%s\n', ME.message);
+    fprintf('Stack Trace:\n');
+    for k = 1:length(ME.stack)
+        fprintf('  File: %s\n  Name: %s\n  Line: %d\n', ME.stack(k).file, ME.stack(k).name, ME.stack(k).line);
     end
-    
-    opts.ToolboxFiles = validFiles;
-
-    % MATLAB Path Setup
-    % By default, the root of the installed toolbox is added to the path.
-    % That is sufficient for +HERA to work.
-    
-    opts.OutputFile = fullfile(outputDir, [toolboxName '_' version_str '.mltbx']);
-
-    %% 3. Packaging
-    fprintf('==================================\n');
-    fprintf('Starting HERA Toolbox Packaging...\n');
-    fprintf('==================================\n');
-
-    try
-        fprintf('Creating .mltbx file...\n');
-        matlab.addons.toolbox.packageToolbox(opts);
-        
-        fprintf('\n========================================\n');
-        fprintf('SUCCESS!\n');
-        fprintf('Toolbox File: %s\n', opts.OutputFile);
-        fprintf('----------------------------------------\n');
-        fprintf('Ready for Release! Upload the .mltbx file to GitHub/FileExchange.\n');
-        fprintf('========================================\n');
-        
-    catch ME
-        % Error Handling
-        fprintf('\n========================================\n');
-        fprintf('Packaging Failed:\n%s\n', ME.message);
-        fprintf('Stack Trace:\n');
-        for k = 1:length(ME.stack)
-            fprintf('  File: %s\n  Name: %s\n  Line: %d\n', ME.stack(k).file, ME.stack(k).name, ME.stack(k).line);
-        end
-        fprintf('========================================\n');
-        rethrow(ME);
-    end
+    fprintf('========================================\n');
+    rethrow(ME);
+end
 end
