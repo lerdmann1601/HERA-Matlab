@@ -245,7 +245,12 @@ for page = 1:num_pages
     set(h_fig, 'Units', 'pixels'); % Enforce units to prevent DPI scaling collapse
     set(h_fig, 'Position', current_pos); % Re-assert position
     drawnow;
-    pause(0.1);
+    % Increase pause duration for multi-page plots to prevent rendering collapse.
+    if num_pages > 1
+        pause(0.5); 
+    else
+        pause(0.1);
+    end
     drawnow; % Double refresh to ensure tiledlayout expands correctly
 
     set(h_fig, 'Visible', 'off');
