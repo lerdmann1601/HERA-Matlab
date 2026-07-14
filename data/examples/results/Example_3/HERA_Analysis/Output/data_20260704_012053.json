@@ -12,7 +12,7 @@
     "MLP"
   ],
   "config": {
-    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Clinical_Data",
+    "folderPath": "/Users/Clinical_Data",
     "fileType": ".csv",
     "metric_names": [
       "AUC",
@@ -20,7 +20,7 @@
       "Specificity"
     ],
     "ranking_mode": "M1_M2_M3",
-    "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Clinical_Output",
+    "output_dir": "/Users/Clinical_Output",
     "reproducible": true,
     "seed": 42,
     "plot_theme": "colourblind light",
@@ -113,7 +113,7 @@
       ]
     ],
     "config": {
-      "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Clinical_Data",
+      "folderPath": "/Users/Clinical_Data",
       "fileType": ".csv",
       "metric_names": [
         "AUC",
@@ -121,7 +121,7 @@
         "Specificity"
       ],
       "ranking_mode": "M1_M2_M3",
-      "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Clinical_Output",
+      "output_dir": "/Users/Clinical_Output",
       "reproducible": true,
       "seed": 42,
       "plot_theme": "colourblind light",

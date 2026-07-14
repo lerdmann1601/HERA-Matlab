@@ -1,0 +1,483 @@
+=======================
+Ranking is starting...
+=======================
+Version: v1.4.3
+
+Configuration loaded.
+--------------------------------------------------
+CPU cores for ranking: auto
+Reproducibility: true (Seed: 42)
+
+-> Percentile-Bootstrap for Thresholds
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:100:10000
+   Trials per B:   25
+   Tolerance:      1.00%
+
+-> BCa-Bootstrap for Confidence Intervals
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        100:200:20000
+   Trials per B:   30
+   Tolerance:      3.00%
+
+-> Cluster-Bootstrap for Ranking
+   Method: Automatic (Convergence search)
+   Convergence search: Robust
+   Smoothing window:   3
+   Stable runs needed: 3
+   B-Range:        50:25:2500
+   Trials per B:   15
+   Tolerance:      0.50%
+--------------------------------------------------
+
+RNG stream set to reproducible seed 42.
+Parallel pool already active (8 workers). Skipping restart.
+
+Importing data from folder: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Data
+ -> Reading metric 1: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Data/Accuracy.csv
+
+Data successfully loaded.
+-------------------------------------------
+Number of subjects (rows): 30
+Number of datasets (columns): 12
+
+The following datasets will be analyzed:
+  -> Llama-3.3-70B
+  -> Llama-3.1-8B
+  -> Gemma-2-27B
+  -> Gemma-2-9B
+  -> Qwen2.5-72B
+  -> Qwen2.5-7B
+  -> DeepSeek-R1-Llama-70B
+  -> DeepSeek-R1-Qwen-32B
+  -> DeepSeek-R1-Llama-8B
+  -> Mistral-Nemo
+  -> Mistral-Large-2411
+  -> Phi-4
+
+Primary analysis for the ranking:
+Accuracy
+
+Validating imported data
+Checking completeness for each pairwise comparison:
+  Metric: Accuracy
+-------------------------------------------
+All data validated for analysis.
+
+Calculating statistical thresholds
+
+Searching for optimal Percentile-Bootstrap count (B) for thresholds
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 1.0% change, starting after 1 runs up to B max 10000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 25 Trials
+ -> Checking stability with B = 200 and 25 Trials
+ -> Checking stability with B = 300 and 25 Trials
+ -> Checking stability with B = 400 and 25 Trials
+    Relative stability change: 40.13%
+ -> Checking stability with B = 500 and 25 Trials
+    Relative stability change: 22.89%
+ -> Checking stability with B = 600 and 25 Trials
+    Relative stability change: 38.31%
+ -> Checking stability with B = 700 and 25 Trials
+    Relative stability change: 2.56%
+ -> Checking stability with B = 800 and 25 Trials
+    Relative stability change: 14.19%
+ -> Checking stability with B = 900 and 25 Trials
+    Relative stability change: 8.19%
+ -> Checking stability with B = 1000 and 25 Trials
+    Convergence at 0.05% in run 1/3
+ -> Checking stability with B = 1100 and 25 Trials
+    Convergence at 0.02% in run 2/3
+ -> Checking stability with B = 1200 and 25 Trials
+    Convergence at 0.04% in run 3/3
+Convergence reached at 0.04%.
+Stability in 3 consecutive runs
+B-value after convergence: 1200
+Convergence plot for thresholds saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Threshold_Analysis/Convergence_Thresholds_Global_20260714_130924.png
+Convergence plot for thresholds saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Threshold_Analysis/Convergence_Thresholds_Detailed_20260714_130924.png
+Histogram plot for threshold distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Threshold_Analysis/Distribution_Bootstrap_Thresholds_20260714_130924.png
+Histogram plot for effect sizes saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Threshold_Analysis/Distribution_Effect_Sizes_20260714_130924.png
+
+Calculating BCa confidence intervals
+
+Searching for optimal Bias-corrected and accelerated Bootstrap count (B) for effect size CIs
+Primary: IQR/Median-Ratio
+Convergence averaged over 3 iterations, constant in 3 runs with < 3.0% change, starting after 1 runs up to B max 20000
+Secondary: Elbow analysis
+ -> Checking stability with B = 100 and 30 trials
+ -> Checking stability with B = 300 and 30 trials
+ -> Checking stability with B = 500 and 30 trials
+ -> Checking stability with B = 700 and 30 trials
+    Relative stability change: 35.32%
+ -> Checking stability with B = 900 and 30 trials
+    Relative stability change: 16.25%
+ -> Checking stability with B = 1100 and 30 trials
+    Relative stability change: 12.57%
+ -> Checking stability with B = 1300 and 30 trials
+    Relative stability change: 10.38%
+ -> Checking stability with B = 1500 and 30 trials
+    Relative stability change: 5.87%
+ -> Checking stability with B = 1700 and 30 trials
+    Relative stability change: 5.94%
+ -> Checking stability with B = 1900 and 30 trials
+    Relative stability change: 5.60%
+ -> Checking stability with B = 2100 and 30 trials
+    Relative stability change: 20.58%
+ -> Checking stability with B = 2300 and 30 trials
+    Relative stability change: 16.98%
+ -> Checking stability with B = 2500 and 30 trials
+    Relative stability change: 8.71%
+ -> Checking stability with B = 2700 and 30 trials
+    Relative stability change: -3.79%
+ -> Checking stability with B = 2900 and 30 trials
+    Relative stability change: 11.35%
+ -> Checking stability with B = 3100 and 30 trials
+    Relative stability change: 17.40%
+ -> Checking stability with B = 3300 and 30 trials
+    Convergence at 0.95% in run 1/3
+ -> Checking stability with B = 3500 and 30 trials
+    Relative stability change: -7.11%
+ -> Checking stability with B = 3700 and 30 trials
+    Convergence at 2.72% in run 1/3
+ -> Checking stability with B = 3900 and 30 trials
+    Relative stability change: 12.54%
+ -> Checking stability with B = 4100 and 30 trials
+    Convergence at 1.32% in run 1/3
+ -> Checking stability with B = 4300 and 30 trials
+    Relative stability change: 11.36%
+ -> Checking stability with B = 4500 and 30 trials
+    Convergence at 1.12% in run 1/3
+ -> Checking stability with B = 4700 and 30 trials
+    Relative stability change: 14.14%
+ -> Checking stability with B = 4900 and 30 trials
+    Convergence at 1.80% in run 1/3
+ -> Checking stability with B = 5100 and 30 trials
+    Relative stability change: -8.80%
+ -> Checking stability with B = 5300 and 30 trials
+    Relative stability change: -9.93%
+ -> Checking stability with B = 5500 and 30 trials
+    Relative stability change: -7.22%
+ -> Checking stability with B = 5700 and 30 trials
+    Convergence at 2.21% in run 1/3
+ -> Checking stability with B = 5900 and 30 trials
+    Convergence at 2.90% in run 2/3
+ -> Checking stability with B = 6100 and 30 trials
+    Convergence at -0.06% in run 3/3
+Convergence reached at -0.06%.
+Stability in 3 consecutive runs
+B-value after convergence: 6100
+Convergence plot for BCa-CI saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/CI_Histograms/Convergence_BCa_CI_Global_20260714_130924.png
+Convergence plot for BCa-CI saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/CI_Histograms/Convergence_BCa_CI_Detailed_20260714_130924.png
+
+Calculating CI and correction factors for: Accuracy
+
+=== Correction Factors for all 66 Pairwise Comparisons ===
+
+Accuracy:
+Correction Factor     | Median |  Mean  |  Min   |  Max   
+----------------------------------------------------------
+Bias (z0) Delta       | +0.000 | +0.012 | -0.531 | +0.271 
+Skewness (a) Delta    | +0.000 | +0.013 | -0.122 | +0.157 
+Bias (z0) RelDiff     | -0.008 | -0.007 | -0.058 | +0.031 
+Skewness (a) RelDiff  | -0.002 | -0.003 | -0.037 | +0.023 
+----------------------------------------------------------
+
+Saving BCa correction factors as CSV file
+CSV file successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Output/BCa_Correction_Factors_20260714_130924.csv
+Histogram plot for z0 distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/CI_Histograms/Distribution_BCa_Bias_z0_20260714_130924.png
+Histogram plot for a distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/CI_Histograms/Distribution_BCa_Skewness_a_20260714_130924.png
+Histogram plot for CI width distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/CI_Histograms/Distribution_CI_Widths_20260714_130924.png
+
+Calculating ranking for 1 hierarchy permutation(s)
+ -> Permutation 1/1: Accuracy
+
+Performing bootstrap analysis of rank stability for primary metric hierarchy
+
+Searching for optimal Cluster-Bootstrap count (B) for rank CIs
+ -> Checking stability with B = 50 and 15 Trials
+ -> Checking stability with B = 75 and 15 Trials
+ -> Checking stability with B = 100 and 15 Trials
+ -> Checking stability with B = 125 and 15 Trials
+    Relative stability change: -4.35%
+ -> Checking stability with B = 150 and 15 Trials
+    Relative stability change: 62.50%
+ -> Checking stability with B = 175 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 200 and 15 Trials
+    Relative stability change: 100.00%
+ -> Checking stability with B = 225 and 15 Trials
+    Convergence at 0.00% in run 1/3
+ -> Checking stability with B = 250 and 15 Trials
+    Convergence at 0.00% in run 2/3
+ -> Checking stability with B = 275 and 15 Trials
+    Convergence at 0.00% in run 3/3
+Convergence reached at 0.00%.
+Stability in 3 consecutive runs
+B-value after convergence: 275
+Convergence graphic for rank stability saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Ranking/Convergence_Rank_Stability_20260714_130924.png
+
+=== Bootstrap Rank Distribution (B = 275) ===
+
+| Final Rank |Dataset                |Bootstrap Rank (%)   
+-----------------------------------------------------------
+|     1      |Qwen2.5-72B            |1: 91.3%, 2: 8.7%    
+-----------------------------------------------------------
+|     2      |Mistral-Large-2411     |1: 8.7%, 2: 91.3%    
+-----------------------------------------------------------
+|     3      |Phi-4                  |3: 92.0%, 4: 8.0%    
+-----------------------------------------------------------
+|     4      |Llama-3.3-70B          |3: 8.0%, 4: 92.0%    
+-----------------------------------------------------------
+|     5      |DeepSeek-R1-Llama-70B  |5: 80.4%, 6: 19.6%   
+-----------------------------------------------------------
+|     6      |DeepSeek-R1-Qwen-32B   |5: 19.6%, 6: 80.4%   
+-----------------------------------------------------------
+|     7      |Gemma-2-27B            |7: 98.9%, 8: 1.1%    
+-----------------------------------------------------------
+|     8      |Qwen2.5-7B             |7: 1.1%, 8: 98.9%    
+-----------------------------------------------------------
+|     9      |Gemma-2-9B             |9: 84.0%, 10: 16.0%  
+-----------------------------------------------------------
+|     10     |Llama-3.1-8B           |9: 16.0%, 10: 84.0%  
+-----------------------------------------------------------
+|     11     |Mistral-Nemo           |11: 100.0%           
+-----------------------------------------------------------
+|     12     |DeepSeek-R1-Llama-8B   |12: 100.0%           
+-----------------------------------------------------------
+
+Saving Bootstrap Rank Distribution as CSV file
+Bootstrap rank distribution CSV saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Output/bootstrap_rank_20260714_130924.csv
+Histogram graphic for rank distribution saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Ranking/Distribution_Bootstrap_Ranks_20260714_130924.png
+
+Calculating post-hoc power analysis to estimate the probability of finding a significant and relevant comparison
+  Bootstrap Power Analysis with 10000 simulations per comparison.
+
+Creating final outputs
+
+=== Statistical Analysis of Differences across all Datasets in Accuracy ===
+
+For each dataset, mean and standard deviation were calculated for the following metric(s):
+ -> Accuracy 
+
+Significance, Comparisons with Cliff's Delta, and Relative Mean Differences:
+All 66 possible pairs of the 12 datasets from 30 subjects were compared regarding Accuracy.
+The Wilcoxon signed-rank test is used to check for a consistent and significant difference between datasets within subjects.
+The effect size Cliff's Delta (+1 to -1) robustly assesses the difference between the distributions of the datasets.
+Additionally, the relative mean difference between datasets is calculated as a criterion for the practical relevance of the effect.
+
+Threshold for Cliff's Delta (lower 95% CI of the 50th percentile of Cliff's Delta of all dataset comparisons):
+ Accuracy: 0.973
+
+Threshold for relative mean differences (lower 95% CI of the 50th percentile of relative mean differences):
+ Accuracy: 0.171
+
+Protection against small mean differences and influence from slight noise/signal fluctuations:
+-> Minimum threshold for relative mean differences based on the 95% CI of the 50th percentile of the SEM of all datasets
+ Accuracy: 0.020
+
+Criteria for a significant and relevant comparison between two datasets:
+ 1. p-value is significant (Holm-Bonferroni corrected)
+ 2. Cliff's Delta is above the threshold
+ 3. Relative difference is above the threshold
+
+A Percentile-Bootstrap with B = 1200 was used to calculate the thresholds.
+A BCa-Bootstrap with B = 6100 was performed to calculate the 95% CI of the dataset comparisons.
+To calculate the 95% Rank-CI of the ranking, the analysis was run in a Cluster-Bootstrap with B = 275.
+
+=== Accuracy Comparison: Analysis and Initial Ranking ===
+
+1. Initial ranking formed by the number of won comparisons per dataset
+Criteria for a win: p < Holm-Bonferroni threshold, Delta (d) >= 0.973, Rel. Diff. (r) >= 0.171
+2. In case of a tie, Cliff's Delta (d) decides. If d = 0 the mean value is used.
+
+Significant and relevant Accuracy comparisons (-> Swap by logic 1 and 2 marked. See log file for more details):
+
+ (1/2) |       Dataset 1       | > |      Dataset 2       | p-value | d (Delta) |     d 95% CI     | r (RelDiff) |    r 95% CI    
+----------------------------------------------------------------------------------------------------------------------------------
+  (1)  |          Llama-3.3-70B| > |Llama-3.1-8B          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.336    | [0.314, 0.355] 
+  (1)  |          Llama-3.3-70B| > |Gemma-2-27B           | 0.0000  |  +0.998   | [+0.977, +1.000] |    0.180    | [0.161, 0.200] 
+  (1)  |          Llama-3.3-70B| > |Gemma-2-9B            | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.316    | [0.295, 0.337] 
+  (1)  |          Llama-3.3-70B| > |Qwen2.5-7B            | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.217    | [0.202, 0.236] 
+  (1)  |          Llama-3.3-70B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.874    | [0.847, 0.897] 
+  (1)  |          Llama-3.3-70B| > |Mistral-Nemo          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.410    | [0.385, 0.433] 
+  (1)  |           Llama-3.1-8B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.580    | [0.546, 0.613] 
+  (1)  |            Gemma-2-27B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.722    | [0.697, 0.747] 
+  (1)  |            Gemma-2-27B| > |Mistral-Nemo          | 0.0000  |  +0.991   | [+0.943, +1.000] |    0.234    | [0.209, 0.259] 
+  (1)  |             Gemma-2-9B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.599    | [0.574, 0.627] 
+  (1)  |            Qwen2.5-72B| > |Llama-3.1-8B          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.388    | [0.369, 0.408] 
+  (1)  |            Qwen2.5-72B| > |Gemma-2-27B           | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.233    | [0.216, 0.252] 
+  (1)  |            Qwen2.5-72B| > |Gemma-2-9B            | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.368    | [0.344, 0.390] 
+  (1)  |            Qwen2.5-72B| > |Qwen2.5-7B            | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.270    | [0.253, 0.290] 
+  (1)  |            Qwen2.5-72B| > |DeepSeek-R1-Qwen-32B  | 0.0000  |  +0.997   | [+0.963, +1.000] |    0.182    | [0.164, 0.198] 
+  (1)  |            Qwen2.5-72B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.917    | [0.889, 0.943] 
+  (1)  |            Qwen2.5-72B| > |Mistral-Nemo          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.461    | [0.441, 0.479] 
+  (1)  |             Qwen2.5-7B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.689    | [0.662, 0.716] 
+  (1)  |             Qwen2.5-7B| > |Mistral-Nemo          | 0.0000  |  +0.977   | [+0.891, +0.998] |    0.197    | [0.166, 0.221] 
+  (1)  |  DeepSeek-R1-Llama-70B| > |Llama-3.1-8B          | 0.0000  |  -0.993   | [-1.000, -0.960] |    0.222    | [0.201, 0.243] 
+  (1)  |  DeepSeek-R1-Llama-70B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.778    | [0.754, 0.801] 
+  (1)  |  DeepSeek-R1-Llama-70B| > |Mistral-Nemo          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.298    | [0.270, 0.324] 
+  (1)  |   DeepSeek-R1-Qwen-32B| > |Llama-3.1-8B          | 0.0000  |  -0.993   | [-1.000, -0.972] |    0.209    | [0.187, 0.228] 
+  (1)  |   DeepSeek-R1-Qwen-32B| > |DeepSeek-R1-Llama-8B  | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.767    | [0.742, 0.788] 
+  (1)  |   DeepSeek-R1-Qwen-32B| > |Mistral-Nemo          | 0.0000  |  +1.000   | [+1.000, +1.000] |    0.285    | [0.260, 0.308] 
+  (1)  |           Mistral-Nemo| > |DeepSeek-R1-Llama-8B  | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.509    | [0.473, 0.547] 
+  (1)  |     Mistral-Large-2411| > |Llama-3.1-8B          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.377    | [0.355, 0.398] 
+  (1)  |     Mistral-Large-2411| > |Gemma-2-27B           | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.222    | [0.203, 0.243] 
+  (1)  |     Mistral-Large-2411| > |Gemma-2-9B            | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.357    | [0.337, 0.377] 
+  (1)  |     Mistral-Large-2411| > |Qwen2.5-7B            | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.259    | [0.241, 0.277] 
+  (1)  |     Mistral-Large-2411| > |DeepSeek-R1-Qwen-32B  | 0.0000  |  -0.987   | [-1.000, -0.944] |    0.171    | [0.154, 0.190] 
+  (1)  |     Mistral-Large-2411| > |DeepSeek-R1-Llama-8B  | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.908    | [0.883, 0.931] 
+  (1)  |     Mistral-Large-2411| > |Mistral-Nemo          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.450    | [0.424, 0.475] 
+  (1)  |                  Phi-4| > |Llama-3.1-8B          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.344    | [0.323, 0.365] 
+  (1)  |                  Phi-4| > |Gemma-2-27B           | 0.0000  |  -0.998   | [-1.000, -0.973] |    0.189    | [0.174, 0.205] 
+  (1)  |                  Phi-4| > |Gemma-2-9B            | 0.0000  |  -0.999   | [-1.000, -0.987] |    0.325    | [0.302, 0.347] 
+  (1)  |                  Phi-4| > |Qwen2.5-7B            | 0.0000  |  -0.998   | [-1.000, -0.973] |    0.226    | [0.208, 0.246] 
+  (1)  |                  Phi-4| > |DeepSeek-R1-Llama-8B  | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.881    | [0.857, 0.906] 
+  (1)  |                  Phi-4| > |Mistral-Nemo          | 0.0000  |  -1.000   | [-1.000, -1.000] |    0.418    | [0.394, 0.437] 
+  (2)  |           Llama-3.1-8B| > |Mistral-Nemo          | 0.0001  |  +0.603   | [+0.387, +0.767] |    0.077    | [0.050, 0.098] 
+  (2)  |            Gemma-2-27B| > |Qwen2.5-7B            | 0.0004  |  +0.477   | [+0.276, +0.670] |    0.038    | [0.022, 0.056] 
+  (2)  |             Gemma-2-9B| > |Llama-3.1-8B          | 0.0819  |  -0.148   | [-0.379, +0.129] |    0.020    | [0.001, 0.044] 
+  (2)  |             Gemma-2-9B| > |Mistral-Nemo          | 0.0000  |  +0.723   | [+0.520, +0.856] |    0.097    | [0.070, 0.124] 
+  (2)  |            Qwen2.5-72B| > |Mistral-Large-2411    | 0.2619  |  +0.136   | [-0.079, +0.357] |    0.011    | [0.001, 0.026] 
+  (2)  |  DeepSeek-R1-Llama-70B| > |DeepSeek-R1-Qwen-32B  | 0.1979  |  +0.099   | [-0.128, +0.322] |    0.013    | [0.001, 0.030] 
+  (2)  |                  Phi-4| > |Llama-3.3-70B         | 0.3934  |  -0.176   | [-0.422, +0.061] |    0.009    | [0.000, 0.025] 
+----------------------------------------------------------------------------------------------------------------------------------
+
+Ranking after Accuracy comparison:
+
+  1. Qwen2.5-72B            Mean Accuracy: 0.563
+  2. Mistral-Large-2411     Mean Accuracy: 0.556
+  3. Phi-4                  Mean Accuracy: 0.538
+  4. Llama-3.3-70B          Mean Accuracy: 0.533
+  5. DeepSeek-R1-Llama-70B  Mean Accuracy: 0.475
+  6. DeepSeek-R1-Qwen-32B   Mean Accuracy: 0.469
+  7. Gemma-2-27B            Mean Accuracy: 0.445
+  8. Qwen2.5-7B             Mean Accuracy: 0.429
+  9. Gemma-2-9B             Mean Accuracy: 0.388
+ 10. Llama-3.1-8B           Mean Accuracy: 0.380
+ 11. Mistral-Nemo           Mean Accuracy: 0.352
+ 12. DeepSeek-R1-Llama-8B   Mean Accuracy: 0.209
+
+==== Ranking Result based on Accuracy Comparisons ====
+
+ Rank |        Dataset        | Rank CI (95%)  | Mean Accuracy (± SD) 
+----------------------------------------------------------------------
+  1   |      Qwen2.5-72B      |  [1.00, 2.00]  |    0.563 ± 0.023     
+  2   |  Mistral-Large-2411   |  [1.00, 2.00]  |    0.556 ± 0.025     
+  3   |         Phi-4         |  [3.00, 4.00]  |    0.538 ± 0.022     
+  4   |     Llama-3.3-70B     |  [3.00, 4.00]  |    0.533 ± 0.024     
+  5   | DeepSeek-R1-Llama-70B |  [5.00, 6.00]  |    0.475 ± 0.024     
+  6   | DeepSeek-R1-Qwen-32B  |  [5.00, 6.00]  |    0.469 ± 0.023     
+  7   |      Gemma-2-27B      |  [7.00, 7.00]  |    0.445 ± 0.021     
+  8   |      Qwen2.5-7B       |  [8.00, 8.00]  |    0.429 ± 0.023     
+  9   |      Gemma-2-9B       | [9.00, 10.00]  |    0.388 ± 0.026     
+  10  |     Llama-3.1-8B      | [9.00, 10.00]  |    0.380 ± 0.025     
+  11  |     Mistral-Nemo      | [11.00, 11.00] |    0.352 ± 0.024     
+  12  | DeepSeek-R1-Llama-8B  | [12.00, 12.00] |    0.209 ± 0.016     
+----------------------------------------------------------------------
+
+Final results table saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Output/results_20260714_130924.csv
+
+=== Log of all Dataset Comparisons ===
+
+       Dataset 1       | vs |       Dataset 2       |   Test   | p-value | p-Thr  | Delta  |     d 95% CI     | Delta-Thr | RelDiff |    r 95% CI    | Rel-Thr | Win | Power (%) | Swap |Reason                          
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     Llama-3.3-70B     | vs |     Llama-3.1-8B      | Accuracy | 0.0000  | 0.0011 | +1.000 | [+1.000, +1.000] |   0.973   |  0.336  | [0.314, 0.355] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |      Gemma-2-27B      | Accuracy | 0.0000  | 0.0008 | +0.998 | [+0.977, +1.000] |   0.973   |  0.180  | [0.161, 0.200] |  0.171  |  1  |   82.5    |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |      Gemma-2-9B       | Accuracy | 0.0000  | 0.0008 | +1.000 | [+1.000, +1.000] |   0.973   |  0.316  | [0.295, 0.337] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |      Qwen2.5-72B      | Accuracy | 0.0000  | 0.0038 | -0.604 | [-0.741, -0.448] |   0.973   |  0.054  | [0.042, 0.066] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |      Qwen2.5-7B       | Accuracy | 0.0000  | 0.0010 | +1.000 | [+1.000, +1.000] |   0.973   |  0.217  | [0.202, 0.236] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0036 | +0.933 | [+0.809, +0.981] |   0.973   |  0.116  | [0.095, 0.134] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0028 | +0.941 | [+0.789, +0.990] |   0.973   |  0.129  | [0.109, 0.151] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0020 | +1.000 | [+1.000, +1.000] |   0.973   |  0.874  | [0.847, 0.897] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0012 | +1.000 | [+1.000, +1.000] |   0.973   |  0.410  | [0.385, 0.433] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |  Mistral-Large-2411   | Accuracy | 0.0001  | 0.0071 | -0.486 | [-0.659, -0.266] |   0.973   |  0.042  | [0.025, 0.055] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs |      Gemma-2-27B      | Accuracy | 0.0000  | 0.0010 | -0.956 | [-0.996, -0.824] |   0.973   |  0.158  | [0.138, 0.180] |  0.171  |  0  |    6.3    |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs |      Qwen2.5-72B      | Accuracy | 0.0000  | 0.0016 | -1.000 | [-1.000, -1.000] |   0.973   |  0.388  | [0.369, 0.408] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs |      Qwen2.5-7B       | Accuracy | 0.0000  | 0.0011 | -0.859 | [-0.937, -0.733] |   0.973   |  0.121  | [0.101, 0.140] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0014 | -0.993 | [-1.000, -0.960] |   0.973   |  0.222  | [0.201, 0.243] |  0.171  |  1  |   98.3    |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0008 | -0.993 | [-1.000, -0.972] |   0.973   |  0.209  | [0.187, 0.228] |  0.171  |  1  |   99.2    |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0023 | +1.000 | [+1.000, +1.000] |   0.973   |  0.580  | [0.546, 0.613] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0024 | -1.000 | [-1.000, -1.000] |   0.973   |  0.377  | [0.355, 0.398] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Llama-3.1-8B      | vs |         Phi-4         | Accuracy | 0.0000  | 0.0017 | -1.000 | [-1.000, -1.000] |   0.973   |  0.344  | [0.323, 0.365] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs |      Gemma-2-9B       | Accuracy | 0.0000  | 0.0022 | +0.897 | [+0.682, +0.999] |   0.973   |  0.138  | [0.118, 0.158] |  0.171  |  0  |    0.1    |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs |      Qwen2.5-72B      | Accuracy | 0.0000  | 0.0009 | -1.000 | [-1.000, -1.000] |   0.973   |  0.233  | [0.216, 0.252] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0050 | -0.718 | [-0.868, -0.498] |   0.973   |  0.065  | [0.047, 0.083] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0056 | -0.642 | [-0.829, -0.397] |   0.973   |  0.051  | [0.034, 0.070] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0014 | +1.000 | [+1.000, +1.000] |   0.973   |  0.722  | [0.697, 0.747] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0015 | +0.991 | [+0.943, +1.000] |   0.973   |  0.234  | [0.209, 0.259] |  0.171  |  1  |   95.3    |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0012 | -1.000 | [-1.000, -1.000] |   0.973   |  0.222  | [0.203, 0.243] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-27B      | vs |         Phi-4         | Accuracy | 0.0000  | 0.0017 | -0.998 | [-1.000, -0.973] |   0.973   |  0.189  | [0.174, 0.205] |  0.171  |  1  |   98.6    |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs |      Qwen2.5-72B      | Accuracy | 0.0000  | 0.0013 | -1.000 | [-1.000, -1.000] |   0.973   |  0.368  | [0.344, 0.390] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs |      Qwen2.5-7B       | Accuracy | 0.0000  | 0.0031 | -0.802 | [-0.913, -0.614] |   0.973   |  0.101  | [0.081, 0.120] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0014 | -0.959 | [-1.000, -0.800] |   0.973   |  0.202  | [0.180, 0.222] |  0.171  |  0  |   35.8    |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0010 | -0.944 | [-1.000, -0.767] |   0.973   |  0.189  | [0.166, 0.211] |  0.171  |  0  |   34.9    |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0008 | +1.000 | [+1.000, +1.000] |   0.973   |  0.599  | [0.574, 0.627] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0011 | -1.000 | [-1.000, -1.000] |   0.973   |  0.357  | [0.337, 0.377] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Gemma-2-9B       | vs |         Phi-4         | Accuracy | 0.0000  | 0.0012 | -0.999 | [-1.000, -0.987] |   0.973   |  0.325  | [0.302, 0.347] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs |      Qwen2.5-7B       | Accuracy | 0.0000  | 0.0008 | +1.000 | [+1.000, +1.000] |   0.973   |  0.270  | [0.253, 0.290] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0009 | +1.000 | [+1.000, +1.000] |   0.973   |  0.169  | [0.149, 0.187] |  0.171  |  0  |   44.2    |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0013 | +0.997 | [+0.963, +1.000] |   0.973   |  0.182  | [0.164, 0.198] |  0.171  |  1  |   90.6    |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0021 | +1.000 | [+1.000, +1.000] |   0.973   |  0.917  | [0.889, 0.943] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0018 | +1.000 | [+1.000, +1.000] |   0.973   |  0.461  | [0.441, 0.479] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-72B      | vs |         Phi-4         | Accuracy | 0.0000  | 0.0042 | +0.551 | [+0.400, +0.701] |   0.973   |  0.045  | [0.034, 0.055] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs | DeepSeek-R1-Llama-70B | Accuracy | 0.0000  | 0.0033 | -0.844 | [-0.951, -0.662] |   0.973   |  0.102  | [0.082, 0.123] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.0000  | 0.0008 | -0.800 | [-0.918, -0.612] |   0.973   |  0.089  | [0.073, 0.108] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0009 | +1.000 | [+1.000, +1.000] |   0.973   |  0.689  | [0.662, 0.716] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0029 | +0.977 | [+0.891, +0.998] |   0.973   |  0.197  | [0.166, 0.221] |  0.171  |  1  |   63.9    |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0011 | -1.000 | [-1.000, -1.000] |   0.973   |  0.259  | [0.241, 0.277] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+      Qwen2.5-7B       | vs |         Phi-4         | Accuracy | 0.0000  | 0.0015 | -0.998 | [-1.000, -0.973] |   0.973   |  0.226  | [0.208, 0.246] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-70B | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0009 | +1.000 | [+1.000, +1.000] |   0.973   |  0.778  | [0.754, 0.801] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-70B | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0010 | +1.000 | [+1.000, +1.000] |   0.973   |  0.298  | [0.270, 0.324] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-70B | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0025 | -0.988 | [-1.000, -0.941] |   0.973   |  0.158  | [0.138, 0.180] |  0.171  |  0  |   10.8    |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-70B | vs |         Phi-4         | Accuracy | 0.0000  | 0.0013 | -0.963 | [-0.996, -0.847] |   0.973   |  0.124  | [0.106, 0.141] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+ DeepSeek-R1-Qwen-32B  | vs | DeepSeek-R1-Llama-8B  | Accuracy | 0.0000  | 0.0008 | +1.000 | [+1.000, +1.000] |   0.973   |  0.767  | [0.742, 0.788] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Qwen-32B  | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0016 | +1.000 | [+1.000, +1.000] |   0.973   |  0.285  | [0.260, 0.308] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Qwen-32B  | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0009 | -0.987 | [-1.000, -0.944] |   0.973   |  0.171  | [0.154, 0.190] |  0.171  |  1  |   48.9    |      |(1) Decision by number of wins  
+ DeepSeek-R1-Qwen-32B  | vs |         Phi-4         | Accuracy | 0.0000  | 0.0008 | -0.969 | [-0.994, -0.896] |   0.973   |  0.137  | [0.122, 0.152] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-8B  | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0026 | -1.000 | [-1.000, -1.000] |   0.973   |  0.509  | [0.473, 0.547] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-8B  | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0019 | -1.000 | [-1.000, -1.000] |   0.973   |  0.908  | [0.883, 0.931] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+ DeepSeek-R1-Llama-8B  | vs |         Phi-4         | Accuracy | 0.0000  | 0.0010 | -1.000 | [-1.000, -1.000] |   0.973   |  0.881  | [0.857, 0.906] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Mistral-Nemo      | vs |  Mistral-Large-2411   | Accuracy | 0.0000  | 0.0009 | -1.000 | [-1.000, -1.000] |   0.973   |  0.450  | [0.424, 0.475] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+     Mistral-Nemo      | vs |         Phi-4         | Accuracy | 0.0000  | 0.0019 | -1.000 | [-1.000, -1.000] |   0.973   |  0.418  | [0.394, 0.437] |  0.171  |  1  |   100.0   |      |(1) Decision by number of wins  
+  Mistral-Large-2411   | vs |         Phi-4         | Accuracy | 0.0037  | 0.0100 | +0.408 | [+0.119, +0.658] |   0.973   |  0.034  | [0.014, 0.052] |  0.171  |  0  |    0.0    |      |(1) Decision by number of wins  
+     Llama-3.3-70B     | vs |         Phi-4         | Accuracy | 0.3934  | 0.0500 | -0.176 | [-0.422, +0.061] |   0.973   |  0.009  | [0.000, 0.025] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+     Llama-3.1-8B      | vs |      Gemma-2-9B       | Accuracy | 0.0819  | 0.0125 | -0.148 | [-0.379, +0.129] |   0.973   |  0.020  | [0.001, 0.044] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+     Llama-3.1-8B      | vs |     Mistral-Nemo      | Accuracy | 0.0001  | 0.0063 | +0.603 | [+0.387, +0.767] |   0.973   |  0.077  | [0.050, 0.098] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+      Gemma-2-27B      | vs |      Qwen2.5-7B       | Accuracy | 0.0004  | 0.0083 | +0.477 | [+0.276, +0.670] |   0.973   |  0.038  | [0.022, 0.056] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+      Gemma-2-9B       | vs |     Mistral-Nemo      | Accuracy | 0.0000  | 0.0045 | +0.723 | [+0.520, +0.856] |   0.973   |  0.097  | [0.070, 0.124] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+      Qwen2.5-72B      | vs |  Mistral-Large-2411   | Accuracy | 0.2619  | 0.0250 | +0.136 | [-0.079, +0.357] |   0.973   |  0.011  | [0.001, 0.026] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+ DeepSeek-R1-Llama-70B | vs | DeepSeek-R1-Qwen-32B  | Accuracy | 0.1979  | 0.0167 | +0.099 | [-0.128, +0.322] |   0.973   |  0.013  | [0.001, 0.030] |  0.171  |  0  |    0.0    |      |(2) Decision by Cliff's d       
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Detailed comparison log saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/MMLU_Output/Ranking_20260714_130924/Output/log_20260714_130924.csv
+
+Starting creation of COLOURBLIND LIGHT graphics...
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Detail_Comparison/Ranking_Metric1_20260714_130924.png
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Detail_Comparison/Detailplot_Accuracy_Part1_20260714_130924.png
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Detail_Comparison/Detailplot_Accuracy_Part2_20260714_130924.png
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Detail_Comparison/Detailplot_Accuracy_Part3_20260714_130924.png
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Graphics/Ranking/Win_Loss_Matrix_20260714_130924.png
+  Graphic successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Final_Ranking_20260714_130924.png
+  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/PDF/Convergence_Report_20260714_130924.pdf
+  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/PDF/Bootstrap_Report_20260714_130924.pdf
+  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/PDF/Ranking_Report_20260714_130924.pdf
+  PDF report successfully saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Final_Report_20260714_130924.pdf
+All graphics successfully created.
+
+Saving ranking data to JSON
+Machine-readable JSON saved to: /Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924/Output/data_20260714_130924.json
+
+Ranking finished.
+All outputs successfully saved in: "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output/Ranking_20260714_130924"
+
+Total execution time: 5 minutes and 44.89 seconds.
+
+If you use this software and find it helpful, please cite:
+von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm (Version 1.4.3). https://doi.org/10.5281/zenodo.18274870

@@ -1,0 +1,23 @@
+Final Rank;Dataset;Bootstrap Rank;Frequency (%);Rank Count
+1;"Qwen2.5-72B";1;91.27;251
+1;"Qwen2.5-72B";2;8.73;24
+2;"Mistral-Large-2411";1;8.73;24
+2;"Mistral-Large-2411";2;91.27;251
+3;"Phi-4";3;92;253
+3;"Phi-4";4;8;22
+4;"Llama-3.3-70B";3;8;22
+4;"Llama-3.3-70B";4;92;253
+5;"DeepSeek-R1-Llama-70B";5;80.36;221
+5;"DeepSeek-R1-Llama-70B";6;19.64;54
+6;"DeepSeek-R1-Qwen-32B";5;19.64;54
+6;"DeepSeek-R1-Qwen-32B";6;80.36;221
+7;"Gemma-2-27B";7;98.91;272
+7;"Gemma-2-27B";8;1.09;3
+8;"Qwen2.5-7B";7;1.09;3
+8;"Qwen2.5-7B";8;98.91;272
+9;"Gemma-2-9B";9;84;231
+9;"Gemma-2-9B";10;16;44
+10;"Llama-3.1-8B";9;16;44
+10;"Llama-3.1-8B";10;84;231
+11;"Mistral-Nemo";11;100;275
+12;"DeepSeek-R1-Llama-8B";12;100;275

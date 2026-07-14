@@ -67,7 +67,7 @@
       "smoothing_window": 3,
       "convergence_streak_needed": 3
     },
-    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Weather_Data",
+    "folderPath": "/Users/Weather_Data",
     "fileType": ".csv",
     "available_metrics": [
       "AUC",
@@ -82,7 +82,7 @@
       "F1",
       "Precision"
     ],
-    "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Weather_Output",
+    "output_dir": "/Users/Weather_Output",
     "selected_permutations": [
       [
         3,
@@ -175,7 +175,7 @@
         "smoothing_window": 3,
         "convergence_streak_needed": 3
       },
-      "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Weather_Data",
+      "folderPath": "/Users/Weather_Data",
       "fileType": ".csv",
       "available_metrics": [
         "AUC",
@@ -190,7 +190,7 @@
         "F1",
         "Precision"
       ],
-      "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Weather_Output",
+      "output_dir": "/Users/Weather_Output",
       "selected_permutations": [
         [
           3,

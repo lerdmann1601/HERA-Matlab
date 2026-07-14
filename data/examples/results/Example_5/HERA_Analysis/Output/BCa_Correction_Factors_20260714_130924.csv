@@ -1,0 +1,5 @@
+Metric;Effect Size;Correction Factor;Median;Mean;Min;Max
+"Accuracy";"Cliff's Delta";"Bias (z0)";"+0.000";"+0.012";"-0.531";"+0.271"
+"Accuracy";"Cliff's Delta";"Skewness (a)";"+0.000";"+0.013";"-0.122";"+0.157"
+"Accuracy";"Relative Difference";"Bias (z0)";"-0.008";"-0.007";"-0.058";"+0.031"
+"Accuracy";"Relative Difference";"Skewness (a)";"-0.002";"-0.003";"-0.037";"+0.023"
