@@ -19,97 +19,97 @@ function defaults = default()
 %
 % Author: Lukas von Erdmannsdorff
 
-    defaults = struct();
-    
-    %% General Settings
-    defaults.reproducible = true;
-    defaults.seed = 123;
-    defaults.num_workers = 'auto';
-    defaults.create_reports = true; 
-    defaults.plot_theme = 'light';
-    defaults.language = 'en';    
-    defaults.check_updates = true; % Enable/disable automatic update checks
-    
-    %% Statistical Parameters
-    defaults.ci_level = 0.95;
-    % Fallback for alphas, will be dynamically expanded to match metric count later
-    defaults.alphas = [0.05, 0.05, 0.05]; 
-    
-    %% Logic & Analysis Settings
-    % Default ranking logic (Full hierarchy)
-    defaults.ranking_mode = 'M1_M2_M3';
-    defaults.run_sensitivity_analysis = true;
-    defaults.run_power_analysis = true;
-    defaults.power_simulations = 10000;
-    
-    % Data quality settings
-    % Warning threshold for missing data (0.80 = 80% valid pairs required)
-    defaults.min_data_completeness = 0.80;
-    
-    %% System Configuration
-    % Target memory per chunk/batch (MB). Only used if passed to HERA by config.
-    defaults.system.target_memory = [];
-    
-    % Performance Heuristics (Hardware dependent)
-    % These values control the hybrid algorithm switching (Serial vs. Vectorized vs. Parallel)
-    % defined in HERA.calculate_bca_ci, HERA.stats.jackknife and HERA.stats.cliffs_delta. 
-    defaults.system.jack_parfor_thr = 300;     % Min N to trigger parallel execution
-    defaults.system.jack_vec_limit = 150;      % Max N for vectorized Jackknife
-    defaults.system.delta_mat_limit = 30000;   % Max N*M product for matrix Cliff's Delta
-    defaults.system.min_batch_size = 100;      % Min batch size for parfor
+defaults = struct();
 
-    %% Bootstrap Configuration
-    % Base random seed offset for all bootstrap operations.
-    % Can be overwritten via JSON config to avoid substream collisions in advanced setups.
-    defaults.bootstrap_seed_offset = 1000;
-    
-    % Manual Bootstrap Defaults (Empty = Automatic Mode)
-    defaults.manual_B_thr = 2000;
-    defaults.manual_B_ci = 10000;
-    defaults.manual_B_rank = 500;
+%% General Settings
+defaults.reproducible = true;
+defaults.seed = 123;
+defaults.num_workers = 'auto';
+defaults.create_reports = true;
+defaults.plot_theme = 'light';
+defaults.language = 'en';
+defaults.check_updates = true; % Enable/disable automatic update checks
 
-    % Thresholds (Percentile Bootstrap)
-    cfg_thr = struct();
-    cfg_thr.B_start = 100;
-    cfg_thr.B_step = 100;
-    cfg_thr.B_end = 10000;
-    cfg_thr.n_trials = 25;
-    cfg_thr.min_steps_for_convergence_check = 1;
-    cfg_thr.convergence_tolerance = 0.01;
-    cfg_thr.smoothing_window = 3;
-    cfg_thr.convergence_streak_needed = 3;
-    defaults.bootstrap_thresholds = cfg_thr;
-    
-    % Confidence Intervals (BCa Bootstrap) - Needs more iterations
-    cfg_ci = struct();
-    cfg_ci.B_start = 100;
-    cfg_ci.B_step = 200;
-    cfg_ci.B_end = 20000;
-    cfg_ci.n_trials = 30;
-    cfg_ci.min_steps_for_convergence_check = 1;
-    cfg_ci.convergence_tolerance = 0.03;
-    cfg_ci.smoothing_window = 3;
-    cfg_ci.convergence_streak_needed = 3;
-    defaults.bootstrap_ci = cfg_ci;
-    
-    % Rank Stability (Cluster Bootstrap) - Discrete distribution converges faster
-    cfg_rank = struct();
-    cfg_rank.B_start = 50;
-    cfg_rank.B_step = 25;
-    cfg_rank.B_end = 2500;
-    cfg_rank.n_trials = 15;
-    cfg_rank.min_steps_for_convergence_check = 1;
-    cfg_rank.convergence_tolerance = 0.005;
-    cfg_rank.smoothing_window = 3;
-    cfg_rank.convergence_streak_needed = 3;
-    defaults.bootstrap_ranks = cfg_rank;
+%% Statistical Parameters
+defaults.ci_level = 0.95;
+% Fallback for alphas, will be dynamically expanded to match metric count later
+defaults.alphas = [0.05, 0.05, 0.05];
 
-    %% Placeholders for Input Data
-    % These fields are initialized empty and must be filled by the user/loader
-    defaults.folderPath = '';
-    defaults.fileType = '';
-    defaults.available_metrics = {};
-    defaults.metric_names = {};
-    defaults.output_dir = '';
-    defaults.selected_permutations = [];    
+%% Logic & Analysis Settings
+% Default ranking logic (Full hierarchy)
+defaults.ranking_mode = 'M1_M2_M3';
+defaults.run_sensitivity_analysis = true;
+defaults.run_power_analysis = true;
+defaults.power_simulations = 10000;
+
+% Data quality settings
+% Warning threshold for missing data (0.80 = 80% valid pairs required)
+defaults.min_data_completeness = 0.80;
+
+%% System Configuration
+% Target memory per chunk/batch (MB). Only used if passed to HERA by config.
+defaults.system.target_memory = [];
+
+% Performance Heuristics (Hardware dependent)
+% These values control the hybrid algorithm switching (Serial vs. Vectorized vs. Parallel)
+% defined in HERA.calculate_bca_ci, HERA.stats.jackknife and HERA.stats.cliffs_delta.
+defaults.system.jack_parfor_thr = 300;     % Min N to trigger parallel execution
+defaults.system.jack_vec_limit = 150;      % Max N for vectorized Jackknife
+defaults.system.delta_mat_limit = 30000;   % Max N*M product for matrix Cliff's Delta
+defaults.system.min_batch_size = 100;      % Min batch size for parfor
+
+%% Bootstrap Configuration
+% Base random seed offset for all bootstrap operations.
+% Can be overwritten via JSON config to avoid substream collisions in advanced setups.
+defaults.bootstrap_seed_offset = 1000;
+
+% Manual Bootstrap Defaults (Empty = Automatic Mode)
+defaults.manual_B_thr = 2000;
+defaults.manual_B_ci = 10000;
+defaults.manual_B_rank = 500;
+
+% Thresholds (Percentile Bootstrap)
+cfg_thr = struct();
+cfg_thr.B_start = 100;
+cfg_thr.B_step = 100;
+cfg_thr.B_end = 15000;
+cfg_thr.n_trials = 25;
+cfg_thr.min_steps_for_convergence_check = 1;
+cfg_thr.convergence_tolerance = 0.01;
+cfg_thr.smoothing_window = 3;
+cfg_thr.convergence_streak_needed = 3;
+defaults.bootstrap_thresholds = cfg_thr;
+
+% Confidence Intervals (BCa Bootstrap) - Needs more iterations
+cfg_ci = struct();
+cfg_ci.B_start = 100;
+cfg_ci.B_step = 200;
+cfg_ci.B_end = 20000;
+cfg_ci.n_trials = 30;
+cfg_ci.min_steps_for_convergence_check = 1;
+cfg_ci.convergence_tolerance = 0.03;
+cfg_ci.smoothing_window = 3;
+cfg_ci.convergence_streak_needed = 3;
+defaults.bootstrap_ci = cfg_ci;
+
+% Rank Stability (Cluster Bootstrap) - Discrete distribution converges faster
+cfg_rank = struct();
+cfg_rank.B_start = 50;
+cfg_rank.B_step = 25;
+cfg_rank.B_end = 2500;
+cfg_rank.n_trials = 15;
+cfg_rank.min_steps_for_convergence_check = 1;
+cfg_rank.convergence_tolerance = 0.005;
+cfg_rank.smoothing_window = 3;
+cfg_rank.convergence_streak_needed = 3;
+defaults.bootstrap_ranks = cfg_rank;
+
+%% Placeholders for Input Data
+% These fields are initialized empty and must be filled by the user/loader
+defaults.folderPath = '';
+defaults.fileType = '';
+defaults.available_metrics = {};
+defaults.metric_names = {};
+defaults.output_dir = '';
+defaults.selected_permutations = [];
 end
