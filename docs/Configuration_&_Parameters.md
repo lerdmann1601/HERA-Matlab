@@ -66,7 +66,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
     "bootstrap_thresholds": {
       "B_start": 100,
       "B_step": 100,
-      "B_end": 10000,
+      "B_end": 15000,
       "n_trials": 25,
       "convergence_tolerance": 0.01,
       "smoothing_window": 3,

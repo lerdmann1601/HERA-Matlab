@@ -13,7 +13,7 @@ nested parameters to control the convergence algorithm:
 | :--- | :--- | :--- | :--- |
 | `B_start` | int | `100` / `100` / `50` | Initial number of bootstrap iterations. |
 | `B_step` | int | `100` / `200` / `25` | Iterations to add in each step. |
-| `B_end` | int | `10000` / `20000` / `2500` | Maximum number of iterations. |
+| `B_end` | int | `15000` / `20000` / `2500` | Maximum number of iterations. |
 | `n_trials` | int | `25` / `30` / `15` | Number of independent trials per step to check stability. |
 | `convergence_tolerance` | double | `0.01` / `0.03` / `0.005` | Max allowed variation (e.g., 0.005 = 0.5%). |
 | `smoothing_window` | int | `3` / `3` / `3` | Window size for moving average smoothing. |
