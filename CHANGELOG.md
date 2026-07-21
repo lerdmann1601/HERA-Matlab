@@ -17,7 +17,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
-* **New Datasets:** Added new clinical and weather benchmarking datasets (Examples 3 and 4) derived from OpenML Cardiovascular Disease and WeatherAUS datasets to showcase HERA's domain-agnostic versatility.
+* **New Datasets:** Added new clinical and weather benchmarking datasets (Examples 3 and 4) derived from Kaggle Cardiovascular Disease and WeatherAUS datasets to showcase HERA's domain-agnostic versatility.
 * **Documentation Enhancements:** Added reproducibility instructions, configuration parameter updates, convergence troubleshooting advice, and refined descriptions for the hierarchical-compensatory logic and Python integration.
 
 ### Fixed
