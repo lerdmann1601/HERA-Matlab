@@ -4,12 +4,28 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.3) are considered legacy.
+> Previous versions (including all versions prior to 1.4.4) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
 
 ## [Unreleased]
+
+---
+
+## [1.4.4] - 2026-07-21
+
+### Added
+
+* **LLM Benchmarking Dataset (Example 5):** Added Example 5 featuring evaluation results on the MMLU-Pro dataset to demonstrate HERA's application in evaluating and ranking Large Language Models (LLMs).
+
+### Changed
+
+* **Bootstrap Convergence Defaults:** Updated percentile bootstrap threshold settings to better ensure convergence when evaluating very small effect sizes.
+
+### Fixed
+
+* **Multi-Page Plot Rendering:** (Hopefully) Fixed rendering collapse in multi-page detail comparison plots by increasing figure refresh pause durations during page rendering.
 
 ---
 
@@ -137,7 +153,8 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.3...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.4...HEAD
+[1.4.4]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.2...v1.4.3
 [1.4.2]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.1...v1.4.2
 [1.4.1]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.0...v1.4.1

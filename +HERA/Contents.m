@@ -1,5 +1,5 @@
 % HERA Toolbox
-% Version 1.4.3 05-Jul-2026
+% Version 1.4.4 21-Jul-2026
 %
 % HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
 %
