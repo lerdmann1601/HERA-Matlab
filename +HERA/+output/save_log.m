@@ -212,6 +212,11 @@ function save_log(results, thresholds, config, shared_info)
                     % Log if M1 was neutral and M2 was also neutral
                     log_this_entry = true; sort_key = 3;
                     reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{2});
+                else
+                    % M1 already decided the rank. 
+                    % Log for completeness to avoid missing pairs in the output.
+                    log_this_entry = true; sort_key = 4;
+                    reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{2});
                 end
                 
                 if log_this_entry
