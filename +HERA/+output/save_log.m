@@ -199,24 +199,24 @@ function save_log(results, thresholds, config, shared_info)
                 % Check for significance in Metric 2 (our tie-breaker)
                 is_metric2_sig = all_sig_matrices{2}(i_idx, j_idx) || all_sig_matrices{2}(j_idx, i_idx);
                 
-                log_this_entry = false;
+                log_this_entry = true;
                 if is_swap_a
                     % Log if a swap was made because M1 was neutral and M2 was significant
-                    log_this_entry = true; sort_key = 1;
+                    sort_key = 1;
                     reason = sprintf(lang.output.log.reason_m3a, metric_names{1}); % M1 was neutral
                 elseif metric1_neutral && is_metric2_sig
                     % Log if M1 was neutral and M2 was sig, but order was already correct
-                    log_this_entry = true; sort_key = 2;
+                    sort_key = 2;
                     reason = lang.output.log.reason_m3_correct;
                 elseif metric1_neutral && ~is_metric2_sig
                     % Log if M1 was neutral and M2 was also neutral
-                    log_this_entry = true; sort_key = 3;
+                    sort_key = 4;
                     reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{2});
                 else
                     % M1 already decided the rank. 
                     % Log for completeness to avoid missing pairs in the output.
-                    log_this_entry = true; sort_key = 4;
-                    reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{2});
+                    sort_key = 3;
+                    reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{1});
                 end
                 
                 if log_this_entry
@@ -255,31 +255,22 @@ function save_log(results, thresholds, config, shared_info)
                 % Check for significance in Metric 3 for this pair.
                 is_metric3_sig = all_sig_matrices{3}(i_idx, j_idx) || all_sig_matrices{3}(j_idx, i_idx);
                 % Initialize flags to decide if an entry should be logged for this comparison.
-                log_this_entry = false; swap_flag = '0';
+                log_this_entry = true; swap_flag = '0';
                 
                 % This block determines if a comparison is relevant for the Metric 3 log and assigns a reason.
                 if is_swap_a
                     % Log if a swap was made because M2 was neutral and M3 was significant (Logic A).
-                    log_this_entry = true; sort_key = 3; swap_flag = '1';
+                    sort_key = 1; swap_flag = '1';
                     reason = sprintf(lang.output.log.reason_m3a, metric_names{2});
                 elseif is_swap_b
                     % Log if a swap was made because M1 and M2 were neutral and M3 was significant (Logic B).
-                    log_this_entry = true; sort_key = 4; swap_flag = '1';
+                    sort_key = 2; swap_flag = '1';
                     reason = sprintf(lang.output.log.reason_m3b, metric_names{1}, metric_names{2});
-                elseif is_metric3_sig && ~metric2_neutral
-                    % Log if M3 was significant but a M2 comparison took precedence.
-                    log_this_entry = true; sort_key = 5;
-                    reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{2});
-                elseif is_metric3_sig && ~metric1_neutral
-                    % Log if M3 was significant but a M1 comparison took precedence.
-                    log_this_entry = true; sort_key = 7;
-                    reason = sprintf(lang.output.log.reason_m3_no_comp2, metric_names{1});
                 elseif is_a_peer_comparison
                     % Log if the pair was tied on M1 and M2, making this a "peer comparison".
-                    log_this_entry = true;
                     if is_metric3_sig
                         % The tie was broken by a significant M3 result.
-                        sort_key = 8; winner = i_idx;
+                        sort_key = 4; winner = i_idx;
                         if d_obs < 0, winner = j_idx; end
                         % Check if the final rank reflects the M3 outcome.
                         if point_estimate_ranks(winner) < point_estimate_ranks(res{7 - res{6} / i_idx}),...
@@ -289,24 +280,22 @@ function save_log(results, thresholds, config, shared_info)
                         end
                     else
                         % The pair remains tied as M3 was also not significant.
-                        sort_key = 11; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
+                        sort_key = 6; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                     end
                 elseif metric2_neutral
-                    % Log other cases where M2 was neutral, so M3 was consulted.
-                    log_this_entry = true;
+                    % Log other cases where M2 was neutral, so M3 was consulted (Logic A).
                     if is_metric3_sig
                         % M3 was significant and confirmed the existing rank order from M1.
-                        sort_key = 6; reason = lang.output.log.reason_m3_correct;
+                        sort_key = 3; reason = lang.output.log.reason_m3_correct;
                     else
                         % M3 was not significant, so no change was made.
-                        sort_key = 10; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
+                        sort_key = 5; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                     end
                 else
-                    % M2 already decided the rank and M3 is neutral (not significant).
-                    % Log for completeness to avoid missing pairs in the output.
-                    log_this_entry = true;
-                    sort_key = 12;
-                    reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
+                    % M2 already decided the rank (M2 was not neutral).
+                    % M3 is ignored regardless of its significance.
+                    sort_key = 7;
+                    reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{2});
                 end
         
                 % If the comparison was deemed relevant, create and store the log entry.
