@@ -22,6 +22,11 @@
 
 ---
 
+> [!NOTE]
+> **Status: Under Review**
+> HERA is currently under review at *Patterns* (Cell Press). The associated preprint is available at SSRN: [doi:10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474).
+> The repository and code are actively being updated to reflect revisions made during the review process.
+
 ## Overview
 
 **HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm)**
@@ -302,13 +307,25 @@ We welcome contributions! Please see [CONTRIBUTING.md](https://github.com/lerdma
 
 ## Citation
 
-If you use HERA in your research, please cite:
+If you use HERA in your research, please cite the preprint:
+
+```bibtex
+@article{vonErdmannsdorff2026HERA,
+  author = {von Erdmannsdorff, Lukas},
+  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm},
+  journal = {SSRN},
+  year = {2026},
+  doi = {10.2139/ssrn.7227474},
+  url = {https://doi.org/10.2139/ssrn.7227474}
+}
+```
+
+You can also cite the software directly via Zenodo:
 
 ```bibtex
 @software{HERA_Matlab,
   author = {von Erdmannsdorff, Lukas},
-  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven
-  Ranking Algorithm},
+  title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
   version = {1.4.4},
   doi = {10.5281/zenodo.18274870},

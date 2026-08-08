@@ -11,6 +11,18 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+*Note: This version includes revisions made for the submission to *Patterns* (Cell Press), currently Under Review (DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+
+### Changed
+
+* **Bootstrap Defaults:** Updated the default bootstrap iteration `B_end` parameter.
+
+### Fixed
+
+* **Example 5 Dataset:** Fixed an alignment bug where the first leaderboard result was incorrectly compared with the last MMLU-Pro result.
+* **Log Completeness:** Fixed an issue where neutral Metric 3 comparisons were silently omitted from the detailed log output when Metric 2 had already decided the rank. All pairwise comparisons are now fully reported.
+* **Toolbox Package:** Excluded the deploy folder from the toolbox package and included additional example data.
+
 ---
 
 ## [1.4.4] - 2026-07-21

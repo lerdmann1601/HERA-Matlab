@@ -147,6 +147,10 @@ function results = run_ranking(userInput)
     fprintf('\nTotal execution time: %d minutes and %.2f seconds.\n', minutes, seconds);
 
     if isfield(setupData.lang, 'run_ranking') && isfield(setupData.lang.run_ranking, 'cite_request')
-        fprintf('%s\n', setupData.lang.run_ranking.cite_request);
+        if iscell(setupData.lang.run_ranking.cite_request)
+            fprintf('%s\n', setupData.lang.run_ranking.cite_request{:});
+        else
+            fprintf('%s\n', setupData.lang.run_ranking.cite_request);
+        end
     end
 end
