@@ -132,7 +132,7 @@ function calc_pooled_csv(results, modes, out_dir, ts_str)
                 round(cost_ci_upper, 1), round(min_cost, 1), round(max_cost, 1), round(fail_rate, 1)};
             
             T = cell2table(row_data);
-            writetable(T, pooled_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+            writetable(T, pooled_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         end
     end
 end

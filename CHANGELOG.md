@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-*Note: This version includes revisions made for the submission to *Patterns* (Cell Press), currently Under Review (DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+*Note: The following releases encompass preparations, refinements, and technical revisions for the ongoing peer-review process of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
 
 ### Changed
 
@@ -19,7 +19,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-* **Example 5 Dataset:** Fixed an alignment bug where the first leaderboard result was incorrectly compared with the last MMLU-Pro result.
+* **Example Dataset:** Fixed an local alignment bug leading to the first and last result being compared in one of the example datasets.
 * **Log Completeness:** Fixed an issue where neutral Metric 3 comparisons were silently omitted from the detailed log output when Metric 2 had already decided the rank. All pairwise comparisons are now fully reported.
 * **Toolbox Package:** Excluded the deploy folder from the toolbox package and included additional example data.
 

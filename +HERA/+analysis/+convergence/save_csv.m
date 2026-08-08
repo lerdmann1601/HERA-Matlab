@@ -44,13 +44,13 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
                     clean_summary = strrep(sc.DataSummary, ',', ';');
                     s_T(i, :) = {i, clean_name, sc.n, clean_dist, clean_summary};
                 end
-                writetable(cell2table(s_T), scenarios_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+                writetable(cell2table(s_T), scenarios_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             end
             
             p_filename = fullfile(out_dir, sprintf('Method_Parameters_%s.csv', ts_str));
             p_fid = fopen(p_filename, 'w');
             if p_fid ~= -1
-                mode_str = strjoin(modes, ';');
+                mode_str = strjoin(modes, ',');
                 fprintf(p_fid, 'Metric;Parameter;%s\n', mode_str);
                 fclose(p_fid);
                 
@@ -100,7 +100,7 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
                         row_idx = row_idx + 1;
                     end
                 end
-                writetable(cell2table(p_T), p_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+                writetable(cell2table(p_T), p_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             end
         catch ME_cfg
             warning('Could not write configuration CSVs: %s', ME_cfg.message);
@@ -209,7 +209,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
                         
                         t_T_raw(sim_idx, :) = {sim_idx, m_name, mode_name, round(val_err, 4), val_cost, val_fail};
                     end
-                    writetable(cell2table(t_T_raw), filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+                    writetable(cell2table(t_T_raw), filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
                     
                     % --- B. Calculate & Write Aggregated Stats to Global Summary ---
                     if global_fid ~= -1
@@ -263,7 +263,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
                         row_data = {safe_name, m_name, mode_name, round(sc.eff_median, 4), round(median_err, 4), round(iqr_err, 4), round(err_q1, 4), ...
                             round(err_q3, 4), round(ci_lower, 4), round(ci_upper, 4), round(min_err, 4), round(max_err, 4), round(median_cost, 1), round(iqr_cost, 1), ...
                             round(cost_q1, 1), round(cost_q3, 1), round(cost_ci_lower, 1), round(cost_ci_upper, 1), round(min_cost, 1), round(max_cost, 1), round(fail_rate, 1)};
-                        writetable(cell2table(row_data), global_filename, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+                        writetable(cell2table(row_data), global_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
                     end
                 end
             end

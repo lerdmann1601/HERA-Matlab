@@ -130,11 +130,11 @@ function save_sensitivity(results, shared_info, metric_names)
                 error(lang.errors.file_open_error, csv_filename_sensitivity); 
             end
             % Write explicit header
-            fprintf(fid_sens, '%s\n', strjoin(header_list_csv, ';'));
+            fprintf(fid_sens, '%s\n', strjoin(header_list_csv, ','));
             fclose(fid_sens);
             
             % Write accelerated data using writetable append
-            writetable(T, csv_filename_sensitivity, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+            writetable(T, csv_filename_sensitivity, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
             
             fprintf(['\n' lang.output.files.sensitivity_results_saved '\n'], csv_filename_sensitivity);
     

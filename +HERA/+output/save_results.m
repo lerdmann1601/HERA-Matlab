@@ -105,7 +105,7 @@ function save_results(results, shared_info, metric_names)
         end
 
         % Write header to CSV
-        fprintf(fid_results, '%s\n', strjoin(header_parts, ';'));
+        fprintf(fid_results, '%s\n', strjoin(header_parts, ','));
         fclose(fid_results);
         
         % Write data rows to CSV using writetable
@@ -114,7 +114,7 @@ function save_results(results, shared_info, metric_names)
         var_names = arrayfun(@(x) sprintf('Var%d', x), 1:numel(header_parts), 'UniformOutput', false);
         T = cell2table(table_data, 'VariableNames', var_names);
         
-        writetable(T, csv_filename_results, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+        writetable(T, csv_filename_results, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         
         fprintf(['\n' lang.output.files.final_results_saved '\n'], csv_filename_results);
 

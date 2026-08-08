@@ -77,11 +77,11 @@ function save_log(results, thresholds, config, shared_info)
         % Define headers
         if power_analysis_done
             header_parts_log = lang.output.log.headers_with_power;
-            csv_header = strjoin(cellfun(@(c) ['"' c '"'], header_parts_log, 'UniformOutput', false), ';');
+            csv_header = strjoin(cellfun(@(c) ['"' c '"'], header_parts_log, 'UniformOutput', false), ',');
             num_log_cols = 16; 
         else
             header_parts_log = lang.output.log.headers_no_power;
-            csv_header = strjoin(cellfun(@(c) ['"' c '"'], header_parts_log, 'UniformOutput', false), ';');
+            csv_header = strjoin(cellfun(@(c) ['"' c '"'], header_parts_log, 'UniformOutput', false), ',');
             num_log_cols = 15; 
         end
 
@@ -450,7 +450,7 @@ function save_log(results, thresholds, config, shared_info)
             var_names = arrayfun(@(x) sprintf('Var%d', x), 1:num_log_cols, 'UniformOutput', false);
             log_table = cell2table(export_cell_array, 'VariableNames', var_names);
             
-            writetable(log_table, csv_filename_log, 'Delimiter', ';', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
+            writetable(log_table, csv_filename_log, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         end
         % Notify the user that the log file has been saved successfully.
         fprintf(['\n' lang.output.files.log_file_saved '\n'], csv_filename_log);
