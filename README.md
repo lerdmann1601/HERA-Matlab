@@ -23,7 +23,7 @@
 ---
 
 > [!NOTE]
-> HERA is currently under review at *Patterns* (Cell Press). The associated preprint is available at SSRN: [doi:10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474).
+> HERA is currently under review. The associated preprint is available at SSRN: [doi:10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474).
 > The repository and code are actively being updated to reflect revisions made during the review process.
 
 ## Overview
