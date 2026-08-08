@@ -296,6 +296,12 @@ function save_log(results, thresholds, config, shared_info)
                         % M3 was not significant, so no change was made.
                         sort_key = 10; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                     end
+                else
+                    % M2 already decided the rank and M3 is neutral (not significant).
+                    % Log for completeness to avoid missing pairs in the output.
+                    log_this_entry = true;
+                    sort_key = 12;
+                    reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                 end
         
                 % If the comparison was deemed relevant, create and store the log entry.
