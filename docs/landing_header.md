@@ -1,12 +1,7 @@
 
 # HERA: Official Documentation
 
-Welcome to the **official documentation** for HERA (Hierarchical-Compensatory, Effect-Size-Driven Algorithm). A Scientific Ranking Framework for Paired Benchmarking.
-
-> [!NOTE]
-> **Status: Under Review**
-> HERA is currently under review at *Patterns* (Cell Press). The associated preprint is available at SSRN: [doi:10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474).
-> The repository and code are actively being updated to reflect revisions made during the review process.
+Welcome to the **official documentation** for HERA (Hierarchical-Compensatory, Effect-Size-Driven Algorithm). A Scientific Ranking Framework for Paired ry and code are actively being updated to reflect revisions made during the review process.
 
 This platform serves as the **comprehensive reference guide** for the HERA framework, systematically organizing the repository's documentation into a **centralized, wiki-style knowledge hub**.
 
