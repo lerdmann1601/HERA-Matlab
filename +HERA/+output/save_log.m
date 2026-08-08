@@ -270,10 +270,13 @@ function save_log(results, thresholds, config, shared_info)
                     % Log if the pair was tied on M1 and M2, making this a "peer comparison".
                     if is_metric3_sig
                         % The tie was broken by a significant M3 result.
-                        sort_key = 4; winner = i_idx;
-                        if d_obs < 0, winner = j_idx; end
+                        sort_key = 4; winner = i_idx; loser = j_idx;
+                        if d_obs < 0
+                            winner = j_idx;
+                            loser = i_idx;
+                        end
                         % Check if the final rank reflects the M3 outcome.
-                        if point_estimate_ranks(winner) < point_estimate_ranks(res{7 - res{6} / i_idx}),...
+                        if point_estimate_ranks(winner) < point_estimate_ranks(loser)
                                 reason = lang.output.log.reason_m3_correct;
                         else
                             reason = lang.output.log.reason_m3_no_direct;
