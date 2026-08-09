@@ -283,7 +283,7 @@ function save_log(results, thresholds, config, shared_info)
                         end
                     else
                         % The pair remains tied as M3 was also not significant.
-                        sort_key = 6; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
+                        sort_key = 8; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                     end
                 elseif metric2_neutral
                     % Log other cases where M2 was neutral, so M3 was consulted (Logic A).
@@ -292,13 +292,19 @@ function save_log(results, thresholds, config, shared_info)
                         sort_key = 3; reason = lang.output.log.reason_m3_correct;
                     else
                         % M3 was not significant, so no change was made.
-                        sort_key = 5; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
+                        sort_key = 7; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
                     end
                 else
-                    % M2 already decided the rank (M2 was not neutral).
+                    % A previous metric already decided the rank.
                     % M3 is ignored regardless of its significance.
-                    sort_key = 7;
-                    reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{2});
+                    is_swap_m2 = any(all(swap_details.metric2_global_swaps == [i_idx, j_idx], 2)) || any(all(swap_details.metric2_global_swaps == [j_idx, i_idx], 2));
+                    if ~metric1_neutral && ~is_swap_m2
+                        sort_key = 5;
+                        reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{1});
+                    else
+                        sort_key = 6;
+                        reason = sprintf(lang.output.log.reason_m3_no_comp2, metric_names{2});
+                    end
                 end
         
                 % If the comparison was deemed relevant, create and store the log entry.
