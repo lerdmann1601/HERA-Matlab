@@ -163,10 +163,24 @@ function save_log(results, thresholds, config, shared_info)
                 ci_d_str = sprintf('[%+.3f, %+.3f]', ci_d_all(pair_row_idx, 1, 2), ci_d_all(pair_row_idx, 2, 2));
                 ci_r_str = sprintf('[%.3f, %.3f]', ci_r_all(pair_row_idx, 1, 2), ci_r_all(pair_row_idx, 2, 2));
         
+                % Determine the winner according to Metric 2 to detect cycles.
+                if is_sig
+                    if all_sig_matrices{2}(i_idx, j_idx)
+                        winner = i_idx; loser = j_idx;
+                    else
+                        winner = j_idx; loser = i_idx;
+                    end
+                end
+
                 % Determine the reason for the outcome based on Metric 2's logic.
-                if is_sig && ~swap_detected, reason = lang.output.log.reason_m2_correct; sort_key = 2; % Significant, but no swap needed (already correct order).
-                elseif is_sig, reason = ' '; sort_key = 1; % Significant and a swap was performed.
-                else, reason = sprintf(lang.output.log.reason_m2_no_win, metric_names{2}); sort_key = 3; % Not significant, no action taken.
+                if is_sig && swap_details.cycle_m2 && (point_estimate_ranks(winner) > point_estimate_ranks(loser))
+                    reason = lang.output.log.reason_m2_cycle; sort_key = 4; % Cycle caused a rollback, order is wrong.
+                elseif is_sig && ~swap_detected
+                    reason = lang.output.log.reason_m2_correct; sort_key = 2; % Significant, but no swap needed (already correct order).
+                elseif is_sig
+                    reason = ' '; sort_key = 1; % Significant and a swap was performed.
+                else
+                    reason = sprintf(lang.output.log.reason_m2_no_win, metric_names{2}); sort_key = 3; % Not significant, no action taken.
                 end
                 
                 % Assemble the log entry.
@@ -287,9 +301,13 @@ function save_log(results, thresholds, config, shared_info)
                         end
                         % Check if the final rank reflects the M3 outcome.
                         if point_estimate_ranks(winner) < point_estimate_ranks(loser)
-                                reason = lang.output.log.reason_m3_correct;
+                            reason = lang.output.log.reason_m3_correct;
                         else
-                            reason = lang.output.log.reason_m3_no_direct;
+                            if swap_details.cycle_m3b
+                                reason = lang.output.log.reason_m3_cycle;
+                            else
+                                reason = lang.output.log.reason_m3_no_direct;
+                            end
                         end
                     else
                         % The pair remains tied as M3 was also not significant.

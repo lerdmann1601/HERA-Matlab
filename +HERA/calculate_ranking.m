@@ -301,6 +301,7 @@ if num_metrics >= 2 && (strcmp(ranking_mode, 'M1_M2') || strcmp(ranking_mode, 'M
         final_order = backup_order_m2;
         swap_count_metric2 = 0;
         metric2_global_swaps = zeros(0, 2);
+        cycle_detected_m2 = true;
     end
     
     metric2_global_swaps = unique(metric2_global_swaps(1:swap_count_metric2, :), 'rows');
@@ -418,6 +419,7 @@ elseif num_metrics == 3 && strcmp(ranking_mode, 'M1_M2_M3')
         final_order = backup_order_3b;
         swap_count_metric3b = 0;
         metric3_swaps_b = zeros(0, 2);
+        cycle_detected_m3b = true;
     end
     
     metric3_swaps_b = unique(metric3_swaps_b(1:swap_count_metric3b, :), 'rows');
@@ -444,6 +446,7 @@ if nargout >= 6
         swap_details.pairwise_swaps_metric2 = all_pairwise_swaps{2};
         swap_details.results_metric2 = all_temp_results{2};
         swap_details.metric2_global_swaps = metric2_global_swaps;
+        swap_details.cycle_m2 = cycle_detected_m2;
     else
         % Add empty placeholders if M2 was not run
         swap_details.pairwise_swaps_metric2 = zeros(0, 5);
@@ -454,10 +457,15 @@ if nargout >= 6
     if num_metrics == 3
         swap_details.pairwise_swaps_metric3 = all_pairwise_swaps{3};
         swap_details.results_metric3 = all_temp_results{3};
+        swap_details.metric3_swaps_a = metric3_swaps_a;
+        swap_details.metric3_swaps_b = metric3_swaps_b;
+        swap_details.cycle_m3b = cycle_detected_m3b;
     else
         % Add empty placeholders if M3 was not run
         swap_details.pairwise_swaps_metric3 = zeros(0, 5);
         swap_details.results_metric3 = cell(m, 7);
+        swap_details.metric3_swaps_a = zeros(0, 2);
+        swap_details.metric3_swaps_b = zeros(0, 2);
     end
     
     % These are always added, even if empty (for M1 or M1_M2 modes)

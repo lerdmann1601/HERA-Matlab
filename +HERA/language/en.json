@@ -491,12 +491,14 @@
             "reason_m1_tiebreak_d": "(2) Decision by Cliff's d",
             "reason_m1_tiebreak_mean": "(2) Cliff's d = 0 -> sorted by mean value%s",
             "reason_m2_correct": "Ranking already correct",
+            "reason_m2_cycle": "Cycle detected -> Rolled back to previous stage",
             "reason_m2_no_win": "Criteria for %s win not met",
             "reason_m3a": "(1) %s neutral",
             "reason_m3b": "(2) %s/%s neutral",
             "reason_m3_no_comp1": "(1/2) No comparison -> %s win",
             "reason_m3_no_comp2": "(2) No comparison -> %s win",
             "reason_m3_correct": "(1)/(2) Ranking already correct",
+            "reason_m3_cycle": "(2) Cycle detected -> Rolled back to previous stage",
             "reason_m3_no_direct": "(1)/(2) No direct comparison possible",
             "reason_m3_no_win": "(1)/(2) Criteria for %s win not met"
         }
