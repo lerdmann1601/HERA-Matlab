@@ -82,6 +82,10 @@ all_alpha_matrices = cell(1, num_metrics);
 all_p_value_matrices = cell(1, num_metrics);
 all_pairwise_swaps = cell(1, num_metrics);
 
+% Initialize cycle detection flags to ensure they exist for logging output.
+cycle_detected_m2 = false;
+cycle_detected_m3b = false;
+
 % Loop over each metric to perform the statistical tests.
 for metric_idx = 1:num_metrics
     % Extracts the relevant data and thresholds for the current metric.
