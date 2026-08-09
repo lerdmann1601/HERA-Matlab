@@ -497,7 +497,7 @@
             "reason_m3_no_comp1": "(1/2) No comparison -> %s win",
             "reason_m3_no_comp2": "(2) No comparison -> %s win",
             "reason_m3_correct": "(1)/(2) Ranking already correct",
-            "reason_m3_no_direct": "(2) No direct comparison possible",
+            "reason_m3_no_direct": "(1)/(2) No direct comparison possible",
             "reason_m3_no_win": "(1)/(2) Criteria for %s win not met"
         }
     },
