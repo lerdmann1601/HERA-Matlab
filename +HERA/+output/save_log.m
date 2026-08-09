@@ -120,7 +120,7 @@ function save_log(results, thresholds, config, shared_info)
                 % Case 1: One dataset won more pairwise comparisons.
                 reason = lang.output.log.reason_m1_wins; sort_key = 1;
                 
-            elseif abs(d_obs) > 0
+            elseif abs(d_obs) > 1e-9
                 % Case 2: Tie in wins, broken by Stochastic Dominance (Cliff's Delta).
                 reason = sprintf(lang.output.log.reason_m1_tiebreak_d, metric_names{1}); sort_key = 2;
                 
@@ -206,8 +206,18 @@ function save_log(results, thresholds, config, shared_info)
                     reason = sprintf(lang.output.log.reason_m3a, metric_names{1}); % M1 was neutral
                 elseif metric1_neutral && is_metric2_sig
                     % Log if M1 was neutral and M2 was sig, but order was already correct
-                    sort_key = 2;
-                    reason = lang.output.log.reason_m3_correct;
+                    winner = i_idx; loser = j_idx;
+                    if d_obs < 0
+                        winner = j_idx;
+                        loser = i_idx;
+                    end
+                    if point_estimate_ranks(winner) < point_estimate_ranks(loser)
+                        sort_key = 2;
+                        reason = lang.output.log.reason_m3_correct;
+                    else
+                        sort_key = 4;
+                        reason = lang.output.log.reason_m3_no_direct;
+                    end
                 elseif metric1_neutral && ~is_metric2_sig
                     % Log if M1 was neutral and M2 was also neutral
                     sort_key = 4;
@@ -288,8 +298,18 @@ function save_log(results, thresholds, config, shared_info)
                 elseif metric2_neutral
                     % Log other cases where M2 was neutral, so M3 was consulted (Logic A).
                     if is_metric3_sig
-                        % M3 was significant and confirmed the existing rank order from M1.
-                        sort_key = 3; reason = lang.output.log.reason_m3_correct;
+                        winner = i_idx; loser = j_idx;
+                        if d_obs < 0
+                            winner = j_idx;
+                            loser = i_idx;
+                        end
+                        if point_estimate_ranks(winner) < point_estimate_ranks(loser)
+                            % M3 was significant and confirmed the existing rank order from M1.
+                            sort_key = 3; reason = lang.output.log.reason_m3_correct;
+                        else
+                            % M3 was significant but contradicted M1, and no swap occurred (e.g. not adjacent)
+                            sort_key = 4; reason = lang.output.log.reason_m3_no_direct;
+                        end
                     else
                         % M3 was not significant, so no change was made.
                         sort_key = 7; reason = sprintf(lang.output.log.reason_m3_no_win, metric_names{3});
