@@ -4,23 +4,30 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.4) are considered legacy.
+> Previous versions (including all versions prior to 1.4.5) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
 
 ## [Unreleased]
 
-*Note: The following releases encompass preparations, refinements, and technical revisions for the ongoing peer-review process of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+*Note: The following release encompasses technical revisions for the ongoing peer-review process of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+
+---
+
+## [1.4.5] - 2026-08-10
+
+*Note: This release encompasses preparations and refinements for the submission of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
 
 ### Changed
 
 * **Bootstrap Defaults:** Updated the default bootstrap iteration `B_end` parameter.
+* **CSV Export Formatting:** Standardized all CSV data exports to use comma delimiters.
 
 ### Fixed
 
 * **Example Dataset:** Fixed an local alignment bug leading to the first and last result being compared in one of the example datasets.
-* **Log Completeness:** Fixed an issue where neutral Metric 3 comparisons were silently omitted from the detailed log output when Metric 2 had already decided the rank. All pairwise comparisons are now fully reported.
+* **Log Completeness & Logic:** Refined the internal logging and sorting logic for pairwise comparisons to improve output consistency and fully report omitted neutral Metric 3 comparisons in the detailed log output table.
 * **Toolbox Package:** Excluded the deploy folder from the toolbox package and included additional example data.
 
 ---

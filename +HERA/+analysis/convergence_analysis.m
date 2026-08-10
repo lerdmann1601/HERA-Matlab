@@ -395,7 +395,7 @@ try
     fprintf('\nIf you use this software and find it helpful, please cite:\n');
     fprintf('von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm.\n');
     fprintf('Preprint (Under Review): https://doi.org/10.2139/ssrn.7227474\n');
-    fprintf('Software (Version 1.4.4): https://doi.org/10.5281/zenodo.18274870\n');
+    fprintf('Software (Version 1.4.5): https://doi.org/10.5281/zenodo.18274870\n');
 catch ME
     % Note: diary is automatically closed by cleanupDiary (onCleanup)
     fprintf('\nError occurred during study: %s\n', ME.message);

@@ -26,8 +26,8 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 
 * **Minimum (*N* = 3)**: Required for a meaningful ranking. (*N* = 2 is just a
     simple comparison).
-* **Optimal (*N* ≈ 8–10)**: Balances ranking depth with statistical
-    power (28–45 comparisons).
+* **Optimal (*N* ≈ 8–12)**: Balances ranking depth with statistical
+    power (28–66 comparisons).
 * **Upper Limit (*N* ≈ 15)**: Not generally recommended. The loss of power
     from FWER corrections makes detecting true differences unlikely. However,
     it is possible to use HERA with *N* > 15 and you can just give it a try.
@@ -44,7 +44,8 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 > [!IMPORTANT]
 > **Recommendation:**
 > If you have a large pool of candidates (*N* >> 15), it could be a good idea to
-> apply a global screening method (e.g., **Friedman Test** followed by Nemenyi post-hoc)
+> apply a global screening method (e.g., **Friedman Test** followed by Nemenyi post-hoc
+> or other methods controled via False Discovery Rate (FDR))
 > to identify the top tier of algorithms. Ranking the entire set with HERA may be
 > overly strict; instead, select the top performing subset (e.g., the best 10-15)
 > and use HERA for the final ranking of the best candidates.
@@ -125,7 +126,7 @@ based on the following methodological considerations:
 
 > [!WARNING]
 > If your study design requires the **simultaneous integration** of a large number
-> of metrics ($M \gg 3$) HERA is not feasible and compensatory or outranking MCDA
+> of metrics ($M \gg 3$) HERA is not feasible and modern compensatory or outranking MCDA
 > methods are methodologically more appropriate. In this case, approaches like
 > **TOPSIS** or **PROMETHEE** might be a better choice. Also, for highly complex
 > decision-making scenarios where underlying data generating processes must be

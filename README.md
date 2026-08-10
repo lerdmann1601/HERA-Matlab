@@ -11,7 +11,8 @@
 [![View on GitHub](https://img.shields.io/badge/GitHub-View_on_GitHub-blue?logo=github)](https://github.com/lerdmann1601/HERA-Matlab)
 [![Issues](https://img.shields.io/github/issues/lerdmann1601/HERA-Matlab)](https://github.com/lerdmann1601/HERA-Matlab/issues)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.18274870-blue.svg)](https://doi.org/10.5281/zenodo.18274870)
+[![Zenodo](https://img.shields.io/badge/Zenodo-10.5281%2Fzenodo.18274870-blue.svg)](https://doi.org/10.5281/zenodo.18274870)
+[![Preprint](https://img.shields.io/badge/Preprint-10.2139%2Fssrn.7227474-blue.svg)](https://doi.org/10.2139/ssrn.7227474)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0009--3758--7363-green.svg)](https://orcid.org/0009-0009-3758-7363)
 
 **Made for Scientific Benchmarking**
