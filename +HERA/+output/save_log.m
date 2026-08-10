@@ -240,7 +240,7 @@ function save_log(results, thresholds, config, shared_info)
                     % M1 already decided the rank. 
                     % Log for completeness to avoid missing pairs in the output.
                     sort_key = 3;
-                    reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{1});
+                    reason = sprintf(lang.output.log.reason_m3_no_comp1_m1m3a, metric_names{1});
                 end
                 
                 if log_this_entry
@@ -338,7 +338,7 @@ function save_log(results, thresholds, config, shared_info)
                     is_swap_m2 = any(all(swap_details.metric2_global_swaps == [i_idx, j_idx], 2)) || any(all(swap_details.metric2_global_swaps == [j_idx, i_idx], 2));
                     if ~metric1_neutral && ~is_swap_m2
                         sort_key = 5;
-                        reason = sprintf(lang.output.log.reason_m3_no_comp1, metric_names{1});
+                        reason = sprintf(lang.output.log.reason_m3_no_comp1_m1m2m3, metric_names{1});
                     else
                         sort_key = 6;
                         reason = sprintf(lang.output.log.reason_m3_no_comp2, metric_names{2});

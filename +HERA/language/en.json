@@ -436,7 +436,7 @@
             "final_ranking": "Final ranking after %s comparison:"
         },
         "tables": {
-            "logic_prefix": "(1/2)",
+            "logic_prefix": "(1)/(2)",
             "vs": ">",
             "delta_short": "d (Delta)",
             "reldiff_short": "r (RelDiff)",
@@ -495,8 +495,9 @@
             "reason_m2_no_win": "Criteria for %s win not met",
             "reason_m3a": "(1) %s neutral",
             "reason_m3b": "(2) %s/%s neutral",
-            "reason_m3_no_comp1": "(1/2) No comparison -> %s win",
-            "reason_m3_no_comp2": "(2) No comparison -> %s win",
+            "reason_m3_no_comp1_m1m3a": "(1) No comparison -> %s win",
+            "reason_m3_no_comp1_m1m2m3": "(2) No comparison -> %s win",
+            "reason_m3_no_comp2": "(1)/(2) No comparison -> %s win",
             "reason_m3_correct": "(1)/(2) Ranking already correct",
             "reason_m3_cycle": "(2) Cycle detected -> Rolled back to previous stage",
             "reason_m3_no_direct": "(1)/(2) No direct comparison possible",
