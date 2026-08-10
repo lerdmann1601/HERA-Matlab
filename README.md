@@ -82,7 +82,7 @@ For more information please refer to the Project
 
 #### Option A: MATLAB Toolbox (Recommended for MATLAB Users)
 
-1. Download the latest `HERA_v1.4.4.mltbx` from the
+1. Download the latest `HERA_v1.4.5.mltbx` from the
    [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
 2. Double-click the file to install it.
 3. Done! HERA is now available as a command (`HERA.start_ranking`) in MATLAB.

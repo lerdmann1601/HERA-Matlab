@@ -26,7 +26,7 @@ All notable changes to this project will be documented in this file.
 
 ### Fixed
 
-* **Example Dataset:** Fixed an local alignment bug leading to the first and last result being compared in one of the example datasets.
+* **Example Dataset:** Updated the raw data to the latest corrected version from the official repository. This resolves a score discrepancy that was inadvertently caused by using an outdated version of the dataset containing a known evaluation bug.
 * **Log Completeness & Logic:** Refined the internal logging and sorting logic for pairwise comparisons to improve output consistency and fully report omitted neutral Metric 3 comparisons in the detailed log output table.
 * **Toolbox Package:** Excluded the deploy folder from the toolbox package and included additional example data.
 
