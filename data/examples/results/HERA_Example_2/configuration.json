@@ -18,12 +18,7 @@
     "run_power_analysis": true,
     "power_simulations": 10000,
     "min_data_completeness": 0.8,
-    "system": {
-      "jack_parfor_thr": 300,
-      "jack_vec_limit": 150,
-      "delta_mat_limit": 30000,
-      "min_batch_size": 100
-    },
+    "system": {},
     "bootstrap_seed_offset": 1000,
     "manual_B_thr": [],
     "manual_B_ci": [],
@@ -31,7 +26,7 @@
     "bootstrap_thresholds": {
       "B_start": 100,
       "B_step": 100,
-      "B_end": 10000,
+      "B_end": 15000,
       "n_trials": 25,
       "min_steps_for_convergence_check": 1,
       "convergence_tolerance": 0.01,
@@ -58,7 +53,7 @@
       "smoothing_window": 3,
       "convergence_streak_needed": 3
     },
-    "folderPath": "/HERA-Matlab/data/examples/Example_2",
+    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_2",
     "fileType": ".csv",
     "available_metrics": [
       "CNR",
@@ -70,7 +65,7 @@
       "CNR",
       "SNR"
     ],
-    "output_dir": "/Users/Desktop",
+    "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results",
     "selected_permutations": [
       [
         2,

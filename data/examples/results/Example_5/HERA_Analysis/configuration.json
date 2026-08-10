@@ -22,7 +22,7 @@
     "bootstrap_thresholds": {
       "B_start": 100,
       "B_step": 100,
-      "B_end": 10000,
+      "B_end": 15000,
       "n_trials": 25,
       "min_steps_for_convergence_check": 1,
       "convergence_tolerance": 0.01,
@@ -49,7 +49,7 @@
       "smoothing_window": 3,
       "convergence_streak_needed": 3
     },
-    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Data",
+    "folderPath": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/Example_5/MMLU_Data",
     "fileType": ".csv",
     "available_metrics": [
       "Accuracy"
@@ -57,7 +57,7 @@
     "metric_names": [
       "Accuracy"
     ],
-    "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5/MMLU_Output",
+    "output_dir": "/Users/lukasvonerdmannsdorff/HERA-Matlab/data/examples/results/Example_5",
     "selected_permutations": 1
   }
 }

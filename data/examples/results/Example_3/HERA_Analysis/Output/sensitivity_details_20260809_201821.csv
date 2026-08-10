@@ -1,0 +1,11 @@
+"Borda Rank","Borda Score (%)","Dataset","AUC -> Sensitivity -> Specificity","Specificity -> Sensitivity -> AUC","Specificity -> AUC -> Sensitivity","Sensitivity -> Specificity -> AUC","Sensitivity -> AUC -> Specificity","AUC -> Specificity -> Sensitivity"
+1,"74.1%","LogisticRegression",4,3,3,2,4,4
+2,"72.2%","GradientBoosting",2,4,4,5,1,5
+3,"70.4%","AdaBoost",6,5,2,3,5,1
+4,"70.4%","MLP",1,1,5,7,2,6
+5,"61.1%","RandomForest",3,2,6,6,3,7
+6,"59.3%","SVM_Linear",7,7,1,4,6,3
+7,"38.9%","NaiveBayes",10,10,8,1,8,2
+8,"35.2%","ExtraTrees",5,6,7,8,7,8
+9,"14.8%","KNN",8,8,9,9,9,9
+10,"3.7%","DecisionTree",9,9,10,10,10,10
