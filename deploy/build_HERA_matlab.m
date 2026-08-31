@@ -100,6 +100,38 @@ clc
         fprintf('1. Compiling Application (may take a few minutes)...\n');
         buildResults = compiler.build.standaloneApplication(buildOpts);
         
+        % Step 1.5: Patch run_HERA_Runtime.sh to prevent dyld errors on missing/invalid arguments
+        if ismac
+            runScriptPath = fullfile(outputDir, ['run_' appName '.sh']);
+            if exist(runScriptPath, 'file')
+                fprintf('   > Patching run_HERA_Runtime.sh to add defensive guards...\n');
+                scriptContent = fileread(runScriptPath);
+                
+                % Replace the weak argument check with a more robust one
+                % which checks if the provided directory actually contains the MATLAB Runtime
+                searchPattern = 'if \[ "x\$1" = "x" \]; then(.*?)else';
+                
+                replacePattern = [ ...
+                    'if [ "x$1" = "x" ] || [ ! -d "$1/runtime/maca64" ]; then\n' ...
+                    '  echo "=========================================="\n' ...
+                    '  echo "ERROR: Missing or invalid MATLAB Runtime directory."\n' ...
+                    '  echo "Usage: $0 <deployedMCRroot> [args]"\n' ...
+                    '  echo "------------------------------------------"\n' ...
+                    '  echo "If you want to run HERA non-interactively, please provide a JSON config file:"\n' ...
+                    '  echo "  $0 <deployedMCRroot> path/to/config.json"\n' ...
+                    '  echo "For interactive mode, please use the provided HERA_Launcher.command"\n' ...
+                    '  echo "=========================================="\n' ...
+                    '  exit 1\n' ...
+                    'else'];
+                
+                scriptContent = regexprep(scriptContent, searchPattern, replacePattern, 'dotexceptnewline');
+                
+                fid = fopen(runScriptPath, 'w');
+                fprintf(fid, '%s', scriptContent);
+                fclose(fid);
+            end
+        end
+        
         % Step 2: Create the Installer (Packaging)
         fprintf('2. Creating Installer with Auto-Runtime Download...\n');
         

@@ -339,6 +339,7 @@ else
     end
 end
 
+
 % Start of the interactive main loop for user configuration.
 % The loop allows the user to restart the configuration process.
 while true
@@ -483,6 +484,10 @@ while true
         if strcmp(ME.identifier, 'HERA:UserExit')
             fprintf('\n%s\n', ME.message);
             return;
+        elseif isdeployed && nargin == 0 && (contains(lower(ME.identifier), 'input') || contains(lower(ME.message), 'input'))
+            % Intercept errors caused by input() failing in non-interactive streams without arguments
+            fprintf('\n%s\n', lang.errors.non_interactive_missing_args);
+            quit(1);
         else
             rethrow(ME);
         end

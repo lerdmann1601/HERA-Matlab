@@ -152,7 +152,8 @@
         "invalid_start_arguments": "Invalid arguments. Please provide a userInput struct, 'configFile', 'runtest', or 'convergence'.",
         "save_bootstrap_rank_error": "Error saving bootstrap rank CSV: %s",
         "missing_data_source": "Input structure must contain either \"folderPath\" (for file mode) or \"custom_data\" (for developer mode).",
-        "invalid_output_path": "Failed to create output directory: %s\nReason: %s"
+        "invalid_output_path": "Failed to create output directory: %s\nReason: %s",
+        "non_interactive_missing_args": "ERROR: HERA was invoked from a non-interactive shell stream without an attached terminal. To run HERA non-interactively (e.g., for batch processing), please provide a JSON configuration file as an argument. For interactive mode, please run the provided HERA_Launcher.command or ensure a terminal is attached."
     },
     "warnings": {
         "incomplete_config": "WARNING: Paths and metrics are missing in the loaded file.\nThese must now be set interactively.",
