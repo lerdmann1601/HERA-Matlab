@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.5) are considered legacy.
+> Previous versions (including all versions prior to 1.4.6) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
@@ -12,6 +12,20 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 
 *Note: The following release encompasses technical revisions for the ongoing peer-review process of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+
+---
+
+## [1.4.6] - 2026-09-01
+
+### Added
+
+* **Dynamic CLI Prompts:** The interactive CLI now dynamically adjusts the prompt for selecting the number of metrics depending on the available datasets found in the selected folder.
+* **Non-Interactive Shell Detection:** Added detection for non-interactive environments in `start_ranking.m` and patched the runtime deployment script to improve argument validation.
+
+### Fixed
+
+* **Reporting & Labels:** Updated comparison labels and refined sorting logic across example ranking logs for better consistency.
+* **M3 Significance Output:** Fixed a bug by swapping sort keys for Metric 3 significance output to ensure correct sorting in the detailed pairwise log table.
 
 ---
 
@@ -172,7 +186,8 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.5...HEAD
+[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...HEAD
+[1.4.6]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.3...v1.4.4
 [1.4.3]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.2...v1.4.3
