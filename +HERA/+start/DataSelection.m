@@ -73,17 +73,30 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
             pause(0.5);
         end
         
+        max_possible_metrics = min(3, numel(available_metrics));
+        
         % Get the number of metrics for the hierarchy. 
-        while true
-            user_input = input(sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt), 's');
-            HERA.start.UserInterface.check_exit_command(user_input, lang);
-            [isValid, error_msg, val] = ConfigValidator.validate_metric_count(user_input, lang);
-            
-            if isValid
-                num_metrics = val;
-                break;
-            else
-                fprintf('%s\n\n', error_msg);
+        if max_possible_metrics == 1
+            fprintf('%s\n', lang.start_ranking.num_metrics_auto_1);
+            num_metrics = 1;
+        else
+            while true
+                if max_possible_metrics == 2
+                    prompt_str = sprintf('%s [2]: ', lang.start_ranking.num_metrics_prompt_2);
+                else
+                    prompt_str = sprintf('%s [3]: ', lang.start_ranking.num_metrics_prompt_3);
+                end
+                
+                user_input = input(prompt_str, 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
+                [isValid, error_msg, val] = ConfigValidator.validate_metric_count(user_input, max_possible_metrics, lang);
+                
+                if isValid
+                    num_metrics = val;
+                    break;
+                else
+                    fprintf('%s\n\n', error_msg);
+                end
             end
         end
         
@@ -91,8 +104,11 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
         default_order_examples = {lang.prompts.metric_order_example_1, lang.prompts.metric_order_example_2, lang.prompts.metric_order_example_3};
         default_order_str = default_order_examples{num_metrics};
         % Loop to get a valid hierarchical order for the metrics.
-        while true
-            prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
+        if numel(available_metrics) == 1 && num_metrics == 1
+            order_choice = 1;
+        else
+            while true
+                prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
             user_input = input(prompt_text, 's');
             HERA.start.UserInterface.check_exit_command(user_input, lang);
             

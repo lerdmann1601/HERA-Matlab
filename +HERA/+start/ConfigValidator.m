@@ -268,26 +268,30 @@ classdef ConfigValidator
             end
         end
 
-        function [isValid, error_msg, value] = validate_metric_count(user_input, lang)
-            % validate_metric_count - Validates the number of metrics (1, 2, or 3).
+        function [isValid, error_msg, value] = validate_metric_count(user_input, max_metrics, lang)
+            % validate_metric_count - Validates the number of metrics (1 to max_metrics, max 3).
             
             isValid = false;
             error_msg = '';
-            value = 3;
+            value = max_metrics;
             
             if isempty(user_input)
-                value = 3;
+                value = max_metrics;
                 isValid = true;
                 return;
             end
             
             num_metrics = str2double(user_input);
             % Must be one of the allowed specific integers
-            if ~isnan(num_metrics) && isscalar(num_metrics) && any(num_metrics == [1, 2, 3])
+            if ~isnan(num_metrics) && isscalar(num_metrics) && num_metrics >= 1 && num_metrics <= max_metrics && num_metrics <= 3 && (num_metrics == floor(num_metrics))
                 value = num_metrics;
                 isValid = true;
             else
-                error_msg = lang.errors.invalid_metric_count;
+                if max_metrics == 2
+                    error_msg = lang.errors.invalid_metric_count_2;
+                else
+                    error_msg = lang.errors.invalid_metric_count_3;
+                end
             end
         end
         

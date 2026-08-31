@@ -103,13 +103,22 @@ classdef UnitTests < matlab.unittest.TestCase
         function validate_metric_count(testCase)
             import HERA.start.ConfigValidator
             
-            % Valid: 1, 2, 3
-            testCase.verifyTrue(ConfigValidator.validate_metric_count('1', testCase.lang));
-            testCase.verifyTrue(ConfigValidator.validate_metric_count('2', testCase.lang));
-            testCase.verifyTrue(ConfigValidator.validate_metric_count('3', testCase.lang));
+            % Valid: 1, 2, 3 with max_metrics = 3
+            testCase.verifyTrue(ConfigValidator.validate_metric_count('1', 3, testCase.lang));
+            testCase.verifyTrue(ConfigValidator.validate_metric_count('2', 3, testCase.lang));
+            testCase.verifyTrue(ConfigValidator.validate_metric_count('3', 3, testCase.lang));
             
-            % Invalid: 4
-            [isValid, err, ~] = ConfigValidator.validate_metric_count('4', testCase.lang);
+            % Invalid: 4 with max_metrics = 3
+            [isValid, err, ~] = ConfigValidator.validate_metric_count('4', 3, testCase.lang);
+            testCase.verifyFalse(isValid);
+            testCase.verifyNotEmpty(err);
+            
+            % Validation for max_metrics = 2
+            [isValid, ~, val] = ConfigValidator.validate_metric_count('2', 2, testCase.lang);
+            testCase.verifyTrue(isValid);
+            testCase.verifyEqual(val, 2);
+            
+            [isValid, err, ~] = ConfigValidator.validate_metric_count('3', 2, testCase.lang);
             testCase.verifyFalse(isValid);
             testCase.verifyNotEmpty(err);
         end
