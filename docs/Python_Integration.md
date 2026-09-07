@@ -207,7 +207,7 @@ The repository includes an automated build helper script that compiles the MATLA
 
 *(Note: If the `matlab` command is not in your terminal PATH, open MATLAB, navigate to `deploy/`, and run `build_hera_python()`. Then execute `./deploy/build_and_prep_pypi.sh` from your terminal).*
 
-**What this script performs:**
+### What this script performs:
 1. **Compilation**: Calls `build_hera_python.m` to generate the raw Python package files in `deploy/output/python`.
 2. **Metadata Injection**: Executes `.github/scripts/prepare_pypi.py` to synchronize version numbers, insert license information, and inject the runtime setup helper (`hera_matlab.install_runtime`).
 3. **Packaging**: Creates an isolated virtual environment (`.venv_build`) and executes `python3 -m build` to produce clean distribution artifacts (`.whl` and `.tar.gz`) in `deploy/dist/`.
