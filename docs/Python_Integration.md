@@ -4,8 +4,9 @@ A compiled interface allows HERA to be integrated directly into your Python data
 It wraps the underlying MATLAB functions and provides them as native objects.
 
 > [!NOTE]
-> The package utilizes the **MATLAB Runtime**. It must be installed separately
-> as described below.
+> **No MATLAB License Required:**
+> The Python interface operates entirely on the freely downloadable **MATLAB Runtime** provided by MathWorks.
+> You do **not** need a MATLAB license, account, or commercial MATLAB software to use HERA in Python.
 
 ## 1. Installation (For End Users)
 
@@ -17,16 +18,16 @@ The easiest way to install the package is via `pip` from PyPI.
 pip3 install hera-matlab
 ```
 
-### Step 2: Install MATLAB Runtime
+### Step 2: Install MATLAB Runtime (Free Download)
 
-HERA requires the **MATLAB Runtime R2025b (v25.2)**.
-After installing the package, run the following command to check if you have the correct runtime installed or to get the direct download link:
+HERA utilizes the free **MATLAB Runtime R2025b (v25.2)**. No commercial license or MATLAB purchase is required.
+After installing the Python package, run the automated setup helper to check your system or obtain the official download link:
 
 ```bash
 python3 -m hera_matlab.install_runtime
 ```
 
-Follow the instructions provided by this command to download and install the runtime if it is missing.
+Follow the on-screen instructions provided by this helper to complete the free runtime setup if it is not already installed on your system.
 
 ### Step 3: macOS Specifics (Critical)
 
@@ -65,15 +66,15 @@ You may want to add this to your PATH variable for easier access.
 
 ## 2. Usage Modes
 
-### A. Standard Pipeline (File-Based)
+### A. File- & Config-Based Analysis (Single Run or Automated Pipeline)
 
-This mode replicates the MATLAB batch processing workflow.
-It runs the complete analysis based on a JSON configuration file and
-automatically generates all PDF reports and plots on disk.
+In this mode, HERA executes a complete analysis based on a JSON configuration file—whether for a single standalone analysis, automated batch processing, or server pipelines. It automatically generates all PDF reports, figures, and CSV/JSON output tables on disk without requiring interactive user prompts.
 
 > [!NOTE]
-> The interactive command-line interface (CLI) is **not supported**
-> in the Python package. You must use a configuration file.
+> The interactive command-line interface (CLI) prompt is **not supported**
+> in the Python package. To run an analysis, either provide a JSON configuration
+> file via `hera.start_ranking('configFile', '...')` or pass data directly as
+> NumPy/Pandas structures via `hera.run_ranking(config)` (Mode B below).
 
 ```python
 import hera_matlab
@@ -187,21 +188,45 @@ hera.start_ranking('convergence', 'analysis_config.json', nargout=0)
 hera.terminate()
 ```
 
-## 5. Build Instructions (For Maintainers)
+## 5. Build & Release Instructions (For Maintainers)
 
-To generate the installer and Python package from source (requires MATLAB Compiler SDK):
+> [!IMPORTANT]
+> This section is strictly for **developers and maintainers** who build and publish the Python package. End users do not need to build anything; they can install directly via `pip install hera-matlab`.
 
-1. **Run the Build Helper:**
+### Prerequisites
+* **MATLAB** with the **MATLAB Compiler SDK** (which provides `compiler.build.pythonPackage`).
+* **Python 3.9–3.12** with `pip` and the `venv` module installed locally.
+* A clean Git working directory with the appropriate release tag checked out (e.g., `v1.4.6`).
 
-   ```bash
-   ./deploy/build_and_prep_pypi.sh
-   ```
+### Step 1: Build Distribution Artifacts
+The repository includes an automated build helper script that compiles the MATLAB code, injects metadata, and packages the Python distribution:
 
-   This script compiles the MATLAB code, injects the runtime checks, and prepares
-   the distribution artifacts (`.whl`, `.tar.gz`) in `deploy/dist`.
+```bash
+./deploy/build_and_prep_pypi.sh
+```
 
-2. **Distribution:**
-   Upload the generated artifacts from `deploy/dist` to PyPI or GitHub Releases.
+*(Note: If the `matlab` command is not in your terminal PATH, open MATLAB, navigate to `deploy/`, and run `build_hera_python()`. Then execute `./deploy/build_and_prep_pypi.sh` from your terminal).*
+
+**What this script performs:**
+1. **Compilation**: Calls `build_hera_python.m` to generate the raw Python package files in `deploy/output/python`.
+2. **Metadata Injection**: Executes `.github/scripts/prepare_pypi.py` to synchronize version numbers, insert license information, and inject the runtime setup helper (`hera_matlab.install_runtime`).
+3. **Packaging**: Creates an isolated virtual environment (`.venv_build`) and executes `python3 -m build` to produce clean distribution artifacts (`.whl` and `.tar.gz`) in `deploy/dist/`.
+
+### Step 2: Upload to GitHub Release
+1. On GitHub, navigate to **Releases** -> **Draft a new release**.
+2. Select or create the release tag corresponding to your build (e.g., `v1.4.6`).
+3. Upload the `.whl` and `.tar.gz` files from `deploy/dist/` as release assets.
+4. Publish the release.
+
+### Step 3: Publish to PyPI via GitHub Actions
+Since GitHub Actions runners cannot build MATLAB packages without a cloud license, PyPI publication uses PyPI Trusted Publishing to deploy the pre-built release assets:
+
+1. Go to the **Actions** tab in GitHub.
+2. Select the **Publish to PyPI** workflow in the sidebar.
+3. Click **Run workflow**, enter your **Release Tag** (e.g., `v1.4.6`), and submit.
+4. The workflow downloads the pre-built assets from your GitHub Release and securely uploads them directly to PyPI.
+
+For further details on CI/CD architecture, see [Automated Build (GitHub Actions)](Automated_Build.md#publishing-to-pypi).
 
 > [!IMPORTANT]
 > **Release Scope & Policy**

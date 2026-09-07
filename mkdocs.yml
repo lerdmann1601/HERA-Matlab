@@ -65,7 +65,7 @@ nav:
     - Configuration & Parameters: Configuration_&_Parameters.md
     - Bootstrap Settings: Bootstrap_Configuration.md
     - Convergence Analysis: Convergence_Analysis.md
-    - Advanced Usage: Advanced_Usage.md
+    - MATLAB & Advanced Usage: Advanced_Usage.md
     - Results Structure: Results_Structure_Reference.md
     - Python Integration: Python_Integration.md
     - Standalone Runtime: Standalone_Runtime.md

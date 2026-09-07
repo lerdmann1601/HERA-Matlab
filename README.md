@@ -74,20 +74,43 @@ For more information please refer to the Project
 
 ### Requirements
 
-* **MATLAB** (R2020a or later Required)
-* **Statistics and Machine Learning Toolbox** (Required)
-* **Parallel Computing Toolbox** (Required for performance)
+* **For MATLAB Users (Toolbox / Source Code)**:
+  * MATLAB (R2020a or later)
+  * Statistics and Machine Learning Toolbox (Required)
+  * Parallel Computing Toolbox (Required for performance)
+* **For Standalone & Python Users (No MATLAB License Required)**:
+  * **No MATLAB installation or commercial license needed!**
+  * Both the Standalone Application and Python package operate entirely on the free, downloadable MATLAB Runtime (R2025b). No manual JRE setup is required.
 
 ### Setup
 
-#### Option A: MATLAB Toolbox (Recommended for MATLAB Users)
+#### Option A: Standalone Application (Recommended for Non-MATLAB Users)
+
+Run HERA without a MATLAB license:
+
+1. Download the pre-built installer ZIP (currently provided for **macOS Apple Silicon**) from [GitHub Releases](https://github.com/lerdmann1601/HERA-Matlab/releases).  
+   *(Non-MATLAB users on Windows and Linux should use the **Python package** below, as compiling the standalone app from source requires a MATLAB Compiler license).*
+2. Run the installer (it automatically downloads and configures the free MATLAB Runtime).
+3. On macOS, authorize the files if prompted and simply double-click `HERA_Launcher.command` to start.
+4. For step-by-step guidance, macOS security authorization, and troubleshooting, see the 👉 [Standalone Runtime Guide](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime).
+
+#### Option B: Python Integration (For Python Data Science Pipelines)
+
+Use HERA directly in Python (`numpy`, `pandas`) without a MATLAB license:
+
+1. Install via pip: `pip install hera-matlab`
+2. Configure the free runtime: `python3 -m hera_matlab.install_runtime`
+3. For full details and usage examples, see the 👉 [Python Integration Guide](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration).
+
+#### Option C: MATLAB Toolbox (For MATLAB Users)
 
 1. Download the latest `HERA_v1.4.6.mltbx` from the
-   [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
-2. Double-click the file to install it.
-3. Done! HERA is now available as a command (`HERA.start_ranking`) in MATLAB.
+   [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page or [MATLAB File Exchange](https://de.mathworks.com/matlabcentral/fileexchange/183089-hera).
+2. Double-click the file to install it into your MATLAB Add-Ons.
+3. HERA is immediately available as a command (`HERA.start_ranking`) in MATLAB.
+4. For full details and programmatic usage, see the 👉 [MATLAB Guide](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage).
 
-#### Option B: Git Clone (for Developers)
+#### Option D: Git Clone (For Developers)
 
 1. **Clone the repository:**
 
@@ -98,18 +121,14 @@ For more information please refer to the Project
 2. **Install/Configure Path:**
 
     Navigate to the repository folder and run the setup script to add HERA to
-    your MATLAB path.
+    your MATLAB path:
 
     ```matlab
     cd HERA-Matlab
     setup_HERA
     ```
 
-#### Option C: Standalone Runtime and Python Integration
-
-👉 [Standalone Runtime](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime)
-
-👉 [Python Integration](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration)
+3. To build the `.mltbx` toolbox file from source, see [Packaging the MATLAB Toolbox](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage#4-packaging-the-matlab-toolbox-from-source-for-developers).
 
 ---
 
@@ -126,14 +145,15 @@ At any point, you can exit the interface by typing `exit` or `quit` or `q`.
 HERA.start_ranking()
 ```
 
-### 2. Batch Mode (Reproducible / Server)
+### 2. Config-Driven Mode (Single Run, Automated, or Server)
 
-For automated analysis or reproducible research, use a JSON configuration file.
-For more details on configuration parameters, see [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters).
+For reproducible research, automated scripts, or headless runs (whether performing a single analysis run or batch processing), use a JSON configuration file. This bypasses interactive prompts and ensures fully reproducible parameters:
 
 ```matlab
 HERA.start_ranking('configFile', 'config.json')
 ```
+
+For more details on configuration parameters and templates, see [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters).
 
 ### 3. Unit Test Mode
 
@@ -203,7 +223,11 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 
 👉 [Convergence Analysis](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Analysis)
 
-👉 [Advanced Usage (MATLAB Users)](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage)
+👉 [MATLAB & Advanced Usage](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage)
+
+👉 [Python Integration Guide](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration)
+
+👉 [Standalone Runtime Guide](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime)
 
 👉 [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Results_Structure_Reference)
 

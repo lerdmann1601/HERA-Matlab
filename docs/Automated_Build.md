@@ -60,19 +60,36 @@ To publish the Python package to PyPI, follow this *manual workflow* (since the 
 
 ### Release Steps
 
-1. **Prepare Artifacts**:
-   Run the helper script locally to build the package, inject metadata (version, license, README), and generate the distribution files:
+1. **Build All Release Artifacts Locally**:
+   To satisfy the Full Suite Release policy, generate all three distributions locally:
 
-   ```bash
-   ./deploy/build_and_prep_pypi.sh
-   ```
+   * **MATLAB Toolbox (.mltbx)**:
+     ```matlab
+     cd deploy
+     package_HERA_toolbox
+     ```
+     Produces the `.mltbx` file in `deploy/output/toolbox/`.
 
-   This script automatically syncs the package version with your current Git tag and applies all necessary patches for PyPI. Artifacts are placed in `deploy/dist`.
+   * **Standalone Application & Installer**:
+     ```matlab
+     cd deploy
+     build_HERA_matlab
+     ```
+     Produces the release ZIP archive in `deploy/output/matlab/`.
 
-2. **Create Release**:
+   * **Python Package (PyPI)**:
+     ```bash
+     ./deploy/build_and_prep_pypi.sh
+     ```
+     Produces the `.whl` and `.tar.gz` distribution files in `deploy/dist/`.
+
+2. **Create GitHub Release & Upload Artifacts**:
    - Go to GitHub -> Releases -> *Draft a new release*.
-   - Push your local tag to GitHub and select it as the release tag (e.g., `v1.3.1`).
-   - *Upload* the `.whl` and `.tar.gz` files from `deploy/dist/` to the release.
+   - Push your local tag to GitHub and select it as the release tag (e.g., `v1.4.6`).
+   - Upload the artifacts:
+     * The MATLAB Toolbox: `deploy/output/toolbox/HERA_*.mltbx`
+     * The Standalone App ZIP: `deploy/output/matlab/HERA_Runtime_*.zip`
+     * The Python distributions: `deploy/dist/*.whl` and `deploy/dist/*.tar.gz`
    - Publish the release.
 
 3. **Publish to PyPI**:

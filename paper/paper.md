@@ -87,10 +87,23 @@ HERA offers a flexible configuration of up to three metrics (see Fig. 2). This a
 - **Reproducibility**: Supports fixed-seed execution and configuration file-based workflows. The full analysis state, including random seeds and parameter settings, is saved in a JSON file, allowing other researchers to exactly replicate the ranking results.
 - **Convergence Analysis**: To avoid the common pitfall of using an arbitrary number of bootstrap iterations, HERA implements an adaptive algorithm. It automatically monitors the stability of the estimated confidence intervals and effect size thresholds, continuing the resampling process until the estimates converge within a specified tolerance, thus determining the optimal number of iterations $B$ dynamically [@Pattengale2010]. If the characteristics of the data for bootstrapping are known, the number of bootstrap iterations can be set manually.
 - **Data Integration**: HERA supports seamless data import from standard formats (CSV, Excel), MATLAB tables, and NumPy arrays or Pandas DataFrames when using the python interface, facilitating integration into existing research pipelines. Example datasets and workflows demonstrating practical applications are included in the repository.
-- **Accessibility**: HERA can be installed by cloning the GitHub repository, via the `hera-matlab` Python interface on PyPI, or deployed as a standalone application that requires no MATLAB license. The Python interface enables license-free integration into standard data science pipelines, requiring only a MATLAB Runtime. The MATLAB toolbox and standalone application feature an interactive CLI that guides users through the analysis without programming expertise, while an API and JSON Configuration allow for automated batch processing.
+- **Accessibility**: HERA can be installed by cloning the GitHub repository, as a MATLAB Toolbox (`.mltbx`), via the `hera-matlab` Python interface on PyPI, or deployed as a standalone application (pre-built for macOS). Neither the Python interface nor the standalone application requires a commercial MATLAB license or manual Java (JRE) installation; both operate entirely on the freely downloadable MATLAB Runtime. While the MATLAB toolbox and standalone application feature an interactive CLI that guides users through the analysis without programming expertise, an API and JSON configuration enable reproducible single runs and automated batch processing without interactive terminal prompts.
 
 ![Flexible Configuration options for Ranking Logic](images/features.png)
 
 For detailed information on the algorithmic background, we refer to the [Ranking Logic and Methodology](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained), the [Bootstrap Logic and Convergence](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Modes), and the [Methodological Guidelines and Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations) pages. An [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) using HERA on synthetic data is also available.
+
+## Code and Data Availability
+
+HERA is open-source software distributed under the MIT license. Source code, synthetic benchmarking datasets, and pre-compiled distributions are openly accessible:
+
+- **Source Code & Standalone Releases**: [https://github.com/lerdmann1601/HERA-Matlab](https://github.com/lerdmann1601/HERA-Matlab)
+- **MATLAB Toolbox**: Available on the [MATLAB File Exchange](https://de.mathworks.com/matlabcentral/fileexchange/183089-hera)
+- **Python Interface**: Available on PyPI as [`hera-matlab`](https://pypi.org/project/hera-matlab/)
+- **Documentation & Installation Guides**: Step-by-step setup guides, security authorizations, and workflow tutorials are available directly on the project website:
+  - [Standalone Runtime Guide](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime): macOS pre-built application, launcher execution, Gatekeeper authorization, and CLI commands.
+  - [Python Integration Guide](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration): PyPI installation, automated runtime setup, and direct NumPy/Pandas pipelines.
+  - [MATLAB Guide](https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage): Toolbox installation, interactive prompt, and programmatic API.
+  - [Configuration Reference](https://lerdmann1601.github.io/HERA-Matlab/Configuration_&_Parameters): JSON configuration specifications for reproducible single-run and batch analyses.
 
 ## References
