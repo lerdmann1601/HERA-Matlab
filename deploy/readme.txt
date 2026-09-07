@@ -12,7 +12,7 @@ HERA runs entirely on the free, self-contained MATLAB Runtime.
 1. Installation
 ===============
 1. Run "HERA_Runtime_Installer" (.app on macOS, .exe on Windows, .install on Linux).
-2. Follow the on-screen setup wizard. The installer will automatically download
+2. Follow the on-screen setup CLI. The installer will automatically download
    and install the free MATLAB Runtime (R2025b) if needed.
 3. Note (macOS): At the end of the installation, MathWorks displays a generic
    informational dialog suggesting manual configuration ("DYLD_LIBRARY_PATH").
@@ -74,21 +74,25 @@ Linux:
 2. Run: ./run_HERA_Runtime.sh <Path_to_MATLAB_Runtime>
    (e.g., ./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b)
 
-4. Terminal & Batch Usage (Command Line)
-========================================
+4. Command-Line & Non-Interactive Usage (Terminal / Scripts / Pipelines)
+========================================================================
+To run HERA directly from the command line, automated scripts, or headless
+environments without interactive prompts, invoke the runtime script with your
+MATLAB Runtime path and a JSON configuration file:
+
 macOS:
-If you run HERA directly from an existing terminal session (whether for a single run
-or automated batch processing, rather than double-clicking in Finder), you must use
-the launcher script and pass a JSON configuration file:
-./HERA_Launcher.command configFile "/path/to/config.json"
+/Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b configFile "/path/to/config.json"
 
-To run the verification test suite:
-./HERA_Launcher.command runtest true
+Linux:
+./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b configFile "/path/to/config.json"
 
-Windows / Linux:
-Pass arguments directly to the executable or run script, e.g.:
-Windows: HERA_Runtime.exe configFile "C:\path\to\config.json"
-Linux:   ./run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"
+Windows:
+HERA_Runtime.exe configFile "C:\path\to\config.json"
+
+To run unit tests:
+macOS: /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b runtest true
+Linux: ./run_HERA_Runtime.sh <Path_to_Runtime> runtest true
+Windows: HERA_Runtime.exe runtest true
 
 For complete documentation, guides, and tutorials, visit:
 https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime

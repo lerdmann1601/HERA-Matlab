@@ -15,21 +15,23 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
 ## 1. Installation Guide (End Users)
 
 ### Step 1: Download & Extract
+
 1. Navigate to the [GitHub Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page.
 2. Download the pre-built ZIP archive for macOS: `HERA_Runtime_<version>_maca64.zip`.
 3. Extract the ZIP archive (double-click in Finder). The extracted folder contains:
-   * `HERA_Runtime_Installer_<version>.app` (The setup wizard)
+   * `HERA_Runtime_Installer_<version>.app` (The setup CLI)
    * `HERA_Launcher.command` (The application launcher for macOS)
    * `readme.txt` (Quick reference guide)
 
 *(Note: Users on Windows or Linux who do not have MATLAB should refer to the [Python Integration Guide](Python_Integration.md). Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers)).*
 
 ### Step 2: Run the Installer
+
 1. Double-click the installer for your system:
    * **macOS**: `HERA_Runtime_Installer_<version>.app`
    * **Windows**: `HERA_Runtime_Installer_<version>.exe`
    * **Linux**: `./HERA_Runtime_Installer_<version>.install`
-2. Follow the on-screen setup wizard. The installer will automatically download and install the correct MATLAB Runtime (R2025b) if it is missing on your system.
+2. Follow the on-screen setup CLI. The installer will automatically download and install the correct MATLAB Runtime (R2025b) if it is missing on your system.
 
 > [!NOTE]
 > **Note on the Post-Installation MathWorks Notice (macOS):**
@@ -44,6 +46,7 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
 > You can safely dismiss this dialog. Manual environment configuration is not necessary because the included `HERA_Launcher.command` script resolves all paths and runtime libraries automatically.
 
 ### Step 3: macOS Security Authorization (Gatekeeper)
+
 HERA is open-source academic software. While the binaries are ad-hoc signed, they are distributed without a commercial Apple Developer ID certificate and are not notarized by Apple. Consequently, macOS Gatekeeper intercepts execution by default with a security dialog (e.g., *"App is damaged"*, *"Unidentified Developer"*, or *"macOS cannot verify that this app is free from malware"*).
 
 To run the application, macOS requires you to authorize the software **twice**: once for the **Installer** and once for the **Launcher** (`HERA_Launcher.command`). You can choose between a **graphical workaround** (Option 1: via System Settings for individual sessions) or a **permanent terminal solution** (Option 2: clearing quarantine attributes):
@@ -52,6 +55,7 @@ To run the application, macOS requires you to authorize the software **twice**: 
 > On recent macOS versions (such as Sequoia, Sonoma, or Ventura), Gatekeeper may require explicit authorization through System Settings. If macOS blocks execution, follow Option 1 or Option 2 below.
 
 #### Option 1: Manual Authorization via System Settings
+
 If macOS prevents the file from opening:
 
 1. **Right-click** (or Control-click) the application (Installer or Launcher) and select **Open**.
@@ -63,14 +67,17 @@ If macOS prevents the file from opening:
 Repeat these steps for both the **Installer** and the **Launcher** if prompted by macOS.
 
 #### Option 2: Permanent Solution via Terminal (Clearing Quarantine Attributes)
+
 This removes Gatekeeper warnings for HERA by clearing macOS quarantine attributes for all extracted files at once:
 
 1. Open the **Terminal** app (via Spotlight search or `Applications` -> `Utilities`).
 2. Run the following command (substituting the path to your extracted folder):
+
    ```bash
    sudo xattr -cr /path/to/extracted/HERA_folder
    ```
-   *(Tip: You can type `sudo xattr -cr ` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path).*
+
+   *(Tip: You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path).*
 3. Press **Enter**, enter your administrator password when prompted (input characters are not displayed on screen), and confirm.
 4. Both the Installer and Launcher can now be opened directly without Gatekeeper prompts.
 
@@ -83,6 +90,7 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
 ## 2. Running HERA (End Users)
 
 ### Standard Interactive Mode
+
 For standard use with the interactive, guided command-line interface:
 
 * **macOS**: **Double-click `HERA_Launcher.command`** in Finder.
@@ -92,6 +100,7 @@ For standard use with the interactive, guided command-line interface:
 * **Windows**: **Double-click `HERA_Runtime.exe`**.
   * A Command Prompt window will open and launch the interactive application.
 * **Linux**: Open a terminal and run the execution script with the path to your MATLAB Runtime:
+
   ```bash
   ./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b
   ```
@@ -103,42 +112,50 @@ For standard use with the interactive, guided command-line interface:
 
 ### Command-Line & Terminal Usage (CLI / Non-Interactive)
 
-For automated pipelines, scripted execution, or working from an existing command prompt, HERA can be run non-interactively using a JSON configuration file:
+For automated pipelines, scripted execution, or headless terminal sessions, HERA can be run non-interactively using a JSON configuration file. On both macOS and Linux, this is invoked via the runtime execution script (`run_HERA_Runtime.sh`) with the path to the MATLAB Runtime:
 
 > [!TIP]
-> When invoking HERA from an existing terminal window or shell script, passing a configuration file (`configFile`) allows you to run single analyses or batch jobs seamlessly without interactive prompts. For step-by-step interactive prompts on macOS, simply double-click `HERA_Launcher.command` in Finder.
+> On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI. When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
 
 #### 1. Analysis with JSON Configuration (Single Run, Automated Pipeline, or Batch)
+
 Run a full ranking analysis using a JSON configuration file, bypassing all interactive UI prompts (ideal for single runs from the terminal, automated scripts, or batch processing):
 
 * **macOS**:
+
   ```bash
-  ./HERA_Launcher.command configFile "/absolute/path/to/config.json"
+  /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b configFile "/absolute/path/to/config.json"
   ```
+
+* **Linux**:
+
+  ```bash
+  ./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b configFile "/absolute/path/to/config.json"
+  ```
+
 * **Windows**:
+
   ```cmd
   HERA_Runtime.exe configFile "C:\absolute\path\to\config.json"
-  ```
-* **Linux**:
-  ```bash
-  ./run_HERA_Runtime.sh <Path_to_Runtime> configFile "/absolute/path/to/config.json"
   ```
 
 For configuration parameter specifications and templates, see [Configuration & Parameters](Configuration_&_Parameters.md).
 
 #### 2. Run Verification Unit Tests
+
 Execute the comprehensive 46-test validation suite to verify algorithmic integrity on your system:
 
-* **macOS**: `./HERA_Launcher.command runtest true`
-* **Windows**: `HERA_Runtime.exe runtest true`
+* **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b runtest true`
 * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> runtest true`
+* **Windows**: `HERA_Runtime.exe runtest true`
 
 #### 3. Run Convergence Analysis
+
 Perform the robust convergence verification study:
 
-* **macOS**: `./HERA_Launcher.command convergence true`
-* **Windows**: `HERA_Runtime.exe convergence true`
+* **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b convergence true`
 * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> convergence true`
+* **Windows**: `HERA_Runtime.exe convergence true`
 
 For further details, refer to the [Convergence Analysis Documentation](Convergence_Analysis.md).
 
@@ -147,26 +164,34 @@ For further details, refer to the [Convergence Analysis Documentation](Convergen
 ## 3. Troubleshooting & FAQ (End Users)
 
 ### Q1: What causes dynamic library errors (`dyld: Library not loaded`) on macOS?
-* **Explanation**: On macOS, compiled MATLAB applications require dynamic library references to be linked against the MATLAB Runtime directory. If the lower-level execution script `run_HERA_Runtime.sh` is invoked directly in a terminal without passing the MATLAB Runtime path as an argument, the dynamic linker cannot find the required libraries.
-* **Solution**: Use `HERA_Launcher.command` (by double-clicking in Finder or running `./HERA_Launcher.command` in Terminal), which automatically discovers your MATLAB Runtime installation and supplies all necessary library paths. If you prefer calling `run_HERA_Runtime.sh` directly, provide the runtime directory path as the first argument:
-  ```bash
-  /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b
-  ```
+
+* **Explanation**: On macOS, compiled MATLAB applications require dynamic library references to be linked against the
+MATLAB Runtime directory. If the execution script `run_HERA_Runtime.sh` is invoked directly in a terminal without passing the MATLAB Runtime path as its first argument, the dynamic linker cannot find the required libraries.
+* **Solution**:
+  * For **interactive mode**, double-click `HERA_Launcher.command` in Finder (it automatically discovers your MATLAB Runtime installation and supplies all paths).
+  * For **command-line or script usage**, always provide the runtime directory path as the first argument:
+
+    ```bash
+    /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b
+    ```
 
 ### Q2: How should I run HERA in terminal scripts or non-interactive environments?
+
 * **Explanation**: The interactive prompt (`HERA.start_ranking()`) is designed for an active terminal session with live user input. In automated scripts, remote shells, or non-interactive pipelines where standard input cannot be assigned interactively, HERA should be run via configuration files.
 * **Solution**:
-  * **Interactive Wizard**: Double-click `HERA_Launcher.command` in Finder (macOS) or `HERA_Runtime.exe` (Windows) to run the guided step-by-step prompt in a dedicated terminal window.
+  * **Interactive CLI**: Double-click `HERA_Launcher.command` in Finder (macOS) or `HERA_Runtime.exe` (Windows) to run the guided step-by-step prompt in a dedicated terminal window.
   * **Terminal & Automated Pipelines**: Pass your analysis parameters via a JSON configuration file using the `configFile` parameter. This executes headlessly without prompting and writes all results directly to disk:
-    * **macOS**: `./HERA_Launcher.command configFile "/path/to/config.json"`
-    * **Windows**: `HERA_Runtime.exe configFile "C:\path\to\config.json"`
+    * **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"`
     * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"`
+    * **Windows**: `HERA_Runtime.exe configFile "C:\path\to\config.json"`
 
 ### Q3: Does HERA require an active internet connection or license?
+
 * **Installation**: An internet connection is only needed during initial setup if the installer downloads the free MATLAB Runtime.
 * **Execution**: Once installed, HERA operates completely offline. No internet connection, user account, or license check is ever required.
 
 ### Q4: What should I do if macOS reports that the app is damaged or blocks execution?
+
 * **Explanation**: Because HERA is open-source academic software distributed without a commercial Apple Developer ID certificate, macOS Gatekeeper prevents execution by default.
 * **Solution**: Follow the quick steps in [Step 3: macOS Security Authorization](#step-3-macos-security-authorization-gatekeeper) to approve the application in System Settings (Option 1) or remove quarantine flags via Terminal (Option 2).
 
@@ -178,6 +203,7 @@ For further details, refer to the [Convergence Analysis Documentation](Convergen
 > The instructions below are **only for developers and maintainers** compiling HERA from source. End users do **not** need to build the application.
 
 ### Developer Requirements
+
 * **MATLAB** (R2020a or later, R2025b recommended)
 * **MATLAB Compiler** toolbox (`compiler.build` and `compiler.package`)
 * **Statistics and Machine Learning Toolbox**
@@ -187,6 +213,7 @@ For further details, refer to the [Convergence Analysis Documentation](Convergen
 > **Note on Automated Builds:** As documented in [Automated Build (GitHub Actions)](Automated_Build.md), automated cloud builds via GitHub Actions cannot be run by default because the repository maintainer does not possess a cloud MATLAB license for GitHub runners. Standalone installers are therefore built locally in MATLAB using the script below.
 
 ### Build Procedure
+
 1. Open MATLAB and navigate to the project root directory.
 2. Run the build script:
 
