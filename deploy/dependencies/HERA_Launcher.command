@@ -92,7 +92,7 @@ echo ""
 # 3. Execute
 # ---------------------------------------------------------
 
-"$APP_SCRIPT" "$RUNTIME_PATH"
+"$APP_SCRIPT" "$RUNTIME_PATH" "$@"
 
 # Keep terminal open if it crashes immediately
 if [ $? -ne 0 ]; then
