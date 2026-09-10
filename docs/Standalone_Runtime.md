@@ -27,6 +27,8 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
 > Users on Windows or Linux who do not have MATLAB should refer to the [Python Integration Guide](Python_Integration.md).
 > Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers)).
 
+---
+
 ### Step 2: Run the Installer
 
 1. Double-click the installer for your system:
@@ -47,6 +49,8 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
 >
 > You can safely dismiss this dialog. Manual environment configuration is not necessary because the included `HERA_Launcher.command` script resolves all paths and runtime libraries automatically.
 
+---
+
 ### Step 3: macOS Security Authorization (Gatekeeper)
 
 HERA is open-source academic software. While the binaries are ad-hoc signed, they are distributed without a commercial Apple Developer ID certificate and are not notarized by Apple. Consequently, macOS Gatekeeper intercepts execution by default with a security dialog (e.g., *"App is damaged"*, *"Unidentified Developer"*, or *"macOS cannot verify that this app is free from malware"*).
@@ -55,6 +59,8 @@ To run the application, macOS requires you to authorize the software **twice**: 
 
 > [!IMPORTANT]
 > On recent macOS versions (such as Sequoia, Sonoma, or Ventura), Gatekeeper may require explicit authorization through System Settings. If macOS blocks execution, follow Option 1 or Option 2 below.
+
+---
 
 #### Option 1: Manual Authorization via System Settings
 
@@ -84,7 +90,9 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
 
 > [!TIP]
 > You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
->
+
+---
+
 > [!WARNING]
 > **Disclaimer & Security Warning:**  
 > *This software and the associated instructions are provided "as is", without warranty of any kind. The author expressly disclaims all liability for any damages, errors, or security risks arising from the use of this software or the execution of system commands. Modifying file attributes skips Apple's security checks; proceed at your own risk.*
@@ -122,6 +130,8 @@ For automated pipelines, scripted execution, or headless terminal sessions, HERA
 > [!TIP]
 > On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI. 
 > When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
+
+---
 
 #### 1. Analysis with JSON Configuration (Single Run, Automated Pipeline, or Batch)
 
