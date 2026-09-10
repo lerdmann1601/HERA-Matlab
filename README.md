@@ -132,7 +132,7 @@ Use HERA directly in Python (`numpy`, `pandas`) without a MATLAB license:
 
 ---
 
-## Quick Start
+## Quick Start (MATLAB Toolbox)
 
 ### 1. Interactive Mode (Recommended for Beginners)
 
