@@ -77,13 +77,13 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
    sudo xattr -cr /path/to/extracted/HERA_folder
    ```
 
-> [!TIP]
-> You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path).
+   > [!TIP]
+   > You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
 
 3. Press **Enter**, enter your administrator password when prompted (input characters are not displayed on screen), and confirm.
 4. Both the Installer and Launcher can now be opened directly without Gatekeeper prompts.
 
-> [!CAUTION]
+> [!WARNING]
 > **Disclaimer & Security Warning:**  
 > *This software and the associated instructions are provided "as is", without warranty of any kind. The author expressly disclaims all liability for any damages, errors, or security risks arising from the use of this software or the execution of system commands. Modifying file attributes skips Apple's security checks; proceed at your own risk.*
 
