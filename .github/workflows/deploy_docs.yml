@@ -56,7 +56,7 @@ jobs:
           # Convert GitHub-style alerts (> [!WARNING]) to MkDocs Material Admonitions (!!! warning)
           sed -i 's|> \[!WARNING\]|!!! warning|g' docs/*.md
           sed -i 's|> \[!NOTE\]|!!! note|g' docs/*.md
-          sed -i 's|> \[!IMPORTANT\]|!!! important|g' docs/*.md
+          sed -i 's|> \[!IMPORTANT\]|!!! example "Important"|g' docs/*.md
           sed -i 's|> \[!TIP\]|!!! tip|g' docs/*.md
 
           # 5. Integrate Theoretical Background (Paper)
