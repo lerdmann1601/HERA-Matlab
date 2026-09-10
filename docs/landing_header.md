@@ -1,7 +1,7 @@
 
 # HERA: Official Documentation
 
-Welcome to the **official documentation** for HERA (Hierarchical-Compensatory, Effect-Size-Driven Algorithm). A Scientific Ranking Framework for Paired Benchmarking.
+Welcome to the **official documentation** for HERA (Hierarchical-Compensatory Effect-Size-Driven Ranking Algorithm) — a scientific framework for benchmarking methods on instance-paired data.
 
 This platform serves as the **comprehensive reference guide** for the HERA framework, systematically organizing the repository's documentation into a **centralized, wiki-style knowledge hub**.
 
