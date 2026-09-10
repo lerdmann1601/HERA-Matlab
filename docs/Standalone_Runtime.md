@@ -23,7 +23,9 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
    * `HERA_Launcher.command` (The application launcher for macOS)
    * `readme.txt` (Quick reference guide)
 
-*(Note: Users on Windows or Linux who do not have MATLAB should refer to the [Python Integration Guide](Python_Integration.md). Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers)).*
+> [!NOTE]
+> Users on Windows or Linux who do not have MATLAB should refer to the [Python Integration Guide](Python_Integration.md).
+> Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers)).
 
 ### Step 2: Run the Installer
 
@@ -33,7 +35,7 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
    * **Linux**: `./HERA_Runtime_Installer_<version>.install`
 2. Follow the on-screen setup CLI. The installer will automatically download and install the correct MATLAB Runtime (R2025b) if it is missing on your system.
 
-> [!NOTE]
+> [!IMPORTANT]
 > **Note on the Post-Installation MathWorks Notice (macOS):**
 >
 > When the installer finishes, MathWorks automatically displays a standard informational dialog suggesting manual path configuration:
@@ -77,11 +79,11 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
    sudo xattr -cr /path/to/extracted/HERA_folder
    ```
 
-   > [!TIP]
-   > You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
-
 3. Press **Enter**, enter your administrator password when prompted (input characters are not displayed on screen), and confirm.
 4. Both the Installer and Launcher can now be opened directly without Gatekeeper prompts.
+
+> [!TIP]
+> You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
 
 > [!WARNING]
 > **Disclaimer & Security Warning:**  
