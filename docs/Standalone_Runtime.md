@@ -84,7 +84,7 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
 
 > [!TIP]
 > You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
-
+>
 > [!WARNING]
 > **Disclaimer & Security Warning:**  
 > *This software and the associated instructions are provided "as is", without warranty of any kind. The author expressly disclaims all liability for any damages, errors, or security risks arising from the use of this software or the execution of system commands. Modifying file attributes skips Apple's security checks; proceed at your own risk.*
@@ -110,7 +110,8 @@ For standard use with the interactive, guided command-line interface:
   ```
 
 > [!TIP]
-> On macOS, keep `HERA_Launcher.command` in the folder where it was extracted. If you installed the MATLAB Runtime in a non-standard location and the launcher cannot locate it automatically, it will prompt you to simply drag and drop your MATLAB Runtime folder into the terminal window.
+> On macOS, keep `HERA_Launcher.command` in the folder where it was extracted. 
+> If you installed the MATLAB Runtime in a non-standard location and the launcher cannot locate it automatically, it will prompt you to simply drag and drop your MATLAB Runtime folder into the terminal window.
 
 ---
 
@@ -119,7 +120,8 @@ For standard use with the interactive, guided command-line interface:
 For automated pipelines, scripted execution, or headless terminal sessions, HERA can be run non-interactively using a JSON configuration file. On both macOS and Linux, this is invoked via the runtime execution script (`run_HERA_Runtime.sh`) with the path to the MATLAB Runtime:
 
 > [!TIP]
-> On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI. When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
+> On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI. 
+> When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
 
 #### 1. Analysis with JSON Configuration (Single Run, Automated Pipeline, or Batch)
 
@@ -214,7 +216,7 @@ MATLAB Runtime directory. If the execution script `run_HERA_Runtime.sh` is invok
 * **Parallel Computing Toolbox**
 
 > [!NOTE]
-> **Note on Automated Builds:** As documented in [Automated Build (GitHub Actions)](Automated_Build.md), automated cloud builds via GitHub Actions cannot be run by default because the repository maintainer does not possess a cloud MATLAB license for GitHub runners. Standalone installers are therefore built locally in MATLAB using the script below.
+> **Automated Builds:** As documented in [Automated Build (GitHub Actions)](Automated_Build.md), automated cloud builds via GitHub Actions cannot be run by default because the repository maintainer does not possess a cloud MATLAB license for GitHub runners. Standalone installers are therefore built locally in MATLAB using the script below.
 
 ### Build Procedure
 
