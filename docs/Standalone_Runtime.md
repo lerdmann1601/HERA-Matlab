@@ -88,8 +88,6 @@ This removes Gatekeeper warnings for HERA by clearing macOS quarantine attribute
 3. Press **Enter**, enter your administrator password when prompted (input characters are not displayed on screen), and confirm.
 4. Both the Installer and Launcher can now be opened directly without Gatekeeper prompts.
 
----
-
 > [!TIP]
 > You can type `sudo xattr -cr` with a trailing space, then drag and drop the extracted HERA folder from Finder into the Terminal window to automatically insert its path.
 
@@ -118,10 +116,9 @@ For standard use with the interactive, guided command-line interface:
   ```bash
   ./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b
   ```
----
 
 > [!TIP]
-> On macOS, keep `HERA_Launcher.command` in the folder where it was extracted. 
+> On macOS, keep `HERA_Launcher.command` in the folder where it was extracted.
 > If you installed the MATLAB Runtime in a non-standard location and the launcher cannot locate it automatically, it will prompt you to simply drag and drop your MATLAB Runtime folder into the terminal window.
 
 ---
@@ -130,10 +127,8 @@ For standard use with the interactive, guided command-line interface:
 
 For automated pipelines, scripted execution, or headless terminal sessions, HERA can be run non-interactively using a JSON configuration file. On both macOS and Linux, this is invoked via the runtime execution script (`run_HERA_Runtime.sh`) with the path to the MATLAB Runtime:
 
----
-
 > [!TIP]
-> On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI. 
+> On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI.
 > When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
 
 ---
