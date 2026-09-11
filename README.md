@@ -30,7 +30,7 @@
 ## Overview
 
 **HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm)**
-is a MATLAB-based scientific ranking framework for paired benchmarking,
+is a MATLAB-based framework for scientific benchmarking with paired data,
 designed to automate the objective comparison of algorithms, experimental
 conditions, or other methods with repeated measurements across up to three quality metrics.
 Unlike traditional ranking methods that rely solely on mean values or
