@@ -129,7 +129,7 @@ For automated pipelines, scripted execution, or headless terminal sessions, HERA
 
 > [!TIP]
 > On macOS, double-clicking `HERA_Launcher.command` in Finder is the recommended way to start the interactive CLI.
-> When running from an existing terminal window, automated script, or pipeline, execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path and `configFile`.
+> When running from an existing terminal window, automated script, or pipeline, you can execute `run_HERA_Runtime.sh` directly with your MATLAB Runtime path, or use the `HERA_Launcher.command` to automatically resolve it.
 
 ---
 
@@ -141,6 +141,12 @@ Run a full ranking analysis using a JSON configuration file, bypassing all inter
 
   ```bash
   /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b configFile "/absolute/path/to/config.json"
+  ```
+
+  *Alternatively, if your MATLAB Runtime is installed in a standard location, you can simply use the launcher without specifying the runtime path:*
+  
+  ```bash
+  /Applications/HERA_Runtime/application/HERA_Launcher.command configFile "/absolute/path/to/config.json"
   ```
 
 * **Linux**:
@@ -162,6 +168,7 @@ For configuration parameter specifications and templates, see [Configuration & P
 Execute the comprehensive 46-test validation suite to verify algorithmic integrity on your system:
 
 * **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b runtest true`
+  *Or simply:* `/Applications/HERA_Runtime/application/HERA_Launcher.command runtest true`
 * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> runtest true`
 * **Windows**: `HERA_Runtime.exe runtest true`
 
@@ -170,6 +177,7 @@ Execute the comprehensive 46-test validation suite to verify algorithmic integri
 Perform the robust convergence verification study:
 
 * **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b convergence true`
+  *Or simply:* `/Applications/HERA_Runtime/application/HERA_Launcher.command convergence true`
 * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> convergence true`
 * **Windows**: `HERA_Runtime.exe convergence true`
 
@@ -197,7 +205,7 @@ MATLAB Runtime directory. If the execution script `run_HERA_Runtime.sh` is invok
 * **Solution**:
   * **Interactive CLI**: Double-click `HERA_Launcher.command` in Finder (macOS) or `HERA_Runtime.exe` (Windows) to run the guided step-by-step prompt in a dedicated terminal window.
   * **Terminal & Automated Pipelines**: Pass your analysis parameters via a JSON configuration file using the `configFile` parameter. This executes headlessly without prompting and writes all results directly to disk:
-    * **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"`
+    * **macOS**: `/Applications/HERA_Runtime/application/run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"` (or use `HERA_Launcher.command`)
     * **Linux**: `./run_HERA_Runtime.sh <Path_to_Runtime> configFile "/path/to/config.json"`
     * **Windows**: `HERA_Runtime.exe configFile "C:\path\to\config.json"`
 

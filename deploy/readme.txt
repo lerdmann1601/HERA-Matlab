@@ -82,6 +82,8 @@ MATLAB Runtime path and a JSON configuration file:
 
 macOS:
 /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b configFile "/path/to/config.json"
+Alternatively, if your MATLAB Runtime is installed in a standard location, you can simply use the launcher without specifying the runtime path:
+/Applications/HERA_Runtime/application/HERA_Launcher.command configFile "/path/to/config.json"
 
 Linux:
 ./run_HERA_Runtime.sh /usr/local/MATLAB/MATLAB_Runtime/R2025b configFile "/path/to/config.json"
@@ -91,6 +93,7 @@ HERA_Runtime.exe configFile "C:\path\to\config.json"
 
 To run unit tests:
 macOS: /Applications/HERA_Runtime/application/run_HERA_Runtime.sh /Applications/MATLAB/MATLAB_Runtime/R2025b runtest true
+       or /Applications/HERA_Runtime/application/HERA_Launcher.command runtest true
 Linux: ./run_HERA_Runtime.sh <Path_to_Runtime> runtest true
 Windows: HERA_Runtime.exe runtest true
 
