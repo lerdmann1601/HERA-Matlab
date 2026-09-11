@@ -1,0 +1,110 @@
+/* =========================
+   HERA Documentation Styles
+   ========================= */
+
+/**
+ * 1. Images & Figures
+ *    Centered images with subtle shadow for better contrast.
+ */
+.md-content__inner img {
+    display: block;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+
+/**
+ * 2. Bibliography (Pandoc/Refs)
+ *    Styling for references and citations.
+ */
+#refs {
+    font-size: 0.9em;
+}
+
+#refs div {
+    margin-bottom: 0.5em;
+    margin-left: 2em;
+    text-indent: -2em;
+}
+
+/**
+ * 3. Typography & Math Highlighting
+ */
+span.math.inline {
+    display: inline !important;
+    float: none !important;
+    margin: 0 !important;
+}
+
+/**
+ * 4. Automatic Figure Numbering
+ */
+.md-content__inner {
+    counter-reset: fig-count;
+}
+
+figure {
+    counter-increment: fig-count;
+}
+
+figcaption::before {
+    content: "Fig. " counter(fig-count) ": ";
+    font-weight: bold;
+}
+
+/**
+ * 5. Table Scaling & Responsiveness
+ *    Objective: Prioritize horizontal scrolling to avoid awkward word breaks.
+ *    Note: Scrollbar is provided by 'content.table.scroll' in mkdocs.yml.
+ */
+
+/* Ensures the table wrapper allows horizontal scrolling */
+.md-typeset__table {
+    overflow-x: auto;
+    display: block;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.md-typeset table:not([class]) {
+    width: auto;      /* Allow table to be wider than container */
+    min-width: 100%;  /* But at least full width */
+    margin-bottom: 1em;
+    border-collapse: collapse;
+}
+
+.md-typeset table:not([class]) th,
+.md-typeset table:not([class]) td {
+    /* word-break: keep-all prevents mid-word breaks for normal text. */
+    word-break: keep-all;
+    overflow-wrap: break-word;
+}
+
+/**
+ * Handling for code identifiers (e.g. min_steps_for_convergence_check)
+ * On Desktop/Laptop: Prefers staying on one line but allows wrapping at 
+ * sensible points (like underscores or dots) if the name is exceptionally long.
+ */
+.md-typeset table:not([class]) td code {
+    white-space: pre-wrap;
+    word-break: normal;
+    overflow-wrap: normal; /* Respects natural break points */
+}
+
+/**
+ * On very narrow screens (Mobile): 
+ * We allow identifiers to wrap more flexibly to keep the table usable,
+ * but still prefer horizontal scrolling for the overall structure.
+ */
+@media screen and (max-width: 450px) {
+    .md-typeset table:not([class]) td code {
+        white-space: pre-wrap;
+        overflow-wrap: break-word; /* Allows breaking at underscores/dots if needed */
+    }
+}
+
+/* Ensure description columns (last column) always wrap naturally at spaces */
+.md-typeset table:not([class]) td:last-child {
+    white-space: normal;
+    word-break: normal;
+}

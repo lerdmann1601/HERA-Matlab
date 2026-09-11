@@ -1,0 +1,1542 @@
+
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a Scientific Ranking Framework for Paired Benchmarking.">
+      
+      
+      
+        <link rel="canonical" href="https://lerdmann1601.github.io/HERA-Matlab/Advanced_Usage/">
+      
+      
+        <link rel="prev" href="../Convergence_Analysis/">
+      
+      
+        <link rel="next" href="../Results_Structure_Reference/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/hera_logo.svg">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>MATLAB & Advanced Usage - HERA</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  <meta name="google-site-verification" content="Nqm5UCi4e77rqV4jJxSd1wm2yIkKHx-kAke2ibvH9hw" />
+
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-purple">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#matlab-integration-advanced-usage" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="HERA" class="md-header__button md-logo" aria-label="HERA" data-md-component="logo">
+      
+  <img src="../assets/hera_logo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            HERA
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              MATLAB & Advanced Usage
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="white" data-md-color-accent="deep-purple"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="grey" data-md-color-accent="deep-purple"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/lerdmann1601/HERA-Matlab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lerdmann1601/HERA-Matlab
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Overview
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Methodology/" class="md-tabs__link">
+          
+  
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="HERA" class="md-nav__button md-logo" aria-label="HERA" data-md-component="logo">
+      
+  <img src="../assets/hera_logo.svg" alt="logo">
+
+    </a>
+    HERA
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/lerdmann1601/HERA-Matlab" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    lerdmann1601/HERA-Matlab
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Guide
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    User Guide
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Methodology/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Theoretical Background
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Ranking_Modes_Explained/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ranking Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Convergence_Modes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convergence Modes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Methodological_Guidelines_%26_Limitations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Methodological Guidelines
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Example_Analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Input_Data_Specification/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Input Specification
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Configuration_%26_Parameters/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration & Parameters
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Bootstrap_Configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Bootstrap Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Convergence_Analysis/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Convergence Analysis
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MATLAB & Advanced Usage
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    MATLAB & Advanced Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-installation-guide-matlab-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Installation Guide (MATLAB Users)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Installation Guide (MATLAB Users)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-a-matlab-toolbox-mltbx-recommended-for-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option A: MATLAB Toolbox (.mltbx) — Recommended for Users
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-git-clone-path-setup-for-developers-source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option B: Git Clone &amp; Path Setup (For Developers / Source Code)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-standard-execution-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Standard Execution Modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Standard Execution Modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-interactive-mode-recommended-for-beginners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Interactive Mode (Recommended for Beginners)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-config-driven-mode-single-run-or-automated-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Config-Driven Mode (Single Run or Automated Pipeline)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-verification-unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Verification &amp; Unit Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-convergence-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Convergence Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-programmatic-developer-api-herarun_ranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Programmatic Developer API (HERA.run_ranking)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Programmatic Developer API (HERA.run_ranking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-structure-userinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Structure (userInput)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-structure-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Structure (results)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-packaging-the-matlab-toolbox-from-source-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Packaging the MATLAB Toolbox from Source (For Developers)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Packaging the MATLAB Toolbox from Source (For Developers)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#developer-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packaging-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Results_Structure_Reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Results Structure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Python_Integration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Integration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Standalone_Runtime/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Standalone Runtime
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Automated_Build/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Automated Build
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-installation-guide-matlab-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Installation Guide (MATLAB Users)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Installation Guide (MATLAB Users)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#system-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-a-matlab-toolbox-mltbx-recommended-for-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option A: MATLAB Toolbox (.mltbx) — Recommended for Users
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#option-b-git-clone-path-setup-for-developers-source-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Option B: Git Clone &amp; Path Setup (For Developers / Source Code)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-standard-execution-modes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Standard Execution Modes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Standard Execution Modes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-interactive-mode-recommended-for-beginners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Interactive Mode (Recommended for Beginners)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-config-driven-mode-single-run-or-automated-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Config-Driven Mode (Single Run or Automated Pipeline)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-verification-unit-testing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Verification &amp; Unit Testing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-convergence-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Convergence Analysis
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-programmatic-developer-api-herarun_ranking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Programmatic Developer API (HERA.run_ranking)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Programmatic Developer API (HERA.run_ranking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#input-structure-userinput" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Input Structure (userInput)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-structure-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output Structure (results)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-packaging-the-matlab-toolbox-from-source-for-developers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Packaging the MATLAB Toolbox from Source (For Developers)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Packaging the MATLAB Toolbox from Source (For Developers)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#developer-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Developer Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packaging-procedure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packaging Procedure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#distribution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Distribution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="matlab-integration-advanced-usage">MATLAB Integration &amp; Advanced Usage</h1>
+<p>This guide covers everything for MATLAB users and developers: from installing the official toolbox (<code>.mltbx</code>) and running analyses to programmatic in-memory execution and building the toolbox from source.</p>
+<hr />
+<h2 id="1-installation-guide-matlab-users">1. Installation Guide (MATLAB Users)</h2>
+<h3 id="system-requirements">System Requirements</h3>
+<ul>
+<li><strong>MATLAB</strong>: Version R2020a or later (R2025b recommended).</li>
+<li><strong>Statistics and Machine Learning Toolbox</strong> (Required for non-parametric tests and distributions).</li>
+<li><strong>Parallel Computing Toolbox</strong> (Required for parallelized bootstrap execution).</li>
+</ul>
+<h3 id="option-a-matlab-toolbox-mltbx-recommended-for-users">Option A: MATLAB Toolbox (.mltbx) — Recommended for Users</h3>
+<p>The easiest way to install HERA in MATLAB is via the packaged toolbox:</p>
+<ol>
+<li>Download the latest <code>HERA_&lt;version&gt;.mltbx</code> from the <a href="https://github.com/lerdmann1601/HERA-Matlab/releases">GitHub Releases</a> page or the <a href="https://de.mathworks.com/matlabcentral/fileexchange/183089-hera">MATLAB File Exchange</a>.</li>
+<li>In MATLAB, navigate to your download folder and <strong>double-click</strong> the <code>.mltbx</code> file (or right-click and select <em>Install</em>).</li>
+<li>MATLAB will automatically install the toolbox to your Add-Ons directory and configure your search path.</li>
+<li>HERA is now globally available in MATLAB via the <code>HERA</code> package namespace.</li>
+</ol>
+<h3 id="option-b-git-clone-path-setup-for-developers-source-code">Option B: Git Clone &amp; Path Setup (For Developers / Source Code)</h3>
+<p>If you wish to work with the active source code or contribute to development:</p>
+<ol>
+<li>Clone the repository:</li>
+</ol>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/lerdmann1601/HERA-Matlab.git
+</code></pre></div>
+<ol>
+<li>Open MATLAB, navigate to the cloned repository root, and run the setup script:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="n">HERA</span><span class="o">-</span><span class="n">Matlab</span>
+<span class="n">setup_HERA</span>
+</code></pre></div>
+<p>This validates your MATLAB version and permanently adds the required folders to your MATLAB search path.</p>
+<hr />
+<h2 id="2-standard-execution-modes">2. Standard Execution Modes</h2>
+<h3 id="1-interactive-mode-recommended-for-beginners">1. Interactive Mode (Recommended for Beginners)</h3>
+<p>Start the guided command-line interface:</p>
+<div class="highlight"><pre><span></span><code><span class="n">HERA</span><span class="p">.</span><span class="n">start_ranking</span><span class="p">()</span>
+</code></pre></div>
+<p>The interactive prompt guides you through data loading, metric selection, ranking modes, and statistical parameters.</p>
+<h3 id="2-config-driven-mode-single-run-or-automated-pipeline">2. Config-Driven Mode (Single Run or Automated Pipeline)</h3>
+<p>For reproducible research or scripted workflows, pass a JSON configuration file:</p>
+<div class="highlight"><pre><span></span><code><span class="n">HERA</span><span class="p">.</span><span class="n">start_ranking</span><span class="p">(</span><span class="s">'configFile'</span><span class="p">,</span><span class="w"> </span><span class="s">'path/to/analysis_config.json'</span><span class="p">)</span>
+</code></pre></div>
+<p>For parameter specifications and templates, see <a href="../Configuration_%26_Parameters/">Configuration &amp; Parameters</a>.</p>
+<h3 id="3-verification-unit-testing">3. Verification &amp; Unit Testing</h3>
+<p>Execute the built-in 46-test validation suite to verify algorithmic integrity:</p>
+<div class="highlight"><pre><span></span><code><span class="n">HERA</span><span class="p">.</span><span class="n">start_ranking</span><span class="p">(</span><span class="s">'runtest'</span><span class="p">,</span><span class="w"> </span><span class="s">'true'</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="4-convergence-analysis">4. Convergence Analysis</h3>
+<p>Evaluate bootstrap stability and determine optimal iterations:</p>
+<div class="highlight"><pre><span></span><code><span class="n">HERA</span><span class="p">.</span><span class="n">start_ranking</span><span class="p">(</span><span class="s">'convergence'</span><span class="p">,</span><span class="w"> </span><span class="s">'true'</span><span class="p">)</span>
+</code></pre></div>
+<p>For more details, see <a href="../Convergence_Analysis/">Convergence Analysis Documentation</a>.</p>
+<hr />
+<h2 id="3-programmatic-developer-api-herarun_ranking">3. Programmatic Developer API (<code>HERA.run_ranking</code>)</h2>
+<p>Advanced users can call <code>HERA.run_ranking</code> directly with in-memory data matrices, completely bypassing file I/O. This is ideal for integration into simulation pipelines or larger data processing workflows.</p>
+<h3 id="syntax">Syntax</h3>
+<div class="highlight"><pre><span></span><code><span class="n">results</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">HERA</span><span class="p">.</span><span class="n">run_ranking</span><span class="p">(</span><span class="n">userInput</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="input-structure-userinput">Input Structure (<code>userInput</code>)</h3>
+<p>Instead of providing a <code>folderPath</code> to CSV or Excel files, pass data matrices directly via <code>custom_data</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c">% 1. Prepare Data</span>
+<span class="c">% Cell array of matrices: each matrix is [n_Subjects x n_Methods]</span>
+<span class="n">data_m1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span><span class="w"> </span><span class="c">% Metric 1 (e.g., Accuracy)</span>
+<span class="n">data_m2</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">randn</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">);</span><span class="w"> </span><span class="c">% Metric 2 (e.g., Runtime)</span>
+<span class="n">custom_data</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="n">data_m1</span><span class="p">,</span><span class="w"> </span><span class="n">data_m2</span><span class="p">};</span>
+
+<span class="c">% 2. Configure Parameters</span>
+<span class="n">userInput</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="nb">struct</span><span class="p">();</span>
+<span class="n">userInput</span><span class="p">.</span><span class="n">custom_data</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="n">custom_data</span><span class="p">;</span>
+<span class="n">userInput</span><span class="p">.</span><span class="n">metric_names</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">'Accuracy'</span><span class="p">,</span><span class="w"> </span><span class="s">'Runtime'</span><span class="p">};</span>
+<span class="n">userInput</span><span class="p">.</span><span class="n">dataset_names</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="p">{</span><span class="s">'Method A'</span><span class="p">,</span><span class="w"> </span><span class="s">'Method B'</span><span class="p">,</span><span class="w"> </span><span class="s">'Method C'</span><span class="p">,</span><span class="w"> </span><span class="s">'Method D'</span><span class="p">,</span><span class="w"> </span><span class="s">'Method E'</span><span class="p">};</span>
+<span class="n">userInput</span><span class="p">.</span><span class="n">ranking_mode</span><span class="w">  </span><span class="p">=</span><span class="w"> </span><span class="s">'M1_M2'</span><span class="p">;</span>
+<span class="n">userInput</span><span class="p">.</span><span class="n">output_dir</span><span class="w">    </span><span class="p">=</span><span class="w"> </span><span class="nb">pwd</span><span class="p">;</span>
+
+<span class="c">% 3. Execute Analysis</span>
+<span class="n">results</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="n">HERA</span><span class="p">.</span><span class="n">run_ranking</span><span class="p">(</span><span class="n">userInput</span><span class="p">);</span>
+</code></pre></div>
+<h3 id="output-structure-results">Output Structure (<code>results</code>)</h3>
+<p>The returned struct contains all computed statistics and ranking results:</p>
+<ul>
+<li><code>.final_rank</code>: Final ranking vector across all methods.</li>
+<li><code>.d_vals_all</code>: Effect sizes (Cliff's Delta).</li>
+<li><code>.p_vals_all</code>: Raw p-values from Wilcoxon signed-rank tests.</li>
+<li><code>.ci_d_all</code>: Bootstrap confidence intervals.</li>
+</ul>
+<p>For the complete reference of all returned fields, see <a href="../Results_Structure_Reference/">Results Structure Reference</a>.</p>
+<hr />
+<h2 id="4-packaging-the-matlab-toolbox-from-source-for-developers">4. Packaging the MATLAB Toolbox from Source (For Developers)</h2>
+<div class="admonition example">
+<p class="admonition-title">Important</p>
+</div>
+<blockquote>
+<p>This section is strictly for <strong>developers and maintainers</strong> packaging HERA as a <code>.mltbx</code> file for distribution on GitHub Releases or the MATLAB File Exchange.</p>
+</blockquote>
+<h3 id="developer-requirements">Developer Requirements</h3>
+<ul>
+<li><strong>MATLAB</strong> (R2020a or later, R2025b recommended).</li>
+<li>A clean working directory with the appropriate release tag checked out (e.g., <code>v1.4.6</code>).</li>
+</ul>
+<h3 id="packaging-procedure">Packaging Procedure</h3>
+<ol>
+<li>Open MATLAB and navigate to the project root directory.</li>
+<li>Run the toolbox packaging script:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span><span class="n">deploy</span>
+<span class="n">package_HERA_toolbox</span>
+</code></pre></div>
+<p><strong>What this script performs:</strong></p>
+<ol>
+<li><strong>Pre-Build Cleanup</strong>: Removes OS artifacts (<code>.DS_Store</code>) and Python cache directories (<code>__pycache__</code>, <code>*.pyc</code>) that can cause validation errors during File Exchange uploads.</li>
+<li><strong>Metadata Configuration</strong>: Uses <code>matlab.addons.toolbox.ToolboxOptions</code> to set the display name, synchronized version number, author, summary, and description.</li>
+<li><strong>Selective File Bundling</strong>: Explicitly packages <code>+HERA</code>, example datasets (<code>data/examples/</code>), documentation, licensing, and setup scripts, while excluding development scripts (<code>deploy/</code>), tests, and virtual environments to ensure a lean production file.</li>
+<li><strong>Artifact Generation</strong>: Produces the <code>.mltbx</code> file in <code>deploy/output/toolbox/</code> (e.g., <code>HERA_v1.4.6.mltbx</code>).</li>
+</ol>
+<h3 id="distribution">Distribution</h3>
+<ul>
+<li><strong>GitHub Releases</strong>: Upload the generated <code>.mltbx</code> file from <code>deploy/output/toolbox/</code> as a release asset.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.table.scroll"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+        <script src="../javascripts/mathjax.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+    
+  </body>
+</html>
