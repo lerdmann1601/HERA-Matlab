@@ -109,18 +109,18 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
         else
             while true
                 prompt_text = sprintf(lang.prompts.metric_order_dynamic, num_metrics, default_order_str);
-            user_input = input(prompt_text, 's');
-            HERA.start.UserInterface.check_exit_command(user_input, lang);
-            
-            [isValid, error_msg, val] = ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
-            
-            if isValid
-                order_choice = val;
-                break;
-            else
-                fprintf('%s\n\n', error_msg);
+                user_input = input(prompt_text, 's');
+                HERA.start.UserInterface.check_exit_command(user_input, lang);
+                
+                [isValid, error_msg, val] = ConfigValidator.validate_metric_order(user_input, num_metrics, numel(available_metrics), lang);
+                
+                if isValid
+                    order_choice = val;
+                    break;
+                else
+                    fprintf('%s\n\n', error_msg);
+                end
             end
-        end
         end
         % Store the selected metric hierarchy.
         userInput.metric_names = available_metrics(order_choice);
