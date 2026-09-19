@@ -40,7 +40,7 @@
         "default_theme": "Graphics Theme: %s",
         "prompt_hint": "Note: Press Enter (Return) to accept the default value shown in brackets []",
         "manual_header": "Manual Configuration",
-        "num_metrics_auto_1": "\nOnly 1 dataset found. Proceeding with 1 metric.",
+        "num_metrics_auto_1": "\nOnly 1 metric found. Proceeding with 1 metric.",
         "num_metrics_prompt_2": "\nSelect number of metrics for hierarchy (1 or 2)",
         "num_metrics_prompt_3": "\nSelect number of metrics for hierarchy (1, 2, or 3)",
         "metric_logic_2": "\nSelect ranking logic for 2 metrics:",

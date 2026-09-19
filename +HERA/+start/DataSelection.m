@@ -120,7 +120,8 @@ function userInput = DataSelection(userInput, configLoadedFromFile, main_choice,
             else
                 fprintf('%s\n\n', error_msg);
             end
-        end       
+        end
+        end
         % Store the selected metric hierarchy.
         userInput.metric_names = available_metrics(order_choice);
         fprintf([lang.prompts.ranking_order_confirm '\n'], strjoin(userInput.metric_names, ' -> '));
