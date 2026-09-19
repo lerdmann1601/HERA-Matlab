@@ -139,8 +139,13 @@ function save_log(results, thresholds, config, shared_info)
                 sort_key = 2;
                 
             else
-                % Case 3: Tie in wins AND identical distributions (d=0), broken by Mean.
-                reason = sprintf(lang.output.log.reason_m1_tiebreak_mean, metric_names{1}); sort_key = 3;
+                % Case 3: Tie in wins AND identical distributions (d=0), broken by Mean. Include win count (wins_i vs wins_j).
+                if contains(lang.output.log.reason_m1_tiebreak_mean, '%d')
+                    reason = sprintf(lang.output.log.reason_m1_tiebreak_mean, metric_names{1}, wins_i, wins_j);
+                else
+                    reason = sprintf([lang.output.log.reason_m1_tiebreak_mean, ' (%d vs %d)'], metric_names{1}, wins_i, wins_j);
+                end
+                sort_key = 3;
             end
             
             % Assemble the log entry as a cell array. The 'Swap' column is unused for Metric 1.
