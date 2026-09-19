@@ -115,14 +115,28 @@ function save_log(results, thresholds, config, shared_info)
             ci_d_str = sprintf('[%+.3f, %+.3f]', ci_d_all(pair_row_idx, 1, 1), ci_d_all(pair_row_idx, 2, 1));
             ci_r_str = sprintf('[%.3f, %.3f]', ci_r_all(pair_row_idx, 1, 1), ci_r_all(pair_row_idx, 2, 1));
             
+            % Extract win counts for the current pair according to the pairwise comparison order (i vs j).
+            wins_i = swap_details.metric1_wins(i_idx);
+            wins_j = swap_details.metric1_wins(j_idx);
+            
             % Determine the reason for the ranking decision based on Metric 1's logic.
-            if swap_details.metric1_wins(i_idx) ~= swap_details.metric1_wins(j_idx)
-                % Case 1: One dataset won more pairwise comparisons.
-                reason = lang.output.log.reason_m1_wins; sort_key = 1;
+            if wins_i ~= wins_j
+                % Case 1: One dataset won more pairwise comparisons. Include win count (wins_i vs wins_j).
+                if contains(lang.output.log.reason_m1_wins, '%d')
+                    reason = sprintf(lang.output.log.reason_m1_wins, wins_i, wins_j);
+                else
+                    reason = sprintf('%s (%d vs %d)', lang.output.log.reason_m1_wins, wins_i, wins_j);
+                end
+                sort_key = 1;
                 
             elseif abs(d_obs) > 1e-9
-                % Case 2: Tie in wins, broken by Stochastic Dominance (Cliff's Delta).
-                reason = sprintf(lang.output.log.reason_m1_tiebreak_d, metric_names{1}); sort_key = 2;
+                % Case 2: Tie in wins, broken by Stochastic Dominance (Cliff's Delta). Include win count (wins_i vs wins_j).
+                if contains(lang.output.log.reason_m1_tiebreak_d, '%d')
+                    reason = sprintf(lang.output.log.reason_m1_tiebreak_d, wins_i, wins_j);
+                else
+                    reason = sprintf('%s (%d vs %d)', lang.output.log.reason_m1_tiebreak_d, wins_i, wins_j);
+                end
+                sort_key = 2;
                 
             else
                 % Case 3: Tie in wins AND identical distributions (d=0), broken by Mean.

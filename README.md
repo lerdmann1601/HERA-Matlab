@@ -84,23 +84,23 @@ For more information please refer to the Project
 
 ### Setup
 
-#### Option A: Standalone Application (Recommended for Non-MATLAB Users)
-
-Run HERA without a MATLAB license:
-
-1. Download the pre-built installer ZIP (currently provided for **macOS Apple Silicon**) from [GitHub Releases](https://github.com/lerdmann1601/HERA-Matlab/releases).  
-   *(Non-MATLAB users on Windows and Linux should use the **Python package** below, as compiling the standalone app from source requires a MATLAB Compiler license).*
-2. Run the installer (it automatically downloads and configures the free MATLAB Runtime).
-3. On macOS, authorize the files if prompted and simply double-click `HERA_Launcher.command` to start.
-4. For step-by-step guidance, macOS security authorization, and troubleshooting, see the 👉 [Standalone Runtime Guide](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime).
-
-#### Option B: Python Integration (For Python Data Science Pipelines)
+#### Option A: Python Integration (For Python Data Science Pipelines)
 
 Use HERA directly in Python (`numpy`, `pandas`) without a MATLAB license:
 
 1. Install via pip: `pip install hera-matlab`
 2. Configure the free runtime: `python3 -m hera_matlab.install_runtime`
 3. For full details and usage examples, see the 👉 [Python Integration Guide](https://lerdmann1601.github.io/HERA-Matlab/Python_Integration).
+
+#### Option B: Standalone Application (Recommended for Non-MATLAB Users)
+
+Run HERA without a MATLAB license:
+
+1. Download the pre-built installer ZIP (currently provided for **macOS Apple Silicon**) from [GitHub Releases](https://github.com/lerdmann1601/HERA-Matlab/releases).  
+   *(Non-MATLAB users on Windows and Linux should use the **Python package** above, as compiling the standalone app from source requires a MATLAB Compiler license).*
+2. Run the installer (it automatically downloads and configures the free MATLAB Runtime).
+3. On macOS, authorize the files if prompted and simply double-click `HERA_Launcher.command` to start.
+4. For step-by-step guidance, macOS security authorization, and troubleshooting, see the 👉 [Standalone Runtime Guide](https://lerdmann1601.github.io/HERA-Matlab/Standalone_Runtime).
 
 #### Option C: MATLAB Toolbox (For MATLAB Users)
 
