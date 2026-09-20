@@ -85,7 +85,7 @@ To publish the Python package to PyPI, follow this *manual workflow* (since the 
 
 2. **Create GitHub Release & Upload Artifacts**:
    - Go to GitHub -> Releases -> *Draft a new release*.
-   - Push your local tag to GitHub and select it as the release tag (e.g., `v1.4.6`).
+   - Push your local tag to GitHub and select it as the release tag (e.g., `v1.4.7`).
    - Upload the artifacts:
      * The MATLAB Toolbox: `deploy/output/toolbox/HERA_*.mltbx`
      * The Standalone App ZIP: `deploy/output/matlab/HERA_Runtime_*.zip`

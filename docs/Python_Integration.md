@@ -196,7 +196,7 @@ hera.terminate()
 ### Prerequisites
 * **MATLAB** with the **MATLAB Compiler SDK** (which provides `compiler.build.pythonPackage`).
 * **Python 3.9–3.12** with `pip` and the `venv` module installed locally.
-* A clean Git working directory with the appropriate release tag checked out (e.g., `v1.4.6`).
+* A clean Git working directory with the appropriate release tag checked out (e.g., `v1.4.7`).
 
 ### Step 1: Build Distribution Artifacts
 The repository includes an automated build helper script that compiles the MATLAB code, injects metadata, and packages the Python distribution:
@@ -215,7 +215,7 @@ The repository includes an automated build helper script that compiles the MATLA
 
 ### Step 2: Upload to GitHub Release
 1. On GitHub, navigate to **Releases** -> **Draft a new release**.
-2. Select or create the release tag corresponding to your build (e.g., `v1.4.6`).
+2. Select or create the release tag corresponding to your build (e.g., `v1.4.7`).
 3. Upload the `.whl` and `.tar.gz` files from `deploy/dist/` as release assets.
 4. Publish the release.
 
@@ -224,7 +224,7 @@ Since GitHub Actions runners cannot build MATLAB packages without a cloud licens
 
 1. Go to the **Actions** tab in GitHub.
 2. Select the **Publish to PyPI** workflow in the sidebar.
-3. Click **Run workflow**, enter your **Release Tag** (e.g., `v1.4.6`), and submit.
+3. Click **Run workflow**, enter your **Release Tag** (e.g., `v1.4.7`), and submit.
 4. The workflow downloads the pre-built assets from your GitHub Release and securely uploads them directly to PyPI.
 
 For further details on CI/CD architecture, see [Automated Build (GitHub Actions)](Automated_Build.md#publishing-to-pypi).

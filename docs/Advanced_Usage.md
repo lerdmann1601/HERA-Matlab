@@ -138,7 +138,7 @@ For the complete reference of all returned fields, see [Results Structure Refere
 ### Developer Requirements
 
 * **MATLAB** (R2020a or later, R2025b recommended).
-* A clean working directory with the appropriate release tag checked out (e.g., `v1.4.6`).
+* A clean working directory with the appropriate release tag checked out (e.g., `v1.4.7`).
 
 ### Packaging Procedure
 
@@ -155,7 +155,7 @@ For the complete reference of all returned fields, see [Results Structure Refere
 1. **Pre-Build Cleanup**: Removes OS artifacts (`.DS_Store`) and Python cache directories (`__pycache__`, `*.pyc`) that can cause validation errors during File Exchange uploads.
 2. **Metadata Configuration**: Uses `matlab.addons.toolbox.ToolboxOptions` to set the display name, synchronized version number, author, summary, and description.
 3. **Selective File Bundling**: Explicitly packages `+HERA`, example datasets (`data/examples/`), documentation, licensing, and setup scripts, while excluding development scripts (`deploy/`), tests, and virtual environments to ensure a lean production file.
-4. **Artifact Generation**: Produces the `.mltbx` file in `deploy/output/toolbox/` (e.g., `HERA_v1.4.6.mltbx`).
+4. **Artifact Generation**: Produces the `.mltbx` file in `deploy/output/toolbox/` (e.g., `HERA_v1.4.7.mltbx`).
 
 ### Distribution
 

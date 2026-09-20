@@ -104,7 +104,7 @@ Run HERA without a MATLAB license:
 
 #### Option C: MATLAB Toolbox (For MATLAB Users)
 
-1. Download the latest `HERA_v1.4.6.mltbx` from the
+1. Download the latest `HERA_v1.4.7.mltbx` from the
    [Releases](https://github.com/lerdmann1601/HERA-Matlab/releases) page or [MATLAB File Exchange](https://de.mathworks.com/matlabcentral/fileexchange/183089-hera).
 2. Double-click the file to install it into your MATLAB Add-Ons.
 3. HERA is immediately available as a command (`HERA.start_ranking`) in MATLAB.
@@ -351,7 +351,7 @@ You can also cite the software directly via Zenodo:
   author = {von Erdmannsdorff, Lukas},
   title = {HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm},
   url = {https://github.com/lerdmann1601/HERA-Matlab},
-  version = {1.4.6},
+  version = {1.4.7},
   doi = {10.5281/zenodo.18274870},
   year = {2026}
 }

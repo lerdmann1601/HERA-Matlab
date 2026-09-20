@@ -4,14 +4,21 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.6) are considered legacy.
+> Previous versions (including all versions prior to 1.4.7) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
 
 ---
 
-## [Unreleased]
+## [1.4.7] - 2026-09-19
 
-*Note: The following release encompasses technical revisions for the ongoing peer-review process of the associated HERA manuscript (available as SSRN Pre-Print DOI: [https://doi.org/10.2139/ssrn.7227474](https://doi.org/10.2139/ssrn.7227474)).*
+### Added
+
+* **Win Count Reporting:** Pairwise comparison logs in Stage 1 now report win counts.
+* **Launcher CLI Passthrough:** Update for macOS standalone deployments to automatically forward command-line arguments to the runtime.
+
+### Fixed
+
+* **Single-Metric CLI Initialization:** Fixed a syntax issue that caused configuration variables to be skipped when analyzing folders with only one metric file.
 
 ---
 
@@ -186,7 +193,7 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
-[Unreleased]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...HEAD
+[1.4.7]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.4...v1.4.5
 [1.4.4]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.3...v1.4.4
