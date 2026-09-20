@@ -5,10 +5,10 @@ function build_hera_python()
 %   build_hera_python()
 %
 % Description:
-%   This script automates the creation of a Python package for HERA using 
+%   This script automates the creation of a Python package for HERA using
 %   the 'compiler.build.pythonPackage' workflow.
 %   It allows HERA to be installed via pip and used in Python environments,
-%   MATLAB Runtime should be installed manually via 
+%   MATLAB Runtime should be installed manually via
 %   https://www.mathworks.com/products/compiler/matlab-runtime.html.
 %
 % Workflow:
@@ -26,88 +26,88 @@ function build_hera_python()
 %
 
 clc
-    %% 1. Initialization and Path Detection
-    % Determine the project root directory relative to this script.
-    % This script is located in <ProjectRoot>/deploy/build_hera_python.m
-    
-    % Get the full path of this script
-    scriptPath = mfilename('fullpath');
-    
-    % Get the directory containing this script (the 'deploy' folder)
-    deployDir = fileparts(scriptPath);
-    
-    % Get the parent directory (the Project Root)
-    projectRoot = fileparts(deployDir);
-    
-    % Verify that the +HERA package exists in the root
-    if ~exist(fullfile(projectRoot, '+HERA'), 'dir')
-        error('Could not locate +HERA package. Expected at: %s', fullfile(projectRoot, '+HERA'));
-    end
-    
-    % Define and create the output directory.
-    outputDir = fullfile(projectRoot, 'deploy', 'output', 'python');
-    if ~exist(outputDir, 'dir')
-        mkdir(outputDir);
-    end
+%% 1. Initialization and Path Detection
+% Determine the project root directory relative to this script.
+% This script is located in <ProjectRoot>/deploy/build_hera_python.m
 
-    % Define Package Name (This becomes the python import name)
-    pkgName = 'hera_matlab';
-    
-    % Get Version and validate (Strict for CI/CD)
-    is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
-    if is_cicd
-        version_raw = getenv('GITHUB_REF_NAME');
-        if isempty(version_raw) || ~startsWith(version_raw, 'v')
-            error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.7) must be set via GITHUB_REF_NAME.');
-        end
-    else
-        % Local build: Use get_version() helper
-        version_raw = HERA.get_version();
-    end
-    version_str = replace(version_raw, 'v', '');
-    fprintf('Detected Version: %s\n', version_str);
+% Get the full path of this script
+scriptPath = mfilename('fullpath');
 
-    % Define Resources to Include
-    % Note: +HERA package is automatically analyzed by the compiler, 
-    % but explicit assets/languages need to be added.
-    % Note: From now on I exclude 'assets' to keep the distribution lean. 
-    additionalFiles = [ ...
-        string(fullfile(projectRoot, '+HERA', 'language')) ...
+% Get the directory containing this script (the 'deploy' folder)
+deployDir = fileparts(scriptPath);
+
+% Get the parent directory (the Project Root)
+projectRoot = fileparts(deployDir);
+
+% Verify that the +HERA package exists in the root
+if ~exist(fullfile(projectRoot, '+HERA'), 'dir')
+    error('Could not locate +HERA package. Expected at: %s', fullfile(projectRoot, '+HERA'));
+end
+
+% Define and create the output directory.
+outputDir = fullfile(projectRoot, 'deploy', 'output', 'python');
+if ~exist(outputDir, 'dir')
+    mkdir(outputDir);
+end
+
+% Define Package Name (This becomes the python import name)
+pkgName = 'hera_matlab';
+
+% Get Version and validate (Strict for CI/CD)
+is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
+if is_cicd
+    version_raw = getenv('GITHUB_REF_NAME');
+    if isempty(version_raw) || ~startsWith(version_raw, 'v')
+        error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.7) must be set via GITHUB_REF_NAME.');
+    end
+else
+    % Local build: Use get_version() helper
+    version_raw = HERA.get_version();
+end
+version_str = replace(version_raw, 'v', '');
+fprintf('Detected Version: %s\n', version_str);
+
+% Define Resources to Include
+% Note: +HERA package is automatically analyzed by the compiler,
+% but explicit assets/languages need to be added.
+% Note: From now on I exclude 'assets' to keep the distribution lean.
+additionalFiles = [ ...
+    string(fullfile(projectRoot, '+HERA', 'language')) ...
     ];
 
-    %% 2. Build Configuration
-    fprintf('Configuring Build Options for Python Package...\n');
-    
-    % Define the primary entry points for export.
-    % Explicitly selecting functions such as 'start_ranking' and 'run_ranking' ensures
-    % a clean and defined API for the generated Python package.
-    % This method is preferred over exporting the entire '+HERA' namespace folder directly.
-    % We likely want users to call `hera_matlab.start_ranking()` or `hera_matlab.HERA`.
-    exportedFunctions = [ ...
-        string(fullfile(deployDir, 'wrappers', 'start_ranking.m')), ...
-        string(fullfile(deployDir, 'wrappers', 'run_ranking.m')) ...
+%% 2. Build Configuration
+fprintf('Configuring Build Options for Python Package...\n');
+
+% Define the primary entry points for export.
+% Explicitly selecting functions such as 'start_ranking' and 'run_ranking' ensures
+% a clean and defined API for the generated Python package.
+% This method is preferred over exporting the entire '+HERA' namespace folder directly.
+% We likely want users to call `hera_matlab.start_ranking()` or `hera_matlab.HERA`.
+exportedFunctions = [ ...
+    string(fullfile(deployDir, 'wrappers', 'start_ranking.m')), ...
+    string(fullfile(deployDir, 'wrappers', 'run_ranking.m')) ...
     ];
-    
-    % Initialize options
-    buildOpts = compiler.build.PythonPackageOptions(exportedFunctions);
-    buildOpts.PackageName = pkgName;
-    buildOpts.OutputDir = outputDir;
-    buildOpts.Verbose = true;
-    
-    % Add resource folders
-    buildOpts.AdditionalFiles = additionalFiles;
 
-    %% 3. Compilation
-    fprintf('========================================\n');
-    fprintf('Starting HERA Python Package Build...\n');
-    fprintf('Package Name: %s\n', pkgName);
-    fprintf('========================================\n');
+% Initialize options
+buildOpts = compiler.build.PythonPackageOptions(exportedFunctions);
+buildOpts.PackageName = pkgName;
+buildOpts.OutputDir = outputDir;
+buildOpts.Verbose = true;
 
-    try
-        % Step 1: Compile the Package
-        fprintf('1. Compiling Python Package (may take a few minutes)...\n');
-        buildResults = compiler.build.pythonPackage(buildOpts);
-        
+% Add resource folders
+buildOpts.AdditionalFiles = additionalFiles;
+
+%% 3. Compilation
+fprintf('========================================\n');
+fprintf('Starting HERA Python Package Build...\n');
+fprintf('Package Name: %s\n', pkgName);
+fprintf('========================================\n');
+
+try
+    % Step 1: Compile the Package
+    fprintf('1. Compiling Python Package (may take a few minutes)...\n');
+    buildResults = compiler.build.pythonPackage(buildOpts);
+
     % Step 2: Create the Installer (Optional - Currently Disabled)
     % We focus on PyPI distribution where the user installs the Runtime manually.
     % fprintf('\n2. Creating Installer with Auto-Runtime Download...\n');
@@ -124,22 +124,22 @@ clc
     % fprintf('2. Installer:      %s\n', fullfile(outputDir, installerName));
     fprintf('Python Package generated at:\n%s\n', fullfile(outputDir, pkgName));
     fprintf('----------------------------------------\n');
-    fprintf('To release:\n');
-    fprintf('1. Verify: cd %s && pip3 install .\n', fullfile(outputDir, pkgName));
-    fprintf('2. Upload: twine upload dist/* (inside the package folder)\n');
+    fprintf('Next Step:\n');
+    fprintf('Run the build and prep script to prepare and package for PyPI:\n');
+    fprintf('  ./deploy/build_and_prep_pypi.sh\n');
     fprintf('========================================\n');
-        
-    catch ME
-        % Error Handling
-        fprintf('\n========================================\n');
-        fprintf('Build Failed:\n%s\n', ME.message);
-        fprintf('Stack Trace:\n');
-        for k = 1:length(ME.stack)
-            fprintf('  File: %s\n  Name: %s\n  Line: %d\n', ME.stack(k).file, ME.stack(k).name, ME.stack(k).line);
-        end
-        fprintf('========================================\n');
-        
-        % Rethrow the error
-        rethrow(ME);
+
+catch ME
+    % Error Handling
+    fprintf('\n========================================\n');
+    fprintf('Build Failed:\n%s\n', ME.message);
+    fprintf('Stack Trace:\n');
+    for k = 1:length(ME.stack)
+        fprintf('  File: %s\n  Name: %s\n  Line: %d\n', ME.stack(k).file, ME.stack(k).name, ME.stack(k).line);
     end
+    fprintf('========================================\n');
+
+    % Rethrow the error
+    rethrow(ME);
+end
 end
