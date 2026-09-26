@@ -1,0 +1,429 @@
+[Output] Dedicated simulation output folder created: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201
+[Output] CSV Data Folder: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs
+[Output] Graphics Folder: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics
+[Output] Reports Folder:  /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports
+[Environment] Validating HERA computational engine...
+[Environment] Found local MATLAB executable: /Applications/MATLAB_R2025b.app/bin/matlab
+======================================================================
+   HERA Multi-Criteria Ground-Truth Simulation Study
+   Benchmark Setup: 24 Scenarios | 100 Runs/Condition | 4 Decision Frameworks
+======================================================================
+ System & Computational Infrastructure:
+  Timestamp:             20260925_202201
+  Host Platform:         Darwin 27.0.0 (arm64)
+  Physical Memory:       16.0 GB RAM (~2.6 GB/worker allocated)
+  Parallel Processing:   5 concurrent worker processes (Sliding-Window Pipeline)
+  Python Environment:    3.12.11
+  HERA Engine Backend:   matlab_cli (MATLAB CLI -singleCompThread)
+  PRNG Random Seed:      123 (Deterministic PCG64 stream per condition)
+  Total Evaluations:     2400 Monte Carlo runs (9600 ranking outputs)
+----------------------------------------------------------------------
+ Experimental Benchmarking Grid:
+  Candidate Scales (N):  10, 12, 14 candidates
+  Sample Sizes (n):      25, 50, 100 paired evaluation folds
+  Noise Levels (sigma):  2.0%, 4.0%, 6.0%, 8.0%, 10.0%
+  Effect Size Magnitudes (Delta -> Calibrated Median Cliff's d):
+    * Small:  Delta =  2.5%  ==>  Cliff's d ~ 0.25 (range: 0.20 - 0.30)
+    * Medium: Delta =  5.0%  ==>  Cliff's d ~ 0.50 (range: 0.45 - 0.60)
+    * Large:  Delta =  8.0%  ==>  Cliff's d ~ 0.80 (range: 0.75 - 0.90)
+    * Stress: Delta = 12.0%  ==>  Cliff's d ~ 0.95 (range: > 0.90)
+  Inter-Metric Coupling: rho in {0.0 (Independent), 0.5 (Correlated)}
+----------------------------------------------------------------------
+ Synthetic Multi-Metric Ground-Truth Paradigm:
+  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: ~80.0%)
+  Secondary Metric (M2): Secondary priority criterion (Decisive C1 advantage: 87.0%)
+  Tertiary Metric (M3):  Tie-breaking criterion (Decisive C4 vs C5 resolution: 85.0%)
+  Trap Candidate (C_N):  Compensatory flaw model (Deficit M2: 60.0%, Inflated M3: 99.0%)
+----------------------------------------------------------------------
+ Statistical & Algorithmic Configurations:
+  HERA Ranking Mode:     M1_M2_M3 (Sequential Non-Compensatory Hierarchical)
+  HERA Threshold Bootstr:Percentile Null Bootstrap (B_thr = 2000)
+  HERA Decision Logic:   Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance
+  MCDM Baseline Methods: TOPSIS (Weights: [0.4, 0.4, 0.2]), Borda Count,
+                         Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)
+======================================================================
+
+[Configuration] Generated 24 experimental scenarios.
+[Configuration] Scenario index CSV saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/scenarios_20260925_202201.csv
+[Configuration] Scenario grid Graphic saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics/scenario_configuration_20260925_202201.png
+[Configuration] Method parameters CSV saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/method_parameters_20260925_202201.csv
+[Configuration] Method parameters Graphic saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics/method_parameters_20260925_202201.png
+[Configuration] Candidate ground-truth profiles CSV saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/candidate_profiles_20260925_202201.csv
+[Configuration] Candidate ground-truth profiles Graphic saved: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics/candidate_profiles_20260925_202201.png
+[FAIR] Study metadata exported to: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/configuration_20260925_202201.json
+[I/O] Streaming results initialized with headers: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/simulation_results.csv
+[I/O] Streaming candidate ranks initialized with headers: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/candidate_ranks.csv
+[Execution] Commencing Monte Carlo benchmark (2400 total runs across 24 scenarios)...
+---------------------------------------------------------------------------------------------------------
+
+[20:22:03] --- Commencing Scenario 01/24 ( 4.2%): SC_001 ---
+  Suite: Core                         | Candidates (N): 10  | Sample Size (n): 050
+  Noise (sigma):  2.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[20:26:15] [Overall: 01/24 ( 0.4%)] SC_001 | [Sub: 010/100 (10.0%)] | Pace: 25.28s/it | Rem: 37m 55s | Overall ETA: 16h 40m 39s
+[20:29:13] [Overall: 01/24 ( 0.8%)] SC_001 | [Sub: 020/100 (20.0%)] | Pace: 21.53s/it | Rem: 28m 42s | Overall ETA: 12h 15m 18s
+[20:32:16] [Overall: 01/24 ( 1.2%)] SC_001 | [Sub: 030/100 (30.0%)] | Pace: 20.46s/it | Rem: 23m 52s | Overall ETA: 11h 39m 33s
+[20:35:37] [Overall: 01/24 ( 1.7%)] SC_001 | [Sub: 040/100 (40.0%)] | Pace: 20.36s/it | Rem: 20m 22s | Overall ETA: 11h 48m 00s
+[20:38:31] [Overall: 01/24 ( 2.1%)] SC_001 | [Sub: 050/100 (50.0%)] | Pace: 19.76s/it | Rem: 16m 28s | Overall ETA: 11h 30m 48s
+[20:41:25] [Overall: 01/24 ( 2.5%)] SC_001 | [Sub: 060/100 (60.0%)] | Pace: 19.37s/it | Rem: 12m 55s | Overall ETA: 11h 30m 43s
+[20:44:34] [Overall: 01/24 ( 2.9%)] SC_001 | [Sub: 070/100 (70.0%)] | Pace: 19.31s/it | Rem: 09m 39s | Overall ETA: 11h 43m 05s
+[20:47:43] [Overall: 01/24 ( 3.3%)] SC_001 | [Sub: 080/100 (80.0%)] | Pace: 19.25s/it | Rem: 06m 25s | Overall ETA: 12h 02m 45s
+[20:50:36] [Overall: 01/24 ( 3.8%)] SC_001 | [Sub: 090/100 (90.0%)] | Pace: 19.04s/it | Rem: 03m 10s | Overall ETA: 11h 57m 50s
+[20:53:13] [Overall: 01/24 ( 4.2%)] SC_001 -> Completed in 31m 11s (18.71s/it) | Overall ETA: 11h 40m 01s
+
+[20:53:14] --- Commencing Scenario 02/24 ( 8.3%): SC_002 ---
+  Suite: Core                         | Candidates (N): 10  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[20:56:03] [Overall: 02/24 ( 4.6%)] SC_002 | [Sub: 010/100 (10.0%)] | Pace: 31.67s/it | Rem: 47m 30s | Overall ETA: 10h 41m 48s
+[20:58:51] [Overall: 02/24 ( 5.0%)] SC_002 | [Sub: 020/100 (20.0%)] | Pace: 24.21s/it | Rem: 32m 17s | Overall ETA: 10h 18m 30s
+[21:01:31] [Overall: 02/24 ( 5.4%)] SC_002 | [Sub: 030/100 (30.0%)] | Pace: 21.50s/it | Rem: 25m 05s | Overall ETA: 10h 11m 47s
+[21:04:11] [Overall: 02/24 ( 5.8%)] SC_002 | [Sub: 040/100 (40.0%)] | Pace: 20.12s/it | Rem: 20m 07s | Overall ETA: 10h 05m 48s
+[21:06:21] [Overall: 02/24 ( 6.2%)] SC_002 | [Sub: 050/100 (50.0%)] | Pace: 18.69s/it | Rem: 15m 35s | Overall ETA: 09h 35m 00s
+[21:08:50] [Overall: 02/24 ( 6.7%)] SC_002 | [Sub: 060/100 (60.0%)] | Pace: 18.07s/it | Rem: 12m 03s | Overall ETA: 09h 25m 13s
+[21:11:34] [Overall: 02/24 ( 7.1%)] SC_002 | [Sub: 070/100 (70.0%)] | Pace: 17.66s/it | Rem: 08m 50s | Overall ETA: 09h 21m 00s
+[21:14:53] [Overall: 02/24 ( 7.5%)] SC_002 | [Sub: 080/100 (80.0%)] | Pace: 18.08s/it | Rem: 06m 02s | Overall ETA: 09h 11m 18s
+[21:16:25] [Overall: 02/24 ( 7.9%)] SC_002 | [Sub: 090/100 (90.0%)] | Pace: 17.10s/it | Rem: 02m 51s | Overall ETA: 09h 06m 59s
+[21:19:21] [Overall: 02/24 ( 8.3%)] SC_002 -> Completed in 28m 35s (17.15s/it) | Overall ETA: 09h 15m 38s
+
+[21:19:22] --- Commencing Scenario 03/24 (12.5%): SC_003 ---
+  Suite: Core                         | Candidates (N): 10  | Sample Size (n): 050
+  Noise (sigma):  6.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[21:22:12] [Overall: 03/24 ( 8.8%)] SC_003 | [Sub: 010/100 (10.0%)] | Pace: 33.57s/it | Rem: 50m 21s | Overall ETA: 10h 17m 22s
+[21:24:55] [Overall: 03/24 ( 9.2%)] SC_003 | [Sub: 020/100 (20.0%)] | Pace: 24.94s/it | Rem: 33m 15s | Overall ETA: 10h 18m 48s
+[21:27:33] [Overall: 03/24 ( 9.6%)] SC_003 | [Sub: 030/100 (30.0%)] | Pace: 21.90s/it | Rem: 25m 33s | Overall ETA: 10h 07m 49s
+[21:29:59] [Overall: 03/24 (10.0%)] SC_003 | [Sub: 040/100 (40.0%)] | Pace: 20.06s/it | Rem: 20m 03s | Overall ETA: 09h 43m 21s
+[21:32:28] [Overall: 03/24 (10.4%)] SC_003 | [Sub: 050/100 (50.0%)] | Pace: 19.03s/it | Rem: 15m 51s | Overall ETA: 09h 02m 33s
+[21:35:10] [Overall: 03/24 (10.8%)] SC_003 | [Sub: 060/100 (60.0%)] | Pace: 18.57s/it | Rem: 12m 23s | Overall ETA: 08h 52m 55s
+[21:37:43] [Overall: 03/24 (11.2%)] SC_003 | [Sub: 070/100 (70.0%)] | Pace: 18.10s/it | Rem: 09m 03s | Overall ETA: 08h 50m 26s
+[21:40:12] [Overall: 03/24 (11.7%)] SC_003 | [Sub: 080/100 (80.0%)] | Pace: 17.69s/it | Rem: 05m 54s | Overall ETA: 08h 56m 03s
+[21:42:56] [Overall: 03/24 (12.1%)] SC_003 | [Sub: 090/100 (90.0%)] | Pace: 17.53s/it | Rem: 02m 55s | Overall ETA: 08h 59m 35s
+[21:45:42] [Overall: 03/24 (12.5%)] SC_003 -> Completed in 29m 05s (17.45s/it) | Overall ETA: 09h 14m 31s
+
+[21:45:42] --- Commencing Scenario 04/24 (16.7%): SC_004 ---
+  Suite: Core                         | Candidates (N): 10  | Sample Size (n): 050
+  Noise (sigma):  8.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[21:48:47] [Overall: 04/24 (12.9%)] SC_004 | [Sub: 010/100 (10.0%)] | Pace: 33.31s/it | Rem: 49m 58s | Overall ETA: 09h 38m 06s
+[21:52:10] [Overall: 04/24 (13.3%)] SC_004 | [Sub: 020/100 (20.0%)] | Pace: 26.85s/it | Rem: 35m 48s | Overall ETA: 10h 11m 54s
+[21:54:47] [Overall: 04/24 (13.8%)] SC_004 | [Sub: 030/100 (30.0%)] | Pace: 23.12s/it | Rem: 26m 58s | Overall ETA: 10h 04m 30s
+[21:58:00] [Overall: 04/24 (14.2%)] SC_004 | [Sub: 040/100 (40.0%)] | Pace: 21.47s/it | Rem: 21m 28s | Overall ETA: 10h 01m 35s
+[22:01:04] [Overall: 04/24 (14.6%)] SC_004 | [Sub: 050/100 (50.0%)] | Pace: 20.61s/it | Rem: 17m 10s | Overall ETA: 09h 34m 22s
+[22:03:01] [Overall: 04/24 (15.0%)] SC_004 | [Sub: 060/100 (60.0%)] | Pace: 19.78s/it | Rem: 13m 11s | Overall ETA: 09h 03m 48s
+[22:05:29] [Overall: 04/24 (15.4%)] SC_004 | [Sub: 070/100 (70.0%)] | Pace: 19.07s/it | Rem: 09m 32s | Overall ETA: 09h 04m 52s
+[22:08:16] [Overall: 04/24 (15.8%)] SC_004 | [Sub: 080/100 (80.0%)] | Pace: 18.78s/it | Rem: 06m 16s | Overall ETA: 09h 02m 11s
+[22:10:53] [Overall: 04/24 (16.2%)] SC_004 | [Sub: 090/100 (90.0%)] | Pace: 18.43s/it | Rem: 03m 04s | Overall ETA: 08h 59m 21s
+[22:14:10] [Overall: 04/24 (16.7%)] SC_004 -> Completed in 30m 56s (18.56s/it) | Overall ETA: 09h 12m 44s
+
+[22:14:10] --- Commencing Scenario 05/24 (20.8%): SC_005 ---
+  Suite: Core                         | Candidates (N): 10  | Sample Size (n): 050
+  Noise (sigma): 10.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[22:17:46] [Overall: 05/24 (17.1%)] SC_005 | [Sub: 010/100 (10.0%)] | Pace: 39.64s/it | Rem: 59m 27s | Overall ETA: 09h 43m 41s
+[22:20:57] [Overall: 05/24 (17.5%)] SC_005 | [Sub: 020/100 (20.0%)] | Pace: 29.40s/it | Rem: 39m 12s | Overall ETA: 10h 21m 24s
+[22:23:52] [Overall: 05/24 (17.9%)] SC_005 | [Sub: 030/100 (30.0%)] | Pace: 25.41s/it | Rem: 29m 39s | Overall ETA: 10h 42m 00s
+[22:26:39] [Overall: 05/24 (18.3%)] SC_005 | [Sub: 040/100 (40.0%)] | Pace: 23.23s/it | Rem: 23m 14s | Overall ETA: 09h 42m 39s
+[22:30:50] [Overall: 05/24 (18.8%)] SC_005 | [Sub: 050/100 (50.0%)] | Pace: 23.61s/it | Rem: 19m 40s | Overall ETA: 09h 58m 38s
+[22:35:03] [Overall: 05/24 (19.2%)] SC_005 | [Sub: 060/100 (60.0%)] | Pace: 23.89s/it | Rem: 15m 55s | Overall ETA: 11h 42m 25s
+[22:39:31] [Overall: 05/24 (19.6%)] SC_005 | [Sub: 070/100 (70.0%)] | Pace: 24.31s/it | Rem: 12m 09s | Overall ETA: 13h 28m 21s
+[22:44:23] [Overall: 05/24 (20.0%)] SC_005 | [Sub: 080/100 (80.0%)] | Pace: 24.92s/it | Rem: 08m 18s | Overall ETA: 14h 05m 12s
+[22:48:32] [Overall: 05/24 (20.4%)] SC_005 | [Sub: 090/100 (90.0%)] | Pace: 24.92s/it | Rem: 04m 09s | Overall ETA: 14h 05m 12s
+[22:53:33] [Overall: 05/24 (20.9%)] SC_005 -> Completed in 42m 23s (25.43s/it) | Overall ETA: 13h 59m 26s
+
+[22:53:33] --- Commencing Scenario 06/24 (25.0%): SC_006 ---
+  Suite: Core                         | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  2.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[22:57:55] [Overall: 06/24 (21.2%)] SC_006 | [Sub: 010/100 (10.0%)] | Pace: 55.45s/it | Rem: 01h 23m 11s | Overall ETA: 14h 05m 44s
+[23:02:55] [Overall: 06/24 (21.7%)] SC_006 | [Sub: 020/100 (20.0%)] | Pace: 42.75s/it | Rem: 57m 00s | Overall ETA: 14h 09m 28s
+[23:07:40] [Overall: 06/24 (22.1%)] SC_006 | [Sub: 030/100 (30.0%)] | Pace: 38.01s/it | Rem: 44m 20s | Overall ETA: 14h 22m 50s
+[23:11:48] [Overall: 06/24 (22.5%)] SC_006 | [Sub: 040/100 (40.0%)] | Pace: 34.69s/it | Rem: 34m 41s | Overall ETA: 14h 28m 56s
+[23:15:52] [Overall: 06/24 (22.9%)] SC_006 | [Sub: 050/100 (50.0%)] | Pace: 32.64s/it | Rem: 27m 12s | Overall ETA: 14h 15m 11s
+[23:20:42] [Overall: 06/24 (23.3%)] SC_006 | [Sub: 060/100 (60.0%)] | Pace: 32.03s/it | Rem: 21m 21s | Overall ETA: 14h 17m 22s
+[23:25:32] [Overall: 06/24 (23.8%)] SC_006 | [Sub: 070/100 (70.0%)] | Pace: 31.60s/it | Rem: 15m 48s | Overall ETA: 14h 08m 27s
+[23:30:08] [Overall: 06/24 (24.2%)] SC_006 | [Sub: 080/100 (80.0%)] | Pace: 31.09s/it | Rem: 10m 22s | Overall ETA: 13h 52m 01s
+[23:34:39] [Overall: 06/24 (24.6%)] SC_006 | [Sub: 090/100 (90.0%)] | Pace: 30.65s/it | Rem: 05m 06s | Overall ETA: 13h 47m 26s
+[23:39:16] [Overall: 06/24 (25.0%)] SC_006 -> Completed in 50m 36s (30.36s/it) | Overall ETA: 13h 27m 33s
+
+[23:39:16] --- Commencing Scenario 07/24 (29.2%): SC_007 ---
+  Suite: Core                         | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[23:43:52] [Overall: 07/24 (25.4%)] SC_007 | [Sub: 010/100 (10.0%)] | Pace: 55.30s/it | Rem: 01h 22m 57s | Overall ETA: 13h 41m 51s
+[23:48:20] [Overall: 07/24 (25.8%)] SC_007 | [Sub: 020/100 (20.0%)] | Pace: 41.07s/it | Rem: 54m 45s | Overall ETA: 13h 22m 38s
+[23:52:56] [Overall: 07/24 (26.2%)] SC_007 | [Sub: 030/100 (30.0%)] | Pace: 36.58s/it | Rem: 42m 41s | Overall ETA: 13h 09m 53s
+[23:57:50] [Overall: 07/24 (26.7%)] SC_007 | [Sub: 040/100 (40.0%)] | Pace: 34.77s/it | Rem: 34m 46s | Overall ETA: 13h 32m 33s
+[00:02:41] [Overall: 07/24 (27.1%)] SC_007 | [Sub: 050/100 (50.0%)] | Pace: 33.65s/it | Rem: 28m 02s | Overall ETA: 13h 48m 26s
+[00:07:24] [Overall: 07/24 (27.5%)] SC_007 | [Sub: 060/100 (60.0%)] | Pace: 32.76s/it | Rem: 21m 51s | Overall ETA: 13h 57m 37s
+[00:11:39] [Overall: 07/24 (27.9%)] SC_007 | [Sub: 070/100 (70.0%)] | Pace: 31.73s/it | Rem: 15m 52s | Overall ETA: 13h 53m 21s
+[00:15:35] [Overall: 07/24 (28.3%)] SC_007 | [Sub: 080/100 (80.0%)] | Pace: 30.70s/it | Rem: 10m 14s | Overall ETA: 13h 37m 01s
+[00:19:35] [Overall: 07/24 (28.7%)] SC_007 | [Sub: 090/100 (90.0%)] | Pace: 29.96s/it | Rem: 05m 00s | Overall ETA: 12h 49m 56s
+[00:23:35] [Overall: 07/24 (29.2%)] SC_007 -> Completed in 48m 57s (29.37s/it) | Overall ETA: 11h 52m 21s
+
+[00:23:35] --- Commencing Scenario 08/24 (33.3%): SC_008 ---
+  Suite: Core                         | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  6.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[00:27:42] [Overall: 08/24 (29.6%)] SC_008 | [Sub: 010/100 (10.0%)] | Pace: 43.49s/it | Rem: 01h 05m 14s | Overall ETA: 11h 22m 23s
+[00:32:11] [Overall: 08/24 (30.0%)] SC_008 | [Sub: 020/100 (20.0%)] | Pace: 35.20s/it | Rem: 46m 56s | Overall ETA: 11h 02m 19s
+[00:37:43] [Overall: 08/24 (30.4%)] SC_008 | [Sub: 030/100 (30.0%)] | Pace: 34.51s/it | Rem: 40m 16s | Overall ETA: 10h 55m 11s
+[00:42:32] [Overall: 08/24 (30.8%)] SC_008 | [Sub: 040/100 (40.0%)] | Pace: 33.12s/it | Rem: 33m 07s | Overall ETA: 10h 54m 26s
+[00:47:03] [Overall: 08/24 (31.2%)] SC_008 | [Sub: 050/100 (50.0%)] | Pace: 31.92s/it | Rem: 26m 36s | Overall ETA: 11h 27m 24s
+[00:51:13] [Overall: 08/24 (31.7%)] SC_008 | [Sub: 060/100 (60.0%)] | Pace: 30.76s/it | Rem: 20m 30s | Overall ETA: 11h 27m 11s
+[00:55:14] [Overall: 08/24 (32.1%)] SC_008 | [Sub: 070/100 (70.0%)] | Pace: 29.81s/it | Rem: 14m 54s | Overall ETA: 11h 16m 58s
+[00:59:13] [Overall: 08/24 (32.5%)] SC_008 | [Sub: 080/100 (80.0%)] | Pace: 29.07s/it | Rem: 09m 41s | Overall ETA: 10h 59m 17s
+[01:02:51] [Overall: 08/24 (32.9%)] SC_008 | [Sub: 090/100 (90.0%)] | Pace: 28.26s/it | Rem: 04m 43s | Overall ETA: 10h 43m 44s
+[01:06:54] [Overall: 08/24 (33.3%)] SC_008 -> Completed in 46m 27s (27.87s/it) | Overall ETA: 10h 37m 53s
+
+[01:06:54] --- Commencing Scenario 09/24 (37.5%): SC_009 ---
+  Suite: Core                         | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  8.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[01:11:02] [Overall: 09/24 (33.8%)] SC_009 | [Sub: 010/100 (10.0%)] | Pace: 45.01s/it | Rem: 01h 07m 31s | Overall ETA: 10h 30m 16s
+[01:15:09] [Overall: 09/24 (34.2%)] SC_009 | [Sub: 020/100 (20.0%)] | Pace: 34.87s/it | Rem: 46m 30s | Overall ETA: 10h 26m 18s
+[01:19:30] [Overall: 09/24 (34.6%)] SC_009 | [Sub: 030/100 (30.0%)] | Pace: 31.94s/it | Rem: 37m 16s | Overall ETA: 10h 26m 14s
+[01:25:15] [Overall: 09/24 (35.0%)] SC_009 | [Sub: 040/100 (40.0%)] | Pace: 32.59s/it | Rem: 32m 35s | Overall ETA: 10h 38m 51s
+[01:29:19] [Overall: 09/24 (35.4%)] SC_009 | [Sub: 050/100 (50.0%)] | Pace: 30.94s/it | Rem: 25m 47s | Overall ETA: 10h 40m 50s
+[01:33:29] [Overall: 09/24 (35.8%)] SC_009 | [Sub: 060/100 (60.0%)] | Pace: 29.95s/it | Rem: 19m 58s | Overall ETA: 11h 43m 55s
+[01:37:44] [Overall: 09/24 (36.2%)] SC_009 | [Sub: 070/100 (70.0%)] | Pace: 29.31s/it | Rem: 14m 39s | Overall ETA: 11h 44m 17s
+[01:42:26] [Overall: 09/24 (36.7%)] SC_009 | [Sub: 080/100 (80.0%)] | Pace: 29.17s/it | Rem: 09m 43s | Overall ETA: 11h 43m 40s
+[01:46:37] [Overall: 09/24 (37.1%)] SC_009 | [Sub: 090/100 (90.0%)] | Pace: 28.72s/it | Rem: 04m 47s | Overall ETA: 11h 35m 52s
+[01:51:40] [Overall: 09/24 (37.5%)] SC_009 -> Completed in 48m 08s (28.88s/it) | Overall ETA: 11h 42m 29s
+
+[01:51:41] --- Commencing Scenario 10/24 (41.7%): SC_010 ---
+  Suite: Core                         | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma): 10.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[01:57:04] [Overall: 10/24 (37.9%)] SC_010 | [Sub: 010/100 (10.0%)] | Pace: 52.71s/it | Rem: 01h 19m 03s | Overall ETA: 11h 37m 09s
+[02:01:28] [Overall: 10/24 (38.3%)] SC_010 | [Sub: 020/100 (20.0%)] | Pace: 39.54s/it | Rem: 52m 44s | Overall ETA: 11h 07m 07s
+[02:05:42] [Overall: 10/24 (38.8%)] SC_010 | [Sub: 030/100 (30.0%)] | Pace: 34.85s/it | Rem: 40m 39s | Overall ETA: 10h 53m 38s
+[02:09:48] [Overall: 10/24 (39.2%)] SC_010 | [Sub: 040/100 (40.0%)] | Pace: 32.28s/it | Rem: 32m 17s | Overall ETA: 10h 32m 05s
+[02:13:42] [Overall: 10/24 (39.6%)] SC_010 | [Sub: 050/100 (50.0%)] | Pace: 30.50s/it | Rem: 25m 25s | Overall ETA: 10h 21m 33s
+[02:17:57] [Overall: 10/24 (40.0%)] SC_010 | [Sub: 060/100 (60.0%)] | Pace: 29.67s/it | Rem: 19m 47s | Overall ETA: 10h 15m 50s
+[02:22:18] [Overall: 10/24 (40.4%)] SC_010 | [Sub: 070/100 (70.0%)] | Pace: 29.15s/it | Rem: 14m 35s | Overall ETA: 10h 06m 21s
+[02:26:28] [Overall: 10/24 (40.8%)] SC_010 | [Sub: 080/100 (80.0%)] | Pace: 28.64s/it | Rem: 09m 33s | Overall ETA: 10h 02m 06s
+[02:30:46] [Overall: 10/24 (41.2%)] SC_010 | [Sub: 090/100 (90.0%)] | Pace: 28.32s/it | Rem: 04m 43s | Overall ETA: 09h 50m 51s
+[02:35:00] [Overall: 10/24 (41.7%)] SC_010 -> Completed in 46m 43s (28.03s/it) | Overall ETA: 09h 42m 33s
+
+[02:35:00] --- Commencing Scenario 11/24 (45.8%): SC_011 ---
+  Suite: Core                         | Candidates (N): 14  | Sample Size (n): 050
+  Noise (sigma):  2.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[02:39:22] [Overall: 11/24 (42.1%)] SC_011 | [Sub: 010/100 (10.0%)] | Pace: 51.55s/it | Rem: 01h 17m 19s | Overall ETA: 09h 34m 40s
+[02:43:19] [Overall: 11/24 (42.5%)] SC_011 | [Sub: 020/100 (20.0%)] | Pace: 37.65s/it | Rem: 50m 12s | Overall ETA: 09h 32m 21s
+[02:47:32] [Overall: 11/24 (42.9%)] SC_011 | [Sub: 030/100 (30.0%)] | Pace: 33.53s/it | Rem: 39m 07s | Overall ETA: 09h 24m 27s
+[02:51:47] [Overall: 11/24 (43.3%)] SC_011 | [Sub: 040/100 (40.0%)] | Pace: 31.52s/it | Rem: 31m 31s | Overall ETA: 09h 29m 42s
+[02:55:35] [Overall: 11/24 (43.8%)] SC_011 | [Sub: 050/100 (50.0%)] | Pace: 29.77s/it | Rem: 24m 49s | Overall ETA: 09h 20m 51s
+[02:59:32] [Overall: 11/24 (44.2%)] SC_011 | [Sub: 060/100 (60.0%)] | Pace: 28.77s/it | Rem: 19m 11s | Overall ETA: 09h 05m 30s
+[03:03:48] [Overall: 11/24 (44.6%)] SC_011 | [Sub: 070/100 (70.0%)] | Pace: 28.31s/it | Rem: 14m 09s | Overall ETA: 09h 10m 46s
+[03:07:53] [Overall: 11/24 (45.0%)] SC_011 | [Sub: 080/100 (80.0%)] | Pace: 27.83s/it | Rem: 09m 17s | Overall ETA: 09h 06m 22s
+[03:12:03] [Overall: 11/24 (45.4%)] SC_011 | [Sub: 090/100 (90.0%)] | Pace: 27.53s/it | Rem: 04m 35s | Overall ETA: 09h 03m 14s
+[03:16:32] [Overall: 11/24 (45.8%)] SC_011 -> Completed in 45m 46s (27.46s/it) | Overall ETA: 09h 17m 34s
+
+[03:16:32] --- Commencing Scenario 12/24 (50.0%): SC_012 ---
+  Suite: Core                         | Candidates (N): 14  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[03:20:56] [Overall: 12/24 (46.2%)] SC_012 | [Sub: 010/100 (10.0%)] | Pace: 52.15s/it | Rem: 01h 18m 13s | Overall ETA: 09h 26m 09s
+[03:25:41] [Overall: 12/24 (46.7%)] SC_012 | [Sub: 020/100 (20.0%)] | Pace: 40.30s/it | Rem: 53m 44s | Overall ETA: 09h 24m 26s
+[03:30:03] [Overall: 12/24 (47.1%)] SC_012 | [Sub: 030/100 (30.0%)] | Pace: 35.62s/it | Rem: 41m 33s | Overall ETA: 09h 21m 36s
+[03:34:23] [Overall: 12/24 (47.5%)] SC_012 | [Sub: 040/100 (40.0%)] | Pace: 33.21s/it | Rem: 33m 12s | Overall ETA: 09h 18m 32s
+[03:38:31] [Overall: 12/24 (47.9%)] SC_012 | [Sub: 050/100 (50.0%)] | Pace: 31.52s/it | Rem: 26m 16s | Overall ETA: 09h 18m 32s
+[03:42:37] [Overall: 12/24 (48.3%)] SC_012 | [Sub: 060/100 (60.0%)] | Pace: 30.37s/it | Rem: 20m 15s | Overall ETA: 09h 14m 04s
+[03:46:53] [Overall: 12/24 (48.8%)] SC_012 | [Sub: 070/100 (70.0%)] | Pace: 29.69s/it | Rem: 14m 51s | Overall ETA: 09h 00m 49s
+[03:51:10] [Overall: 12/24 (49.2%)] SC_012 | [Sub: 080/100 (80.0%)] | Pace: 29.19s/it | Rem: 09m 44s | Overall ETA: 08h 49m 36s
+[03:55:12] [Overall: 12/24 (49.6%)] SC_012 | [Sub: 090/100 (90.0%)] | Pace: 28.64s/it | Rem: 04m 46s | Overall ETA: 08h 34m 51s
+[03:59:38] [Overall: 12/24 (50.0%)] SC_012 -> Completed in 47m 23s (28.43s/it) | Overall ETA: 08h 22m 44s
+
+[03:59:39] --- Commencing Scenario 13/24 (54.2%): SC_013 ---
+  Suite: Core                         | Candidates (N): 14  | Sample Size (n): 050
+  Noise (sigma):  6.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[04:04:05] [Overall: 13/24 (50.4%)] SC_013 | [Sub: 010/100 (10.0%)] | Pace: 47.24s/it | Rem: 01h 10m 52s | Overall ETA: 08h 18m 02s
+[04:08:16] [Overall: 13/24 (50.8%)] SC_013 | [Sub: 020/100 (20.0%)] | Pace: 36.15s/it | Rem: 48m 12s | Overall ETA: 08h 04m 04s
+[04:12:31] [Overall: 13/24 (51.2%)] SC_013 | [Sub: 030/100 (30.0%)] | Pace: 32.61s/it | Rem: 38m 03s | Overall ETA: 08h 13m 57s
+[04:16:43] [Overall: 13/24 (51.7%)] SC_013 | [Sub: 040/100 (40.0%)] | Pace: 30.76s/it | Rem: 30m 46s | Overall ETA: 08h 12m 27s
+[04:20:43] [Overall: 13/24 (52.1%)] SC_013 | [Sub: 050/100 (50.0%)] | Pace: 29.41s/it | Rem: 24m 31s | Overall ETA: 08h 09m 52s
+[04:24:48] [Overall: 13/24 (52.5%)] SC_013 | [Sub: 060/100 (60.0%)] | Pace: 28.59s/it | Rem: 19m 03s | Overall ETA: 08h 11m 13s
+[04:29:12] [Overall: 13/24 (52.9%)] SC_013 | [Sub: 070/100 (70.0%)] | Pace: 28.27s/it | Rem: 14m 08s | Overall ETA: 08h 10m 30s
+[04:33:48] [Overall: 13/24 (53.3%)] SC_013 | [Sub: 080/100 (80.0%)] | Pace: 28.19s/it | Rem: 09m 24s | Overall ETA: 08h 10m 25s
+[04:38:10] [Overall: 13/24 (53.8%)] SC_013 | [Sub: 090/100 (90.0%)] | Pace: 27.97s/it | Rem: 04m 40s | Overall ETA: 08h 06m 59s
+[04:42:19] [Overall: 13/24 (54.2%)] SC_013 -> Completed in 46m 06s (27.66s/it) | Overall ETA: 08h 01m 59s
+
+[04:42:20] --- Commencing Scenario 14/24 (58.3%): SC_014 ---
+  Suite: Core                         | Candidates (N): 14  | Sample Size (n): 050
+  Noise (sigma):  8.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[04:46:23] [Overall: 14/24 (54.6%)] SC_014 | [Sub: 010/100 (10.0%)] | Pace: 47.64s/it | Rem: 01h 11m 27s | Overall ETA: 07h 49m 06s
+[04:50:17] [Overall: 14/24 (55.0%)] SC_014 | [Sub: 020/100 (20.0%)] | Pace: 35.52s/it | Rem: 47m 22s | Overall ETA: 07h 41m 07s
+[04:55:02] [Overall: 14/24 (55.4%)] SC_014 | [Sub: 030/100 (30.0%)] | Pace: 33.18s/it | Rem: 38m 42s | Overall ETA: 07h 37m 22s
+[Worker Error] Trial failed in SC_014 (Iteration 33): generator didn't stop after throw()
+[05:00:42] [Overall: 14/24 (55.8%)] SC_014 | [Sub: 040/100 (40.0%)] | Pace: 33.37s/it | Rem: 33m 22s | Overall ETA: 07h 37m 42s
+[05:05:01] [Overall: 14/24 (56.2%)] SC_014 | [Sub: 050/100 (50.0%)] | Pace: 31.89s/it | Rem: 26m 35s | Overall ETA: 07h 39m 20s
+[05:09:50] [Overall: 14/24 (56.7%)] SC_014 | [Sub: 060/100 (60.0%)] | Pace: 31.39s/it | Rem: 20m 56s | Overall ETA: 08h 04m 18s
+[05:14:38] [Overall: 14/24 (57.1%)] SC_014 | [Sub: 070/100 (70.0%)] | Pace: 31.01s/it | Rem: 15m 30s | Overall ETA: 08h 06m 22s
+[05:19:20] [Overall: 14/24 (57.5%)] SC_014 | [Sub: 080/100 (80.0%)] | Pace: 30.67s/it | Rem: 10m 13s | Overall ETA: 08h 03m 20s
+[05:23:50] [Overall: 14/24 (57.9%)] SC_014 | [Sub: 090/100 (90.0%)] | Pace: 30.26s/it | Rem: 05m 03s | Overall ETA: 07h 56m 49s
+[05:28:15] [Overall: 14/24 (58.3%)] SC_014 -> Completed in 49m 48s (29.88s/it) | Overall ETA: 07h 49m 20s
+
+[05:28:16] --- Commencing Scenario 15/24 (62.5%): SC_015 ---
+  Suite: Core                         | Candidates (N): 14  | Sample Size (n): 050
+  Noise (sigma): 10.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[05:32:35] [Overall: 15/24 (58.8%)] SC_015 | [Sub: 010/100 (10.0%)] | Pace: 52.48s/it | Rem: 01h 18m 43s | Overall ETA: 07h 10m 22s
+[05:37:00] [Overall: 15/24 (59.2%)] SC_015 | [Sub: 020/100 (20.0%)] | Pace: 39.48s/it | Rem: 52m 38s | Overall ETA: 07h 04m 20s
+[05:41:34] [Overall: 15/24 (59.6%)] SC_015 | [Sub: 030/100 (30.0%)] | Pace: 35.46s/it | Rem: 41m 22s | Overall ETA: 07h 00m 00s
+[05:46:26] [Overall: 15/24 (60.0%)] SC_015 | [Sub: 040/100 (40.0%)] | Pace: 33.89s/it | Rem: 33m 53s | Overall ETA: 07h 07m 19s
+[05:51:06] [Overall: 15/24 (60.4%)] SC_015 | [Sub: 050/100 (50.0%)] | Pace: 32.71s/it | Rem: 27m 15s | Overall ETA: 07h 11m 44s
+[05:55:30] [Overall: 15/24 (60.8%)] SC_015 | [Sub: 060/100 (60.0%)] | Pace: 31.66s/it | Rem: 21m 06s | Overall ETA: 07h 14m 49s
+[05:59:38] [Overall: 15/24 (61.3%)] SC_015 | [Sub: 070/100 (70.0%)] | Pace: 30.68s/it | Rem: 15m 20s | Overall ETA: 07h 04m 09s
+[06:03:55] [Overall: 15/24 (61.7%)] SC_015 | [Sub: 080/100 (80.0%)] | Pace: 30.06s/it | Rem: 10m 01s | Overall ETA: 06h 43m 03s
+[06:07:53] [Overall: 15/24 (62.1%)] SC_015 | [Sub: 090/100 (90.0%)] | Pace: 29.36s/it | Rem: 04m 54s | Overall ETA: 06h 30m 10s
+[06:11:50] [Overall: 15/24 (62.5%)] SC_015 -> Completed in 47m 59s (28.79s/it) | Overall ETA: 06h 20m 34s
+
+[06:11:50] --- Commencing Scenario 16/24 (66.7%): SC_016 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 10  | Sample Size (n): 025
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[06:15:37] [Overall: 16/24 (62.9%)] SC_016 | [Sub: 010/100 (10.0%)] | Pace: 43.53s/it | Rem: 01h 05m 18s | Overall ETA: 06h 16m 20s
+[06:19:21] [Overall: 16/24 (63.3%)] SC_016 | [Sub: 020/100 (20.0%)] | Pace: 32.97s/it | Rem: 43m 58s | Overall ETA: 06h 06m 52s
+[06:23:20] [Overall: 16/24 (63.7%)] SC_016 | [Sub: 030/100 (30.0%)] | Pace: 29.94s/it | Rem: 34m 56s | Overall ETA: 06h 00m 47s
+[06:27:47] [Overall: 16/24 (64.2%)] SC_016 | [Sub: 040/100 (40.0%)] | Pace: 29.14s/it | Rem: 29m 08s | Overall ETA: 05h 57m 26s
+[06:32:11] [Overall: 16/24 (64.6%)] SC_016 | [Sub: 050/100 (50.0%)] | Pace: 28.59s/it | Rem: 23m 49s | Overall ETA: 05h 53m 16s
+[06:36:11] [Overall: 16/24 (65.0%)] SC_016 | [Sub: 060/100 (60.0%)] | Pace: 27.82s/it | Rem: 18m 33s | Overall ETA: 05h 45m 49s
+[06:40:04] [Overall: 16/24 (65.4%)] SC_016 | [Sub: 070/100 (70.0%)] | Pace: 27.18s/it | Rem: 13m 35s | Overall ETA: 05h 36m 30s
+[06:44:13] [Overall: 16/24 (65.8%)] SC_016 | [Sub: 080/100 (80.0%)] | Pace: 26.89s/it | Rem: 08m 58s | Overall ETA: 05h 22m 53s
+[06:48:20] [Overall: 16/24 (66.2%)] SC_016 | [Sub: 090/100 (90.0%)] | Pace: 26.64s/it | Rem: 04m 26s | Overall ETA: 05h 21m 55s
+[06:52:27] [Overall: 16/24 (66.7%)] SC_016 -> Completed in 44m 05s (26.45s/it) | Overall ETA: 05h 28m 53s
+
+[06:52:27] --- Commencing Scenario 17/24 (70.8%): SC_017 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 10  | Sample Size (n): 100
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[06:56:48] [Overall: 17/24 (67.1%)] SC_017 | [Sub: 010/100 (10.0%)] | Pace: 48.61s/it | Rem: 01h 12m 55s | Overall ETA: 05h 40m 11s
+[07:01:09] [Overall: 17/24 (67.5%)] SC_017 | [Sub: 020/100 (20.0%)] | Pace: 37.37s/it | Rem: 49m 49s | Overall ETA: 05h 40m 54s
+[07:05:27] [Overall: 17/24 (67.9%)] SC_017 | [Sub: 030/100 (30.0%)] | Pace: 33.50s/it | Rem: 39m 05s | Overall ETA: 05h 32m 26s
+[07:09:58] [Overall: 17/24 (68.3%)] SC_017 | [Sub: 040/100 (40.0%)] | Pace: 31.91s/it | Rem: 31m 55s | Overall ETA: 05h 27m 51s
+[07:14:06] [Overall: 17/24 (68.8%)] SC_017 | [Sub: 050/100 (50.0%)] | Pace: 30.49s/it | Rem: 25m 24s | Overall ETA: 05h 20m 47s
+[07:17:59] [Overall: 17/24 (69.2%)] SC_017 | [Sub: 060/100 (60.0%)] | Pace: 29.29s/it | Rem: 19m 31s | Overall ETA: 05h 12m 14s
+[07:21:49] [Overall: 17/24 (69.6%)] SC_017 | [Sub: 070/100 (70.0%)] | Pace: 28.38s/it | Rem: 14m 11s | Overall ETA: 05h 08m 41s
+[07:25:47] [Overall: 17/24 (70.0%)] SC_017 | [Sub: 080/100 (80.0%)] | Pace: 27.81s/it | Rem: 09m 16s | Overall ETA: 05h 03m 48s
+[07:30:23] [Overall: 17/24 (70.4%)] SC_017 | [Sub: 090/100 (90.0%)] | Pace: 27.79s/it | Rem: 04m 38s | Overall ETA: 05h 00m 20s
+[07:35:19] [Overall: 17/24 (70.8%)] SC_017 -> Completed in 46m 37s (27.97s/it) | Overall ETA: 05h 04m 13s
+
+[07:35:19] --- Commencing Scenario 18/24 (75.0%): SC_018 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 12  | Sample Size (n): 025
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[07:40:07] [Overall: 18/24 (71.2%)] SC_018 | [Sub: 010/100 (10.0%)] | Pace: 49.23s/it | Rem: 01h 13m 50s | Overall ETA: 05h 08m 55s
+[07:44:21] [Overall: 18/24 (71.7%)] SC_018 | [Sub: 020/100 (20.0%)] | Pace: 37.32s/it | Rem: 49m 45s | Overall ETA: 05h 07m 34s
+[07:48:53] [Overall: 18/24 (72.1%)] SC_018 | [Sub: 030/100 (30.0%)] | Pace: 33.96s/it | Rem: 39m 37s | Overall ETA: 05h 00m 04s
+[07:53:20] [Overall: 18/24 (72.5%)] SC_018 | [Sub: 040/100 (40.0%)] | Pace: 32.13s/it | Rem: 32m 08s | Overall ETA: 04h 43m 16s
+[07:57:43] [Overall: 18/24 (72.9%)] SC_018 | [Sub: 050/100 (50.0%)] | Pace: 30.98s/it | Rem: 25m 49s | Overall ETA: 04h 38m 32s
+[08:01:47] [Overall: 18/24 (73.3%)] SC_018 | [Sub: 060/100 (60.0%)] | Pace: 29.88s/it | Rem: 19m 55s | Overall ETA: 04h 31m 50s
+[08:05:50] [Overall: 18/24 (73.8%)] SC_018 | [Sub: 070/100 (70.0%)] | Pace: 29.08s/it | Rem: 14m 32s | Overall ETA: 04h 17m 04s
+[08:10:09] [Overall: 18/24 (74.2%)] SC_018 | [Sub: 080/100 (80.0%)] | Pace: 28.68s/it | Rem: 09m 34s | Overall ETA: 04h 12m 59s
+[08:14:26] [Overall: 18/24 (74.6%)] SC_018 | [Sub: 090/100 (90.0%)] | Pace: 28.36s/it | Rem: 04m 44s | Overall ETA: 04h 09m 57s
+[08:18:54] [Overall: 18/24 (75.0%)] SC_018 -> Completed in 47m 00s (28.20s/it) | Overall ETA: 04h 15m 33s
+
+[08:18:55] --- Commencing Scenario 19/24 (79.2%): SC_019 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 12  | Sample Size (n): 100
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[08:23:04] [Overall: 19/24 (75.4%)] SC_019 | [Sub: 010/100 (10.0%)] | Pace: 51.81s/it | Rem: 01h 17m 43s | Overall ETA: 04h 11m 54s
+[08:27:03] [Overall: 19/24 (75.8%)] SC_019 | [Sub: 020/100 (20.0%)] | Pace: 37.84s/it | Rem: 50m 27s | Overall ETA: 04h 07m 38s
+[08:31:13] [Overall: 19/24 (76.2%)] SC_019 | [Sub: 030/100 (30.0%)] | Pace: 33.57s/it | Rem: 39m 10s | Overall ETA: 04h 06m 46s
+[08:35:42] [Overall: 19/24 (76.7%)] SC_019 | [Sub: 040/100 (40.0%)] | Pace: 31.90s/it | Rem: 31m 54s | Overall ETA: 04h 01m 45s
+[08:39:56] [Overall: 19/24 (77.1%)] SC_019 | [Sub: 050/100 (50.0%)] | Pace: 30.59s/it | Rem: 25m 29s | Overall ETA: 03h 53m 51s
+[08:44:31] [Overall: 19/24 (77.5%)] SC_019 | [Sub: 060/100 (60.0%)] | Pace: 30.07s/it | Rem: 20m 03s | Overall ETA: 03h 49m 36s
+[08:48:51] [Overall: 19/24 (77.9%)] SC_019 | [Sub: 070/100 (70.0%)] | Pace: 29.49s/it | Rem: 14m 45s | Overall ETA: 03h 44m 04s
+[08:52:39] [Overall: 19/24 (78.3%)] SC_019 | [Sub: 080/100 (80.0%)] | Pace: 28.66s/it | Rem: 09m 33s | Overall ETA: 03h 38m 13s
+[08:56:34] [Overall: 19/24 (78.8%)] SC_019 | [Sub: 090/100 (90.0%)] | Pace: 28.08s/it | Rem: 04m 41s | Overall ETA: 03h 33m 37s
+[09:00:35] [Overall: 19/24 (79.2%)] SC_019 -> Completed in 46m 09s (27.69s/it) | Overall ETA: 03h 29m 25s
+
+[09:00:36] --- Commencing Scenario 20/24 (83.3%): SC_020 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 14  | Sample Size (n): 025
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[09:04:56] [Overall: 20/24 (79.6%)] SC_020 | [Sub: 010/100 (10.0%)] | Pace: 43.27s/it | Rem: 01h 04m 54s | Overall ETA: 03h 21m 33s
+[09:09:29] [Overall: 20/24 (80.0%)] SC_020 | [Sub: 020/100 (20.0%)] | Pace: 35.29s/it | Rem: 47m 04s | Overall ETA: 03h 18m 28s
+[09:13:53] [Overall: 20/24 (80.4%)] SC_020 | [Sub: 030/100 (30.0%)] | Pace: 32.34s/it | Rem: 37m 44s | Overall ETA: 03h 14m 03s
+[09:17:58] [Overall: 20/24 (80.8%)] SC_020 | [Sub: 040/100 (40.0%)] | Pace: 30.36s/it | Rem: 30m 22s | Overall ETA: 03h 09m 55s
+[09:22:33] [Overall: 20/24 (81.2%)] SC_020 | [Sub: 050/100 (50.0%)] | Pace: 29.80s/it | Rem: 24m 50s | Overall ETA: 03h 06m 01s
+[09:26:47] [Overall: 20/24 (81.7%)] SC_020 | [Sub: 060/100 (60.0%)] | Pace: 29.07s/it | Rem: 19m 23s | Overall ETA: 03h 04m 16s
+[09:31:38] [Overall: 20/24 (82.1%)] SC_020 | [Sub: 070/100 (70.0%)] | Pace: 29.07s/it | Rem: 14m 32s | Overall ETA: 03h 04m 16s
+[09:35:39] [Overall: 20/24 (82.5%)] SC_020 | [Sub: 080/100 (80.0%)] | Pace: 28.45s/it | Rem: 09m 29s | Overall ETA: 03h 02m 03s
+[09:39:38] [Overall: 20/24 (82.9%)] SC_020 | [Sub: 090/100 (90.0%)] | Pace: 27.95s/it | Rem: 04m 39s | Overall ETA: 02h 57m 43s
+[09:44:00] [Overall: 20/24 (83.3%)] SC_020 -> Completed in 46m 17s (27.77s/it) | Overall ETA: 02h 49m 53s
+
+[09:44:01] --- Commencing Scenario 21/24 (87.5%): SC_021 ---
+  Suite: Sample Size Sensitivity      | Candidates (N): 14  | Sample Size (n): 100
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.0
+[09:48:33] [Overall: 21/24 (83.8%)] SC_021 | [Sub: 010/100 (10.0%)] | Pace: 51.76s/it | Rem: 01h 17m 39s | Overall ETA: 02h 45m 41s
+[09:52:57] [Overall: 21/24 (84.2%)] SC_021 | [Sub: 020/100 (20.0%)] | Pace: 39.08s/it | Rem: 52m 07s | Overall ETA: 02h 47m 34s
+[09:57:23] [Overall: 21/24 (84.6%)] SC_021 | [Sub: 030/100 (30.0%)] | Pace: 34.90s/it | Rem: 40m 43s | Overall ETA: 02h 44m 39s
+[10:01:48] [Overall: 21/24 (85.0%)] SC_021 | [Sub: 040/100 (40.0%)] | Pace: 32.80s/it | Rem: 32m 48s | Overall ETA: 02h 40m 41s
+[10:05:59] [Overall: 21/24 (85.4%)] SC_021 | [Sub: 050/100 (50.0%)] | Pace: 31.27s/it | Rem: 26m 03s | Overall ETA: 02h 34m 20s
+[10:10:12] [Overall: 21/24 (85.8%)] SC_021 | [Sub: 060/100 (60.0%)] | Pace: 30.28s/it | Rem: 20m 11s | Overall ETA: 02h 29m 25s
+[10:14:33] [Overall: 21/24 (86.2%)] SC_021 | [Sub: 070/100 (70.0%)] | Pace: 29.68s/it | Rem: 14m 50s | Overall ETA: 02h 23m 15s
+[10:18:51] [Overall: 21/24 (86.7%)] SC_021 | [Sub: 080/100 (80.0%)] | Pace: 29.19s/it | Rem: 09m 44s | Overall ETA: 02h 17m 54s
+[10:23:17] [Overall: 21/24 (87.1%)] SC_021 | [Sub: 090/100 (90.0%)] | Pace: 28.90s/it | Rem: 04m 49s | Overall ETA: 02h 14m 58s
+[10:27:47] [Overall: 21/24 (87.5%)] SC_021 -> Completed in 47m 52s (28.72s/it) | Overall ETA: 02h 11m 15s
+
+[10:27:48] --- Commencing Scenario 22/24 (91.7%): SC_022 ---
+  Suite: Effect Magnitude Sensitivity | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  2.5% | Correlation (rho): 0.0
+[10:32:08] [Overall: 22/24 (87.9%)] SC_022 | [Sub: 010/100 (10.0%)] | Pace: 49.46s/it | Rem: 01h 14m 11s | Overall ETA: 02h 06m 59s
+[10:36:11] [Overall: 22/24 (88.3%)] SC_022 | [Sub: 020/100 (20.0%)] | Pace: 36.88s/it | Rem: 49m 10s | Overall ETA: 02h 02m 36s
+[10:40:22] [Overall: 22/24 (88.8%)] SC_022 | [Sub: 030/100 (30.0%)] | Pace: 32.94s/it | Rem: 38m 26s | Overall ETA: 01h 55m 43s
+[10:44:36] [Overall: 22/24 (89.2%)] SC_022 | [Sub: 040/100 (40.0%)] | Pace: 31.05s/it | Rem: 31m 03s | Overall ETA: 01h 49m 45s
+[10:48:48] [Overall: 22/24 (89.6%)] SC_022 | [Sub: 050/100 (50.0%)] | Pace: 29.88s/it | Rem: 24m 54s | Overall ETA: 01h 45m 06s
+[10:53:07] [Overall: 22/24 (90.0%)] SC_022 | [Sub: 060/100 (60.0%)] | Pace: 29.21s/it | Rem: 19m 29s | Overall ETA: 01h 41m 08s
+[10:57:34] [Overall: 22/24 (90.4%)] SC_022 | [Sub: 070/100 (70.0%)] | Pace: 28.86s/it | Rem: 14m 26s | Overall ETA: 01h 37m 26s
+[11:01:59] [Overall: 22/24 (90.8%)] SC_022 | [Sub: 080/100 (80.0%)] | Pace: 28.56s/it | Rem: 09m 31s | Overall ETA: 01h 35m 23s
+[11:06:20] [Overall: 22/24 (91.2%)] SC_022 | [Sub: 090/100 (90.0%)] | Pace: 28.29s/it | Rem: 04m 43s | Overall ETA: 01h 32m 08s
+[11:10:35] [Overall: 22/24 (91.7%)] SC_022 -> Completed in 46m 41s (28.01s/it) | Overall ETA: 01h 26m 59s
+
+[11:10:37] --- Commencing Scenario 23/24 (95.8%): SC_023 ---
+  Suite: Effect Magnitude Sensitivity | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  8.0% | Correlation (rho): 0.0
+[11:14:50] [Overall: 23/24 (92.1%)] SC_023 | [Sub: 010/100 (10.0%)] | Pace: 49.53s/it | Rem: 01h 14m 18s | Overall ETA: 01h 21m 52s
+[11:19:00] [Overall: 23/24 (92.5%)] SC_023 | [Sub: 020/100 (20.0%)] | Pace: 37.26s/it | Rem: 49m 41s | Overall ETA: 01h 17m 08s
+[11:23:28] [Overall: 23/24 (92.9%)] SC_023 | [Sub: 030/100 (30.0%)] | Pace: 33.76s/it | Rem: 39m 24s | Overall ETA: 01h 12m 41s
+[11:27:54] [Overall: 23/24 (93.3%)] SC_023 | [Sub: 040/100 (40.0%)] | Pace: 31.96s/it | Rem: 31m 58s | Overall ETA: 01h 08m 56s
+[11:32:17] [Overall: 23/24 (93.8%)] SC_023 | [Sub: 050/100 (50.0%)] | Pace: 30.83s/it | Rem: 25m 42s | Overall ETA: 01h 05m 12s
+[11:36:46] [Overall: 23/24 (94.2%)] SC_023 | [Sub: 060/100 (60.0%)] | Pace: 30.18s/it | Rem: 20m 07s | Overall ETA: 01h 02m 07s
+[11:41:02] [Overall: 23/24 (94.6%)] SC_023 | [Sub: 070/100 (70.0%)] | Pace: 29.53s/it | Rem: 14m 46s | Overall ETA: 57m 30s
+[11:45:12] [Overall: 23/24 (95.0%)] SC_023 | [Sub: 080/100 (80.0%)] | Pace: 28.96s/it | Rem: 09m 39s | Overall ETA: 52m 25s
+[11:49:42] [Overall: 23/24 (95.4%)] SC_023 | [Sub: 090/100 (90.0%)] | Pace: 28.74s/it | Rem: 04m 47s | Overall ETA: 48m 52s
+[11:54:30] [Overall: 23/24 (95.8%)] SC_023 -> Completed in 47m 55s (28.75s/it) | Overall ETA: 45m 06s
+
+[11:54:33] --- Commencing Scenario 24/24 (100.0%): SC_024 ---
+  Suite: Correlation Sensitivity      | Candidates (N): 12  | Sample Size (n): 050
+  Noise (sigma):  4.0%          | Effect (Delta):  5.0% | Correlation (rho): 0.5
+[11:58:53] [Overall: 24/24 (96.2%)] SC_024 | [Sub: 010/100 (10.0%)] | Pace: 48.34s/it | Rem: 01h 12m 31s | Overall ETA: 41m 02s
+[12:03:04] [Overall: 24/24 (96.7%)] SC_024 | [Sub: 020/100 (20.0%)] | Pace: 36.72s/it | Rem: 48m 58s | Overall ETA: 36m 06s
+[12:07:11] [Overall: 24/24 (97.1%)] SC_024 | [Sub: 030/100 (30.0%)] | Pace: 32.74s/it | Rem: 38m 12s | Overall ETA: 31m 32s
+[12:12:02] [Overall: 24/24 (97.5%)] SC_024 | [Sub: 040/100 (40.0%)] | Pace: 31.81s/it | Rem: 31m 49s | Overall ETA: 27m 04s
+[12:16:36] [Overall: 24/24 (97.9%)] SC_024 | [Sub: 050/100 (50.0%)] | Pace: 30.95s/it | Rem: 25m 47s | Overall ETA: 22m 22s
+[12:20:55] [Overall: 24/24 (98.3%)] SC_024 | [Sub: 060/100 (60.0%)] | Pace: 30.10s/it | Rem: 20m 04s | Overall ETA: 17m 51s
+[12:25:11] [Overall: 24/24 (98.8%)] SC_024 | [Sub: 070/100 (70.0%)] | Pace: 29.46s/it | Rem: 14m 44s | Overall ETA: 13m 07s
+[12:29:39] [Overall: 24/24 (99.2%)] SC_024 | [Sub: 080/100 (80.0%)] | Pace: 29.12s/it | Rem: 09m 42s | Overall ETA: 08m 25s
+[12:33:54] [Overall: 24/24 (99.6%)] SC_024 | [Sub: 090/100 (90.0%)] | Pace: 28.72s/it | Rem: 04m 47s | Overall ETA: 04m 11s
+[12:37:53] [Overall: 24/24 (100.0%)] SC_024 -> Completed in 47m 04s (28.24s/it) | Overall ETA: 00s
+[Results] Global statistical summary confirmed at: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/global_summary.csv
+[Results] Executive benchmark summary confirmed at: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/benchmark_summary_20260925_202201.csv
+[Results] Detailed non-parametric pooled breakdown confirmed at: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/pooled_results_detailed_20260925_202201.csv
+[Results] Grand pooled summary confirmed at: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/pooled_results_20260925_202201.csv
+---------------------------------------------------------------------------------------------------------
+[Environment] Parallel workers terminated cleanly. Cleaned up temporary workspaces.
+[Visualization] Launching publication figures & multi-page PDF generation...
+[Visualization] All publication figures successfully generated in: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics
+[Visualization] PDF reports successfully generated in: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports
+
+======================================================================
+   Benchmark Study Completed Successfully
+======================================================================
+ Total Study Duration:   16h 15m 52s
+ Master Report (PDF):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports/Global_Summary_20260925_202201.pdf
+ Reports Folder:         /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports
+ Graphics Folder:        /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics
+ CSV Results Folder:     /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs
+ Configuration (JSON):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/configuration_20260925_202201.json
+ Scenario Index (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/scenarios_20260925_202201.csv
+ Candidate Profiles (CSV):/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/candidate_profiles_20260925_202201.csv [Ground-Truth Scaling]
+ Raw Results (CSV):      /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/simulation_results.csv [Streamed]
+ Global Summary (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/global_summary.csv [Aggregated]
+ Benchmark Summary (CSV):/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/benchmark_summary_20260925_202201.csv [Suite Overview]
+ Pooled Summary (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/pooled_results_20260925_202201.csv [FAIR Standard]
+ State Checkpoint:       /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/checkpoint.json
+ Execution Log (TXT):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/simulation_log_20260925_202201.txt
+----------------------------------------------------------------------
+ If you use this software or benchmark in your research, please cite:
+ von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
+ Preprint: https://doi.org/10.2139/ssrn.7227474
+ Software (Version 1.4.7): https://doi.org/10.5281/zenodo.18274870
+======================================================================
+
+[Output] Created symlink for easy access: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output -> Simulation_Output_20260925_202201

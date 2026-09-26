@@ -1,0 +1,25 @@
+ScenarioID,NumericID,Suite,Candidates,SampleSize,Noise,EffectMagnitude,Delta,Calibrated_Median_Cliffs_d,Calibrated_Cliffs_d_Range,Correlation
+SC_001,1,Core,10,50,2.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_002,2,Core,10,50,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_003,3,Core,10,50,6.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_004,4,Core,10,50,8.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_005,5,Core,10,50,10.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_006,6,Core,12,50,2.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_007,7,Core,12,50,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_008,8,Core,12,50,6.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_009,9,Core,12,50,8.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_010,10,Core,12,50,10.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_011,11,Core,14,50,2.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_012,12,Core,14,50,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_013,13,Core,14,50,6.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_014,14,Core,14,50,8.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_015,15,Core,14,50,10.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_016,16,Sample Size Sensitivity,10,25,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_017,17,Sample Size Sensitivity,10,100,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_018,18,Sample Size Sensitivity,12,25,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_019,19,Sample Size Sensitivity,12,100,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_020,20,Sample Size Sensitivity,14,25,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_021,21,Sample Size Sensitivity,14,100,4.0,Medium,5.0,0.5,0.45 - 0.60,0.0
+SC_022,22,Effect Magnitude Sensitivity,12,50,4.0,Small,2.5,0.25,0.20 - 0.30,0.0
+SC_023,23,Effect Magnitude Sensitivity,12,50,4.0,Large,8.0,0.8,0.75 - 0.90,0.0
+SC_024,24,Correlation Sensitivity,12,50,4.0,Medium,5.0,0.5,0.45 - 0.60,0.5

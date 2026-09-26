@@ -72,7 +72,7 @@ clc
     % Define Resources to Include
     % Note: +HERA package is automatically analyzed by the compiler, 
     % but explicit assets/languages need to be added.
-    % Note: From now on I exclude 'assets' and 'paper' to keep the distribution lean.
+    % Note: Exclude 'assets', 'paper', 'docs', 'data/results', and 'data/utils' to keep the distribution lean.
     additionalFiles = [ ...
         string(fullfile(projectRoot, '+HERA', 'language')) ... 
     ];
@@ -86,6 +86,7 @@ clc
     buildOpts.OutputDir = outputDir;
     buildOpts.Verbose = true;
     buildOpts.TreatInputsAsNumeric = false; % Adjust if arguments are passed from CLI
+    buildOpts.AutoDetectDataFiles = 'off';  % Explicitly prevent auto-inclusion of data, results, or utils folders
     
     % Add resource folders
     buildOpts.AdditionalFiles = additionalFiles;

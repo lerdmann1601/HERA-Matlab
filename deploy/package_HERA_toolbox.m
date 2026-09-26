@@ -64,6 +64,17 @@ fprintf('Detected Version: %s\n', version_str);
 % These files can cause File Exchange upload validation to fail
 fprintf('Cleaning up temporary/unwanted files...\n');
 
+% Clean up temporary Google Drive sync directories if present
+driveTempDirs = {fullfile(projectRoot, '.tmp.driveupload'), fullfile(projectRoot, '.tmp.drivedownload')};
+for k = 1:length(driveTempDirs)
+    if exist(driveTempDirs{k}, 'dir')
+        try
+            rmdir(driveTempDirs{k}, 's');
+        catch
+        end
+    end
+end
+
 % Patterns to delete (relative to projectRoot)
 cleanupPatterns = {'**/__pycache__', '**/*.pyc', '**/.DS_Store'};
 
@@ -74,8 +85,8 @@ for i = 1:length(cleanupPatterns)
     for j = 1:length(files)
         itemPath = fullfile(files(j).folder, files(j).name);
 
-        % Skip .venv, .git, deploy/output, deploy/dist, and release folders
-        if contains(itemPath, fullfile(projectRoot, '.venv')) || ...
+        % Skip .venv, .venv_build, .git, deploy/output, deploy/dist, and release folders
+        if contains(itemPath, '.venv') || ...
                 contains(itemPath, fullfile(projectRoot, '.git')) || ...
                 contains(itemPath, fullfile(projectRoot, 'deploy', 'output')) || ...
                 contains(itemPath, fullfile(projectRoot, 'deploy', 'dist')) || ...
@@ -84,14 +95,13 @@ for i = 1:length(cleanupPatterns)
         end
 
         try
-            if files(j).isdir
+            if exist(itemPath, 'dir')
                 rmdir(itemPath, 's');
-            else
+                totalDeleted = totalDeleted + 1;
+                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+            elseif exist(itemPath, 'file')
                 delete(itemPath);
-            end
-            totalDeleted = totalDeleted + 1;
-            % Only print if it's a file inside project sources to reduce noise
-            if ~contains(itemPath, '.venv')
+                totalDeleted = totalDeleted + 1;
                 fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
             end
         catch
@@ -128,17 +138,12 @@ opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking
 % Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).
 % Note: ToolboxOptions automatically handles +NAmespace folders (like +HERA) if listed.
 
-% NOTE: From now on I exclude 'docs', 'assets', and 'deploy' folders to keep the toolbox lean.
-% Internal deployment scripts and raw test files are also excluded to ensure a professional production distribution.
+% NOTE: Exclude 'docs', 'assets', 'deploy', 'data/results', and 'data/utils' to keep the toolbox lean.
+% Internal deployment scripts, raw test files, benchmark results ('data/results'), and development utilities ('data/utils') are excluded to ensure a professional production distribution.
 includedPaths = { ...
     fullfile(projectRoot, '+HERA'), ...
     fullfile(projectRoot, 'data', 'README.md'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_1'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_2'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_3'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_4'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_5'), ...
-    fullfile(projectRoot, 'data', 'examples', 'Example_2_workflow'), ...
+    fullfile(projectRoot, 'data', 'examples'), ...
     fullfile(projectRoot, 'tests', 'HERA_Validation_Example.txt'), ...
     fullfile(projectRoot, 'CITATION.cff'), ...
     fullfile(projectRoot, 'CODE_OF_CONDUCT.md'), ...
@@ -148,13 +153,18 @@ includedPaths = { ...
     fullfile(projectRoot, 'setup_HERA.m') ...
     };
 
-% Filter to ensuring they exist before adding
+% Filter to ensure they exist before adding, and enforce exclusion of results and utils
 validFiles = {};
 for i = 1:length(includedPaths)
-    if exist(includedPaths{i}, 'file') || exist(includedPaths{i}, 'dir')
-        validFiles{end+1} = includedPaths{i};
+    itemPath = includedPaths{i};
+    % Explicit guard: ensure 'data/results' and 'data/utils' are always ignored
+    if contains(itemPath, fullfile('data', 'results')) || contains(itemPath, fullfile('data', 'utils'))
+        continue;
+    end
+    if exist(itemPath, 'file') || exist(itemPath, 'dir')
+        validFiles{end+1} = itemPath;
     else
-        fprintf('Warning: Resource not found, skipping: %s\n', includedPaths{i});
+        fprintf('Warning: Resource not found, skipping: %s\n', itemPath);
     end
 end
 
@@ -163,6 +173,10 @@ if isempty(validFiles)
 end
 
 opts.ToolboxFiles = validFiles;
+
+% Defensive guard: ensure no files from 'data/results' or 'data/utils' can be packaged
+opts.ToolboxFiles(contains(opts.ToolboxFiles, fullfile('data', 'results')) | ...
+                  contains(opts.ToolboxFiles, fullfile('data', 'utils'))) = [];
 
 % MATLAB Path Setup
 % By default, the root of the installed toolbox is added to the path.

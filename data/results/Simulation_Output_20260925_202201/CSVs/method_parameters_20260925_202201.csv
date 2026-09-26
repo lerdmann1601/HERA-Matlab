@@ -1,0 +1,13 @@
+Framework,Core Parameters,Specification / Baseline Setup
+HERA,"Threshold Bootstrap
+(B = 2000)","Sequential Hierarchical (M1 -> M2 -> M3);
+Holm-Bonferroni FWER control (alpha = 0.05)"
+TOPSIS,"Criteria Weights:
+w = [0.40, 0.40, 0.20]","Vector Normalization; Euclidean distance to
+ideal solutions; relative closeness ranking"
+Borda Count,"Positional Rank Sum
+(Equal weights across M1-M3)","Sum of individual metric ranks;
+consensus ranking by lowest rank sum"
+Wilcoxon-Copeland,"Pairwise Tournament
+(Net wins minus losses)","Paired Wilcoxon test with step-down
+Holm-Bonferroni FWER control (alpha = 0.05)"

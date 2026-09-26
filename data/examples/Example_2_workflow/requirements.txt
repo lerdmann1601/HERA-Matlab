@@ -1,4 +1,0 @@
-pandas
-numpy
-matplotlib
-hera_matlab-R2025b

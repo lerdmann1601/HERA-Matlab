@@ -1,0 +1,56 @@
+{
+  "study_name": "HERA Methodological Ground-Truth Benchmark Study",
+  "timestamp": "20260925_202201",
+  "base_seed": 123,
+  "iterations_per_scenario": 100,
+  "parallel_workers": 5,
+  "system": {
+    "platform": "macOS-27.0-arm64-arm-64bit",
+    "python_version": "3.12.11 (main, Jun  6 2025, 23:18:08) [Clang 16.0.0 (clang-1600.0.26.6)]",
+    "machine": "arm64",
+    "detected_ram_gb": 16.0
+  },
+  "hera_config": {
+    "manual_B_thr": 2000,
+    "manual_B_ci": 50,
+    "manual_B_rank": 50,
+    "create_reports": false,
+    "create_csvs": false,
+    "quiet_mode": true,
+    "ranking_mode": "M1_M2_M3",
+    "run_sensitivity_analysis": false,
+    "run_power_analysis": false,
+    "reproducible": true
+  },
+  "topsis_weights": [
+    0.4,
+    0.4,
+    0.2
+  ],
+  "total_scenarios": 24,
+  "executed_scenarios": 24,
+  "methods_compared": [
+    "HERA",
+    "TOPSIS",
+    "Borda",
+    "Copeland"
+  ],
+  "metrics_evaluated": [
+    "TopChoice",
+    "CompleteRank",
+    "KendallTau",
+    "SpearmanRho",
+    "FalseSuperiority",
+    "Regret",
+    "CompensatoryError",
+    "RankDisplacement",
+    "TopChoiceRankRegret"
+  ],
+  "statistical_effect_metrics": [
+    "Observed_Cliffs_d_M1",
+    "Observed_Cliffs_d_M2",
+    "Observed_Delta_M1",
+    "Observed_Delta_M2",
+    "Observed_Median_Cliffs_d"
+  ]
+}
