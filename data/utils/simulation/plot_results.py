@@ -514,7 +514,7 @@ def plot_master_overview(
     K_overview = get_runs_per_point(df)
     fig.text(
         0.5, 0.948,
-        rf"Default parameters (unless otherwise specified): $\mathbf{{N = {ref_N}, \ n = 50}}$, Cliff's $\mathbf{{d \approx 0.50}}$, $\boldsymbol{{\rho}} = \mathbf{{0.0}}$, $\mathbf{{K = {K_overview}}}$ runs per point",
+        rf"Default parameters (unless otherwise specified): $\mathbf{{N = {ref_N}}}$, $\mathbf{{n = 50}}$, Cliff's $\mathbf{{d \approx 0.50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K_overview}}}$ runs per point",
         ha="center", va="top", fontsize=subplot_title_fontsize, fontweight="bold", color="#222222"
     )
 
@@ -747,7 +747,7 @@ def plot_faceted_top_choice(
     fig.suptitle("Top-Choice Recovery Rate vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -811,7 +811,7 @@ def plot_faceted_complete_rank(
     fig.suptitle("Total Rank Recovery vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -877,7 +877,7 @@ def plot_faceted_rank_displacement(
     fig.suptitle("Mean Rank Displacement vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -970,7 +970,7 @@ def plot_faceted_false_superiority(
     fig.suptitle("Pairwise Inversion Rate (FSR) vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -1040,7 +1040,7 @@ def plot_faceted_rank_correlation(
     fig.suptitle(r"Rank Correlation (Kendall's $\boldsymbol{\tau}$) vs. Sample Size", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ \boldsymbol{{\sigma}} = 4\%}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\boldsymbol{{\sigma = 4\%}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -1201,7 +1201,7 @@ def plot_effect_sensitivity(
             fig.suptitle("Effect Size Sensitivity: Candidate-Level Rank Dispersion & Fidelity", fontweight="bold", fontsize=13.5, y=0.985)
             fig.text(
                 0.5, 0.950,
-                rf"$\mathbf{{N = {N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per condition",
+                rf"$\mathbf{{N = {N}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\sigma = 4\%}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per condition",
                 ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
             )
             plt.tight_layout(rect=[0, 0.05, 1, 0.91])
@@ -1269,7 +1269,7 @@ def plot_effect_sensitivity(
     fig.suptitle("Effect Size Sensitivity", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N = {ref_N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N = {ref_N}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\sigma = 4\%}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.08, 1, 0.86])
@@ -1428,7 +1428,7 @@ def plot_correlation_sensitivity(
             fig.suptitle("Inter-Metric Collinearity Sensitivity: Rank Dispersion & Fidelity", fontweight="bold", fontsize=13.5, y=0.985)
             fig.text(
                 0.5, 0.950,
-                rf"$\mathbf{{N = {N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}},$ Cliff's $\mathbf{{d \approx 0.50}}, \ \mathbf{{K = {K}}}$ runs per condition",
+                rf"$\mathbf{{N = {N}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\sigma = 4\%}}$, Cliff's $\mathbf{{d \approx 0.50}}$, $\mathbf{{K = {K}}}$ runs per condition",
                 ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
             )
             plt.tight_layout(rect=[0, 0.05, 1, 0.91])
@@ -1471,7 +1471,7 @@ def plot_correlation_sensitivity(
     fig.suptitle("Inter-Metric Collinearity Sensitivity", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N = {ref_N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}}, \ \mathbf{{K = {K}}}$ runs per condition",
+        rf"$\mathbf{{N = {ref_N}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\sigma = 4\%}}$, $\mathbf{{K = {K}}}$ runs per condition",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.08, 1, 0.86])
@@ -1574,7 +1574,7 @@ def plot_compensatory_failure(
     fig.suptitle("Non-Compensatory Stress Test", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
-        rf"$\mathbf{{N = {ref_N}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N = {ref_N}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.06, 1, 0.86])
@@ -1764,7 +1764,7 @@ def plot_candidate_rank_stability(
     fig.suptitle("Candidate-Level Rank Stability Across Scales", fontweight="bold", fontsize=13.5, y=0.985)
     fig.text(
         0.5, 0.950,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\sigma = 4\%}}$, $\boldsymbol{{\rho = 0.0}}$, $\mathbf{{K = {K}}}$ runs per point",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
     plt.tight_layout(rect=[0, 0.05, 1, 0.91])
@@ -1855,7 +1855,7 @@ def plot_pooled_core_distributions(
     runs_per_method = len(df_core[df_core["Method"] == m0]) if m0 in df_core["Method"].values else len(df_core)
     fig.text(
         0.5, 0.950,
-        rf"$\mathbf{{N \in \{{{cand_str}\}}, \ \boldsymbol{{\sigma}} \in \{{{noise_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}; \ \mathbf{{K = {runs_per_method}}}$ runs per method",
+        rf"$\mathbf{{N \in \{{{cand_str}\}}}}$, $\boldsymbol{{\sigma}} \mathbf{{\in \{{{noise_str}\}}}}$, $\mathbf{{n = 50}}$, $\boldsymbol{{\rho = 0.0}}$; $\mathbf{{K = {runs_per_method}}}$ runs per method",
         ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
     )
 
@@ -2554,6 +2554,7 @@ def generate_consolidated_pdf_reports(
         find_figure_image("candidate_table"),
         find_figure_image("candidate_profiles"),
         find_figure_image("validation_overview"),
+        find_figure_image("pooled_core_distributions"),
         find_figure_image("top_choice_recovery_vs_noise"),
         find_figure_image("complete_rank_recovery_vs_noise"),
         find_figure_image("rank_displacement_vs_noise"),
@@ -2567,7 +2568,6 @@ def generate_consolidated_pdf_reports(
         master_figure_sequence.append(comp_img)
     master_figure_sequence.extend([
         find_figure_image("candidate_rank_stability"),
-        find_figure_image("pooled_core_distributions")
     ])
 
     # --- 1. Compile Master Global Summary Report directly in run_dir ---
