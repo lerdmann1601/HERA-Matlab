@@ -172,7 +172,7 @@ def execute_single_iteration(task_args: Dict[str, Any]) -> Dict[str, Any]:
                 obs_delta_m1 = float(np.mean(c1_m1) - np.mean(c2_m1))
                 obs_delta_m2 = float(np.mean(c1_m2) - np.mean(c2_m2))
 
-                # Median pairwise Cliff's d across all candidate pairs on primary (M1) and safety (M2) metrics
+                # Median pairwise Cliff's d across all candidate pairs on primary (M1) and secondary (M2) metrics
                 cands = list(data_dict.keys())
                 pairwise_d = []
                 for i_idx in range(len(cands)):
@@ -346,14 +346,16 @@ def run_sliding_window_pipeline(
     interrupted = False
 
     def sig_handler(sig, frame):
+        """Handles external SIGINT/SIGTERM termination signals gracefully."""
         nonlocal interrupted
         interrupted = True
         logger.warning("\n[Interrupt] Received stop signal! Terminating worker pool and securing partial data...")
     original_sigint = signal.signal(signal.SIGINT, sig_handler)
     original_sigterm = signal.signal(signal.SIGTERM, sig_handler)
 
-    # Initialize task generator across all scenarios
+    # 1. Initialize task generator across all scenarios
     def task_generator():
+        """Yields parameterized Monte Carlo trial task dictionaries across all experimental scenarios."""
         for sc_idx, sc in enumerate(scenarios, 1):
             sc_id = sc["ScenarioID"]
             sc_num_id = sc["NumericID"]

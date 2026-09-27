@@ -30,17 +30,17 @@
   Inter-Metric Coupling: rho in {0.0 (Independent), 0.5 (Correlated)}
 ----------------------------------------------------------------------
  Synthetic Multi-Metric Ground-Truth Paradigm:
-  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: ~80.0%)
-  Secondary Metric (M2): Secondary priority criterion (Decisive C1 advantage: 87.0%)
-  Tertiary Metric (M3):  Tie-breaking criterion (Decisive C4 vs C5 resolution: 85.0%)
-  Trap Candidate (C_N):  Compensatory flaw model (Deficit M2: 60.0%, Inflated M3: 99.0%)
+  Primary Metric (M1):      Primary benchmark ranking criterion (Baseline: ~80.0%)
+  Secondary Metric (M2):    Secondary priority criterion (C1 criterion margin: 87.0%)
+  Tertiary Metric (M3):     Tie-breaking criterion (C4 tertiary margin: 85.0%)
+  Asymmetric Profile (C_N): Trade-off model (Deficit M2: 60.0%, Elevated M3: 99.0%)
 ----------------------------------------------------------------------
  Statistical & Algorithmic Configurations:
-  HERA Ranking Mode:     M1_M2_M3 (Sequential Non-Compensatory Hierarchical)
-  HERA Threshold Bootstr:Percentile Null Bootstrap (B_thr = 2000)
-  HERA Decision Logic:   Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance
-  MCDM Baseline Methods: TOPSIS (Weights: [0.4, 0.4, 0.2]), Borda Count,
-                         Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)
+  HERA Ranking Mode:      M1_M2_M3 (Sequential Non-Compensatory Hierarchical)
+  HERA Threshold Bootstr: Percentile Null Bootstrap (B_thr = 2000)
+  HERA Decision Logic:    Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance
+  MCDM Baseline Methods:  TOPSIS (Weights: [0.4, 0.4, 0.2]), Borda Count,
+                          Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)
 ======================================================================
 
 [Configuration] Generated 24 experimental scenarios.
@@ -405,20 +405,20 @@
 ======================================================================
    Benchmark Study Completed Successfully
 ======================================================================
- Total Study Duration:   16h 15m 52s
- Master Report (PDF):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports/Global_Summary_20260925_202201.pdf
- Reports Folder:         /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports
- Graphics Folder:        /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics
- CSV Results Folder:     /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs
- Configuration (JSON):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/configuration_20260925_202201.json
- Scenario Index (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/scenarios_20260925_202201.csv
- Candidate Profiles (CSV):/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/candidate_profiles_20260925_202201.csv [Ground-Truth Scaling]
- Raw Results (CSV):      /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/simulation_results.csv [Streamed]
- Global Summary (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/global_summary.csv [Aggregated]
- Benchmark Summary (CSV):/Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/benchmark_summary_20260925_202201.csv [Suite Overview]
- Pooled Summary (CSV):   /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/pooled_results_20260925_202201.csv [FAIR Standard]
- State Checkpoint:       /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/checkpoint.json
- Execution Log (TXT):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/simulation_log_20260925_202201.txt
+ Total Study Duration:    16h 15m 52s
+ Master Report (PDF):     /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports/Global_Summary_20260925_202201.pdf
+ Reports Folder:          /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Reports
+ Graphics Folder:         /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/Graphics
+ CSV Results Folder:      /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs
+ Configuration (JSON):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/configuration_20260925_202201.json
+ Scenario Index (CSV):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/scenarios_20260925_202201.csv
+ Candidate Profiles (CSV): /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/candidate_profiles_20260925_202201.csv [Ground-Truth Scaling]
+ Raw Results (CSV):       /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/simulation_results.csv [Streamed]
+ Global Summary (CSV):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/global_summary.csv [Aggregated]
+ Benchmark Summary (CSV): /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/benchmark_summary_20260925_202201.csv [Suite Overview]
+ Pooled Summary (CSV):    /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/CSVs/pooled_results_20260925_202201.csv [FAIR Standard]
+ State Checkpoint:        /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/checkpoint.json
+ Execution Log (TXT):     /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output_20260925_202201/simulation_log_20260925_202201.txt
 ----------------------------------------------------------------------
  If you use this software or benchmark in your research, please cite:
  von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
@@ -427,3 +427,8 @@
 ======================================================================
 
 [Output] Created symlink for easy access: /Users/lukasvonerdmannsdorff/HERA-Matlab/release/patterns_revision_data/Data/Simulation_Output -> Simulation_Output_20260925_202201
+
+[Recovery] Re-executed isolated trial SC_014 (Iteration 33, Seed: 140156) in 45.43s.
+[Recovery] Successfully integrated trial into results and candidate ranks.
+[Recovery] Recomputed global summaries, benchmark tables, publication graphics, and PDF reports.
+[Recovery] Benchmark study confirmed at exactly 2,400 completed Monte Carlo evaluations across all 24 scenarios.

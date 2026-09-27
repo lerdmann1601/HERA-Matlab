@@ -30,7 +30,7 @@ SAMPLE_SIZES = [25, 50, 100]
 DEFAULT_SAMPLE_SIZE = 50
 NOISE_LEVELS = [2.0, 4.0, 6.0, 8.0, 10.0]
 
-# Realistic clinical effect magnitude calibration (percentages & non-parametric Cliff's d):
+# Standardized effect magnitude calibration (percentages & non-parametric Cliff's d):
 # Small Effect:  Delta =  2.5% -> Median Cliff's d ~ 0.25 (Calibrated range: 0.20 - 0.30)
 # Medium Effect: Delta =  5.0% -> Median Cliff's d ~ 0.50 (Calibrated range: 0.45 - 0.60)
 # Large Effect:  Delta =  8.0% -> Median Cliff's d ~ 0.80 (Calibrated range: 0.75 - 0.90)
@@ -96,7 +96,7 @@ HERA_CONFIG = {
     "reproducible": True
 }
 
-# Baseline weights for TOPSIS: [0.4, 0.4, 0.2] reflecting clinical/application hierarchy
+# Baseline weights for TOPSIS: [0.4, 0.4, 0.2] reflecting hierarchical criteria prioritization
 TOPSIS_WEIGHTS = np.array([0.4, 0.4, 0.2])
 
 # CSV Result Column Schema with Complete Statistical Traceability (Cliff's d & Delta)
@@ -153,7 +153,7 @@ def make_scenario(
         s_id (int): Numeric scenario index identifier.
         suite (str): Benchmark suite name ('Core', 'Sample Size Sensitivity', etc.).
         N (int): Number of candidate AI models evaluated.
-        n (int): Evaluation cohort sample size.
+        n (int): Evaluation sample size.
         noise (float): Gaussian measurement noise level (sigma, %).
         eff_name (str): Effect size calibration label ('Small', 'Medium', 'Large').
         eff_val (float): Between-candidate performance delta (%).
@@ -211,7 +211,7 @@ def build_scenarios_grid() -> List[Dict[str, Any]]:
     scenarios = []
     scen_id = 1
 
-    # 1. Core Sweep: Noise x Candidate Scale at standard clinical cohort size (n=50)
+    # 1. Core Sweep: Noise x Candidate Scale at standard baseline sample size (n=50)
     for N in NUM_CANDIDATES_LIST:
         for noise in NOISE_LEVELS:
             scenarios.append(make_scenario(

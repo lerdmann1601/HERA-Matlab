@@ -294,14 +294,14 @@ def evaluate_ranking(
 
     Description:
         Quantifies ranking fidelity, top-choice accuracy, pairwise inversions,
-        and resistance against compensatory shortcuts:
+        and resistance against unconstrained compensatory trade-offs:
           - TopChoice: 1.0 if true best candidate (C1) is ranked #1, 0.0 otherwise.
           - CompleteRank: 1.0 if predicted ranks match ground truth ranks perfectly.
           - KendallTau: Kendall's rank correlation coefficient tau.
           - SpearmanRho: Spearman's monotonic rank correlation coefficient rho.
           - FalseSuperiority: Pairwise inversion rate (proportion of pairs ranked backwards).
           - Regret: Difference between true M1 of C1 and true M1 of chosen #1 model.
-          - CompensatoryError: 1.0 if the flawed model (C_N) is ranked in top half (<= N/2).
+          - CompensatoryError: 1.0 if the compensatory candidate (C_N) is ranked in top half (<= N/2).
           - RankDisplacement: Mean absolute rank displacement (|predicted - true|).
           - TopChoiceRankRegret: True rank position of selected top model minus 1.
 
@@ -352,7 +352,7 @@ def evaluate_ranking(
     chosen_m1 = true_means[chosen_best][0]
     regret = float(max_m1 - chosen_m1)
 
-    # 7. Compensatory Error Rate (selection of flawed candidate C_N in top half <= N/2)
+    # 7. Compensatory Error Rate (selection of compensatory candidate C_N in top half <= N/2)
     flawed_cand = f"C{n_cands}"
     flawed_rank = pred_rank_dict.get(flawed_cand, n_cands)
     comp_error = 1.0 if flawed_rank <= (n_cands // 2) else 0.0

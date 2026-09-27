@@ -161,7 +161,7 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     slices.append((
         "Core Benchmark (Grand Pooled)",
         "Core",
-        "All Standard Conditions (N: 8-14, n: 25-100, noise: 2-10%)",
+        "All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",
         lambda df: df["Suite"] == "Core"
     ))
     
@@ -222,7 +222,7 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
         slices.append((
             "Non-Compensatory Stress Test (Pooled)",
             "Compensatory",
-            "Pathological Shortcut Model Trap (CN in top half)",
+            "Compensatory Model Trap (CN in top half)",
             lambda df: (df["Suite"] == "Compensatory")
         ))
 
@@ -240,6 +240,7 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
             n_trials = len(m_sub)
             
             def get_stat(col: str, multiplier: float = 1.0, decimals: int = 1) -> Tuple[float, float]:
+                """Computes non-parametric (Median, IQR) summary for a given metric column."""
                 if col not in m_sub.columns:
                     return np.nan, np.nan
                 vals = m_sub[col].dropna().values * multiplier
@@ -250,6 +251,7 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                 return med, iqr_val
 
             def get_rate(col: str) -> float:
+                """Computes percentage success/occurrence rate (mean * 100) for binary indicator column."""
                 if col not in m_sub.columns or m_sub[col].dropna().empty:
                     return np.nan
                 return round(float(np.mean(m_sub[col].dropna().values)) * 100.0, 1)
@@ -843,7 +845,7 @@ def save_candidate_configuration(
         graphics_dir (Optional[Path]): Directory for rendered publication graphics.
         delta (float): Ground-truth effect delta (%) [default: 5.0].
         noise (float): Gaussian noise sigma (%) [default: 4.0].
-        sample_size (int): Cohort sample size n [default: 50].
+        sample_size (int): Evaluation sample size n [default: 50].
         n_sims (int): Number of simulated trials for distribution estimation [default: 1000].
         seed (int): PRNG seed for deterministic profile generation [default: 123].
 
@@ -870,17 +872,17 @@ def save_candidate_configuration(
             
             # Benchmark Ground-Truth Role Rationale
             if cand == "C1":
-                role = "True Rank 1: Multi-Criterion Leader (Decisive M2 advantage over C2 by Delta+7.0%)"
+                role = "True Rank 1: Multi-Criteria Leader (M2 margin over C2 by Delta+7.0%)"
             elif cand == "C2":
                 role = "True Rank 2: Primary Metric Leader (Highest M1=80.0%, baseline M2/M3)"
             elif cand == "C3":
-                role = "True Rank 3: Secondary Metric Step Jumper (M2 advantage over C4/C5 by Delta)"
+                role = "True Rank 3: Secondary Criterion Margin (M2 margin over C4/C5 by Delta)"
             elif cand == "C4":
-                role = "True Rank 4: Tertiary Metric Tie-Break Winner (M3 beats C5 by Delta)"
+                role = "True Rank 4: Tertiary Criterion Margin (M3 margin over C5 by Delta)"
             elif cand == "C5":
-                role = "True Rank 5: Tertiary Metric Tie-Break Baseline (Baseline M1-M3)"
+                role = "True Rank 5: Multi-Criteria Baseline (Baseline M1-M3)"
             elif rank_idx == N:
-                role = f"True Rank {N}: Compensatory Trap Model (Severe M2 deficit: 60.0%, inflated M3: 99.0%)"
+                role = f"True Rank {N}: Asymmetric Multi-Criteria Profile (M2 deficit: 60.0%, elevated M3: 99.0%)"
             else:
                 role = f"True Rank {rank_idx}: Monotonic Baseline Step (Descending M1 gradient, baseline M2/M3)"
                 
@@ -916,7 +918,7 @@ def save_candidate_configuration(
     target_graphics_dir.mkdir(parents=True, exist_ok=True)
     png_path = target_graphics_dir / f"candidate_profiles_{timestamp}.png"
     
-    fig, axes = plt.subplots(1, 3, figsize=(19, 6.8), dpi=300, sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(19, 6.8), dpi=300, sharey=False)
     
     # Colorblind-safe palette (Wong / Okabe-Ito compliant)
     # M1: Accessible Blue (#0173b2), Circle, Solid
@@ -974,8 +976,8 @@ def save_candidate_configuration(
         ax.set_xticks(x_indices)
         x_tick_labels = df_sub["Candidate"].tolist()
         ax.set_xticklabels(x_tick_labels, fontsize=9.5)
-        ax.set_xlabel("Candidates in Ground-Truth Order (Rank 1 to N)", fontsize=11.0, fontweight="bold", labelpad=8)
-        ax.set_ylabel("Metric Level (%)", fontsize=11.0, fontweight="bold", labelpad=8)
+        ax.set_xlabel("Candidates in Ground-Truth Order (Rank 1 to N)", fontsize=11.0, labelpad=8)
+        ax.set_ylabel("Metric Level (Median [IQR], %)", fontsize=11.0, labelpad=8)
         ax.tick_params(labelleft=True)
             
         ax.set_ylim(52, 105)
@@ -1021,17 +1023,17 @@ def save_candidate_configuration(
         for rank_idx, c in enumerate(order_t, 1):
             mu_t = means_t[c]
             if c == "C1":
-                role_short = "Multi-Criterion Leader (M2 Advantage)"
+                role_short = "Multi-Criteria Leader (M2 Margin)"
             elif c == "C2":
-                role_short = "Primary Metric M1 Leader"
+                role_short = "Primary Metric Leader (Highest M1)"
             elif c == "C3":
-                role_short = "Secondary M2 Step Jumper"
+                role_short = "Secondary Metric Margin (M2 Step)"
             elif c == "C4":
-                role_short = "Tertiary M3 Tie-Break Winner"
+                role_short = "Tertiary Metric Margin (M3 Step)"
             elif c == "C5":
-                role_short = "Tertiary M3 Tie-Break Baseline"
+                role_short = "Multi-Criteria Baseline (M1–M3)"
             elif rank_idx == N:
-                role_short = "Compensatory Trap (Low M2, High M3)"
+                role_short = "Asymmetric Profile (Low M2, High M3)"
             else:
                 role_short = "Monotonic Baseline Step"
 
@@ -1078,7 +1080,7 @@ def save_candidate_configuration(
                 elif cand == "C4":
                     cell.set_facecolor("#FEF3E2")
                 elif row == len(order_t):
-                    cell.set_facecolor("#FCE8E6")
+                    cell.set_facecolor("#F3E8FD")
                 elif row % 2 == 1:
                     cell.set_facecolor("#F8F9FA")
                 else:

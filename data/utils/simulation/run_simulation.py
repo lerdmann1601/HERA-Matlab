@@ -7,7 +7,7 @@ ranking algorithm against standard Multi-Criteria Decision Making (MCDM) baselin
 
 Methodological validation dimensions:
 - Known ground-truth ranking hierarchy with varying:
-  * Number of candidates (N in {8, 11, 14})
+  * Number of candidates (N in {10, 12, 14})
   * Sample size (n in {25, 50, 100})
   * Noise level (sigma in {2.0, 4.0, 6.0, 8.0, 10.0} %)
   * Effect magnitude (Delta in {2.5, 5.0, 8.0, 12.0} % / Cliff's d calibration)
@@ -19,7 +19,7 @@ Methodological validation dimensions:
   * Spearman's Rho Rank Correlation (Monotonic rank distance)
   * False Superiority Rate (Proportion of pairwise inversions: Inversions / (N*(N-1)/2))
   * Expected Regret (Loss in true primary metric M1 vs chosen candidate #1)
-  * Compensatory Error Rate (Mistaken selection of flawed shortcut models)
+  * Compensatory Error Rate (Mistaken selection of models with severe secondary deficit despite high tertiary scores)
 
 High-Performance Architecture & macOS / Python Standards:
 - Modular Subscript Architecture: Clean separation of concerns mirroring MATLAB's
@@ -221,6 +221,7 @@ def main() -> None:
     Author:
         Lukas von Erdmannsdorff
     """
+    # 1. Parse CLI Arguments & Runtime Configurations
     import argparse
     parser = argparse.ArgumentParser(
         description="HERA Methodological Ground-Truth Benchmark Simulation Suite."
@@ -253,6 +254,7 @@ def main() -> None:
     sim_iterations = args.iterations
     sim_seed = args.seed
 
+    # 2. Initialize Dedicated Timestamped Directory Hierarchy (CSVs, Graphics, Reports)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     if args.output:
         custom_out = Path(args.output).expanduser()
@@ -263,7 +265,6 @@ def main() -> None:
         run_dir = DATA_DIR / f"Simulation_Output_{timestamp}"
     run_dir.mkdir(parents=True, exist_ok=True)
     
-    # 3 Dedicated Subfolders for clean organization
     csv_dir = run_dir / "CSVs"
     csv_dir.mkdir(parents=True, exist_ok=True)
     graphics_dir = run_dir / "Graphics"
@@ -271,17 +272,19 @@ def main() -> None:
     reports_dir = run_dir / "Reports"
     reports_dir.mkdir(parents=True, exist_ok=True)
 
-    # Shared temporary workspace for sandboxed trials
+    # 3. Setup Ephemeral Sandboxed Scratch Space & Process Cleanup Hook
     run_temp_dir = run_dir / "temp_workspace"
     run_temp_dir.mkdir(parents=True, exist_ok=True)
 
-    def cleanup_run_temp():
+    def cleanup_run_temp() -> None:
+        """Removes temporary scratch directories upon process termination."""
         if run_temp_dir.exists():
             shutil.rmtree(run_temp_dir, ignore_errors=True)
         if TEMP_DIR.exists():
             shutil.rmtree(TEMP_DIR, ignore_errors=True)
     atexit.register(cleanup_run_temp)
 
+    # 4. Initialize Synchronized Execution Logger
     log_file = run_dir / f"simulation_log_{timestamp}.txt"
     logger = setup_logger(log_file)
     logger.info(f"[Output] Dedicated simulation output folder created: {run_dir}")
@@ -289,10 +292,11 @@ def main() -> None:
     logger.info(f"[Output] Graphics Folder: {graphics_dir}")
     logger.info(f"[Output] Reports Folder:  {reports_dir}")
 
+    # 5. Profile System Hardware & Allocate Optimal DRAS Worker Pool
     ram_gb = get_system_ram_gb()
     num_workers = args.workers if args.workers is not None and args.workers > 0 else get_optimal_worker_count(ram_gb)
 
-    # Initialize HERA computational engine check
+    # 6. Validate HERA Computational Backend (hera-matlab / Local MATLAB CLI)
     logger.info("[Environment] Validating HERA computational engine...")
     try:
         probe_executor = HERAExecutor(logger)
@@ -303,7 +307,7 @@ def main() -> None:
         logger.error("Please verify that hera_matlab or local MATLAB is installed.")
         sys.exit(1)
 
-    # Build comprehensive experimental scenario grid
+    # 7. Construct Orthogonal Experimental Scenario Grid
     all_scenarios = build_scenarios_grid()
     scenarios = list(all_scenarios)
 
@@ -312,26 +316,24 @@ def main() -> None:
         scenarios = scenarios[:1]
         num_workers = min(num_workers, sim_iterations)
 
-    # Print Formatted Study Header (matching +analysis standard)
+    # 8. Print Formatted Academic Study Header
     print_study_header(logger, timestamp, all_scenarios, sim_iterations, ram_gb, num_workers, hera_mode)
 
-    # Export Scenario Grid Configuration (CSV into csv_dir, Graphic into graphics_dir)
+    # 9. Export Benchmark Parameter Tables & 300 DPI Publication Graphics
     scenarios_csv, scenarios_png = save_scenario_configuration(all_scenarios, csv_dir, timestamp, graphics_dir=graphics_dir)
     logger.info(f"[Configuration] Generated {len(all_scenarios)} experimental scenarios.")
     logger.info(f"[Configuration] Scenario index CSV saved: {scenarios_csv}")
     logger.info(f"[Configuration] Scenario grid Graphic saved: {scenarios_png}")
 
-    # Export Method Parameters Configuration (CSV into csv_dir, Graphic into graphics_dir)
     methods_csv, methods_png = save_method_configuration(csv_dir, timestamp, graphics_dir=graphics_dir)
     logger.info(f"[Configuration] Method parameters CSV saved: {methods_csv}")
     logger.info(f"[Configuration] Method parameters Graphic saved: {methods_png}")
 
-    # Export Candidate Ground-Truth Profiles (CSV into csv_dir, Graphic into graphics_dir)
     cands_csv, cands_png = save_candidate_configuration(csv_dir, timestamp, graphics_dir=graphics_dir)
     logger.info(f"[Configuration] Candidate ground-truth profiles CSV saved: {cands_csv}")
     logger.info(f"[Configuration] Candidate ground-truth profiles Graphic saved: {cands_png}")
 
-    # FAIR Metadata Export
+    # 10. Export FAIR Study Metadata JSON
     config_metadata = {
         "study_name": "HERA Methodological Ground-Truth Benchmark Study",
         "timestamp": timestamp,
@@ -357,8 +359,7 @@ def main() -> None:
         json.dump(config_metadata, f, indent=2)
     logger.info(f"[FAIR] Study metadata exported to: {config_json_path}")
 
-    # Initialize CSV result files BEFORE the loop starts (Streaming Architecture)
-    # Initialize CSV result files in csv_dir (Streaming Architecture)
+    # 11. Initialize Streaming CSV Result Files with Headers (Early Allocation)
     results_csv = csv_dir / f"simulation_results_{timestamp}.csv"
     with open(results_csv, "w", newline="", encoding="utf-8") as f:
         pd.DataFrame(columns=RESULT_COLUMNS).to_csv(f, index=False)
@@ -374,7 +375,7 @@ def main() -> None:
     checkpoint_json = run_dir / f"checkpoint_{timestamp}.json"
     repo_root = UTILS_DIR.parent.parent.parent.resolve()
 
-    # Execute Sliding-Window Parallel Simulation Pipeline
+    # 12. Execute Sliding-Window Parallel Simulation Pipeline
     all_results_cache, elapsed_total, interrupted = run_sliding_window_pipeline(
         scenarios=scenarios,
         iterations=sim_iterations,
@@ -390,7 +391,7 @@ def main() -> None:
         get_ground_truth_means_fn=get_ground_truth_means
     )
 
-    # Final summary calculations (even if interrupted)
+    # 13. Finalize Statistical Summaries & Grand-Pooled Datasets
     benchmark_csv = None
     detailed_pooled_csv = None
     if Path(results_csv).exists() and os.path.getsize(results_csv) > 0:
@@ -400,7 +401,7 @@ def main() -> None:
                 update_global_summary_file(summary_csv, df_final_raw)
                 logger.info(f"[Results] Global statistical summary confirmed at: {summary_csv}")
 
-                # Generate Grand Pooled and Executive Benchmark Summary CSVs in csv_dir and mirror to run_dir
+                # Export Grand Pooled and Executive Benchmark Summary CSVs
                 csv_map = export_summary_csvs(df_final_raw, csv_dir, timestamp, root_dir=run_dir)
                 benchmark_csv = csv_map.get("benchmark_summary")
                 detailed_pooled_csv = csv_map.get("pooled_detailed")
@@ -419,7 +420,7 @@ def main() -> None:
 
     cleanup_run_temp()
 
-    # Automatically generate publication plots and multi-page PDF reports into Graphics & Reports
+    # 14. Automated Publication Plotting & Multi-Page PDF Compilation
     master_pdf_path = run_dir / f"Global_Summary_{timestamp}.pdf"
     if summary_csv.exists() and os.path.getsize(summary_csv) > 0:
         try:
@@ -440,7 +441,7 @@ def main() -> None:
         except Exception as e:
             logger.warning(f"[Visualization] Automated plotting could not be completed: {e}")
 
-    # Print Study Completion & Official Citation
+    # 15. Print Study Completion Summary & Formal Citation
     print_study_completion(
         logger=logger,
         t_duration=elapsed_total,
@@ -459,7 +460,7 @@ def main() -> None:
         candidate_profiles_csv=cands_csv
     )
 
-    # Create / update clean 'Simulation_Output' symlink to this latest run
+    # 16. Update Main Output Symlink for Seamless Inspection
     latest_link = DATA_DIR / "Simulation_Output"
     try:
         if latest_link.is_symlink() or latest_link.is_file():

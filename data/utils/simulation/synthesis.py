@@ -1,7 +1,7 @@
 """
 Ground Truth Synthesis, Multivariate Data Generation & Non-Parametric Effect Sizes.
 
-Constructs clinical evaluation profiles (Example 3 Cardiovascular Setting),
+Constructs synthetic multi-criteria benchmark profiles across candidate models,
 generates correlated synthetic data, and computes Cliff's Delta effect sizes.
 
 Author: Lukas von Erdmannsdorff
@@ -65,21 +65,21 @@ def get_ground_truth_means(
           - M3 (Tertiary Metric): Tertiary tie-breaking criterion (Baseline: ~80.0%)
           
         Unified Candidate Architecture:
-          1. C1 (True Rank 1 - Multi-Criterion Leader):
-             Possesses decisive M2 superiority (75.0 + delta + 7.0%), giving it the overall true top rank.
+          1. C1 (True Rank 1 - Multi-Criteria Leader):
+             Possesses secondary metric M2 advantage (75.0 + delta + 7.0%), establishing overall true top rank.
           2. C2 (True Rank 2 - Primary Metric Leader):
              Achieves highest primary metric M1 (80.0%), baseline M2 (75.0 + delta), baseline M3 (80.0%).
-          3. C3 (True Rank 3 - Secondary Metric Step Jumper):
-             Lower M1 (76.0%), but possesses strong M2 (75.0 + delta), beating both C4 and C5.
-          4. C4 (True Rank 4 - Tertiary Metric Tie-Break Winner):
-             Has M1=77.5%, M2=75.0%, M3=80.0 + delta. Decisively beats C5 on tertiary metric M3.
-          5. C5 (True Rank 5 - Tertiary Metric Tie-Break Baseline):
-             Has M1=77.5%, M2=75.0%, M3=80.0%. Neutrally tied with C4 on M1 and M2, falls behind on M3.
+          3. C3 (True Rank 3 - Secondary Metric Margin):
+             Lower M1 (76.0%), but retains secondary metric M2 margin (75.0 + delta) over baseline candidates.
+          4. C4 (True Rank 4 - Tertiary Metric Margin):
+             Has M1=77.5%, M2=75.0%, M3=80.0 + delta. Holds tertiary criterion margin over C5 by Delta.
+          5. C5 (True Rank 5 - Multi-Criteria Baseline):
+             Has M1=77.5%, M2=75.0%, M3=80.0%. Multi-criteria baseline reference.
           6. C6..C_{N-1} (True Ranks 6..N-1 - Descending Baseline Gradient):
              Monotonically decreasing primary metric M1, baseline M2 (75.0%), baseline M3 (80.0%).
-          7. C_N (True Rank N - Compensatory Shortcut Trap Candidate):
-             Flawed model: mediocre M1 (75.0%), severe deficit on M2 (60.0%), hyper-inflated M3 (99.0%).
-             Tests whether decision-making methods resist false promotion due to unconstrained compensatory trade-offs.
+          7. C_N (True Rank N - Asymmetric Multi-Criteria Profile):
+             Asymmetric profile: moderate M1 (75.0%), deficit on M2 (60.0%), elevated M3 (99.0%).
+             Evaluates whether ranking methods preserve criterion hierarchy when candidates exhibit non-uniform trade-offs.
 
     Parameters:
         suite (str): Benchmark suite name.
@@ -114,7 +114,7 @@ def get_ground_truth_means(
     for i in range(6, num_candidates):
         means[f"C{i}"] = [round(m1_start - (i - 6) * step, 2), base_m2, base_m3]
 
-    # C_N is the compensatory trap candidate (strictly Rank N)
+    # C_N is the asymmetric trade-off candidate (strictly Rank N)
     means[f"C{num_candidates}"] = [75.0, 60.0, 99.0]
 
     true_order = [f"C{i}" for i in range(1, num_candidates + 1)]

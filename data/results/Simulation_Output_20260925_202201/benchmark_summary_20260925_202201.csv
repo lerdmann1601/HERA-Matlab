@@ -1,8 +1,8 @@
 Benchmark_Suite,Suite,Stratification,Method,N_Trials,TopChoice_Rate (%),CompleteRank_Rate (%),KendallTau_Median,KendallTau_IQR,SpearmanRho_Median,SpearmanRho_IQR,FalseSuperiority_Median (%),FalseSuperiority_IQR (%),RankDisplacement_Median (Ranks),RankDisplacement_IQR (Ranks),TopChoiceRankRegret_Median (Ranks),TopChoiceRankRegret_IQR (Ranks),CompensatoryError_Rate (%)
-Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 8-14, n: 25-100, noise: 2-10%)",HERA,1499,87.7,27.7,0.939,0.133,0.986,0.048,3.03,6.67,0.33,0.71,0.0,0.0,
-Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 8-14, n: 25-100, noise: 2-10%)",TOPSIS,1499,99.7,12.3,0.879,0.137,0.964,0.065,6.06,6.87,0.57,0.66,0.0,0.0,
-Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 8-14, n: 25-100, noise: 2-10%)",Borda,1499,40.6,0.0,0.56,0.142,0.741,0.118,21.98,7.09,1.86,0.69,1.0,1.0,40.6
-Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 8-14, n: 25-100, noise: 2-10%)",Wilcoxon-Copeland,1499,68.3,0.0,0.733,0.107,0.83,0.072,13.33,5.37,1.33,0.33,0.0,1.0,65.6
+Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",HERA,1500,87.7,27.7,0.939,0.133,0.986,0.048,3.03,6.67,0.33,0.71,0.0,0.0,
+Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",TOPSIS,1500,99.7,12.3,0.879,0.137,0.964,0.065,6.06,6.87,0.57,0.66,0.0,0.0,
+Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",Borda,1500,40.6,0.0,0.56,0.142,0.741,0.118,21.98,7.09,1.86,0.69,1.0,1.0,40.7
+Core Benchmark (Grand Pooled),Core,"All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",Wilcoxon-Copeland,1500,68.3,0.0,0.73,0.107,0.83,0.072,13.48,5.37,1.33,0.33,0.0,1.0,65.7
 Core Scale (N = 10 Candidates),Core,Candidate Set N = 10,HERA,500,89.4,36.6,0.956,0.133,0.988,0.048,2.22,6.67,0.2,0.6,0.0,0.0,
 Core Scale (N = 10 Candidates),Core,Candidate Set N = 10,TOPSIS,500,99.6,21.6,0.911,0.133,0.976,0.048,4.44,6.67,0.4,0.4,0.0,0.0,
 Core Scale (N = 10 Candidates),Core,Candidate Set N = 10,Borda,500,40.0,0.0,0.6,0.133,0.77,0.109,20.0,6.67,1.6,0.4,1.0,1.0,19.4
@@ -11,10 +11,10 @@ Core Scale (N = 12 Candidates),Core,Candidate Set N = 12,HERA,500,88.2,28.4,0.93
 Core Scale (N = 12 Candidates),Core,Candidate Set N = 12,TOPSIS,500,99.6,11.0,0.879,0.121,0.965,0.056,6.06,6.06,0.5,0.5,0.0,0.0,
 Core Scale (N = 12 Candidates),Core,Candidate Set N = 12,Borda,500,40.0,0.0,0.576,0.152,0.741,0.105,21.21,7.58,1.83,0.5,1.0,1.0,43.6
 Core Scale (N = 12 Candidates),Core,Candidate Set N = 12,Wilcoxon-Copeland,500,70.4,0.0,0.727,0.091,0.832,0.063,13.64,4.55,1.33,0.33,0.0,1.0,73.2
-Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,HERA,499,85.4,18.0,0.912,0.132,0.978,0.044,4.4,6.59,0.57,0.71,0.0,0.0,
-Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,TOPSIS,499,99.8,4.4,0.868,0.154,0.952,0.075,6.59,7.69,0.86,0.71,0.0,0.0,
-Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,Borda,499,41.7,0.0,0.538,0.132,0.723,0.114,23.08,6.59,2.29,0.57,1.0,1.0,58.9
-Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,Wilcoxon-Copeland,499,66.9,0.0,0.736,0.088,0.824,0.066,13.19,4.4,1.43,0.43,0.0,1.0,88.6
+Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,HERA,500,85.4,18.0,0.912,0.132,0.978,0.044,4.4,6.59,0.57,0.71,0.0,0.0,
+Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,TOPSIS,500,99.8,4.4,0.868,0.154,0.952,0.075,6.59,7.69,0.86,0.71,0.0,0.0,
+Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,Borda,500,41.8,0.0,0.538,0.132,0.723,0.114,23.08,6.59,2.29,0.57,1.0,1.0,59.0
+Core Scale (N = 14 Candidates),Core,Candidate Set N = 14,Wilcoxon-Copeland,500,67.0,0.0,0.736,0.088,0.824,0.066,13.19,4.4,1.43,0.43,0.0,1.0,88.6
 Cohort Sample Size (n = 25),Sample Size Sensitivity,Cohort Size n = 25 (at N = 12),HERA,300,97.0,14.7,0.923,0.066,0.979,0.028,3.85,3.3,0.4,0.37,0.0,0.0,
 Cohort Sample Size (n = 25),Sample Size Sensitivity,Cohort Size n = 25 (at N = 12),TOPSIS,300,100.0,3.7,0.879,0.088,0.964,0.041,6.06,4.4,0.6,0.43,0.0,0.0,
 Cohort Sample Size (n = 25),Sample Size Sensitivity,Cohort Size n = 25 (at N = 12),Borda,300,44.3,0.0,0.556,0.154,0.745,0.137,22.22,7.69,1.83,0.79,1.0,1.0,43.0

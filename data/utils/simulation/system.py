@@ -217,6 +217,11 @@ def print_study_header(
     Syntax:
         print_study_header(logger, timestamp, scenarios, iterations, ram_gb, num_workers, hera_mode)
 
+    Description:
+        Formats and logs comprehensive study banner including execution timestamp,
+        hardware profiling, worker allocations, benchmarking parameter grid, and
+        statistical evaluation configurations to both stdout and simulation log.
+
     Parameters:
         logger (logging.Logger): Logger instance for console and file output.
         timestamp (str): Execution timestamp string.
@@ -254,7 +259,7 @@ def print_study_header(
     logger.info(div_light)
     logger.info(" Experimental Benchmarking Grid:")
     logger.info(f"  Candidate Scales (N):  {', '.join(map(str, NUM_CANDIDATES_LIST))} candidates")
-    logger.info(f"  Sample Sizes (n):      {', '.join(map(str, SAMPLE_SIZES))} paired evaluation folds")
+    logger.info(f"  Sample Sizes (n):      {', '.join(map(str, SAMPLE_SIZES))} observations per candidate")
     logger.info(f"  Noise Levels (sigma):  {', '.join([f'{s}%' for s in NOISE_LEVELS])}")
     logger.info("  Effect Size Magnitudes (Delta -> Calibrated Median Cliff's d):")
     logger.info("    * Small:  Delta =  2.5%  ==>  Cliff's d ~ 0.25 (range: 0.20 - 0.30)")
@@ -265,13 +270,13 @@ def print_study_header(
     logger.info(div_light)
     logger.info(" Synthetic Multi-Metric Ground-Truth Paradigm:")
     logger.info("  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: ~80.0%)")
-    logger.info("  Secondary Metric (M2): Secondary priority criterion (Decisive C1 advantage: 87.0%)")
-    logger.info("  Tertiary Metric (M3):  Tie-breaking criterion (Decisive C4 vs C5 resolution: 85.0%)")
-    logger.info("  Trap Candidate (C_N):  Compensatory flaw model (Deficit M2: 60.0%, Inflated M3: 99.0%)")
+    logger.info("  Secondary Metric (M2): Secondary priority criterion (C1 criterion margin: 87.0%)")
+    logger.info("  Tertiary Metric (M3):  Tie-breaking criterion (C4 tertiary margin: 85.0%)")
+    logger.info("  Asymmetric Profile (C_N): Trade-off model (Deficit M2: 60.0%, Elevated M3: 99.0%)")
     logger.info(div_light)
     logger.info(" Statistical & Algorithmic Configurations:")
     logger.info(f"  HERA Ranking Mode:     {HERA_CONFIG['ranking_mode']} (Sequential Non-Compensatory Hierarchical)")
-    logger.info(f"  HERA Threshold Bootstr:Percentile Null Bootstrap (B_thr = {HERA_CONFIG['manual_B_thr']})")
+    logger.info(f"  HERA Threshold Bootstr: Percentile Null Bootstrap (B_thr = {HERA_CONFIG['manual_B_thr']})")
     logger.info("  HERA Decision Logic:   Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance")
     logger.info("  MCDM Baseline Methods: TOPSIS (Weights: [0.4, 0.4, 0.2]), Borda Count,")
     logger.info("                         Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)")
@@ -335,26 +340,26 @@ def print_study_completion(
     logger.info("\n" + div_heavy)
     logger.info("   Benchmark Study Completed Successfully")
     logger.info(div_heavy)
-    logger.info(f" Total Study Duration:   {time_str}")
+    logger.info(f" Total Study Duration:    {time_str}")
     if global_pdf is not None and global_pdf.exists():
-        logger.info(f" Master Report (PDF):    {global_pdf}")
+        logger.info(f" Master Report (PDF):     {global_pdf}")
     if reports_dir is not None and reports_dir.exists():
-        logger.info(f" Reports Folder:         {reports_dir}")
+        logger.info(f" Reports Folder:          {reports_dir}")
     if plots_dir is not None and plots_dir.exists():
-        logger.info(f" Graphics Folder:        {plots_dir}")
+        logger.info(f" Graphics Folder:         {plots_dir}")
     if csv_dir is not None and csv_dir.exists():
-        logger.info(f" CSV Results Folder:     {csv_dir}")
-    logger.info(f" Configuration (JSON):   {config_json}")
-    logger.info(f" Scenario Index (CSV):   {scenarios_csv}")
+        logger.info(f" CSV Results Folder:      {csv_dir}")
+    logger.info(f" Configuration (JSON):    {config_json}")
+    logger.info(f" Scenario Index (CSV):    {scenarios_csv}")
     if candidate_profiles_csv is not None and candidate_profiles_csv.exists():
-        logger.info(f" Candidate Profiles (CSV):{candidate_profiles_csv} [Ground-Truth Scaling]")
-    logger.info(f" Raw Results (CSV):      {results_csv} [Streamed]")
-    logger.info(f" Global Summary (CSV):   {summary_csv} [Aggregated]")
+        logger.info(f" Candidate Profiles (CSV): {candidate_profiles_csv} [Ground-Truth Scaling]")
+    logger.info(f" Raw Results (CSV):       {results_csv} [Streamed]")
+    logger.info(f" Global Summary (CSV):    {summary_csv} [Aggregated]")
     if superordinate_csv is not None and superordinate_csv.exists():
-        logger.info(f" Benchmark Summary (CSV):{superordinate_csv} [Suite Overview]")
-    logger.info(f" Pooled Summary (CSV):   {pooled_csv} [FAIR Standard]")
-    logger.info(f" State Checkpoint:       {checkpoint_json}")
-    logger.info(f" Execution Log (TXT):    {log_file}")
+        logger.info(f" Benchmark Summary (CSV): {superordinate_csv} [Suite Overview]")
+    logger.info(f" Pooled Summary (CSV):    {pooled_csv} [FAIR Standard]")
+    logger.info(f" State Checkpoint:        {checkpoint_json}")
+    logger.info(f" Execution Log (TXT):     {log_file}")
     logger.info(div_light)
     logger.info(" If you use this software or benchmark in your research, please cite:")
     logger.info(" von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm")

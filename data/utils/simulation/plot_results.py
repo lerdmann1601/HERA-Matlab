@@ -531,31 +531,31 @@ def plot_master_overview(
     # (A) Top-Choice Recovery vs Noise
     ax = axes[0, 0]
     plot_method_lines(ax, df_core, "Noise", "TopChoice")
-    ax.set_title("(A) Top-Choice Recovery Rate vs. Noise", fontweight="bold", loc="left")
+    ax.set_title("(A) Top-Choice Recovery vs. Noise", fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
 
-    # (B) Complete-Rank Recovery vs Noise
+    # (B) Total Rank Recovery vs Noise
     ax = axes[0, 1]
     plot_method_lines(ax, df_core, "Noise", "CompleteRank")
-    ax.set_title("(B) Complete-Rank Recovery Rate vs. Noise", fontweight="bold", loc="left")
+    ax.set_title("(B) Total Rank Recovery vs. Noise", fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
-    ax.set_ylabel("Complete-Rank Recovery Rate (%)")
+    ax.set_ylabel("Total Rank Recovery (Mean [95% CI], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
 
-    # (C) False Superiority Rate vs Noise
+    # (C) False Superiority vs Noise
     ax = axes[0, 2]
     plot_method_lines(ax, df_core, "Noise", "FalseSuperiority", estimator=np.median, errorbar=("pi", 50))
     ax.set_title("(C) Pairwise Inversion Rate (FSR) vs. Noise", fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
-    ax.set_ylabel("False Superiority Rate (%)")
+    ax.set_ylabel("False Superiority (Median [IQR], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(-0.005, 0.32)
     ax.yaxis.set_major_locator(MultipleLocator(0.05))
@@ -584,7 +584,7 @@ def plot_master_overview(
     plot_method_lines(ax, df_sample, "SampleSize", "KendallTau", estimator=np.median, errorbar=("pi", 50))
     ax.set_title("(E) Rank Fidelity vs. Sample Size", fontweight="bold", loc="left")
     ax.set_xlabel(r"Cohort Sample Size ($n$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$, Median [IQR])")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
     ax.tick_params(labelleft=True)
     ax.set_ylim(0.45, 1.02)
     ax.yaxis.set_major_locator(MultipleLocator(0.10))
@@ -605,7 +605,7 @@ def plot_master_overview(
     plot_method_lines(ax, df_cands, "Candidates", "KendallTau", estimator=np.median, errorbar=("pi", 50))
     ax.set_title(r"(F) Scalability across Candidate Scale ($\mathbf{N}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Number of Candidates ($N$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$, Median [IQR])")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
     ax.tick_params(labelleft=True)
     ax.set_ylim(0.45, 1.02)
     ax.yaxis.set_major_locator(MultipleLocator(0.10))
@@ -642,7 +642,7 @@ def plot_master_overview(
         )
     ax.set_title("(G) Rank Fidelity vs. Effect Size Magnitude", fontweight="bold", loc="left")
     ax.set_xlabel(r"Effect Size (Cliff's $d$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$, Median)")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(0.45, 1.02)
     ax.yaxis.set_major_locator(MultipleLocator(0.10))
@@ -672,7 +672,7 @@ def plot_master_overview(
         )
     ax.set_title(r"(H) Robustness under Metric Collinearity", fontweight="bold", loc="left")
     ax.set_xlabel(r"Inter-Metric Correlation ($\rho$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$, Median)")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(0.45, 1.02)
     ax.yaxis.set_major_locator(MultipleLocator(0.10))
@@ -733,7 +733,7 @@ def plot_faceted_top_choice(
         plot_method_lines(ax, sub, "Noise", "TopChoice")
         ax.set_title(f"N = {N} Candidates", fontweight="bold", fontsize=11.5)
         ax.set_xlabel(r"Noise Level ($\sigma$, %)", fontsize=11)
-        ax.set_ylabel("Top-Choice Recovery Rate (%)", fontsize=11)
+        ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)", fontsize=11)
         ax.tick_params(labelleft=True)
         if ax.get_legend():
             ax.get_legend().remove()
@@ -797,7 +797,7 @@ def plot_faceted_complete_rank(
         plot_method_lines(ax, sub, "Noise", "CompleteRank")
         ax.set_title(f"N = {N} Candidates", fontweight="bold", fontsize=11.5)
         ax.set_xlabel(r"Noise Level ($\sigma$, %)", fontsize=11)
-        ax.set_ylabel("Complete-Rank Recovery Rate (%)", fontsize=11)
+        ax.set_ylabel("Total Rank Recovery (Mean [95% CI], %)", fontsize=11)
         ax.tick_params(labelleft=True)
         if ax.get_legend():
             ax.get_legend().remove()
@@ -808,7 +808,7 @@ def plot_faceted_complete_rank(
     add_external_legend(fig, axes[0], ncol=4, y_pos=-0.06)
     cand_str = ", ".join(map(str, candidates))
     K = get_runs_per_point(df_core)
-    fig.suptitle("Complete-Rank Recovery Rate vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
+    fig.suptitle("Total Rank Recovery vs. Noise Level", fontweight="bold", fontsize=13.0, y=0.985)
     fig.text(
         0.5, 0.925,
         rf"$\mathbf{{N \in \{{{cand_str}\}}, \ n = 50}}, \ \boldsymbol{{\rho}} = \mathbf{{0.0}}, \ \mathbf{{K = {K}}}$ runs per point",
@@ -851,7 +851,7 @@ def plot_faceted_rank_displacement(
         candidates = [10, 12, 14]
 
     num_cols = len(candidates)
-    fig, axes = plt.subplots(1, num_cols, figsize=(4.8 * num_cols, 5.0), sharey=True)
+    fig, axes = plt.subplots(1, num_cols, figsize=(4.8 * num_cols, 5.0), sharey=False)
     if num_cols == 1:
         axes = [axes]
 
@@ -859,7 +859,7 @@ def plot_faceted_rank_displacement(
         ax = axes[idx]
         sub = df_core[df_core["Candidates"] == N]
         y_metric = "RankDisplacement" if "RankDisplacement" in sub.columns else "KendallTau"
-        y_label = "Rank Displacement (Positions)" if y_metric == "RankDisplacement" else r"Kendall's $\tau$"
+        y_label = "Rank Displacement (Mean [95% CI])" if y_metric == "RankDisplacement" else r"Kendall's $\tau$ (Mean [95% CI])"
         plot_method_lines(ax, sub, "Noise", y_metric)
         ax.set_title(f"N = {N} Candidates", fontweight="bold", fontsize=11.5)
         ax.set_xlabel(r"Noise Level ($\sigma$, %)", fontsize=11)
@@ -890,7 +890,27 @@ def plot_faceted_regret(
     output_path: Path, 
     pdf_path: Optional[Path] = None
 ) -> None:
-    """Backwards-compatibility routing to plot_faceted_rank_displacement."""
+    """
+    Backwards-compatibility routing to plot_faceted_rank_displacement.
+
+    Syntax:
+        plot_faceted_regret(df, output_path, pdf_path=None)
+
+    Description:
+        Provides backwards compatibility for legacy callers requesting regret plots
+        by forwarding execution to `plot_faceted_rank_displacement`.
+
+    Parameters:
+        df (pd.DataFrame): Simulation results dataset.
+        output_path (Path): Destination PNG file path.
+        pdf_path (Optional[Path]): Optional destination vector PDF file path.
+
+    Returns:
+        None
+
+    Author:
+        Lukas von Erdmannsdorff
+    """
     plot_faceted_rank_displacement(df, output_path, pdf_path)
 
 
@@ -933,10 +953,10 @@ def plot_faceted_false_superiority(
     for idx, N in enumerate(candidates):
         ax = axes[idx]
         sub = df_core[df_core["Candidates"] == N]
-        plot_method_lines(ax, sub, "Noise", "FalseSuperiority")
+        plot_method_lines(ax, sub, "Noise", "FalseSuperiority", estimator=np.median, errorbar=("pi", 50))
         ax.set_title(f"N = {N} Candidates", fontweight="bold", fontsize=11.5)
         ax.set_xlabel(r"Noise Level ($\sigma$, %)", fontsize=11)
-        ax.set_ylabel("False Superiority Rate (%)", fontsize=11)
+        ax.set_ylabel("False Superiority (Median [IQR], %)", fontsize=11)
         ax.tick_params(labelleft=True)
         if ax.get_legend():
             ax.get_legend().remove()
@@ -970,8 +990,8 @@ def plot_faceted_rank_correlation(
 
     Description:
         Generates a 3-panel publication figure displaying Kendall's Tau rank correlation
-        as a function of cohort sample size (n in {25, 50, 100}), faceted across
-        candidate scales (N=10, 12, 14) at fixed clinical baseline noise (sigma = 4.0%).
+        as a function of sample size (n in {25, 50, 100}), faceted across
+        candidate scales (N=10, 12, 14) at fixed baseline noise (sigma = 4.0%).
 
     Parameters:
         df (pd.DataFrame): Raw Monte Carlo simulation results dataset.
@@ -1001,10 +1021,10 @@ def plot_faceted_rank_correlation(
     for idx, N in enumerate(candidates):
         ax = axes[idx]
         sub = df_sample[df_sample["Candidates"] == N]
-        plot_method_lines(ax, sub, "SampleSize", "KendallTau")
+        plot_method_lines(ax, sub, "SampleSize", "KendallTau", estimator=np.median, errorbar=("pi", 50))
         ax.set_title(f"N = {N} Candidates", fontweight="bold", fontsize=11.5)
         ax.set_xlabel("Sample Size ($n$)", fontsize=11)
-        ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$)", fontsize=11)
+        ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])", fontsize=11)
         ax.tick_params(labelleft=True)
         sample_ticks = sorted(sub["SampleSize"].dropna().unique())
         if sample_ticks:
@@ -1043,7 +1063,7 @@ def plot_effect_sensitivity(
         Generates a 6-panel publication figure (2 rows x 3 columns) visualizing:
           - Top Row (A1-A3): Candidate-Level Rank Dispersion (IQR = Q75 - Q25) across methods.
           - Bottom Row (B1-B3): Observed Assigned Rank (Median ± IQR) vs. Ground Truth along y = x.
-        Panels evaluate performance across three standardized clinical effect tiers:
+        Panels evaluate performance across three standardized effect magnitude tiers:
           (1) Small Effect (Delta = 2.5%, Cliff's d ≈ 0.25 [0.20 – 0.30])
           (2) Medium Effect (Delta = 5.0%, Cliff's d ≈ 0.50 [0.45 – 0.60])
           (3) Large Effect (Delta = 8.0%, Cliff's d ≈ 0.80 [0.75 – 0.90])
@@ -1125,7 +1145,7 @@ def plot_effect_sensitivity(
                 )
                 ax_top.set_title(f"(A{col_idx+1}) Rank Dispersion: {eff_name} (Δ = {delta}%, d ≈ {d_val})", fontweight="bold", fontsize=10.5, loc="left")
                 ax_top.set_xlabel(f"Candidate ($C_1 \\dots C_{{{N}}}$)", fontsize=10.5)
-                ax_top.set_ylabel(r"Rank Dispersion (IQR: $Q_{75} - Q_{25}$)", fontsize=10.5)
+                ax_top.set_ylabel("Rank Dispersion (IQR)", fontsize=10.5)
                 ax_top.tick_params(labelleft=True, labelsize=9.5)
                 max_iqr = df_iqr["IQR"].max() if not df_iqr.empty else 3.0
                 ax_top.set_ylim(-0.05, max(3.5, max_iqr + 0.5))
@@ -1218,7 +1238,7 @@ def plot_effect_sensitivity(
     )
     axes[0].set_title(r"(A) Top-Choice Recovery Rate", fontweight="bold", loc="left")
     axes[0].set_xlabel("Effect Size (Median Cliff's d [Range])", fontsize=10.5)
-    axes[0].set_ylabel("Top-Choice Recovery Rate (%)")
+    axes[0].set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     axes[0].tick_params(labelleft=True)
     axes[0].set_ylim(0, 1.05)
     axes[0].yaxis.set_major_locator(MultipleLocator(0.20))
@@ -1228,7 +1248,7 @@ def plot_effect_sensitivity(
 
     # Panel 2: Rank Displacement
     y_metric = "RankDisplacement" if "RankDisplacement" in sub_df.columns else "KendallTau"
-    y_label = "Mean Rank Displacement (Positions)" if y_metric == "RankDisplacement" else r"Kendall's $\tau$"
+    y_label = "Rank Displacement (Mean [95% CI])" if y_metric == "RankDisplacement" else r"Kendall's $\tau$ (Mean [95% CI])"
     y_title = r"(B) Mean Rank Displacement (|Rank - TrueRank|)" if y_metric == "RankDisplacement" else r"(B) Rank Fidelity (Kendall's $\tau$)"
     sns.barplot(
         data=sub_df, x="EffectDisplay", y=y_metric, hue="Method", 
@@ -1352,7 +1372,7 @@ def plot_correlation_sensitivity(
                 )
                 ax_top.set_title(f"(A{col_idx+1}) Rank Dispersion: {title_condition}", fontweight="bold", fontsize=11.0, loc="left")
                 ax_top.set_xlabel(f"Candidate ($C_1 \\dots C_{{{N}}}$)", fontsize=10.5)
-                ax_top.set_ylabel(r"Rank Dispersion (IQR: $Q_{75} - Q_{25}$)", fontsize=10.5)
+                ax_top.set_ylabel("Rank Dispersion (IQR)", fontsize=10.5)
                 ax_top.tick_params(labelleft=True, labelsize=9.5)
                 max_iqr = df_iqr["IQR"].max() if not df_iqr.empty else 3.0
                 ax_top.set_ylim(-0.05, max(3.5, max_iqr + 0.5))
@@ -1408,7 +1428,7 @@ def plot_correlation_sensitivity(
             fig.suptitle("Inter-Metric Collinearity Sensitivity: Rank Dispersion & Fidelity", fontweight="bold", fontsize=13.5, y=0.985)
             fig.text(
                 0.5, 0.950,
-                rf"$\mathbf{{N = {N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}}, \ \text{{Cliff's}} \ \mathbf{{d \approx 0.50}}, \ \mathbf{{K = {K}}}$ runs per condition",
+                rf"$\mathbf{{N = {N}, \ n = 50, \ \boldsymbol{{\sigma}} = 4\%}},$ Cliff's $\mathbf{{d \approx 0.50}}, \ \mathbf{{K = {K}}}$ runs per condition",
                 ha="center", va="top", fontsize=11.5, fontweight="bold", color="#222222"
             )
             plt.tight_layout(rect=[0, 0.05, 1, 0.91])
@@ -1438,7 +1458,7 @@ def plot_correlation_sensitivity(
         order=order, palette=COLORS, ax=ax, errorbar=("ci", 95), capsize=0.08
     )
     ax.set_xlabel("Inter-Metric Correlation Condition")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(0, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
@@ -1512,7 +1532,7 @@ def plot_compensatory_failure(
     plot_method_lines(ax, sub, "Noise", "TopChoice")
     ax.set_title(r"(A) Safe Model Recovery ($\mathbf{C_1}$ as Rank 1)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
@@ -1525,7 +1545,7 @@ def plot_compensatory_failure(
     plot_method_lines(ax, sub, "Noise", "CompensatoryError")
     ax.set_title(r"(B) Compensatory Failure Rate ($\mathbf{C}_{\mathbf{flawed}}$ in Top Half)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
-    ax.set_ylabel("Compensatory Failure Rate (%)")
+    ax.set_ylabel("Compensatory Failure (Mean [95% CI], %)")
     ax.tick_params(labelleft=True)
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
@@ -1537,7 +1557,7 @@ def plot_compensatory_failure(
     ax = axes[2]
     y_metric = "RankDisplacement" if "RankDisplacement" in sub.columns else "KendallTau"
     y_title = r"(C) Mean Rank Displacement ($\mathbf{|Rank - TrueRank|}$)" if y_metric == "RankDisplacement" else r"(C) Kendall's $\boldsymbol{\tau}$"
-    y_label = "Rank Displacement (Positions)" if y_metric == "RankDisplacement" else r"Kendall's $\tau$"
+    y_label = "Rank Displacement (Mean [95% CI])" if y_metric == "RankDisplacement" else r"Kendall's $\tau$ (Mean [95% CI])"
     plot_method_lines(ax, sub, "Noise", y_metric)
     ax.set_title(y_title, fontweight="bold", loc="left")
     ax.set_xlabel(r"Noise Level ($\sigma$, %)")
@@ -1680,7 +1700,7 @@ def plot_candidate_rank_stability(
         )
         ax_top.set_title(f"(A{col_idx+1}) Rank Dispersion (IQR, N = {N})", fontweight="bold", fontsize=11.5, loc="left")
         ax_top.set_xlabel(f"Candidate ($C_1 \\dots C_{{{N}}}$)", fontsize=11)
-        ax_top.set_ylabel(r"Rank Dispersion (IQR: $Q_{75} - Q_{25}$)", fontsize=11)
+        ax_top.set_ylabel("Rank Dispersion (IQR)", fontsize=11)
         ax_top.tick_params(labelleft=True, labelsize=9.5)
         max_iqr = df_iqr["IQR"].max() if not df_iqr.empty else 3.0
         ax_top.set_ylim(-0.05, max(3.5, max_iqr + 0.5))
@@ -1867,7 +1887,7 @@ def plot_pooled_core_distributions(
                         textcoords='offset points', fontweight='bold', color="#222222")
     ax.set_title("(A) Top-Choice Recovery Rate", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.set_ylim(0, 1.18)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -1893,9 +1913,9 @@ def plot_pooled_core_distributions(
             ax.annotate(f"{h*100:.1f}%", (x, y_top),
                         ha='center', va='bottom', fontsize=9.0, xytext=(0, 4),
                         textcoords='offset points', fontweight='bold', color="#222222")
-    ax.set_title("(B) Complete-Rank Recovery Rate", fontweight="bold", loc="left")
+    ax.set_title("(B) Total Rank Recovery", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("Complete-Rank Recovery Rate (%)")
+    ax.set_ylabel("Total Rank Recovery (Mean [95% CI], %)")
     cr_max = df_core.groupby("Method")["CompleteRank"].mean().max() if not df_core.empty else 0.3
     y_top_limit = max(0.48, min(1.15, cr_max * 1.65))
     ax.set_ylim(0, y_top_limit)
@@ -1912,7 +1932,7 @@ def plot_pooled_core_distributions(
     )
     ax.set_title("(C) Pairwise Inversion Rate (False Superiority)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("False Superiority Rate (%)")
+    ax.set_ylabel("False Superiority (Median [IQR], %)")
 
     # Dynamic upper bound ensuring upper whiskers and outlier fliers are not clipped
     fsr_vals = df_core["FalseSuperiority"].dropna()
@@ -1940,7 +1960,7 @@ def plot_pooled_core_distributions(
     )
     ax.set_title(r"(D) Rank Correlation Fidelity (Kendall's $\boldsymbol{\tau}$)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel(r"Kendall's $\tau$")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
     ax.set_ylim(-0.05, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.tick_params(labelleft=True)
@@ -1955,7 +1975,7 @@ def plot_pooled_core_distributions(
         )
         ax.set_title(r"(E) Empirical Rank Stability (Candidate-IQR)", fontweight="bold", loc="left")
         ax.set_xlabel("")
-        ax.set_ylabel(r"Rank Dispersion across Runs (IQR, Positions)")
+        ax.set_ylabel("Rank Dispersion (IQR)")
         max_iqr = float(df_iqr["CandidateIQR"].max())
         ax.set_ylim(-0.2, max(4.0, max_iqr + 0.5))
         ax.yaxis.set_major_locator(MultipleLocator(1.0))
@@ -1968,7 +1988,7 @@ def plot_pooled_core_distributions(
         )
         ax.set_title(r"(E) Mean Rank Displacement ($\mathbf{|Rank - TrueRank|}$)", fontweight="bold", loc="left")
         ax.set_xlabel("")
-        ax.set_ylabel("Rank Displacement (Positions)")
+        ax.set_ylabel("Rank Displacement (Median [IQR])")
         ax.set_ylim(-0.05, 3.2)
         ax.yaxis.set_major_locator(MultipleLocator(0.5))
         ax.tick_params(labelleft=True)
@@ -1983,7 +2003,7 @@ def plot_pooled_core_distributions(
     )
     ax.set_title(r"(F) Monotonic Alignment (Spearman's $\boldsymbol{\rho}$)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel(r"Spearman's $\rho$")
+    ax.set_ylabel(r"Spearman's $\rho$ (Median [IQR])")
     ax.set_ylim(-0.05, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.tick_params(labelleft=True)
@@ -2043,7 +2063,7 @@ def plot_pooled_core_marginal_scales(
     plot_method_lines(ax, df_core, "Candidates", "TopChoice")
     ax.set_title(r"(A1) Top-Choice Recovery vs. Candidate Scale ($\mathbf{N}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Number of Candidates ($N$)")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2055,10 +2075,10 @@ def plot_pooled_core_marginal_scales(
 
     # (A2) Kendall Tau vs Candidates N
     ax = axes[0, 1]
-    plot_method_lines(ax, df_core, "Candidates", "KendallTau")
+    plot_method_lines(ax, df_core, "Candidates", "KendallTau", estimator=np.median, errorbar=("pi", 50))
     ax.set_title(r"(A2) Rank Correlation vs. Candidate Scale ($\mathbf{N}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Number of Candidates ($N$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$)")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
     ax.set_ylim(-0.05, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     if cands:
@@ -2071,7 +2091,7 @@ def plot_pooled_core_marginal_scales(
     plot_method_lines(ax, df_core, "SampleSize", "TopChoice")
     ax.set_title(r"(B1) Top-Choice Recovery vs. Sample Size ($\mathbf{n}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Sample Size ($n$)")
-    ax.set_ylabel("Top-Choice Recovery Rate (%)")
+    ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2083,10 +2103,10 @@ def plot_pooled_core_marginal_scales(
 
     # (B2) Kendall Tau vs Sample Size n
     ax = axes[1, 1]
-    plot_method_lines(ax, df_core, "SampleSize", "KendallTau")
+    plot_method_lines(ax, df_core, "SampleSize", "KendallTau", estimator=np.median, errorbar=("pi", 50))
     ax.set_title(r"(B2) Rank Correlation vs. Sample Size ($\mathbf{n}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Sample Size ($n$)")
-    ax.set_ylabel(r"Rank Correlation (Kendall's $\tau$)")
+    ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
     ax.set_ylim(-0.05, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     if samples:
@@ -2173,7 +2193,7 @@ def plot_pooled_compensatory_stress(
                         textcoords='offset points', fontweight='bold', color="#222222")
     ax.set_title(r"(A) Safe Model Recovery ($\mathbf{C_1}$ as Rank 1)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("Safe Model Recovery Rate (%)")
+    ax.set_ylabel("Safe Model Recovery (Mean [95% CI], %)")
     ax.set_ylim(0, 1.18)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2201,7 +2221,7 @@ def plot_pooled_compensatory_stress(
                         textcoords='offset points', fontweight='bold', color="#222222")
     ax.set_title(r"(B) Compensatory Failure Rate ($\mathbf{C}_{\mathbf{flawed}}$ in Top Ranks)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("Compensatory Failure Rate (%)")
+    ax.set_ylabel("Compensatory Failure (Mean [95% CI], %)")
     ax.set_ylim(0, 1.18)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2216,7 +2236,7 @@ def plot_pooled_compensatory_stress(
     )
     ax.set_title(r"(C) Mean Rank Displacement ($\mathbf{|Rank - TrueRank|}$)", fontweight="bold", loc="left")
     ax.set_xlabel("")
-    ax.set_ylabel("Rank Displacement (Positions)")
+    ax.set_ylabel("Rank Displacement (Median [IQR])")
     ax.set_ylim(-0.05, 3.2)
     ax.yaxis.set_major_locator(MultipleLocator(0.5))
     ax.tick_params(labelleft=True)
@@ -2280,7 +2300,7 @@ def plot_pooled_sensitivity_summary(
         )
         axes[0].set_title(r"(A) Effect Size Sensitivity", fontweight="bold", loc="left")
         axes[0].set_xlabel("Effect Size (Median Cliff's d [Range])")
-        axes[0].set_ylabel("Top-Choice Recovery Rate (%)")
+        axes[0].set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
         axes[0].set_ylim(0, 1.05)
         axes[0].yaxis.set_major_locator(MultipleLocator(0.20))
         axes[0].yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2301,7 +2321,7 @@ def plot_pooled_sensitivity_summary(
         )
         axes[1].set_title(r"(B) Collinearity Robustness ($\boldsymbol{\rho} = \mathbf{0.0}$ vs. $\boldsymbol{\rho} = \mathbf{0.5}$)", fontweight="bold", loc="left")
         axes[1].set_xlabel("Inter-Metric Correlation Condition")
-        axes[1].set_ylabel("Top-Choice Recovery Rate (%)")
+        axes[1].set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
         axes[1].set_ylim(0, 1.05)
         axes[1].yaxis.set_major_locator(MultipleLocator(0.20))
         axes[1].yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
@@ -2363,7 +2383,7 @@ def plot_superordinate_table_figure(
     display_rows = []
     headers = [
         "Superordinate Scenario", "Method", "N",
-        "Top-Choice (%)", "Complete-Rank (%)", "Kendall τ",
+        "Top-Choice (%)", "Total Rank (%)", "Kendall τ",
         "False Sup. (%)", "Rank Displ. (Ranks)", "Comp. Error (%)"
     ]
 
@@ -2489,6 +2509,9 @@ def generate_consolidated_pdf_reports(
             pass
 
     def append_image_to_pdf(pdf: PdfPages, img_path: Path) -> None:
+        """
+        Loads a PNG figure, calculates aspect-ratio scaling, and appends it to a PDF report.
+        """
         if not img_path.exists() or os.path.getsize(img_path) == 0:
             return
         try:
@@ -2508,6 +2531,9 @@ def generate_consolidated_pdf_reports(
 
     # Search for publication graphics in graphics_dir, run_dir, or CSVs/
     def find_figure_image(name_pattern: str) -> Optional[Path]:
+        """
+        Discovers the active figure image path across candidate directories by timestamp or glob pattern.
+        """
         for search_folder in [graphics_dir, run_dir, run_dir / "CSVs"]:
             if search_folder.exists():
                 direct = search_folder / f"{name_pattern}_{timestamp}.png"
@@ -2582,6 +2608,10 @@ def generate_global_summary_pdf(
 
     Syntax:
         pdf_master, pdf_exec = generate_global_summary_pdf(run_dir, plots_dir, df_raw, timestamp, output_pdf)
+
+    Description:
+        Provides backwards-compatible interface for multi-page global summary PDF compilation,
+        delegating directly to `generate_consolidated_pdf_reports`.
 
     Parameters:
         run_dir (Path): Root directory of the simulation run.

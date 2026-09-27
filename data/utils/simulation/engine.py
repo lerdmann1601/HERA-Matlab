@@ -41,6 +41,24 @@ class HERAExecutor:
     """
 
     def __init__(self, logger: Optional[logging.Logger] = None, repo_root: Optional[Path] = None):
+        """
+        Initializes the HERA executor with backend autodetection.
+
+        Syntax:
+            executor = HERAExecutor(logger=None, repo_root=None)
+
+        Description:
+            Probes the environment first for the compiled Python package (`hera_matlab`),
+            and if unavailable, discovers the local MATLAB executable across system PATH
+            and macOS `/Applications/MATLAB_*.app/bin/matlab` installation locations.
+
+        Parameters:
+            logger (Optional[logging.Logger]): Logger instance for environment discovery logging.
+            repo_root (Optional[Path]): Root path of the HERA-Matlab repository.
+
+        Author:
+            Lukas von Erdmannsdorff
+        """
         self.logger = logger
         self.engine = None
         self.mode = None  # "python_pkg" or "matlab_cli"
@@ -87,6 +105,11 @@ class HERAExecutor:
         Syntax:
             executor.run(config_path, timeout=300.0)
 
+        Description:
+            Launches HERA with the specified configuration file. In Python package mode,
+            directly calls `start_ranking`. In MATLAB CLI mode, launches headless MATLAB
+            with `-nodisplay -nosplash -singleCompThread -batch` to isolate CPU core usage.
+
         Parameters:
             config_path (Path): Path to the temporary JSON configuration file for the run.
             timeout (float): Execution timeout in seconds (default: 300.0).
@@ -122,6 +145,10 @@ class HERAExecutor:
         Syntax:
             executor.terminate()
 
+        Description:
+            Gracefully terminates the background runtime engine instance when operating
+            under the compiled Python package backend (`hera_matlab`).
+
         Returns:
             None
 
@@ -146,6 +173,10 @@ def get_worker_executor(repo_root: Path) -> HERAExecutor:
 
     Syntax:
         executor = get_worker_executor(repo_root)
+
+    Description:
+        Manages a process-local singleton of HERAExecutor across parallel worker processes,
+        ensuring single-engine instantiation per worker without redundant re-discovery.
 
     Parameters:
         repo_root (Path): Root directory of the HERA-Matlab repository.
