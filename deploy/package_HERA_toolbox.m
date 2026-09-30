@@ -118,9 +118,11 @@ fprintf('Configuring Toolbox Options...\n');
 toolboxName = 'HERA';
 
 % Create ToolboxOptions object
-% syntax: ToolboxOptions(toolboxPath, toolboxName)
+% syntax: ToolboxOptions(toolboxPath, toolboxUUID)
 % We point it to projectRoot as the source of files
-opts = matlab.addons.toolbox.ToolboxOptions(projectRoot, toolboxName);
+% UUID that identifies this toolbox on File Exchange
+packageId = "991899d7-67cb-40a5-a684-e51f9681949b";
+opts = matlab.addons.toolbox.ToolboxOptions(projectRoot, packageId);
 
 % Metadata
 opts.ToolboxName = 'HERA'; % The display name
