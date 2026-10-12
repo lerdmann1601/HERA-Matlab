@@ -58,10 +58,13 @@ You can use the datasets in `examples/` to run HERA. To reproduce the results, y
 
 The `utils/` folder provides automated Python tooling for running workflows, benchmarking simulations, and generating publication figures:
 
-- `run_workflow.py`: Runs the automated stability and pruning workflow across alpha contrast levels (Example 2).
+- `run_workflow.py`: Runs the automated stability analysis workflow across decreasing contrast enhancement levels (Example 2).
 - `run_simulation.py`: Runs Monte Carlo ground-truth validation simulations for HERA and multi-criteria comparison methods.
-- `plot_results.py`: Generates publication-ready figures, convergence plots, and report summaries from simulation outputs.
+- `plot_results.py`: Generates publication-ready figures and report summaries from simulation outputs.
 - `simulation/`: Modular package containing the simulation engine, rank stability evaluation, MCDM baselines, and data synthesis.
+
+> [!NOTE]
+> **Platform Support for Simulations:** While `run_workflow.py` runs cross-platform on any supported operating system, the Monte Carlo simulation suite (`run_simulation.py`) currently runs reliably only on **macOS** (specifically calibrated for Apple Silicon). Spawning dozens of concurrent worker processes that invoke the underlying HERA backend across thousands of trials requires strict per-worker thread isolation (`VECLIB_MAXIMUM_THREADS=1`, `-singleCompThread`) and Dynamic Resource-Aware Scaling (DRAS) to prevent core contention and memory swapping. On Linux and Windows, multi-process concurrency with the compiled engine backend is not yet fully optimized and may encounter thread oversubscription.
 
 To use the Python utilities:
 
