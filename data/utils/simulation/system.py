@@ -270,7 +270,7 @@ def print_study_header(
     logger.info(div_light)
     logger.info(" Synthetic Multi-Metric Ground-Truth Paradigm:")
     logger.info("  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: ~80.0%)")
-    logger.info("  Secondary Metric (M2): Secondary priority criterion (C1 criterion margin: 87.0%)")
+    logger.info("  Secondary Metric (M2): Secondary priority criterion (C1 holds +7.0% margin over C2)")
     logger.info("  Tertiary Metric (M3):  Tie-breaking criterion (C4 tertiary margin: 85.0%)")
     logger.info("  Asymmetric Profile (C_N): Trade-off model (Deficit M2: 60.0%, Elevated M3: 99.0%)")
     logger.info(div_light)

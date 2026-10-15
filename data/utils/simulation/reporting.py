@@ -872,7 +872,7 @@ def save_candidate_configuration(
             
             # Benchmark Ground-Truth Role Rationale
             if cand == "C1":
-                role = "True Rank 1: Multi-Criteria Leader (M2 margin over C2 by Delta+7.0%)"
+                role = "True Rank 1: Multi-Criteria Leader (M2 margin over C2 by +7.0%)"
             elif cand == "C2":
                 role = "True Rank 2: Primary Metric Leader (Highest M1=80.0%, baseline M2/M3)"
             elif cand == "C3":

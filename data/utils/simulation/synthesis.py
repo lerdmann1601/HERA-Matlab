@@ -66,7 +66,7 @@ def get_ground_truth_means(
           
         Unified Candidate Architecture:
           1. C1 (True Rank 1 - Multi-Criteria Leader):
-             Possesses secondary metric M2 advantage (75.0 + delta + 7.0%), establishing overall true top rank.
+             Possesses secondary metric M2 advantage (+7.0% over C2, total M2 = 75.0 + delta + 7.0%), establishing overall true top rank.
           2. C2 (True Rank 2 - Primary Metric Leader):
              Achieves highest primary metric M1 (80.0%), baseline M2 (75.0 + delta), baseline M3 (80.0%).
           3. C3 (True Rank 3 - Secondary Metric Margin):
