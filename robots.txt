@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lerdmann1601.github.io/HERA-Matlab/sitemap.xml

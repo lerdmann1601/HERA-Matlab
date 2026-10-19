@@ -1,0 +1,25 @@
+<svg width="380" height="150" viewBox="0 0 380 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    .bg { fill: #FFFFFF; }
+    .text { fill: #333333; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #000000; }
+      .text { fill: #FFFFFF; }
+    }
+  </style>
+  <rect width="100%" height="100%" class="bg" />
+  <!-- Text HERA -->
+  <text x="-75" y="65" transform="rotate(-90)" font-family="Arial, sans-serif" font-weight="bold" font-size="50" class="text" text-anchor="middle">HERA</text>
+  <!-- Graphic -->
+  <g transform="translate(80, 0)">
+    <!-- Yellow Path (Top to Bottom) -->
+    <path d="M 20 25 C 150 25 150 125 260 125" stroke="#F2C94C" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 125 L 260 105 L 290 125 L 260 145 Z" fill="#F2C94C" opacity="0.9"/>
+    <!-- Red Path (Middle to Top) -->
+    <path d="M 20 75 C 150 75 150 25 260 25" stroke="#EB5757" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 25 L 260 5 L 290 25 L 260 45 Z" fill="#EB5757" opacity="0.9"/>
+    <!-- Blue Path (Bottom to Middle) -->
+    <path d="M 20 125 C 150 125 150 75 260 75" stroke="#2F80ED" stroke-width="30" stroke-linecap="butt" fill="none" opacity="0.9"/>
+    <path d="M 260 75 L 260 55 L 290 75 L 260 95 Z" fill="#2F80ED" opacity="0.9"/>
+  </g>
+</svg>
