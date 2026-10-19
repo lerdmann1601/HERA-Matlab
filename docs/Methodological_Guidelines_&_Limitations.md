@@ -28,7 +28,7 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
     simple comparison).
 * **Optimal (*N* ≈ 8–12)**: Balances ranking depth with statistical
     power (28–66 comparisons).
-* **Upper Limit (*N* ≈ 15)**: Not generally recommended. The loss of power
+* **Upper Limit (*N* ≈ 15)**: More is not generally recommended. The loss of power
     from FWER corrections makes detecting true differences unlikely. However,
     it is possible to use HERA with *N* > 15 and you can just give it a try.
 
