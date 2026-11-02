@@ -75,37 +75,56 @@ for k = 1:length(driveTempDirs)
     end
 end
 
-% Patterns to delete (relative to projectRoot)
+% Patterns and target directories to clean (avoids scanning .git, .venv, release, or data/results)
 cleanupPatterns = {'**/__pycache__', '**/*.pyc', '**/.DS_Store'};
+cleanupTargets = { ...
+    fullfile(projectRoot, '+HERA'), ...
+    fullfile(projectRoot, 'data', 'examples'), ...
+    fullfile(projectRoot, 'tests'), ...
+    fullfile(projectRoot, 'deploy', 'wrappers'), ...
+    fullfile(projectRoot, 'deploy', 'python_assets'), ...
+    fullfile(projectRoot, '.github') ...
+    };
 
 totalDeleted = 0;
-for i = 1:length(cleanupPatterns)
-    pattern = cleanupPatterns{i};
-    files = dir(fullfile(projectRoot, pattern));
-    for j = 1:length(files)
-        itemPath = fullfile(files(j).folder, files(j).name);
 
-        % Skip .venv, .venv_build, .git, deploy/output, deploy/dist, and release folders
-        if contains(itemPath, '.venv') || ...
-                contains(itemPath, fullfile(projectRoot, '.git')) || ...
-                contains(itemPath, fullfile(projectRoot, 'deploy', 'output')) || ...
-                contains(itemPath, fullfile(projectRoot, 'deploy', 'dist')) || ...
-                contains(itemPath, fullfile(projectRoot, 'release'))
-            continue;
-        end
-
+% Clean root-level .DS_Store files directly
+rootDsStores = {fullfile(projectRoot, '.DS_Store'), fullfile(projectRoot, 'data', '.DS_Store')};
+for k = 1:length(rootDsStores)
+    if exist(rootDsStores{k}, 'file')
         try
-            if exist(itemPath, 'dir')
-                rmdir(itemPath, 's');
-                totalDeleted = totalDeleted + 1;
-                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
-            elseif exist(itemPath, 'file')
-                delete(itemPath);
-                totalDeleted = totalDeleted + 1;
-                fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
-            end
+            delete(rootDsStores{k});
+            totalDeleted = totalDeleted + 1;
+            fprintf('  Removed: %s\n', strrep(rootDsStores{k}, projectRoot, ''));
         catch
-            % Suppress warnings for expected conflicts
+        end
+    end
+end
+
+% Clean target directories recursively
+for t = 1:length(cleanupTargets)
+    targetDir = cleanupTargets{t};
+    if ~exist(targetDir, 'dir')
+        continue;
+    end
+    for i = 1:length(cleanupPatterns)
+        pattern = cleanupPatterns{i};
+        files = dir(fullfile(targetDir, pattern));
+        for j = 1:length(files)
+            itemPath = fullfile(files(j).folder, files(j).name);
+            try
+                if exist(itemPath, 'dir')
+                    rmdir(itemPath, 's');
+                    totalDeleted = totalDeleted + 1;
+                    fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+                elseif exist(itemPath, 'file')
+                    delete(itemPath);
+                    totalDeleted = totalDeleted + 1;
+                    fprintf('  Removed: %s\n', strrep(itemPath, projectRoot, ''));
+                end
+            catch
+                % Suppress warnings for expected conflicts
+            end
         end
     end
 end
@@ -117,12 +136,87 @@ fprintf('Configuring Toolbox Options...\n');
 % Define Toolbox Name
 toolboxName = 'HERA';
 
-% Create ToolboxOptions object
+% Define essential files and directories to include in the toolbox (relative to projectRoot).
+% Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).
+% Note: ToolboxOptions automatically handles +Namespace folders (like +HERA) if listed.
+
+% NOTE: Exclude 'docs', 'assets', 'deploy', 'data/results', and 'data/utils' to keep the toolbox lean.
+% Internal deployment scripts, raw test files, benchmark results ('data/results'), and development utilities ('data/utils') are excluded to ensure a professional production distribution.
+relativePaths = { ...
+    '+HERA', ...
+    fullfile('data', 'README.md'), ...
+    fullfile('data', 'examples'), ...
+    fullfile('tests', 'HERA_Validation_Example.txt'), ...
+    'CITATION.cff', ...
+    'CODE_OF_CONDUCT.md', ...
+    'CONTRIBUTING.md', ...
+    'license.txt', ...
+    'README.md', ...
+    'setup_HERA.m' ...
+    };
+
+% Stage valid toolbox files in a clean temporary directory.
+% Pointing ToolboxOptions to an isolated staging directory prevents MATLAB from
+% recursively scanning heavy non-toolbox folders (.git, .venv, release, data/results)
+% or stalling on cloud-synced workspace folders.
+stagingDir = tempname;
+mkdir(stagingDir);
+cleanupObj = onCleanup(@() remove_staging_dir(stagingDir));
+
+validFiles = {};
+for i = 1:length(relativePaths)
+    relPath = relativePaths{i};
+    srcPath = fullfile(projectRoot, relPath);
+    dstPath = fullfile(stagingDir, relPath);
+
+    % Explicit guard: ensure 'data/results' and 'data/utils' are always ignored
+    if contains(relPath, fullfile('data', 'results')) || contains(relPath, fullfile('data', 'utils'))
+        continue;
+    end
+
+    if exist(srcPath, 'dir')
+        if ~exist(dstPath, 'dir')
+            mkdir(dstPath);
+        end
+        copyfile(srcPath, dstPath);
+        validFiles{end+1} = dstPath;
+    elseif exist(srcPath, 'file')
+        dstParent = fileparts(dstPath);
+        if ~exist(dstParent, 'dir')
+            mkdir(dstParent);
+        end
+        copyfile(srcPath, dstPath);
+        validFiles{end+1} = dstPath;
+    else
+        fprintf('Warning: Resource not found, skipping: %s\n', srcPath);
+    end
+end
+
+if isempty(validFiles)
+    error('No valid files found to include in the toolbox.');
+end
+
+% Ensure no residual temporary files (.DS_Store, __pycache__, .pyc) exist in the staging directory
+for i = 1:length(cleanupPatterns)
+    stagedCleanup = dir(fullfile(stagingDir, cleanupPatterns{i}));
+    for j = 1:length(stagedCleanup)
+        stagedItem = fullfile(stagedCleanup(j).folder, stagedCleanup(j).name);
+        try
+            if exist(stagedItem, 'dir')
+                rmdir(stagedItem, 's');
+            elseif exist(stagedItem, 'file')
+                delete(stagedItem);
+            end
+        catch
+        end
+    end
+end
+
+% Create ToolboxOptions object from the clean staging directory
 % syntax: ToolboxOptions(toolboxPath, toolboxUUID)
-% We point it to projectRoot as the source of files
 % UUID that identifies this toolbox on File Exchange
 packageId = "991899d7-67cb-40a5-a684-e51f9681949b";
-opts = matlab.addons.toolbox.ToolboxOptions(projectRoot, packageId);
+opts = matlab.addons.toolbox.ToolboxOptions(stagingDir, packageId);
 
 % Metadata
 opts.ToolboxName = 'HERA'; % The display name
@@ -136,44 +230,6 @@ opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking
     'It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Mean Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings. ' ...
     'For more information, visit the project website: https://lerdmann1601.github.io/HERA-Matlab/'];
 
-% Define essential files and directories to include in the toolbox.
-% Explicitly listing items prevents the inclusion of development artifacts (e.g., .git, tests).
-% Note: ToolboxOptions automatically handles +NAmespace folders (like +HERA) if listed.
-
-% NOTE: Exclude 'docs', 'assets', 'deploy', 'data/results', and 'data/utils' to keep the toolbox lean.
-% Internal deployment scripts, raw test files, benchmark results ('data/results'), and development utilities ('data/utils') are excluded to ensure a professional production distribution.
-includedPaths = { ...
-    fullfile(projectRoot, '+HERA'), ...
-    fullfile(projectRoot, 'data', 'README.md'), ...
-    fullfile(projectRoot, 'data', 'examples'), ...
-    fullfile(projectRoot, 'tests', 'HERA_Validation_Example.txt'), ...
-    fullfile(projectRoot, 'CITATION.cff'), ...
-    fullfile(projectRoot, 'CODE_OF_CONDUCT.md'), ...
-    fullfile(projectRoot, 'CONTRIBUTING.md'), ...
-    fullfile(projectRoot, 'license.txt'), ...
-    fullfile(projectRoot, 'README.md'), ...
-    fullfile(projectRoot, 'setup_HERA.m') ...
-    };
-
-% Filter to ensure they exist before adding, and enforce exclusion of results and utils
-validFiles = {};
-for i = 1:length(includedPaths)
-    itemPath = includedPaths{i};
-    % Explicit guard: ensure 'data/results' and 'data/utils' are always ignored
-    if contains(itemPath, fullfile('data', 'results')) || contains(itemPath, fullfile('data', 'utils'))
-        continue;
-    end
-    if exist(itemPath, 'file') || exist(itemPath, 'dir')
-        validFiles{end+1} = itemPath;
-    else
-        fprintf('Warning: Resource not found, skipping: %s\n', itemPath);
-    end
-end
-
-if isempty(validFiles)
-    error('No valid files found to include in the toolbox.');
-end
-
 opts.ToolboxFiles = validFiles;
 
 % Defensive guard: ensure no files from 'data/results' or 'data/utils' can be packaged
@@ -181,8 +237,9 @@ opts.ToolboxFiles(contains(opts.ToolboxFiles, fullfile('data', 'results')) | ...
                   contains(opts.ToolboxFiles, fullfile('data', 'utils'))) = [];
 
 % MATLAB Path Setup
-% By default, the root of the installed toolbox is added to the path.
-% That is sufficient for +HERA to work.
+% By default, only the root of the installed toolbox is added to the path.
+% That is sufficient for +HERA to work and keeps the user's MATLAB path clean.
+opts.ToolboxMatlabPath = {stagingDir};
 
 opts.OutputFile = fullfile(outputDir, [toolboxName '_' version_str '.mltbx']);
 
@@ -212,5 +269,17 @@ catch ME
     end
     fprintf('========================================\n');
     rethrow(ME);
+end
+end
+
+%% Local Helper Functions
+function remove_staging_dir(stagingDir)
+% REMOVE_STAGING_DIR - Safely removes the temporary staging directory.
+if exist(stagingDir, 'dir')
+    try
+        rmdir(stagingDir, 's');
+    catch
+        % Suppress warnings if OS still holds a transient lock
+    end
 end
 end
