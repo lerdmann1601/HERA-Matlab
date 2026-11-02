@@ -14,14 +14,15 @@
 
 The final ranking is achieved through a multi-stage sequential process:
 
-1. **Initial Ranking (Metric 1)**: Datasets are sorted using a 3-step tie-break logic:
-    * **Step 1: Win Count**: Datasets are primarily sorted by the number of significant and relevant wins.
-    * **Step 2: Cliff's Delta (d)**: If Win Counts are equal, the pairwise stochastic dominance (`d_val`) between the tied datasets decides.
-    * **Step 3: Mean Value**: If `d_val` is neutral (within epsilon), the raw mean value of Metric 1 serves as the final tie-breaker.
-2. **Global Correction (Metric 2)**: The ranking from Step 1 is iteratively adjusted. If a lower-ranked dataset shows a significant and relevant win over a higher-ranked one according to Metric 2, they are swapped. This correction takes precedence over Metric 1 results treating Metric 2 as a set of non-negotiable concerns (e.g., safety, fundamental accuracy) that must be satisfied regardless of primary performance.
-3. **Targeted Correction (Metric 3)**: Metric 3 (using Logic 3A and 3B) specifically adjusts pairs that were "neutral" in the preceding hierarchy:
-    * **Logic 3A**: One-time swap of adjacent datasets if Metric 2 was neutral but Metric 3 shows a significant win.
-    * **Logic 3B**: Iterative swaps of adjacent datasets if both Metric 1 AND 2 were neutral but Metric 3 shows a significant win.
+1. **Primary Baseline Ranking (Metric 1)**: Datasets are sorted using a 3-step tie-break logic:
+    * **Step 1: Win Count**: Datasets are primarily sorted by the number of statistically significant and practically relevant wins.
+    * **Step 2: Cliff's Delta (d)**: If Win Counts are equal, the pairwise stochastic dominance (`d_val`) between adjacent tied datasets decides (requires `abs(d_val) > 1e-9`).
+    * **Step 3: Mean Value**: If `d_val` is neutral (within numerical tolerance $\epsilon = 10^{-9}$), the raw mean value of Metric 1 serves as the final tie-breaker.
+2. **Compensatory Correction (Metric 2)**: The baseline ranking from Stage 1 is iteratively adjusted via global pairwise comparisons. If a lower-ranked dataset shows a statistically significant and practically relevant win over a higher-ranked one according to Metric 2, their positions are swapped. This unifies compensatory and strict veto logic, allowing Metric 2 to override the primary ordering whenever a robust superiority in the secondary criterion is established.
+3. **Local Adjustment and Refinement (Metric 3)**: Metric 3 (using Sublogic 1 / Logic 3A and Sublogic 2 / Logic 3B) specifically resolves local indifferences where the preceding hierarchy remained neutral:
+    * **Sublogic 1 (Logic 3A - Constrained Local Correction)**: One-time swap of adjacent datasets if Metric 2 was neutral (in `M1_M2_M3` mode, or Metric 1 in `M1_M3A` mode) and Metric 3 shows a statistically significant and practically relevant win.
+    * **Sublogic 2 (Logic 3B - Indifference Resolution)**: Iterative swaps of adjacent datasets within neutral clusters where *both* Metric 1 AND Metric 2 were neutral and Metric 3 shows a statistically significant and practically relevant win.
+4. **Intransitivity Safeguard**: Iterative stages (Stage 2 and Stage 3B) enforce a deterministic iteration limit ($I_{\max} = N^2$, with a safety margin); if cyclic rank shifts prevent convergence, the loop is aborted (`cycle_m2` / `cycle_m3b` set to `true`) and the ranking reverts to the validated ordering of the preceding stage.
 
 For more details on the possible ranking logics, see [Ranking Modes Explained](https://lerdmann1601.github.io/HERA-Matlab/Ranking_Modes_Explained).
 
@@ -78,7 +79,7 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains 
 | `borda_results.score` | `[N x 1]` | Normalized Borda consensus score (0-100%). |
 | `borda_results.rank_distribution` | `{N x 1}` | Cell array containing rank frequency matrices `[Rank, Count]` per dataset. |
 | `borda_results.dataset_names` | `{1 x N}` | Dataset names in the same order as provided in the analysis. |
-| `power_results.power_matrices` | `{1 x M}` | Cell array containing `[Pairs x 1]` vectors of win probabilities for each metric. |
+| `power_results.power_matrices` | `{1 x M}` | Cell array containing `[Pairs x 1]` vectors of empirical win probabilities (relative frequency of statistically significant and practically relevant wins under cluster bootstrap resampling) for each metric. |
 | `all_permutation_ranks` | `[N x Perms]` | Ranks for every metric permutation tested. |
 | `selected_permutations` | `[Perms x M]` | Indices of metrics for each permutation. |
 | **Metadata & Configuration** | | |

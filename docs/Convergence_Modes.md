@@ -41,7 +41,7 @@ Triggered automatically if the robust plateau criterion is not met within the ma
 * **Mechanism**: Identifies the *point of diminishing returns* by calculating the maximum orthogonal distance to the line connecting the first and last points of the normalized stability curve (point of maximum curvature).
 
 > [!WARNING]
-> The Ellbow Fallback is a diagnostic aid, not a guarantee!
+> The Elbow Fallback is a diagnostic aid, not a guarantee!
 > Results should be treated as a suggestion to be verified by visual inspection
 > and for further analysis (for more details see Troubleshooting Convergence).
 
@@ -49,11 +49,10 @@ Triggered automatically if the robust plateau criterion is not met within the ma
 
 > [!NOTE]
 > The different parameters used in the **Robust Mode** for
-> convergence checking have been validated in a empirical Convergence Analysis.
+> convergence checking have been validated in an empirical Convergence Analysis.
 > The default parameters were found to be sufficient for the majority of scenarios.
-> However it is not a guarantee!
-> Convergence failures using the elbow method were rare (0.8% of cases,
-> exclusively in Ranking). Simple Convergence Mode was not assessed in this analysis!
+> However, it is not a guarantee!
+> Under default settings, non-convergence requiring the Elbow Method fallback was rare (0.8% of cases in Ranking, i.e., 99.2% convergence rate, and 100% convergence in Thresholds and BCa Intervals). Simple Convergence Mode was not assessed in this analysis!
 > For detailed results, see
 > [Convergence Analysis](https://lerdmann1601.github.io/HERA-Matlab/Convergence_Analysis).
 

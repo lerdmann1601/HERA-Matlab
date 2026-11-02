@@ -26,11 +26,12 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 
 * **Minimum (*N* = 3)**: Required for a meaningful ranking. (*N* = 2 is just a
     simple comparison).
-* **Optimal (*N* ≈ 8–12)**: Balances ranking depth with statistical
-    power (28–66 comparisons).
-* **Upper Limit (*N* ≈ 15)**: More is not generally recommended. The loss of power
-    from FWER corrections makes detecting true differences unlikely. However,
-    it is possible to use HERA with *N* > 15 and you can just give it a try.
+* **Optimal (*N* ≈ 8–15)**: Balances ranking depth with statistical
+    power (28–105 comparisons).
+* **Upper Limit (*N* > 15)**: Beyond *N* ≈ 15 (105 comparisons), control of the
+    Family-Wise Error Rate (FWER) via Holm-Bonferroni correction becomes strictly
+    conservative, reducing power to detect true differences. However, it is
+    technically possible to run HERA with *N* > 15.
 
 > [!WARNING]
 > **Visual Limit (*N* ≤ 20)**: While HERA should technically compute rankings
@@ -43,25 +44,26 @@ Increasing *N* quadratically increases the number of pairwise comparisons (*m* =
 
 > [!IMPORTANT]
 > **Recommendation:**
-> If you have a large pool of candidates (*N* >> 15), it could be a good idea to
-> apply a global screening method (e.g., **Friedman Test** followed by Nemenyi post-hoc
-> or other methods controled via False Discovery Rate (FDR))
-> to identify the top tier of algorithms. Ranking the entire set with HERA may be
-> overly strict; instead, select the top performing subset (e.g., the best 10-15)
-> and use HERA for the final ranking of the best candidates.
+> For larger comparisons (*N* > 15), a two-stage approach is recommended: first,
+> perform an initial exploratory screening using methods controlled via the False
+> Discovery Rate (FDR) to identify a top-performing subset (e.g., the best 8–15
+> candidates), followed by a focused HERA analysis for the final ranking.
 
 ## Sample Size (*n*)
 
 A balance between statistical stability and computational feasibility is
 required.
 
-* **Minimum (*n* = 16)**: Required for the Wilcoxon test to use the Normal
-    Approximation in Matlab.
-* **Robust Min (*n* ≈ 25–30)**: Necessary for stable confidence
-    intervals for ranks, BCa and Jackknife estimates.
-    For BCa it automatically switches to Percentil Bootstrap if Bias and
-    Jackknife estimates become unstable. If one of the two is unstable,
-    it falls back to a partially bias-corrected bootstrap.
+* **Small Samples & Exact Testing (*n* < 16)**: HERA uses the MATLAB `signrank`
+    function which employs the exact Wilcoxon
+    signed-rank test for small sample sizes and transitions to the normal
+    approximation with continuity correction for *n* ≥ 16.
+* **Robust Min (*n* ≈ 25–30)**: Recommended (especially *n* ≥ 30) for stable
+    confidence intervals for ranks, BCa intervals, and Jackknife acceleration
+    estimates. For BCa, HERA automatically falls back to a standard Percentile
+    Bootstrap if both bias ($\hat{z}_0$) and Jackknife acceleration ($\hat{a}$)
+    estimates become degenerate or unstable, or to a partially corrected bootstrap
+    interval if only one of the two correction factors is set to zero.
 * **Optimal (*n* ≈ 50–500)**: Best balance of power, stability, and
     runtime.
 * **Upper Limit (*n* ≈ 1,000–5,000)**: Higher *n* improves statistics
