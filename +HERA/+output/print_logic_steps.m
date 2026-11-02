@@ -92,13 +92,15 @@ function print_logic_steps(results, thresholds, config, shared_info)
                 if ~isempty(row_idx)
                     d_val = swap_details.results_metric1{row_idx, 4};
                     idx1 = swap_details.results_metric1{row_idx, 6};              
-                    % Check Cliff's Delta (Logic 2a)
-                    if (idx1 == k && d_val > 0) || (idx1 == l && d_val < 0)
+                    % Define epsilon for floating point comparison associated with zero
+                    d_epsilon = 1e-9;
+                    % Check Cliff's Delta (Logic 2a: beyond epsilon)
+                    if (idx1 == k && d_val > d_epsilon) || (idx1 == l && d_val < -d_epsilon)
                         is_k_better = true;
-                    elseif (idx1 == l && d_val > 0) || (idx1 == k && d_val < 0)
+                    elseif (idx1 == l && d_val > d_epsilon) || (idx1 == k && d_val < -d_epsilon)
                         is_l_better = true;                  
-                    % Fallback: Use mean (Logic 2b) if d=0
-                    elseif d_val == 0
+                    % Fallback: Use mean (Logic 2b) if Cliff's d is practically identical (within epsilon)
+                    elseif abs(d_val) <= d_epsilon
                          if (mean_metrics(k, 1) > mean_metrics(l, 1)), is_k_better = true;
                          elseif (mean_metrics(l, 1) > mean_metrics(k, 1)), is_l_better = true; end
                     end

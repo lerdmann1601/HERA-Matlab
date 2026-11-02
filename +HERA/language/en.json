@@ -418,7 +418,7 @@
         "metric1": {
             "header": "=== %s Comparison: Analysis and Initial Ranking ===",
             "logic1": "1. Initial ranking formed by the number of won comparisons per dataset",
-            "criteria": "Criteria for a win: p < Holm-Bonferroni threshold, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
+            "criteria": "Criteria for a win: p <= Holm-Bonferroni threshold, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
             "logic2": "2. In case of a tie, Cliff's Delta (d) decides. If d = 0 the mean value is used.",
             "swaps_header": "Significant and relevant %s comparisons (-> Swap by logic 1 and 2 marked. See log file for more details):",
             "initial_ranking": "Ranking after %s comparison:"
@@ -426,7 +426,7 @@
         "metric2": {
             "header": "=== %s Comparison: Analysis and Rank Correction ===",
             "logic": "Iterative rank swapping of all datasets based on %s",
-            "criteria": "Criteria for significance and relevance: p < Holm-Bonferroni, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
+            "criteria": "Criteria for significance and relevance: p <= Holm-Bonferroni, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
             "swaps_header": "Significant and relevant %s comparisons (-> See log file for more details on rank swaps):",
             "ranking_after": "Ranking after %s correction:"
         },
@@ -435,7 +435,7 @@
             "logic1": "1. If %s comparison criteria are not met: One-time comparison between two ranks based on %s",
             "logic1_3A": "1. If %s comparison criteria are not met: One-time comparison between two ranks based on %s",
             "logic2": "2. Iterative swap if %s and %s comparison criteria are not met, based on %s",
-            "criteria": "Criteria for significance and relevance: p < Holm-Bonferroni, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
+            "criteria": "Criteria for significance and relevance: p <= Holm-Bonferroni, Delta (d) >= %.3f, Rel. Diff. (r) >= %.3f",
             "swaps_header": "Significant and relevant %s comparisons (-> Swap by logic 1 and 2 marked. See log file for more details):",
             "final_ranking": "Final ranking after %s comparison:"
         },

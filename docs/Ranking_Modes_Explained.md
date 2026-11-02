@@ -16,7 +16,7 @@ This allows HERA to resolve trade-offs without collapsing multi-dimensional perf
 
 A candidate $A$ only "wins" over candidate $B$ if the difference satisfies three conjunctive criteria. If any criterion is not met, the comparison is considered *neutral*. Here Cliff's Delta ($d$) and Relative Mean Difference ($\text{RelDiff}$) are used as a complementary measure to the Statistical Significance ($p$) to provide a dual-criteria assessment of Dominance and Magnitude. This logic prevents "wins" based on outlier driven or consistent but irrelevant differences and ensures that a "win" is both significant and relevant.
 
-1. **Statistical Significance**: $p < \alpha_{\text{Holm}}$ (Wilcoxon signed-rank test with Holm-Bonferroni correction).
+1. **Statistical Significance**: $p \leq \alpha_{\text{Holm}}$ (Wilcoxon signed-rank test with Holm-Bonferroni correction).
 2. **Stochastic Dominance**: $|d| \geq \theta_d$ (Cliff's Delta must exceed the data-driven threshold).
 3. **Practical Magnitude**: $\text{RelDiff} \geq \theta_{\text{RelDiff}}$ (Relative Mean Difference must exceed the threshold).
    The Relative Mean Difference (RelDiff) is defined for group means $\bar{x}$ and $\bar{y}$ as:
@@ -52,7 +52,7 @@ For cases where the bootstrapped thresholds for the *RelDiff* becomes systematic
 Datasets are primarily sorted by their *Win Count* in Metric 1.
 
 - **Tie-Break A**: If Win Counts are equal, the pairwise Cliff's Delta ($d$) between the tied datasets decides.
-- **Tie-Break B**: If $|d| < \epsilon$, the raw mean value of Metric 1 serves as the final arbiter.
+- **Tie-Break B**: If $|d| \leq \epsilon$, the raw mean value of Metric 1 serves as the final arbiter.
 
 ### Stage 2: Global Compensatory Correction (Metric 2)
 

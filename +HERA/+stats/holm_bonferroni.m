@@ -45,8 +45,11 @@ function [is_significant, adjusted_alphas] = holm_bonferroni(p_values, alpha_glo
     
     % 3. Map results back to original order
     is_significant = false(size(p_values));
-    adjusted_alphas = zeros(size(p_values));
-    
     is_significant(sort_idx) = is_significant_sorted;
-    adjusted_alphas(sort_idx) = adjusted_alphas_sorted;
+    
+    % Only allocate and map adjusted alpha thresholds if requested by caller
+    if nargout > 1
+        adjusted_alphas = zeros(size(p_values));
+        adjusted_alphas(sort_idx) = adjusted_alphas_sorted;
+    end
 end

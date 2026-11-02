@@ -3,7 +3,7 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
 %
 % Description:
 %   Tests the "AND" condition in ranking logic:
-%   Win = (p < alpha) AND (|d| > d_thresh) AND (r > r_thresh).
+%   Win = (p <= alpha) AND (|d| >= d_thresh) AND (r >= r_thresh).
 %   Verifies that missing just one criterion results in Neutral rank.
 %
 % Inputs:
@@ -29,7 +29,7 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     
     alpha_val = config.alphas(1);
     
-    fprintf('[Test] Win condition = (p < alpha) AND (|d| > d_thr) AND (r > r_thr).\n');
+    fprintf('[Test] Win condition = (p <= alpha) AND (|d| >= d_thr) AND (r >= r_thr).\n');
     fprintf('[Setup] N=4 Candidates, n=%d Subjects, Fixed Thresholds (alpha=%.2f, d_thr=%.2f, r_thr=%.2f).\n', n_subj, alpha_val, 0.20, 0.05);
     fprintf('        Generating synthetic edge cases to test partial criteria matches.\n');
     

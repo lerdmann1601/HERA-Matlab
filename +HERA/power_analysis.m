@@ -111,19 +111,7 @@ end
             end
             
             % 3. Apply Holm-Bonferroni Correction (Step-Down)
-            [sorted_p, sort_idx] = sort(current_p_values);
-            is_significant = false(num_pairs, 1);
-            
-            for k = 1:num_pairs
-                alpha_k = alpha_base / (num_pairs - k + 1);
-                if sorted_p(k) <= alpha_k
-                    % Mark the original index as significant
-                    is_significant(sort_idx(k)) = true;
-                else
-                    % Stop Rule: All subsequent p-values are also not significant
-                    break;
-                end
-            end
+            is_significant = HERA.stats.holm_bonferroni(current_p_values, alpha_base);
             
             % 4. Check Win Conditions (Significance + Effect Size)
             % We accumulate wins for the specific pair index k

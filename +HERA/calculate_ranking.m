@@ -96,7 +96,9 @@ for metric_idx = 1:num_metrics
     r_thr = thresholds.rel_thresh(metric_idx);
     alpha = config.alphas(metric_idx);
     
-    temp_m = cell(m, 7);
+    if nargout >= 6
+        temp_m = cell(m, 7);
+    end
     p_values = zeros(m, 1);
     
     % Calculates p-values (Wilcoxon signed-rank test) for all pairs.
@@ -133,56 +135,75 @@ for metric_idx = 1:num_metrics
             temp_m(k, :) = {dataset_names{i}, dataset_names{j}, p, d_vals(k), rel_vals(k), i, j};
         end
     end
-    all_temp_results{metric_idx} = temp_m;
+    if nargout >= 6
+        all_temp_results{metric_idx} = temp_m;
+    end
     
     % Performs the Holm-Bonferroni correction to control the family-wise error rate.
-    [sorted_p, sort_idx] = sort(p_values); % Sort p-values in ascending order.
     % Checks for each p-value if it meets the Holm condition using centralized logic.
-    [is_sig_orig, ~] = HERA.stats.holm_bonferroni(p_values, alpha);
-    % Map to sorted order for the subsequent loop structure which iterates by rank k
-    holm_hypothesis = is_sig_orig(sort_idx);
+    if nargout >= 4
+        [is_sig_orig, adjusted_alphas] = HERA.stats.holm_bonferroni(p_values, alpha);
+    else
+        is_sig_orig = HERA.stats.holm_bonferroni(p_values, alpha);
+    end
     
-    % Initialization of the result matrices for the current metric.
-    sig_matrix = false(num_datasets);      % Stores significant "wins" (directional: sig_matrix(i,j)=true -> i beats j).
-    alpha_matrix = NaN(num_datasets);      % Stores the corrected alpha values for each comparison.
-    p_value_matrix = NaN(num_datasets);    % Stores the raw p-values for each comparison.
-    pairwise_swaps = zeros(m, 5);          % Logs all significant comparisons for output.
-    swap_count = 0;
+    % Initialization of the result matrices for the current metric (conditioned on requested outputs).
+    sig_matrix = false(num_datasets);          % Stores significant "wins" (directional: sig_matrix(i,j)=true -> i beats j).
+    if nargout >= 4
+        alpha_matrix = NaN(num_datasets);      % Stores the corrected alpha values for each comparison.
+    end
+    if nargout >= 5
+        p_value_matrix = NaN(num_datasets);    % Stores the raw p-values for each comparison.
+    end
+    if nargout >= 6
+        [sorted_p, sort_idx] = sort(p_values); % Sort p-values in ascending order for logging.
+        holm_hypothesis = is_sig_orig(sort_idx);
+        pairwise_swaps = zeros(m, 5);          % Logs all significant comparisons for output.
+        swap_count = 0;
+    end
     
     % Fills the result matrices based on the Holm-Bonferroni correction.
     for k = 1:m
-        % Stores the corrected alpha value for each comparison.
-        i_alpha = pair_idx_all(sort_idx(k), 1);
-        j_alpha = pair_idx_all(sort_idx(k), 2);
-        alpha_k = alpha / (m - k + 1);
-        alpha_matrix(i_alpha, j_alpha) = alpha_k;
-        alpha_matrix(j_alpha, i_alpha) = alpha_k;
+        % Stores the corrected alpha value and raw p-value for each comparison (if requested).
+        if nargout >= 4
+            orig_idx_p = pair_idx_all(k, :);
+            alpha_matrix(orig_idx_p(1), orig_idx_p(2)) = adjusted_alphas(k);
+            alpha_matrix(orig_idx_p(2), orig_idx_p(1)) = adjusted_alphas(k);
+            if nargout >= 5
+                p_value_matrix(orig_idx_p(1), orig_idx_p(2)) = p_values(k);
+                p_value_matrix(orig_idx_p(2), orig_idx_p(1)) = p_values(k);
+            end
+        end
         
-        % Stores the raw p-value for each comparison.
-        orig_idx_p = pair_idx_all(k, :);
-        p_value_matrix(orig_idx_p(1), orig_idx_p(2)) = p_values(k);
-        p_value_matrix(orig_idx_p(2), orig_idx_p(1)) = p_values(k);
+        % Determines the comparison index and significance status (sorted order only needed for swap logging).
+        if nargout >= 6
+            is_sig_k = holm_hypothesis(k);
+            pair_idx = sort_idx(k);
+        else
+            is_sig_k = is_sig_orig(k);
+            pair_idx = k;
+        end
         
         % Checks if a comparison is significant after Holm-Bonferroni.
-        if holm_hypothesis(k)
-            orig_idx_sorted = sort_idx(k);
-            i = pair_idx_all(orig_idx_sorted, 1);
-            j = pair_idx_all(orig_idx_sorted, 2);
-            d_val = d_vals(orig_idx_sorted);
-            r_val = rel_vals(orig_idx_sorted);
+        if is_sig_k
+            i = pair_idx_all(pair_idx, 1);
+            j = pair_idx_all(pair_idx, 2);
+            d_val = d_vals(pair_idx);
+            r_val = rel_vals(pair_idx);
             
             % Additional check if the effect sizes exceed the thresholds (practical relevance).
             % Fix: Added epsilon (1e-9) to handle floating point issues where d_val == d_thr
             if abs(d_val) >= (d_thr - 1e-9) && r_val >= (r_thr - 1e-9)
-                swap_count = swap_count + 1;
-        if d_val > 0 % d_val > 0 means i is better than j (x > y in calculation).
+                if d_val > 0 % d_val > 0 means i is better than j (x > y in calculation).
                     sig_matrix(i, j) = true;
                     if nargout >= 6
+                        swap_count = swap_count + 1;
                         pairwise_swaps(swap_count, :) = [i, j, sorted_p(k), d_val, r_val];
                     end
                 else % d_val < 0 means j is better than i.
                     sig_matrix(j, i) = true;
                     if nargout >= 6
+                        swap_count = swap_count + 1;
                         pairwise_swaps(swap_count, :) = [j, i, sorted_p(k), d_val, r_val];
                     end
                 end
@@ -192,9 +213,15 @@ for metric_idx = 1:num_metrics
     
     % Stores the final matrices for the current metric.
     all_sig_matrices{metric_idx} = sig_matrix;
-    all_alpha_matrices{metric_idx} = alpha_matrix;
-    all_p_value_matrices{metric_idx} = p_value_matrix;
-    all_pairwise_swaps{metric_idx} = pairwise_swaps(1:swap_count, :);
+    if nargout >= 4
+        all_alpha_matrices{metric_idx} = alpha_matrix;
+    end
+    if nargout >= 5
+        all_p_value_matrices{metric_idx} = p_value_matrix;
+    end
+    if nargout >= 6
+        all_pairwise_swaps{metric_idx} = pairwise_swaps(1:swap_count, :);
+    end
 end
 
 %% 2. Initial Ranking based on Metric 1

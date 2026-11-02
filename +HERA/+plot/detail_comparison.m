@@ -51,20 +51,13 @@ plot_data = table();
 % Store original indices to retrieve CI data later after sorting.
 plot_data.pair_idx = (1:num_pairs)';
 
-% Extract the p-values for the current metric from the full results matrix.
+% Extract the p-values and Holm-Bonferroni corrected alpha thresholds for the current metric from the full results matrices.
 % sub2ind converts the [i, j] pairs into linear indices for the matrix.
 p_values = results.all_p_value_matrices{metric_idx}(sub2ind(size(results.all_p_value_matrices{metric_idx}), ...
            pair_idx_all(:,1), pair_idx_all(:,2)));
 plot_data.p_values = p_values;
-% Get the sort order by p-value, needed for applying Holm-Bonferroni thresholds.
-[~, sort_idx_p] = sort(p_values);
-
-% Calculate Holm-Bonferroni corrected alpha thresholds (alpha / (N-k+1)).
-holm_thresholds = (shared_info.alphas(metric_idx) ./ (num_pairs - (1:num_pairs) + 1))';
-% Create a vector for the thresholds, aligned with the original data pairs.
-plot_data.alpha_holm = zeros(num_pairs, 1);
-% Apply the sorted thresholds back to the original pair order.
-plot_data.alpha_holm(sort_idx_p) = holm_thresholds;
+plot_data.alpha_holm = results.all_alpha_matrices{metric_idx}(sub2ind(size(results.all_alpha_matrices{metric_idx}), ...
+                       pair_idx_all(:,1), pair_idx_all(:,2)));
 
 % Extract effect size data for the current metric.
 plot_data.delta = results.d_vals_all(:, metric_idx);

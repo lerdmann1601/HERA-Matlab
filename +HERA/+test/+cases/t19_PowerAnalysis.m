@@ -72,8 +72,8 @@ function passed = t19_PowerAnalysis(default_config, thresholds, ~, ~, lang)
     table_data = {
         'Subjects (n)', num2str(n_pwr), 'Resampling Size';
         'Simulations', num2str(n_sims), 'Bootstrap Iterations';
-        'Alpha Limit', sprintf('%.3f', alpha_disp), 'Significant if p < Alpha';
-        'Effect Limit', sprintf('d > %.2f, r > %.2f', d_thr_disp, r_thr_disp), 'Relevant if Eff > Limit'
+        'Alpha Limit', sprintf('%.3f', alpha_disp), 'Significant if p <= Alpha';
+        'Effect Limit', sprintf('d >= %.2f, r >= %.2f', d_thr_disp, r_thr_disp), 'Relevant if Eff >= Limit'
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
     
