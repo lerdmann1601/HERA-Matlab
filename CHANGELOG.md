@@ -4,8 +4,26 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.7) are considered legacy.
+> Previous versions (including all versions prior to 1.4.8) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
+
+---
+
+## [1.4.8] - 2026-11-02
+
+### Added
+
+* **Benchmark Simulation Suite:** Reorganized the `data/` directory and added a modular Python simulation and plotting suite (`data/utils/`) for ground-truth validation.
+
+### Changed
+
+* **Performance Optimization:** Optimized core ranking and BCa bootstrap routines by eliminating redundant calculations and reusing precalculated Jackknife factors.
+* **Documentation & Type Hints:** Updated results structure and configuration references, corrected example links, and refined Python type hints.
+
+### Fixed
+
+* **Statistical & Tie-Break Consistency:** Unified Holm-Bonferroni comparisons and floating-point tie-break tolerances across ranking, power analysis, and logs.
+* **Convergence Config & Packaging:** Fixed `"auto"` memory config handling in convergence studies, updated toolbox packaging options, and aligned PyPI license file resolution.
 
 ---
 
@@ -193,6 +211,7 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
+[1.4.8]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.5...v1.4.6
 [1.4.5]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.4...v1.4.5
