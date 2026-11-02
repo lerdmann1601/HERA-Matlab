@@ -137,6 +137,8 @@ p_pair_idx_all = pair_idx_all;
 p_all_data = all_data; 
 p_d_vals_all = d_vals_all; 
 p_rel_vals_all = rel_vals_all;
+has_precalc_a = false;
+precalc_a = [];
 
 if ~isempty(manual_B)
     B_ci = manual_B;
@@ -295,6 +297,7 @@ else
             end
         end
     end
+    has_precalc_a = true;
 
     % Main loop: Iterates over different numbers of bootstrap samples (B).
     for i = 1:numel(B_vector_ci)
@@ -458,7 +461,7 @@ else
         final_i_ci = i;
         
         % Save the average stability value for the overall convergence check.
-        overall_stability_ci(i) = nanmean(stability_matrix_ci(:, :, i), 'all');
+        overall_stability_ci(i) = mean(stability_matrix_ci(:, :, i), 'all', 'omitnan');
     
         % Convergence check via Helper Function
         [converged_ci, stats] = HERA.stats.check_convergence(overall_stability_ci(1:i), cfg_ci);
@@ -605,13 +608,13 @@ for metric_idx = 1:num_metrics
     
     % --- Pre-compute data and Jackknife for all pairs ---
     % Hybrid Parallelization Strategy:
-    % - N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
-    % - N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)   
+    % - If precalc_a is available from Section 1 (automatic B mode), reuse acceleration factors directly.
+    % - Otherwise (manual B mode):
+    %   * N > MIN_N_FOR_PARFOR: Use parfor (Compute bound, parallelism wins)
+    %   * N <= MIN_N_FOR_PARFOR: Use for (Overhead bound, serial wins)   
     pair_data_x = cell(num_pairs, 1);
     pair_data_y = cell(num_pairs, 1);
     pair_n_valid = zeros(num_pairs, 1);
-    pair_jack_d = cell(num_pairs, 1);
-    pair_jack_r = cell(num_pairs, 1);
     pair_theta_hat_d = zeros(num_pairs, 1);
     pair_theta_hat_r = zeros(num_pairs, 1);
     pair_a_d = zeros(num_pairs, 1);
@@ -623,8 +626,45 @@ for metric_idx = 1:num_metrics
     sliced_rel_vals = p_rel_vals_all(:, metric_idx);
     sliced_all_data = p_all_data{metric_idx};
 
-    if num_probanden > MIN_N_FOR_PARFOR
-         % --- Parallel Execution (High Scaling) ---
+    if has_precalc_a
+        % --- Reuse Pre-Calculated Jackknife Acceleration (from Stability Phase) ---
+        sliced_precalc_a_d = precalc_a(:, metric_idx);
+        sliced_precalc_a_r = precalc_a(:, metric_idx + num_metrics);
+        
+        for k = 1:num_pairs
+            i = sliced_pair_idx(k, 1);
+            j = sliced_pair_idx(k, 2);
+            data_x_orig = sliced_all_data(:, i);
+            data_y_orig = sliced_all_data(:, j);
+            
+            % Pairwise NaN exclusion.
+            if has_nans_metric
+                valid_mask = ~isnan(data_x_orig) & ~isnan(data_y_orig);
+                pair_data_x{k} = data_x_orig(valid_mask);
+                pair_data_y{k} = data_y_orig(valid_mask);
+                pair_n_valid(k) = sum(valid_mask);
+            else
+                pair_data_x{k} = data_x_orig;
+                pair_data_y{k} = data_y_orig;
+                pair_n_valid(k) = num_probanden;
+            end
+            
+            if pair_n_valid(k) >= 3
+                % Reuse pre-computed acceleration factor 'a' directly.
+                pair_a_d(k) = sliced_precalc_a_d(k);
+                pair_a_r(k) = sliced_precalc_a_r(k);
+                pair_theta_hat_d(k) = sliced_d_vals(k);
+                pair_theta_hat_r(k) = sliced_rel_vals(k);
+            elseif pair_n_valid(k) == 2
+                % Fallback for edge case n_valid == 2 (skipped in Section 1).
+                [~, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
+                [~, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
+                pair_theta_hat_d(k) = sliced_d_vals(k);
+                pair_theta_hat_r(k) = sliced_rel_vals(k);
+            end
+        end
+    elseif num_probanden > MIN_N_FOR_PARFOR
+         % --- Parallel Execution (High Scaling, Manual B Mode) ---
          parfor k = 1:num_pairs
             i = sliced_pair_idx(k, 1);
             j = sliced_pair_idx(k, 2);
@@ -645,8 +685,8 @@ for metric_idx = 1:num_metrics
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
-                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
-                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
+                [~, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
+                [~, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
                 
                 % Store original effect sizes.
                 pair_theta_hat_d(k) = sliced_d_vals(k);
@@ -654,7 +694,7 @@ for metric_idx = 1:num_metrics
             end
         end
     else
-        % --- Serial Execution (Low Overhead) ---
+        % --- Serial Execution (Low Overhead, Manual B Mode) ---
         for k = 1:num_pairs
             i = sliced_pair_idx(k, 1);
             j = sliced_pair_idx(k, 2);
@@ -675,8 +715,8 @@ for metric_idx = 1:num_metrics
             
             if pair_n_valid(k) >= 2
                 % Pre-compute Jackknife + Acceleration (using updated API).
-                [pair_jack_d{k}, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
-                [pair_jack_r{k}, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
+                [~, pair_a_d(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'delta', jack_vec_limit);
+                [~, pair_a_r(k)] = HERA.stats.jackknife(pair_data_x{k}, pair_data_y{k}, 'rel', jack_vec_limit);
                 
                 % Store original effect sizes.
                 pair_theta_hat_d(k) = sliced_d_vals(k);

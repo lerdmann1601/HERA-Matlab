@@ -492,16 +492,12 @@ if nargout >= 6
         swap_details.metric3_swaps_b = metric3_swaps_b;
         swap_details.cycle_m3b = cycle_detected_m3b;
     else
-        % Add empty placeholders if M3 was not run
+        % Add placeholders if M3 was not run (metric3_swaps_a may still be populated in M1_M3A mode)
         swap_details.pairwise_swaps_metric3 = zeros(0, 5);
         swap_details.results_metric3 = cell(m, 7);
-        swap_details.metric3_swaps_a = zeros(0, 2);
-        swap_details.metric3_swaps_b = zeros(0, 2);
+        swap_details.metric3_swaps_a = metric3_swaps_a;
+        swap_details.metric3_swaps_b = metric3_swaps_b;
     end
-    
-    % These are always added, even if empty (for M1 or M1_M2 modes)
-    swap_details.metric3_swaps_a = metric3_swaps_a;
-    swap_details.metric3_swaps_b = metric3_swaps_b;
 else
     swap_details = struct(); % Return empty if not requested
 end

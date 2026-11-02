@@ -88,12 +88,6 @@ ci_level = config.ci_level;
 alpha_level = 1 - ci_level;
 ts = config.timestamp; 
 
-% Calculates the means for each dataset and metric for later use.
-all_means = cell(1, num_metrics);
-for m = 1:num_metrics
-    all_means{m} = mean(all_data{m}, 1);
-end
-
 % Generates all possible unique pair combinations of the datasets.
 num_pairs = nchoosek(num_datasets, 2);
 pair_idx_all = nchoosek(1:num_datasets, 2);

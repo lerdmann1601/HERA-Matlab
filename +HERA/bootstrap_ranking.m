@@ -292,7 +292,6 @@ else
         end
         
         % Calculate the stability metric for the current B-value. 
-        med_widths = median(ci_widths_b, 1);
         iqr_widths = iqr(ci_widths_b, 1);
         
         % The final stability value is the maximum of the IQR widths (absolute stability).
