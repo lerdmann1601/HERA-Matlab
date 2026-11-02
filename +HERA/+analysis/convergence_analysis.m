@@ -78,9 +78,9 @@ if ischar(n_sims_per_cond) || isstring(n_sims_per_cond)
                     n_sims_per_cond = 15;
                 end
 
-                % Extract output_dir
+                % Extract output_dir (trim whitespace so " " triggers Auto-Log Mode)
                 if isfield(customConfig, 'output_dir') && (ischar(customConfig.output_dir) || isstring(customConfig.output_dir))
-                    log_path_or_mode = string(customConfig.output_dir);
+                    log_path_or_mode = strtrim(string(customConfig.output_dir));
                 end
             catch ME
                 error('Error reading configuration file: %s', ME.message);
@@ -169,7 +169,9 @@ fprintf('\n==========================================================\n');
 fprintf('   Scientific Bootstrap Robustness Study (Sims/Cond=%d)\n', n_sims_per_cond);
 fprintf('   Configuration: %d Scenarios, %d Candidates (N)\n', length(scenarios), N);
 fprintf('==========================================================\n');
-if isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory)
+if (isfield(customConfig, 'system') && isstruct(customConfig.system) ...
+        && isfield(customConfig.system, 'target_memory') && isnumeric(customConfig.system.target_memory) && ~isempty(customConfig.system.target_memory)) ...
+        || (isfield(customConfig, 'target_memory') && isnumeric(customConfig.target_memory) && ~isempty(customConfig.target_memory))
     fprintf(' Memory Limit:          %d MB (User Override)\n', cfg_base.system.target_memory);
 else
     fprintf(' Detected RAM:          %.1f GB\n', ram_gb);
@@ -383,9 +385,9 @@ try
     fprintf('==================================\n');
     fprintf('Summary Report (PDF):  %s\n', pdf_full);
     fprintf('Configuration (JSON):  %s\n', json_file);
-    fprintf('Global Data (CSV):     %s\n', fullfile(out_dir, ['Global_Summary_' char(ts_str) '.csv']));
+    fprintf('Global Data (CSV):     %s\n', fullfile(dir_csv, ['Global_Summary_' char(ts_str) '.csv']));
     if length(results) > 1
-        fprintf('Pooled Results (CSV):  %s\n', fullfile(out_dir, ['Pooled_Results_' char(ts_str) '.csv']));
+        fprintf('Pooled Results (CSV):  %s\n', fullfile(dir_csv, ['Pooled_Results_' char(ts_str) '.csv']));
     end
     fprintf('Detailed Results:      %s\n', fullfile(final_out_dir, 'CSV', ['Results_' char(ts_str)]));
     fprintf('Graphics Folder:       %s\n', dir_graphics);

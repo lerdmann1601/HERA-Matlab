@@ -1,6 +1,6 @@
 # HERA Example Data
 
-For this example we use synthetic datasets that are based on characteristics of real MRI Images. The original datasets are not included in this repository and results with these will be published in a future paper. To reproduce the results, you can adjust the `configuration.json` files from the HERA_Example folders in the [results folder](https://github.com/lerdmann1601/HERA-Matlab/tree/main/data/examples/results). As an example for quality metrics to objectively evaluate image quality, we use Optical Contrast (OC), Signal-to-Noise Ratio (SNR) and Contrast-to-Noise Ratio (CNR). These metrics and the way they were calculated and prioritized for the HERA analysis are based on the concept and results of Noeth et al., NMR Biomed. 2015; 28: 818-830.
+For this example we use synthetic datasets that are based on characteristics of real MRI Images. The original datasets are not included in this repository and results with these will be published in a future paper. To reproduce the results, you can adjust the `configuration.json` files from the HERA_Example folders in the [results folder](https://github.com/lerdmann1601/HERA-Matlab/tree/main/data/results). As an example for quality metrics to objectively evaluate image quality, we use Optical Contrast (OC), Signal-to-Noise Ratio (SNR) and Contrast-to-Noise Ratio (CNR). These metrics and the way they were calculated and prioritized for the HERA analysis are based on the concept and results of Noeth et al., NMR Biomed. 2015; 28: 818-830.
 
 > [!NOTE]
 > The example results and interpretations shown below serve as a didactic walkthrough to demonstrate HERA’s decision-making capabilities. Please be aware that running the examples with different seeds may yield slight variations—for instance, in the precise bounds of confidence intervals or in tie-breaking outcomes—which can lead to a different overall ranking for some methods compared to the static screenshots. These differences reflect the inherent stochastic variability of bootstrap resampling.
@@ -27,25 +27,25 @@ Below are visual outputs generated from the Example_1 dataset using HERA.
 
 The final ranking of the methods based on the hierarchical-compensatory logic with the confidence interval.
 
-![Final Ranking](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_1/Final_Ranking_Example_1.png)
+![Final Ranking](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_1/Final_Ranking_Example_1.png)
 
 #### Distribution of Bootstrap Ranks 1
 
 This diagram displays the frequency of each rank achieved by the methods across the bootstrap samples, illustrating the uncertainty in the ranking.
 
-![Distribution of Bootstrap Ranks](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_1/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_1.png)
+![Distribution of Bootstrap Ranks](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_1/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_1.png)
 
 #### Rank Shifts (Sankey Diagram) 1
 
 This diagram shows how the ranking of methods changes across different metrics and their hierarchy level.
 
-![Sankey Diagram](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_1/Graphics/Ranking/Sankey_Rank_Shifts_Example_1.png)
+![Sankey Diagram](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_1/Graphics/Ranking/Sankey_Rank_Shifts_Example_1.png)
 
 #### Win-Loss Matrix 1
 
 This matrix visualizes the pairwise comparisons between methods. Blue indicates a win, orange a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
-![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
+![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_1/Graphics/Ranking/Win_Loss_Matrix_Example_1.png)
 
 ## Example use case 2
 
@@ -73,22 +73,22 @@ This curve visualizes the stability of the ranking results while decreasing the 
 
 The final ranking of the methods based on the hierarchical-compensatory logic with the confidence interval.
 
-![Final Ranking](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_2/Final_Ranking_Example_2.png)
+![Final Ranking](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_2/Final_Ranking_Example_2.png)
 
 #### Distribution of Bootstrap Ranks 2
 
 This diagram displays the frequency of each rank achieved by the methods across the bootstrap samples, illustrating the uncertainty in the ranking.
 
-![Distribution of Bootstrap Ranks](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_2/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_2.png)
+![Distribution of Bootstrap Ranks](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_2/Graphics/Ranking/Distribution_Bootstrap_Ranks_Example_2.png)
 
 #### Rank Shifts (Sankey Diagram) 2
 
 This diagram shows how the ranking of methods changes across different metrics and their hierarchy level.
 
-![Sankey Diagram](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_2/Graphics/Ranking/Sankey_Rank_Shifts_Example_2.png)
+![Sankey Diagram](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_2/Graphics/Ranking/Sankey_Rank_Shifts_Example_2.png)
 
 #### Win-Loss Matrix 2
 
 This matrix visualizes the pairwise comparisons between methods. Blue indicates a win, orange a loss, and gray neutral due to the Threshold criteria not being satisfied. The color intensity indicates the power of each comparison.
 
-![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/examples/results/HERA_Example_2/Graphics/Ranking/Win_Loss_Matrix_Example_2.png)
+![Win-Loss Matrix](https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/data/results/HERA_Example_2/Graphics/Ranking/Win_Loss_Matrix_Example_2.png)

@@ -71,7 +71,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     print("Integrating Assets...")
     
     # Copy standard project files to the distribution root.
-    files_to_copy = ["README.md", "LICENSE", "CITATION.cff"]
+    files_to_copy = ["README.md", "license.txt", "CITATION.cff"]
     for filename in files_to_copy:
         if os.path.exists(filename):
             print(f"  - Copying {filename}...")

@@ -147,7 +147,7 @@ See [Results Structure Reference](https://lerdmann1601.github.io/HERA-Matlab/Res
 ## 3. Running the Test Suite
 
 You can execute the internal HERA verification and test suite (Scientific, System, and Unit tests) directly from Python to ensure the installation is valid and mathematically correct.
-For more details on the test suite, see the [Testing](https://lerdmann1601.github.io/HERA-Matlab/#testing) section in the main documentation.
+For more details on the test suite, see the [Testing](https://lerdmann1601.github.io/HERA-Matlab/overview/#testing) section in the main documentation.
 
 ```python
 import hera_matlab

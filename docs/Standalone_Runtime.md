@@ -25,7 +25,7 @@ HERA can be compiled into a standalone application for macOS, Linux, and Windows
 
 > [!NOTE]
 > Users on Windows or Linux who do not have MATLAB should refer to the [Python Integration Guide](Python_Integration.md).
-> Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers)).
+> Developers with a MATLAB Compiler license can build standalone executables for Windows and Linux as described in the [Developer Build section](#4-building-the-installer-from-source-for-developers).
 
 ---
 

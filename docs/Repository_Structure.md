@@ -33,16 +33,19 @@ HERA-Matlab/
 │   └── run_unit_test.m            % Test Runner
 ├── assets/                        % Images & Logos
 ├── data/                          % Data Directory
-│   ├── examples/                  % Synthetic Example Datasets
+│   ├── examples/                  % Synthetic & Empirical Example Datasets
+│   ├── results/                   % Reference Outputs & Benchmark Baselines
+│   ├── utils/                     % Simulation & Workflow Utilities
 │   └── README.md                  % Data Documentation
-├── deploy/                        % Build Scripts (Standalone App)
+├── deploy/                        % Build Scripts (Standalone App, Toolbox, PyPI)
 ├── docs/                          % Documentation & Guides
 ├── paper/                         % Paper Resources
 ├── tests/                         % Unit Test & Analysis Reports
 ├── setup_HERA.m                   % Path Setup Script
+├── CHANGELOG.md                   % Version History
 ├── CITATION.cff                   % Citation Metadata
 ├── CODE_OF_CONDUCT.md             % Community Standards
 ├── CONTRIBUTING.md                % Contribution Guidelines
-├── LICENSE                        % License File
+├── license.txt                    % License File
 └── README.md                      % Global Documentation
 ```

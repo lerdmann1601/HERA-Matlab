@@ -30,7 +30,7 @@ For more details on the possible ranking logics, see [Ranking Modes Explained](h
 When running `results = HERA.run_ranking(...)`, the returned structure contains the following fields.
 
 > [!IMPORTANT]
-> This identical structure is also used for the `data_*.json` metadata files saved in the output directory.
+> All fields listed below are returned directly at the top level of the MATLAB `results` struct (and Python dictionary). In the exported `data_*.json` metadata files, the statistical matrices (`d_vals_all` through `all_p_value_matrices`) are grouped under `.stats_calcs` and the ranking/diagnostic outputs (`final_rank` through `selected_permutations`) under `.results`.
 
 | Field | Dimensions | Description |
 | --- | --- | --- |
@@ -67,8 +67,10 @@ When running `results = HERA.run_ranking(...)`, the returned structure contains 
 | `swap_details.results_metric2` | `{Pairs x 7}` | Raw comparison data for Metric 2: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
 | `swap_details.results_metric3` | `{Pairs x 7}` | Raw comparison data for Metric 3: [Winner_Name, Loser_Name, p_val, d_val, r_val, Winner_Idx, Loser_Idx]. |
 | `swap_details.metric2_global_swaps` | `[Swaps x 2]` | Indices [Winner, Loser] of datasets swapped during the iterative sorting of Metric 2 hierarchy. |
+| `swap_details.cycle_m2` | bool | True if a cyclic rank shift was detected and resolved during iterative Metric 2 correction (present when $M \ge 2$). |
 | `swap_details.metric3_swaps_a` | `[Swaps x 2]` | Swaps performed via Logic 3A (Tie-break if Metric 1 or 2 was neutral). |
 | `swap_details.metric3_swaps_b` | `[Swaps x 2]` | Swaps performed via Logic 3B (Iterative if both previous metrics neutral). |
+| `swap_details.cycle_m3b` | bool | True if a cyclic rank shift was detected and resolved during iterative Logic 3B refinement (present when $M = 3$). |
 | `intermediate_orders.after_metric1` | `[1 x N]` | Ranking order determined after processing Metric 1. |
 | `intermediate_orders.after_metric2` | `[1 x N]` | Ranking order determined after processing Metric 2. |
 | `intermediate_orders.after_metric3` | `[1 x N]` | Ranking order determined after processing Metric 3. |

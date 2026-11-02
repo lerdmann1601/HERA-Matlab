@@ -2,7 +2,7 @@
 
 HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) implements a structured, mostly non-parametric framework to resolve trade-offs between up to three user-prioritized metrics. Unlike traditional aggregation methods that often rely on subjective weighting, HERA utilizes a sequential ranking logic. This logic combines statistical significance and effect sizes with data-driven thresholds for practical equivalence in which candidates are considered neutral if they do not show a significant and relevant difference.
 
-For more information please refer to the [Theoretical Background](https://lerdmann1601.github.io/HERA-Matlab/Theoretical_Background) and [Methodological Guidelines](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines) sections.
+For more information please refer to the [Theoretical Background](https://lerdmann1601.github.io/HERA-Matlab/Methodology) and [Methodological Guidelines & Limitations](https://lerdmann1601.github.io/HERA-Matlab/Methodological_Guidelines_&_Limitations) sections.
 
 ## The Core Philosophy: Hierarchical-Compensatory
 

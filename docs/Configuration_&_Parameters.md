@@ -36,6 +36,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
     "metric_names": ["Metric1", "Metric2", "Metric3"],
     "output_dir": "/Path/To/Results",
     "language": "en",
+    "check_updates": true,
     "ranking_mode": "M1_M2_M3",
     "reproducible": true,
     "seed": 123,
@@ -118,11 +119,12 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | **Statistics** | `ci_level` | double | `0.95` | Confidence interval level (e.g., 0.95 for 95%). |
 | | `alphas` | array | `[0.05, ...]` | Significance level for each metric. |
 | | `power_simulations` | int | `10000` | Number of simulations for power analysis. |
-| **System** | `reproducible` | bool | `true` | Use fixed RNG seed. |
+| **System** | `check_updates` | bool | `true` | Check GitHub Releases for newer HERA versions on startup. |
+| | `reproducible` | bool | `true` | Use fixed RNG seed. |
 | | `seed` | int | `123` | RNG seed value. |
 | | `bootstrap_seed_offset` | int | `1000` | Base random seed offset for parallel bootstrap operations. Prevents RNG substream collisions. |
 | | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers`. |
-| | `system.target_memory` | int | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
+| | `system.target_memory` | int/str | `"auto"` | Target memory per chunk (MB). Automatically calculated based on available RAM, but can be manually defined via JSON config file. |
 | | `system.jack_parfor_thr` | int | `300` | Min n to trigger parallel execution. |
 | | `system.jack_vec_limit` | int | `150` | Max n for vectorized Jackknife calculations. |
 | | `system.delta_mat_limit` | int | `30000` | Max n_x * n_y product (usually n^2) for matrix-based Cliff's Delta. |
@@ -130,7 +132,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | **Graphics** | `create_reports` | bool | `true` | Generate PDF reports and high-res plots. If `false` no plots are saved. |
 | | `plot_theme` | string | `"light"` | `"light"`, `"dark"`, `"colourblind light"`, or `"colourblind dark"`. |
 | **Bootstrap (Manual)** | `manual_B_thr` | int | `2000` | Iterations for Thresholds (empty = auto). |
-| | `manual_B_ci` | int | `5000` | Iterations for CIs (empty = auto). |
+| | `manual_B_ci` | int | `10000` | Iterations for CIs (empty = auto). |
 | | `manual_B_rank` | int | `500` | Iterations for Rank Stability (empty = auto). |
 | **Bootstrap (Auto)** | `bootstrap_thresholds` | struct | (See Below) | Config for Threshold convergence. |
 | | `bootstrap_ci` | struct | (See Below) | Config for CI convergence. |

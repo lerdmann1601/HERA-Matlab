@@ -123,7 +123,7 @@ The returned struct contains all computed statistics and ranking results:
 
 * `.final_rank`: Final ranking vector across all methods.
 * `.d_vals_all`: Effect sizes (Cliff's Delta).
-* `.p_vals_all`: Raw p-values from Wilcoxon signed-rank tests.
+* `.all_p_value_matrices`: Cell array of raw p-value matrices from Wilcoxon signed-rank tests.
 * `.ci_d_all`: Bootstrap confidence intervals.
 
 For the complete reference of all returned fields, see [Results Structure Reference](Results_Structure_Reference.md).

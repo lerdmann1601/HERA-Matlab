@@ -120,7 +120,12 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
                     if ismember(f_ov{f}, {'Base','Step','End','Base2','SD'}) && ~isnumeric(ov.(f_ov{f}))
                         error('HERA:Analysis:InvalidConfig', 'Scenario %d: "%s" must be numeric.', i, f_ov{f});
                     end
-                    sc_defs(i).(f_ov{f}) = ov.(f_ov{f});
+                    % Preserve NaN for JSON null values (decoded as empty numeric [])
+                    if ismember(f_ov{f}, {'Base','Step','End','Base2','SD'}) && isempty(ov.(f_ov{f}))
+                        sc_defs(i).(f_ov{f}) = NaN;
+                    else
+                        sc_defs(i).(f_ov{f}) = ov.(f_ov{f});
+                    end
                 end
             end
         end
@@ -278,18 +283,29 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         fprintf('Error in RAM detection. Using fallback: %d MB.\n', target_mem);
     end
     % Support customConfig.system.target_memory or top-level target_memory (fallback)
-    if isfield(customConfig, 'system') && isstruct(customConfig.system) && isfield(customConfig.system, 'target_memory')
-        if ~isnumeric(customConfig.system.target_memory)
-            error('HERA:Analysis:InvalidConfig', 'system.target_memory must be numeric.');
+    if isfield(customConfig, 'system') && isstruct(customConfig.system) ...
+            && isfield(customConfig.system, 'target_memory') && ~isempty(customConfig.system.target_memory)
+        val_mem = customConfig.system.target_memory;
+        is_auto_mem = (ischar(val_mem) && strcmpi(strtrim(val_mem), 'auto')) || ...
+                      (isstring(val_mem) && strcmpi(strtrim(val_mem), "auto"));
+        if ~is_auto_mem
+            if ~isnumeric(val_mem) || ~isscalar(val_mem) || val_mem <= 0
+                error('HERA:Analysis:InvalidConfig', 'system.target_memory must be numeric.');
+            end
+            target_mem = val_mem;
+            fprintf('Overriding memory via Config (system): %d MB.\n', target_mem);
         end
-        target_mem = customConfig.system.target_memory;
-        fprintf('Overriding memory via Config (system): %d MB.\n', target_mem);
-    elseif isfield(customConfig, 'target_memory')
-        if ~isnumeric(customConfig.target_memory)
-            error('HERA:Analysis:InvalidConfig', 'target_memory must be numeric.');
+    elseif isfield(customConfig, 'target_memory') && ~isempty(customConfig.target_memory)
+        val_mem = customConfig.target_memory;
+        is_auto_mem = (ischar(val_mem) && strcmpi(strtrim(val_mem), 'auto')) || ...
+                      (isstring(val_mem) && strcmpi(strtrim(val_mem), "auto"));
+        if ~is_auto_mem
+            if ~isnumeric(val_mem) || ~isscalar(val_mem) || val_mem <= 0
+                error('HERA:Analysis:InvalidConfig', 'target_memory must be numeric.');
+            end
+            target_mem = val_mem;
+            fprintf('Overriding memory via Config: %d MB.\n', target_mem);
         end
-        target_mem = customConfig.target_memory;
-        fprintf('Overriding memory via Config: %d MB.\n', target_mem);
     end
     cfg_base.system.target_memory = target_mem;
 
