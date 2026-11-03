@@ -108,3 +108,11 @@ figcaption::before {
     white-space: normal;
     word-break: normal;
 }
+
+/**
+ * 6. Theme-Aware Logo Switch
+ *    Automatically uses the dark-mode SVG variant with light text in slate mode.
+ */
+[data-md-color-scheme="slate"] .md-header__button.md-logo img {
+    content: url("../assets/hera_logo_dark.svg");
+}

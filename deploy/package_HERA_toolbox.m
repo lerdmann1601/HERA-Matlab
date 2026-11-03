@@ -230,11 +230,26 @@ opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking
     'It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Mean Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings. ' ...
     'For more information, visit the project website: https://lerdmann1601.github.io/HERA-Matlab/'];
 
+% Compatibility (Minimum MATLAB Release)
+opts.MinimumMatlabRelease = 'R2020a';
+opts.MaximumMatlabRelease = '';
+
 opts.ToolboxFiles = validFiles;
 
 % Defensive guard: ensure no files from 'data/results' or 'data/utils' can be packaged
 opts.ToolboxFiles(contains(opts.ToolboxFiles, fullfile('data', 'results')) | ...
                   contains(opts.ToolboxFiles, fullfile('data', 'utils'))) = [];
+
+% Set Toolbox Image (for File Exchange and Add-On Explorer thumbnail)
+logoSrc = fullfile(projectRoot, 'release', 'hera_logo_submission.png');
+if exist(logoSrc, 'file')
+    logoDst = fullfile(stagingDir, 'hera_logo_submission.png');
+    copyfile(logoSrc, logoDst);
+    opts.ToolboxImageFile = logoDst;
+    fprintf('Configured Toolbox Image: %s\n', logoSrc);
+else
+    fprintf('Warning: Toolbox logo image not found at: %s\n', logoSrc);
+end
 
 % MATLAB Path Setup
 % By default, only the root of the installed toolbox is added to the path.
