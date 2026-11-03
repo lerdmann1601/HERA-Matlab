@@ -1,8 +1,10 @@
 <svg width="380" height="150" viewBox="0 0 380 150" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
-    .text { fill: #333333; }
-    @media (prefers-color-scheme: dark) {
-      .text { fill: #FFFFFF; }
+    .text {
+      fill: #333333;
+      stroke: #FFFFFF;
+      stroke-width: 2.5px;
+      paint-order: stroke fill;
     }
   </style>
   <!-- Text HERA -->
