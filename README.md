@@ -1,10 +1,7 @@
 
 <div align="center">
 
-<a href="https://lerdmann1601.github.io/HERA-Matlab/">
-  <img src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/hera_logo_dark.svg#gh-dark-mode-only" alt="HERA Logo" width="300"/>
-  <img src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/hera_logo.svg#gh-light-mode-only" alt="HERA Logo" width="300"/>
-</a>
+<img src="https://raw.githubusercontent.com/lerdmann1601/HERA-Matlab/main/assets/hera_logo.svg" alt="HERA Logo" width="300"/>
 
 # Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm
 

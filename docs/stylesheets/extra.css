@@ -111,8 +111,16 @@ figcaption::before {
 
 /**
  * 6. Theme-Aware Logo Switch
- *    Automatically uses the dark-mode SVG variant with light text in slate mode.
+ *    Automatically switches between light and dark logo variants based on the active color scheme.
  */
-[data-md-color-scheme="slate"] .md-header__button.md-logo img {
-    content: url("../assets/hera_logo_dark.svg");
+.md-logo--dark {
+    display: none !important;
+}
+
+[data-md-color-scheme="slate"] .md-logo--light {
+    display: none !important;
+}
+
+[data-md-color-scheme="slate"] .md-logo--dark {
+    display: inline-block !important;
 }
