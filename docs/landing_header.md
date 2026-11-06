@@ -9,6 +9,9 @@ While the [source code](https://github.com/lerdmann1601/HERA-Matlab) contains th
 
 ## Get HERA (v1.4.8)
 
+> [!WARNING]
+> **Active Version Support**: Only the latest release is actively supported. Previous versions (including all versions prior to v1.4.8) are considered legacy. Please always ensure you are using the [latest release](https://github.com/lerdmann1601/HERA-Matlab/releases/latest).
+
 You can download the latest version of the toolbox directly:
 
 * **GitHub Releases**: [Download .mltbx, Source, or macOS Runtime App](https://github.com/lerdmann1601/HERA-Matlab/releases/latest)

@@ -72,6 +72,9 @@ For more information please refer to the Project
 
 ## Installation
 
+> [!WARNING]
+> **Active Version Support**: Only the latest release is actively supported. Previous versions (including all versions prior to v1.4.8) are considered legacy. Please always ensure you are using the [latest release](https://github.com/lerdmann1601/HERA-Matlab/releases/latest).
+
 ### Requirements
 
 * **For MATLAB Users (Toolbox / Source Code)**:
