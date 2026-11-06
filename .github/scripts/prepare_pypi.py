@@ -155,17 +155,38 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
     
     # Fallback for local execution
     if not tag_name:
+        # Check fallback_version in +HERA/get_version.m as local source of truth if updated
+        matlab_ver_tag = None
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+        get_ver_path = os.path.join(repo_root, "+HERA", "get_version.m")
+        if os.path.exists(get_ver_path):
+            try:
+                with open(get_ver_path, "r", encoding="utf-8") as vf:
+                    ver_match = re.search(r"fallback_version\s*=\s*['\"](v[\d\.]+)['\"]", vf.read())
+                    if ver_match:
+                        matlab_ver_tag = ver_match.group(1)
+            except Exception:
+                pass
+
         try:
             import subprocess
             # Get the latest tag from git
             result = subprocess.run(['git', 'describe', '--tags', '--abbrev=0'], 
                                     capture_output=True, text=True, check=True)
-            tag_name = result.stdout.strip()
-            print(f"  - Detected local git tag: {tag_name}")
+            git_tag = result.stdout.strip()
+            if matlab_ver_tag and matlab_ver_tag != git_tag:
+                print(f"  - Notice: +HERA/get_version.m ({matlab_ver_tag}) differs from latest git tag ({git_tag}). Using {matlab_ver_tag}.")
+                tag_name = matlab_ver_tag
+            else:
+                tag_name = git_tag
+                print(f"  - Detected local git tag: {tag_name}")
         except Exception as e:
             if is_cicd:
                 print(f"  - Error: Could not determine version via GITHUB_REF_NAME or git tag in CI/CD.")
                 sys.exit(1)
+            elif matlab_ver_tag:
+                tag_name = matlab_ver_tag
+                print(f"  - Using version from +HERA/get_version.m: {tag_name}")
             else:
                 # Local fallback: Use what's already in setup.py
                 tag_name = f"v{original_version}"
@@ -207,6 +228,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
 
     # Enhanced Metadata
     setup_dict['name'] = 'hera-matlab'
+    setup_dict['description'] = 'A Scientific Ranking Framework for Paired Benchmarking'
     setup_dict['author'] = 'Lukas von Erdmannsdorff'
     setup_dict['license'] = 'MIT'
     
@@ -309,7 +331,9 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                 def warn_if_outdated():
                     \"\"\"Checks if a newer version of the package is available on PyPI.\"\"\"
                     try:
-                        from outdated import warn_if_outdated as _warn
+                        from outdated import warn_if_outdated as _warn, OutdatedPackageWarning
+                        # Ensure the warning is always visible and not suppressed by default filters
+                        warnings.simplefilter("always", OutdatedPackageWarning)
                         # We use the PyPI name 'hera-matlab' but our local version
                         _warn("hera-matlab", __version__)
                     except Exception:

@@ -31,9 +31,8 @@ function check_updates(lang)
         % Parallel Computing Toolbox not installed or configured
     end
 
-    % Check if we are in a non-interactive/headless environment that doesn't 
-    % need update notifications (e.g. CI/CD)
-    if ~feature('ShowFigureWindows') || ~isempty(getenv('GITHUB_ACTIONS'))
+    % Check if we are in a CI/CD environment that doesn't need update notifications
+    if ~isempty(getenv('GITHUB_ACTIONS'))
         return;
     end
 

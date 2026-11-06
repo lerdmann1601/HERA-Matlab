@@ -199,6 +199,16 @@ function [userInput, setupData] = setup_environment(userInput)
     fprintf('Version: %s\n', HERA.get_version());
     pause(0.5);
 
+    % Optional: Automatic Update Check
+    % Executed if enabled in userInput (default: true). Runs at most once per session.
+    try
+        if isfield(userInput, 'check_updates') && userInput.check_updates
+            HERA.start.check_updates(lang);
+        end
+    catch
+        % Failure in update check should never block the main analysis
+    end
+
     % Save the complete user configuration to a JSON file for reproducibility.
     config_path = fullfile(output_dir, "configuration.json"); 
     try

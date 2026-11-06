@@ -163,19 +163,6 @@ import HERA.start.Utils
 % Load the language file containing all user-facing strings.
 lang = Utils.language_code('en');
 
-% Optional: Automatic Update Check
-% Only run if enabled in defaults and if not in a specific sub-mode (unit tests, etc.)
-% to avoid interfering with batch or cluster processing.
-try
-    defaults_initial = HERA.default();
-    if isfield(defaults_initial, 'check_updates') && defaults_initial.check_updates && ...
-       nargin == 0 % Only in interactive mode without arguments
-        HERA.start.check_updates(lang);
-    end
-catch
-    % Failure in update check should never block the main app
-end
-
 % HERA Dependency Check
 % (Only check in MATLAB environment; Runtime has them bundled)
 if ~isdeployed
@@ -358,6 +345,16 @@ while true
     userInput = defaults; % Start with a full set of default values.
     config = defaults; % A temporary structure for settings that might be nested later.
     configLoadedFromFile = false; % Flag to track if the configuration was loaded from a file.
+    
+    % Optional: Automatic Update Check
+    % Placed after 'clc' and the header so the notice remains visible in the console.
+    try
+        if isfield(defaults, 'check_updates') && defaults.check_updates
+            HERA.start.check_updates(lang);
+        end
+    catch
+        % Failure in update check should never block the main app
+    end
     
     try
         %% 1. Main Configuration (Standard vs Manual vs Config)
