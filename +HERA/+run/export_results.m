@@ -90,7 +90,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     tmp_config = config;
     if isfield(tmp_config, 'system')
          sys = tmp_config.system;
-         fields_to_remove = {'target_memory', 'jack_vec_limit', 'delta_mat_limit', 'jack_parfor_thr'};
+         fields_to_remove = {'target_memory', 'min_batch_size', 'jack_parfor_thr', 'jack_vec_limit', 'delta_mat_limit'};
          for f = fields_to_remove
              if isfield(sys, f{1}), sys = rmfield(sys, f{1}); end
          end

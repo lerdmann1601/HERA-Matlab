@@ -65,10 +65,12 @@ function Summary(userInput, configLoadedFromFile, lang)
         % Display sensitivity analysis details if it's enabled.
         if userInput.run_sensitivity_analysis && size(userInput.selected_permutations, 1) > 1
             fprintf([' -> ' lang.summary.sensitivity_analysis '\n'], size(userInput.selected_permutations, 1));
+            primary_hierarchy_indices = userInput.selected_permutations(1, :);
             % Loop through all selected permutations and display them.
             for p = 1:size(userInput.selected_permutations, 1)
                 perm_indices = userInput.selected_permutations(p, :);
-                perm_names = userInput.available_metrics(perm_indices);
+                [~, local_indices] = ismember(perm_indices, primary_hierarchy_indices);
+                perm_names = userInput.metric_names(local_indices);
                 fprintf('       %s\n', strjoin(perm_names, ' -> '));
                 pause(0.5);
             end
@@ -123,14 +125,20 @@ function Summary(userInput, configLoadedFromFile, lang)
         % Display sensitivity analysis details if enabled.
         if userInput.run_sensitivity_analysis && size(userInput.selected_permutations, 1) > 1
             fprintf([' -> ' lang.summary.sensitivity_analysis '\n'], size(userInput.selected_permutations, 1));
-            % Re-read metric names from the folder to display permutations correctly.
+            % Re-read metric names from the folder to verify files and display permutations consistently.
             try
                 files_check = dir(fullfile(userInput.folderPath, ['*', userInput.fileType]));
                 available_metrics_check = cellfun(@(c) regexprep(c, userInput.fileType, ''), {files_check.name}, 'UniformOutput', false);
+                if any(~ismember(userInput.metric_names, available_metrics_check)) || ...
+                   any(userInput.selected_permutations(:) > numel(available_metrics_check))
+                    error('HERA:Summary:FilesChanged', 'Metric files changed.');
+                end
                 % userInput.available_metrics = available_metrics_check; % Do not overwrite, just use local
+                primary_hierarchy_indices = userInput.selected_permutations(1, :);
                 for p = 1:size(userInput.selected_permutations, 1)
                     perm_indices = userInput.selected_permutations(p, :);
-                    perm_names = available_metrics_check(perm_indices);
+                    [~, local_indices] = ismember(perm_indices, primary_hierarchy_indices);
+                    perm_names = userInput.metric_names(local_indices);
                     fprintf('       %s\n', strjoin(perm_names, ' -> '));
                     pause(0.5);
                 end

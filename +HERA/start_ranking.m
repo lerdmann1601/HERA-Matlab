@@ -398,10 +398,15 @@ while true
                 if ischar(file) % Check if a valid file name was provided (not cancelled).
                     try
                         % Wrap the userInput struct in another struct to match the loading format.
-                        % Remove internal target_memory and redundant config struct before saving
+                        % Remove internal system heuristics and redundant config struct before saving
                         userInputToSave = userInput;
-                        if isfield(userInputToSave, 'system') && isfield(userInputToSave.system, 'target_memory')
-                             userInputToSave.system = rmfield(userInputToSave.system, 'target_memory');
+                        heuristic_fields = {'target_memory', 'min_batch_size', 'jack_parfor_thr', 'jack_vec_limit', 'delta_mat_limit'};
+                        if isfield(userInputToSave, 'system')
+                            for hf = heuristic_fields
+                                if isfield(userInputToSave.system, hf{1})
+                                    userInputToSave.system = rmfield(userInputToSave.system, hf{1});
+                                end
+                            end
                         end
                         if isfield(userInputToSave, 'config')
                              userInputToSave = rmfield(userInputToSave, 'config');
