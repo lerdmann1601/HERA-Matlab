@@ -46,6 +46,16 @@ set(h_fig_rank, 'PaperUnits', 'inches');
 set(h_fig_rank, 'PaperSize', [12, 9.5]);
 set(h_fig_rank, 'PaperPosition', [0, 0, 12, 9.5]);
 
+% Dynamically expand figure size if dataset names or count exceed standard bounds.
+scale_w = max(1.0, max(cellfun(@strlength, names)) / 30);
+scale_h = max(1.0, num_datasets / 15);
+if scale_w > 1.0 || scale_h > 1.0
+    fig_pos = get(h_fig_rank, 'Position');
+    set(h_fig_rank, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_w, fig_pos(4) * scale_h]);
+    set(h_fig_rank, 'PaperSize', [12 * scale_w, 9.5 * scale_h]);
+    set(h_fig_rank, 'PaperPosition', [0, 0, 12 * scale_w, 9.5 * scale_h]);
+end
+
 tcl = tiledlayout(1, 1, 'Padding', 'compact');
 ax = nexttile;
 

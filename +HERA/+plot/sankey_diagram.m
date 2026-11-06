@@ -108,13 +108,21 @@ if num_metrics > 1
     xlim(ax, [min(x_coords)-0.5, max(x_coords)+0.5]); 
     ylim(ax, [0.5, num_datasets + 0.5]);
     
-    % Dynamically expand horizontal limits if dataset names exceed the default 0.5 margin.
+    % Dynamically expand horizontal limits and figure size if dataset names or count exceed standard bounds.
     drawnow;
     max_text_w = max([arrayfun(@(h) h.Extent(3), h_text_left); arrayfun(@(h) h.Extent(3), h_text_right)]);
     x_span = max(x_coords) - min(x_coords);
-    req_frac = min(0.32, (max_text_w + 0.12) / (x_span + 1.0));
-    x_margin = max(0.5, (req_frac * x_span) / (1 - 2 * req_frac));
+    x_margin = max(0.5, max_text_w + 0.12);
     xlim(ax, [min(x_coords) - x_margin, max(x_coords) + x_margin]);
+    
+    scale_w = max(1.0, (x_span + 2 * x_margin) / (x_span + 1.0));
+    scale_h = max(1.0, num_datasets / 15);
+    if scale_w > 1.0 || scale_h > 1.0
+        fig_pos = get(h_fig_sankey, 'Position');
+        set(h_fig_sankey, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_w, fig_pos(4) * scale_h]);
+        set(h_fig_sankey, 'PaperSize', [12 * scale_w, 9.5 * scale_h]);
+        set(h_fig_sankey, 'PaperPosition', [0, 0, 12 * scale_w, 9.5 * scale_h]);
+    end
 
     % Set the left Y-axis label.
     ylabel(ax, lang.plots.ylabels.rank, 'FontSize', styles.font.label, 'FontWeight', 'bold', 'Color', styles.colors.text);

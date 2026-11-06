@@ -34,8 +34,8 @@ h_fig_summary = figure('Name', lang.plots.figure_names.final_ranking, 'Color', s
 
 % Set figure paper properties for consistent PDF export
 set(h_fig_summary, 'PaperUnits', 'inches');
-set(h_fig_summary, 'PaperSize', [13, 10]);
-set(h_fig_summary, 'PaperPosition', [0, 0, 13, 10]);
+set(h_fig_summary, 'PaperSize', [12, 9.5]);
+set(h_fig_summary, 'PaperPosition', [0, 0, 12, 9.5]);
 tcl_summary = tiledlayout(1, 2, 'Padding', 'loose', 'TileSpacing', 'compact');
 title_str_summary = sprintf([lang.plots.titles.final_ranking '\n']);
 title(tcl_summary, title_str_summary, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text, 'Interpreter', 'none');
@@ -83,6 +83,19 @@ end
 % Calculate column positions based on the calculated content widths.
 padding = 0.04; % Relative spacing between columns.
 col_pos_vals = zeros(1, num_table_cols);
+
+% Dynamically expand figure size if table content or dataset count exceed standard bounds.
+req_table_width = max(sum(max_widths) + padding * (num_table_cols - 1), ...
+                      max_widths(1) + max_widths(2) + 3 * mean(max_widths(3:end)) + 4 * padding);
+scale_w = max(1.0, req_table_width / 0.94);
+scale_h = max(1.0, num_datasets / 15);
+if scale_w > 1.0 || scale_h > 1.0
+    fig_pos = get(h_fig_summary, 'Position');
+    set(h_fig_summary, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_w, fig_pos(4) * scale_h]);
+    set(h_fig_summary, 'PaperSize', [12 * scale_w, 9.5 * scale_h]);
+    set(h_fig_summary, 'PaperPosition', [0, 0, 12 * scale_w, 9.5 * scale_h]);
+    max_widths = max_widths / scale_w;
+end
 
 if num_metrics == 3
     % Keep the exact layout for 3 metrics by centering all columns together.

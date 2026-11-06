@@ -42,6 +42,15 @@ function h_fig_hist_rank = rank_histograms(final_bootstrap_ranks, dataset_names,
     set(h_fig_hist_rank, 'PaperSize', [12, 9.5]);
     set(h_fig_hist_rank, 'PaperPosition', [0, 0, 12, 9.5]);
     
+    % Dynamically expand figure size if dataset count exceeds a standard 3x3 grid.
+    scale_dim = max(1.0, sqrt(num_datasets_plot / 9));
+    if scale_dim > 1.0
+        fig_pos = get(h_fig_hist_rank, 'Position');
+        set(h_fig_hist_rank, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_dim, fig_pos(4) * scale_dim]);
+        set(h_fig_hist_rank, 'PaperSize', [12 * scale_dim, 9.5 * scale_dim]);
+        set(h_fig_hist_rank, 'PaperPosition', [0, 0, 12 * scale_dim, 9.5 * scale_dim]);
+    end
+    
     % Set up the title and layout for the combined plot.
     tcl_hist = tiledlayout('flow', 'TileSpacing', 'compact', 'Padding', 'compact');
     sgtitle_str = sprintf(lang.plots.titles.rank_dist, selected_B);

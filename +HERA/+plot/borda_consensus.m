@@ -36,6 +36,16 @@ if isfield(results, 'borda_results') && ~isempty(results.borda_results)
     set(h_fig_borda, 'PaperUnits', 'inches');
     set(h_fig_borda, 'PaperSize', [12, 9.5]);
     set(h_fig_borda, 'PaperPosition', [0, 0, 12, 9.5]);
+    
+    % Dynamically expand figure size if dataset names or count exceed standard bounds.
+    scale_w = max(1.0, max(cellfun(@strlength, dataset_names)) / 30);
+    scale_h = max(1.0, num_datasets / 15);
+    if scale_w > 1.0 || scale_h > 1.0
+        fig_pos = get(h_fig_borda, 'Position');
+        set(h_fig_borda, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_w, fig_pos(4) * scale_h]);
+        set(h_fig_borda, 'PaperSize', [12 * scale_w, 9.5 * scale_h]);
+        set(h_fig_borda, 'PaperPosition', [0, 0, 12 * scale_w, 9.5 * scale_h]);
+    end
     tcl_borda = tiledlayout(1, 1, 'Padding', 'compact');
     ax_lollipop = nexttile;
     hold(ax_lollipop, 'on');

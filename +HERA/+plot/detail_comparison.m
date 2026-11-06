@@ -110,7 +110,9 @@ for page = 1:num_pages
     % Standard default position [left, bottom, width, height].
     default_pos = [50, 250, 1920, 1080];
     
-    % Calculate the new height based on the number of items.
+    % Calculate the new height based on the number of items and scale width if pair labels are very long.
+    scale_w = max(1.0, max(cellfun(@strlength, page_data.labels)) / 35);
+    new_width = default_pos(3) * scale_w;
     new_height = base_height_px + (num_current_items * height_per_item_px);
     
     % Ensure a minimum height.
@@ -118,15 +120,15 @@ for page = 1:num_pages
     new_height = min(new_height, default_pos(4));
     
     % The Y-position (bottom) is adjusted to keep the top edge of the figure consistent.
-    current_pos = [default_pos(1), default_pos(2) + (default_pos(4) - new_height), default_pos(3), new_height];
+    current_pos = [default_pos(1), default_pos(2) + (default_pos(4) - new_height), new_width, new_height];
     
     h_fig = figure('Name', sprintf(lang.plots.figure_names.comparison_by_metric, metric_names{metric_idx}, page), ...
                    'Color', styles.colors.background, 'Visible', 'off', 'Units', 'pixels', 'Position', current_pos);
     
     % Set figure paper properties for consistent PDF export
     set(h_fig, 'PaperUnits', 'inches');
-    set(h_fig, 'PaperSize', [12, 9.5]);
-    set(h_fig, 'PaperPosition', [0, 0, 12, 9.5]);
+    set(h_fig, 'PaperSize', [12 * scale_w, 9.5]);
+    set(h_fig, 'PaperPosition', [0, 0, 12 * scale_w, 9.5]);
     % Add the figure handle to the list for PDF export.
     handles_list(end+1) = h_fig;
     

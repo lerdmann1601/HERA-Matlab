@@ -46,6 +46,15 @@ h_fig_winloss = figure('Name', lang.plots.figure_names.win_loss_matrix, 'Color',
 set(h_fig_winloss, 'PaperUnits', 'inches');
 set(h_fig_winloss, 'PaperSize', [12, 9.5]);
 set(h_fig_winloss, 'PaperPosition', [0, 0, 12, 9.5]);
+
+% Dynamically expand figure size if dataset names or count exceed standard bounds.
+scale_dim = max([1.0, num_datasets / 12, max(cellfun(@strlength, dataset_names)) / 20]);
+if scale_dim > 1.0
+    fig_pos = get(h_fig_winloss, 'Position');
+    set(h_fig_winloss, 'Position', [fig_pos(1), fig_pos(2), fig_pos(3) * scale_dim, fig_pos(4) * scale_dim]);
+    set(h_fig_winloss, 'PaperSize', [12 * scale_dim, 9.5 * scale_dim]);
+    set(h_fig_winloss, 'PaperPosition', [0, 0, 12 * scale_dim, 9.5 * scale_dim]);
+end
 % Tiled layout is dynamic based on num_metrics
 tcl_wl = tiledlayout(1, num_metrics, 'Padding', 'loose', 'TileSpacing', 'compact');
 title_str_winloss = sprintf([lang.plots.titles.win_loss_matrix '\n']);
