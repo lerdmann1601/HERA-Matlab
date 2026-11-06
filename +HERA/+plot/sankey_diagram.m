@@ -80,6 +80,8 @@ if num_metrics > 1
     band_width = 0.4;
 
     % Draw the connecting bands for each dataset across the stages.
+    h_text_left = gobjects(num_datasets, 1);
+    h_text_right = gobjects(num_datasets, 1);
     for d = 1:num_datasets
         for s_idx = 1:(num_stages - 1)
             y1_start = all_ranks(d, s_idx) - band_width; 
@@ -92,9 +94,9 @@ if num_metrics > 1
         end
         
         % Add vertically centered labels for datasets at the start and end.
-        text(ax, x_coords(1) - 0.05, all_ranks(d, 1), dataset_names{d}, 'HorizontalAlignment', 'right', ...
+        h_text_left(d) = text(ax, x_coords(1) - 0.05, all_ranks(d, 1), dataset_names{d}, 'HorizontalAlignment', 'right', ...
             'VerticalAlignment', 'middle', 'FontSize', styles.font.tick, 'FontWeight', 'bold', 'Color', styles.colors.text, 'Interpreter', 'none');
-        text(ax, x_coords(end) + 0.05, all_ranks(d, end), dataset_names{d}, 'HorizontalAlignment', 'left', ...
+        h_text_right(d) = text(ax, x_coords(end) + 0.05, all_ranks(d, end), dataset_names{d}, 'HorizontalAlignment', 'left', ...
             'VerticalAlignment', 'middle', 'FontSize', styles.font.tick, 'FontWeight', 'bold', 'Color', styles.colors.text, 'Interpreter', 'none');
     end
 
@@ -105,6 +107,14 @@ if num_metrics > 1
         'XColor', styles.colors.text, 'YColor', styles.colors.text, 'GridColor', styles.colors.grid_color, 'TickLabelInterpreter', 'none');
     xlim(ax, [min(x_coords)-0.5, max(x_coords)+0.5]); 
     ylim(ax, [0.5, num_datasets + 0.5]);
+    
+    % Dynamically expand horizontal limits if dataset names exceed the default 0.5 margin.
+    drawnow;
+    max_text_w = max([arrayfun(@(h) h.Extent(3), h_text_left); arrayfun(@(h) h.Extent(3), h_text_right)]);
+    x_span = max(x_coords) - min(x_coords);
+    req_frac = min(0.32, (max_text_w + 0.12) / (x_span + 1.0));
+    x_margin = max(0.5, (req_frac * x_span) / (1 - 2 * req_frac));
+    xlim(ax, [min(x_coords) - x_margin, max(x_coords) + x_margin]);
 
     % Set the left Y-axis label.
     ylabel(ax, lang.plots.ylabels.rank, 'FontSize', styles.font.label, 'FontWeight', 'bold', 'Color', styles.colors.text);

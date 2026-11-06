@@ -59,8 +59,8 @@ function save_sensitivity(results, shared_info, metric_names)
             perm_names = metric_names(local_indices);
             col_name_full = strjoin(perm_names, ' -> ');
             perm_header_parts{p} = col_name_full;
-            % Width is determined by the length of the permutation title
-            width_perm = strlength(col_name_full) + 2;
+            % Width is determined by the length of the permutation title or dataset rank digits
+            width_perm = max(strlength(col_name_full), strlength(sprintf('%d', num_datasets))) + 2;
             col_widths(end+1) = width_perm;
         end
         header_parts_list = [header_parts_list, perm_header_parts];

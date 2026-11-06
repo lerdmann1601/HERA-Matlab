@@ -77,7 +77,7 @@ if isfield(results, 'borda_results') && ~isempty(results.borda_results)
         'YTick', 1:num_datasets, 'YTickLabel', sorted_names_borda, 'TickLabelInterpreter', 'none');
     xlabel(ax_lollipop, lang.plots.xlabels.borda_rank, 'FontSize', styles.font.label, 'Color', styles.colors.text);
     set(ax_lollipop, 'XGrid', 'on', 'YGrid', 'on', 'GridColor', styles.colors.grid_color, 'GridLineStyle', styles.line.grid, 'box', 'on');
-    xticks(ax_lollipop, 0:10:100); xlim(ax_lollipop, [-5, 110]); ylim(ax_lollipop, [0.5, num_datasets + 0.5]);
+    xticks(ax_lollipop, 0:10:100); xlim(ax_lollipop, [-5, 115]); ylim(ax_lollipop, [0.5, num_datasets + 0.5]);
     hold(ax_lollipop, 'off');
 
     % Set the main title for the plot.

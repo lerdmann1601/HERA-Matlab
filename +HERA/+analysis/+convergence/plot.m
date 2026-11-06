@@ -152,7 +152,7 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         else
             % Add Median Cliff's d to the title for context
             if isfield(data, 'eff_median') && ~isempty(data.eff_median)
-                title_str = sprintf('%s Analysis: %s (Median Cliff''s d = %.2f)', name, clean_suffix, data.eff_median);
+                title_str = sprintf('%s Analysis: %s (Median Cliff''s d = %.3f)', name, clean_suffix, data.eff_median);
             else
                 title_str = sprintf('%s Analysis: %s', name, clean_suffix);
             end

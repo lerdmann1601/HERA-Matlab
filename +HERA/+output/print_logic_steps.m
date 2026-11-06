@@ -50,6 +50,9 @@ function print_logic_steps(results, thresholds, config, shared_info)
     
     ci_d_all = results.ci_d_all;
     ci_r_all = results.ci_r_all;
+    
+    % Dynamically calculate dataset column width for intermediate ranking lists
+    width_dataset = max(22, max(cellfun(@strlength, dataset_names)) + 2);
 
     %% 3. Console Output Metric 1
     % Detailed info of the comparisons
@@ -180,7 +183,7 @@ function print_logic_steps(results, thresholds, config, shared_info)
     fprintf(['\n' lang.output.metric1.initial_ranking '\n\n'], metric_names{1});
     for r = 1:num_datasets
         dset_idx = intermediate_orders.after_metric1(r);
-        fprintf([lang.output.tables.format '\n'], r, dataset_names{dset_idx}, metric_names{1}, mean_metrics(dset_idx, 1));
+        fprintf([lang.output.tables.format '\n'], r, format_text(dataset_names{dset_idx}, width_dataset, 'l'), metric_names{1}, mean_metrics(dset_idx, 1));
     end
 
     %% 4. Console Output Metric 2
@@ -248,7 +251,7 @@ function print_logic_steps(results, thresholds, config, shared_info)
         fprintf(['\n' lang.output.metric2.ranking_after '\n\n'], metric_names{2});
         for r = 1:num_datasets
             idx = intermediate_orders.after_metric2(r);
-            fprintf([lang.output.tables.format '\n'], r, dataset_names{idx}, metric_names{2}, mean_metrics(idx, 2));
+            fprintf([lang.output.tables.format '\n'], r, format_text(dataset_names{idx}, width_dataset, 'l'), metric_names{2}, mean_metrics(idx, 2));
         end
     end % End of conditional block for Metric 2
 
@@ -316,7 +319,7 @@ function print_logic_steps(results, thresholds, config, shared_info)
         fprintf(['\n' lang.output.metric3.final_ranking '\n\n'], metric_names{2}); % Still M2 data
         for r = 1:num_datasets
             idx = final_order(r); % 'final_order' contains the final sequence of indices.
-            fprintf([lang.output.tables.format '\n'], r, dataset_names{idx}, metric_names{2}, mean_metrics(idx, 2));
+            fprintf([lang.output.tables.format '\n'], r, format_text(dataset_names{idx}, width_dataset, 'l'), metric_names{2}, mean_metrics(idx, 2));
         end
     
     elseif num_metrics == 3 && strcmp(ranking_mode, 'M1_M2_M3')
@@ -397,7 +400,7 @@ function print_logic_steps(results, thresholds, config, shared_info)
         fprintf(['\n' lang.output.metric3.final_ranking '\n\n'], metric_names{3});
         for r = 1:num_datasets
             idx = final_order(r); % 'final_order' contains the final sequence of indices.
-            fprintf([lang.output.tables.format '\n'], r, dataset_names{idx}, metric_names{3}, mean_metrics(idx, 3));
+            fprintf([lang.output.tables.format '\n'], r, format_text(dataset_names{idx}, width_dataset, 'l'), metric_names{3}, mean_metrics(idx, 3));
         end
     end % End of conditional M3 block
 
