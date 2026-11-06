@@ -12,9 +12,10 @@ jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-24.04, macos-latest, windows-latest] # Ubuntu pinned to 24.04 LTS for MATLAB R2025b compatibility
     env:
       MATLAB_LICENSE: ${{ secrets.MATLAB_LICENSE }}
 
