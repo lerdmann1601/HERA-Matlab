@@ -34,8 +34,8 @@ h_fig_summary = figure('Name', lang.plots.figure_names.final_ranking, 'Color', s
 
 % Set figure paper properties for consistent PDF export
 set(h_fig_summary, 'PaperUnits', 'inches');
-set(h_fig_summary, 'PaperSize', [12, 9.5]);
-set(h_fig_summary, 'PaperPosition', [0, 0, 12, 9.5]);
+set(h_fig_summary, 'PaperSize', [13, 10]);
+set(h_fig_summary, 'PaperPosition', [0, 0, 13, 10]);
 tcl_summary = tiledlayout(1, 2, 'Padding', 'loose', 'TileSpacing', 'compact');
 title_str_summary = sprintf([lang.plots.titles.final_ranking '\n']);
 title(tcl_summary, title_str_summary, 'FontSize', styles.font.title, 'FontWeight', 'bold', 'Color', styles.colors.text, 'Interpreter', 'none');
@@ -60,7 +60,7 @@ for i = 1:num_datasets
     table_content{i, 1} = sprintf('%d', i);
     table_content{i, 2} = sorted_names{i};
     for m_idx = 1:num_metrics
-        table_content{i, 2+m_idx} = sprintf('%.2f ± %.2f', shared_info.mean_metrics(original_idx, m_idx), shared_info.std_metrics(original_idx, m_idx));
+        table_content{i, 2+m_idx} = sprintf('%.3f ± %.3f', shared_info.mean_metrics(original_idx, m_idx), shared_info.std_metrics(original_idx, m_idx));
     end
 end
 
@@ -82,11 +82,40 @@ end
 
 % Calculate column positions based on the calculated content widths.
 padding = 0.04; % Relative spacing between columns.
-total_width = sum(max_widths) + padding * (length(max_widths) - 1);
-start_pos = (1.0 - total_width) / 2; % Center the entire table within the tile.
 col_pos_vals = zeros(1, num_table_cols);
-col_pos_vals(1) = start_pos + max_widths(1)/2;
-for j = 2:num_table_cols, col_pos_vals(j) = col_pos_vals(j-1) + max_widths(j-1)/2 + max_widths(j)/2 + padding; end
+
+if num_metrics == 3
+    % Keep the exact layout for 3 metrics by centering all columns together.
+    total_width = sum(max_widths) + padding * (num_table_cols - 1);
+    start_pos = (1.0 - total_width) / 2; % Center the entire table within the tile.
+    col_pos_vals(1) = start_pos + max_widths(1)/2;
+    for j = 2:num_table_cols
+        col_pos_vals(j) = col_pos_vals(j-1) + max_widths(j-1)/2 + max_widths(j)/2 + padding;
+    end
+else
+    % For 1 or 2 metrics, anchor Rank and Dataset on the left as if 3 metric columns were present,
+    % and center the metric column(s) between the Dataset column and the right edge of the tile (Rank plot).
+    mean_metric_width = mean(max_widths(3:end));
+    ref_total_width = max_widths(1) + max_widths(2) + 3 * mean_metric_width + 4 * padding;
+    start_pos = max(0, (1.0 - ref_total_width) / 2);
+    
+    % Position Rank and Dataset columns.
+    col_pos_vals(1) = start_pos + max_widths(1)/2;
+    col_pos_vals(2) = col_pos_vals(1) + max_widths(1)/2 + max_widths(2)/2 + padding;
+    
+    % Calculate available space between Dataset column right edge and right boundary of the reference table.
+    left_bound = col_pos_vals(2) + max_widths(2)/2;
+    right_bound = min(1.0, start_pos + ref_total_width);
+    
+    % Center the active metric columns within this space.
+    metrics_width = sum(max_widths(3:end)) + padding * (num_metrics - 1);
+    metrics_start = left_bound + ((right_bound - left_bound) - metrics_width) / 2;
+    
+    col_pos_vals(3) = metrics_start + max_widths(3)/2;
+    for j = 4:num_table_cols
+        col_pos_vals(j) = col_pos_vals(j-1) + max_widths(j-1)/2 + max_widths(j)/2 + padding;
+    end
+end
 
 % Place the headers in the table.
 y_header_pos = 0.5;
