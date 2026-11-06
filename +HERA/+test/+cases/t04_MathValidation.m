@@ -26,7 +26,7 @@ function passed = t04_MathValidation(default_config, ~, ~, styles, lang)
     fprintf('%s\n', repmat('-', 1, strlength(title_str)));
     
     fprintf('[Test] Validation of mathematical corner cases (Zero Variance, SEM Logic, BCa Factors).\n');
-    fprintf('[Setup] N=2 Candidates, n=20 Subjects, Fixed B=50.\n');
+    fprintf('[Setup] N=3 Candidates, n=20 Subjects, Fixed B=50.\n');
     
     % Setup: Simple data for math check
     % D1: Zero variance (all 0) -> Should trigger safety mechanisms (NaN protection)
@@ -65,7 +65,7 @@ function passed = t04_MathValidation(default_config, ~, ~, styles, lang)
         % Step 2: BCa Logic Validation (Bootstrap Confidence Intervals)
         cmd_bca = ['[~, ~, ~, z0_d, a_d, ~, ~, ~, ~, ~, ~, ~, ~] = ' ...
              'HERA.calculate_bca_ci({d1, d2}, d_v, r_v, p_idx, 20, config_math, config_math.metric_names,' ...
-             '         temp_dir, temp_dir, 50, myStream, styles, lang, ''Test10'');'];
+             '         temp_dir, temp_dir, 50, myStream, styles, lang, ''Test4'');'];
         [~] = evalc(cmd_bca);
         
         % Checks & Assertions

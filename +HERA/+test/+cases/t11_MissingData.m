@@ -1,4 +1,4 @@
-function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
+function passed = t11_MissingData(default_config, thresholds, ~, ~, lang)
 % T11_MISSINGDATA - Test Case 11: Systematic Missing Data Handling
 %
 % Description:
@@ -8,12 +8,19 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
 % Inputs:
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
+%   ~              - (unused) n_subj override
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -33,12 +40,9 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
     
     fprintf('[Test] Algorithm can handle systematic missing data (NaN).\n');
     
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-
     % Reference Run (Full Data)
     eff_full = TestHelper.calculate_real_effects({m1_full}, 1);
-    [order_ref, ~] = calculate_ranking({m1_full}, eff_full, thresholds, config, ds_names_5, pairs_5, lang_t);
+    [order_ref, ~] = calculate_ranking({m1_full}, eff_full, thresholds, config, ds_names_5, pairs_5, lang);
     
     % Setup Table 
     fprintf('[Setup]\n');
@@ -88,7 +92,7 @@ function passed = t11_MissingData(default_config, thresholds, ~, ~, ~)
         
         % Recalculate with missing data
         eff_nan = TestHelper.calculate_real_effects({m1_nan}, 1);
-        [order_nan, ~] = calculate_ranking({m1_nan}, eff_nan, thresholds, config, ds_names_5, pairs_5, lang_t);
+        [order_nan, ~] = calculate_ranking({m1_nan}, eff_nan, thresholds, config, ds_names_5, pairs_5, lang);
         
         match = isequal(order_nan, order_ref);
         status_str = 'PASS';

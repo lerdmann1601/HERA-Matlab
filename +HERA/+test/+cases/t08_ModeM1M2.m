@@ -1,4 +1,4 @@
-function passed = t08_ModeM1M2(default_config, thresholds, n_subj, ~, ~)
+function passed = t08_ModeM1M2(default_config, thresholds, n_subj, ~, lang)
 % T08_MODEM1M2 - Test Case 8: Mode M1_M2 Logic
 %
 % Description:
@@ -11,12 +11,18 @@ function passed = t08_ModeM1M2(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -53,7 +59,7 @@ function passed = t08_ModeM1M2(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
     
-    [final_order, ~, eff, p_val] = TestHelper.run_single_test_full({m1_data, m2_data}, thresholds, config, ds_names);
+    [final_order, ~, eff, p_val] = TestHelper.run_single_test_full({m1_data, m2_data}, thresholds, config, ds_names, lang);
     
     % Display M2 values specifically to prove correction validity
     m2_d = eff.d_vals_all(:, 2);

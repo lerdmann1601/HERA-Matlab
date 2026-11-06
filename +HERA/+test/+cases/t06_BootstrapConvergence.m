@@ -38,7 +38,8 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     temp_dir = tempname; if ~exist(temp_dir, 'dir'), mkdir(temp_dir); end
     cleanUpTemp = onCleanup(@() rmdir(temp_dir, 's'));
     s_data = RandStream('mlfg6331_64', 'Seed', 666);
-    RandStream.setGlobalStream(s_data);
+    oldStream = RandStream.setGlobalStream(s_data);
+    cleanUpStream = onCleanup(@() RandStream.setGlobalStream(oldStream));
     
     n_conv = 30;
     d1_conv = TestHelper.generate_exact_data(n_conv, [10, 15], 3); 
@@ -119,7 +120,6 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
     for m = 1:3
         curr_method = test_methods(m).name;
         base_cfg    = test_methods(m).cfg;
-        lang_sec    = lang.(test_methods(m).lang_sec);
 
         for mode_idx = 1:3
             row_idx = row_idx + 1;
@@ -130,16 +130,12 @@ function passed = t06_BootstrapConvergence(default_config, ~, ~, styles, lang)
                 mode_name = 'Simple';
                 % Disable smoothing/streak to force simple check
                 run_cfg.smoothing_window = []; run_cfg.convergence_streak_needed = [];  
-                config_str = sprintf('Tol=%.1f%%, (No Smooth/Streak)', run_cfg.convergence_tolerance*100);
             elseif mode_idx == 2 % Robust
                 mode_name = 'Robust';
-                config_str = sprintf('Tol=%.1f%%, Sm=%d, St=%d', ...
-                    run_cfg.convergence_tolerance*100, run_cfg.smoothing_window, run_cfg.convergence_streak_needed);
             elseif mode_idx == 3 % Elbow
                 mode_name = 'Elbow';
                 % Tolerance -1 forces the algorithm to run until B_end for Elbow analysis
                 run_cfg.convergence_tolerance = -1.0; 
-                config_str = sprintf('Tol=-1.0, B_max=%d (Force Fail)', run_cfg.B_end);
             end
             
             % Reset RNG for fairness

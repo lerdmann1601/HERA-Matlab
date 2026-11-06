@@ -278,7 +278,7 @@ classdef TestHelper
             effect_sizes.rel_vals_all = rel_vals;
         end
         
-        function [final_order, final_rank, eff, p_vals] = run_single_test_full(all_data, thresholds, config, names)
+        function [final_order, final_rank, eff, p_vals] = run_single_test_full(all_data, thresholds, config, names, lang_test)
             % Wrapper to run 'calculate_ranking' and return full outputs including diagnostics.
             import HERA.test.TestHelper
             import HERA.calculate_ranking
@@ -288,16 +288,21 @@ classdef TestHelper
             pairs = nchoosek(1:num_d, 2);
             
             eff = TestHelper.calculate_real_effects(all_data, numel(all_data));
-            % Get production resources for testing (including lang)
-            [lang_test, ~] = TestHelper.get_test_resources();
+            % Get production resources for testing (including lang) if not passed
+            if nargin < 5 || isempty(lang_test)
+                [lang_test, ~] = TestHelper.get_test_resources();
+            end
             
             [final_order, final_rank, ~, ~, p_vals] = calculate_ranking(all_data, eff, thresholds, config, names, pairs, lang_test);
         end
         
-        function [final_rank, final_order] = run_single_test(all_data, thresholds, config, names)
+        function [final_rank, final_order] = run_single_test(all_data, thresholds, config, names, lang_test)
             % Wrapper to run 'calculate_ranking' and return just the order/rank.
             import HERA.test.TestHelper
-            [final_order, final_rank, ~, ~] = TestHelper.run_single_test_full(all_data, thresholds, config, names);
+            if nargin < 5
+                lang_test = [];
+            end
+            [final_order, final_rank, ~, ~] = TestHelper.run_single_test_full(all_data, thresholds, config, names, lang_test);
         end
         
         function [lang, styles] = get_test_resources()

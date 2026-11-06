@@ -1,4 +1,4 @@
-function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
+function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, lang)
 % T07_INITIALSORTING - Test Case 7: Initial Sorting Logic
 %
 % Description:
@@ -11,12 +11,18 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -40,7 +46,7 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
     config = default_config;
     config.ranking_mode = 'M1';
     
-    [final_order_1, ~, eff_1, p_val_1] = TestHelper.run_single_test_full({m1_data}, thresholds, config, ds_names);
+    [final_order_1, ~, eff_1, p_val_1] = TestHelper.run_single_test_full({m1_data}, thresholds, config, ds_names, lang);
     
     % Combined Diagnostic Table 
     fprintf('\n[Result]\n');
@@ -90,10 +96,7 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_inj, table_data, d_align, h_align);
     
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-    
-    [final_order_2, ~, ~, ~, ~] = calculate_ranking({m1_data_noise}, effect_sizes, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
+    [final_order_2, ~, ~, ~, ~] = calculate_ranking({m1_data_noise}, effect_sizes, thresholds, config, ds_names, nchoosek(1:3, 2), lang);
     
     % Result Table
     fprintf('\n[Result]\n');
@@ -132,7 +135,7 @@ function passed = t07_InitialSorting(default_config, thresholds, n_subj, ~, ~)
     eff_mean = TestHelper.calculate_real_effects({m1_data_mean}, 1);
     eff_mean.d_vals_all(:) = 0; % Force Delta to 0 to simulate perfect stochastic equality
     
-    [final_order_3, ~, ~, ~, ~] = calculate_ranking({m1_data_mean}, eff_mean, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
+    [final_order_3, ~, ~, ~, ~] = calculate_ranking({m1_data_mean}, eff_mean, thresholds, config, ds_names, nchoosek(1:3, 2), lang);
     
     % Result Table
     fprintf('\n[Result]\n');

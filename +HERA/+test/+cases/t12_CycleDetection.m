@@ -1,4 +1,4 @@
-function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
+function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, lang)
 % T12_CYCLEDETECTION - Test Case 12: Cycle Detection Mechanism
 %
 % Description:
@@ -10,12 +10,18 @@ function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -29,10 +35,12 @@ function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
     m1_data = TestHelper.generate_exact_data(n_subj, [30, 20, 10], 1.0); % Base Order [1, 2, 3]
     m2_data = TestHelper.generate_exact_data(n_subj, [0, 0, 0], 1.0);
     
-    % Inject a Logical Cycle in M2 by forcing effect sizes:
+    % Inject a Logical Cycle in M2 by forcing effect sizes and significance:
     % 2 beats 1, 3 beats 2, 1 beats 3 (Rock-Paper-Scissors)
     eff = TestHelper.calculate_real_effects({m1_data, m2_data}, 2);
     eff.d_vals_all(:, 2) = [-0.9; 0.9; -0.9]; 
+    eff.rel_vals_all(:, 2) = [0.9; 0.9; 0.9];
+    config.alphas(2) = 3.0; % Ensure all 3 injected M2 pairs pass Holm-Bonferroni
     
     fprintf('[Test] Cycle Detection and Fallback Logic.\n');
     fprintf('[Setup] M1: Transitive. M2: Artificial Cycle injected via Cliff''s Delta.\n');
@@ -55,10 +63,7 @@ function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
     warnState = warning('off', 'all'); 
     cleanupObj = onCleanup(@() warning(warnState));
     
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-    
-    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data}, eff, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);
+    [final_order, ~, ~, ~, ~, swap_details] = calculate_ranking({m1_data, m2_data}, eff, thresholds, config, ds_names, nchoosek(1:3, 2), lang);
     warning('on', 'all');
     
     % Result
@@ -68,7 +73,7 @@ function passed = t12_CycleDetection(default_config, thresholds, n_subj, ~, ~)
     h_align = {'c', 'c'}; 
     
     % The algorithm should detect the infinite loop in swaps and revert to M1 order
-    cycle_handled = isequal(final_order(:)', [1, 2, 3]);
+    cycle_handled = swap_details.cycle_m2 && isequal(final_order(:)', [1, 2, 3]);
 
     table_data = {
         'Cycle Detected?', char(string(cycle_handled));

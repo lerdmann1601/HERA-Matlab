@@ -1,4 +1,4 @@
-function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, ~)
+function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, lang)
 % T15_SYSTEMTEST - Test Case 15: Global System Test (Waterfall)
 %
 % Description:
@@ -11,12 +11,18 @@ function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -55,10 +61,7 @@ function passed = t15_SystemTest(default_config, thresholds, n_subj, ~, ~)
     eff = TestHelper.calculate_real_effects({m1_data, m2_data, m3_data}, 3);
     pairs_15 = nchoosek(1:15, 2);
     
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-
-    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data, m3_data}, eff, thresholds, config, ds_names_15, pairs_15, lang_t);
+    [final_order, ~, ~, ~, ~] = calculate_ranking({m1_data, m2_data, m3_data}, eff, thresholds, config, ds_names_15, pairs_15, lang);
     
     % Validation by Tier logic
     % Calculate average rank of each tier to verify separation

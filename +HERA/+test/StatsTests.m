@@ -47,6 +47,10 @@ classdef StatsTests < matlab.unittest.TestCase
             if exist(testCase.tempDir, 'dir')
                 try
                     rmdir(testCase.tempDir, 's');
+                    parentDir = fileparts(testCase.tempDir);
+                    if exist(parentDir, 'dir') && numel(dir(parentDir)) <= 2
+                        rmdir(parentDir);
+                    end
                 catch
                     % Ignore file locks during test
                 end

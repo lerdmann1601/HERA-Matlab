@@ -12,12 +12,15 @@ function run_unit_test(log_path_or_mode)
 %     1. Unit Tests (Component Validation)
 %     2. Statistical Tests (Statistical Kernel Verification for hybrid algorithm switching)
 %     3. Scientific Tests (Algorithm Accuracy, Robustness, Logic)
+%     4. System Tests (End-to-End Pipeline & Usage Modes)
 %
 %   Architecture:
-%     - Controller: +HERA/+test/run_unit_test.m
+%     - Controller: +HERA/run_unit_test.m
+%     - Subcontroller for unit tests: +HERA/+test/UnitTests.m
+%     - Subcontroller for statistical tests: +HERA/+test/StatsTests.m
 %     - Subcontroller for scientific tests: +HERA/+test/ScientificSuite.m
 %     - Scientific Test Cases: +HERA/+test/+cases/*.m
-%     - Subcontroller for unit tests: +HERA/+test/UnitTests.m
+%     - Subcontroller for system tests: +HERA/+test/SystemTests.m
 %
 % Workflow:
 %   1. Environment Validation (Dependencies, Version)
@@ -79,8 +82,6 @@ end
 
     %% 2. Setup Logging
     [log_folder, path_source] = TestHelper.get_writable_log_path();
-    % Inputs:
-    % log_path_or_mode - (Optional) "interactive" or path to custom log folder.
     % Handle arguments for custom path
     if log_path_or_mode ~= ""
         if strcmpi(log_path_or_mode, 'interactive')
@@ -98,6 +99,7 @@ end
     
     if exist(log_path, 'file'), delete(log_path); end
     diary(char(log_path));
+    cleanUpEnv = onCleanup(@() cleanup_test_runner());
     
     fprintf('Log File: %s (%s)\n', log_path, path_source);
     
@@ -152,6 +154,12 @@ end
         rethrow(ME);
     end
     
+    diary off;
+    delete(gcp('nocreate'));
+end
+
+function cleanup_test_runner()
+    % Ensures diary is closed and parallel pool is shut down even on test failure.
     diary off;
     delete(gcp('nocreate'));
 end

@@ -1,4 +1,4 @@
-function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~)
+function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, lang)
 % T03_OUTLIERROBUSTNESS - Test Case 3: Outlier Robustness & Threshold Logic
 %
 % Description:
@@ -10,12 +10,18 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -74,11 +80,8 @@ function passed = t03_OutlierRobustness(default_config, thresholds, n_subj, ~, ~
     d_p2 = eff_robust.d_vals_all(6, 1); 
     r_p2 = eff_robust.rel_vals_all(6, 1);
     
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-
     % Run Ranking
-    [~, ~, all_sig_rob, ~, all_p_value_matrices] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2), lang_t);
+    [~, ~, all_sig_rob, ~, all_p_value_matrices] = calculate_ranking({data_robust}, eff_robust, thr_robust, config, names_robust, nchoosek(1:4, 2), lang);
     
     p_p1 = all_p_value_matrices{1}(1, 2);
     p_p2 = all_p_value_matrices{1}(3, 4);

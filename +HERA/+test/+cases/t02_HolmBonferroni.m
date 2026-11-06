@@ -1,4 +1,4 @@
-function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
+function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, lang)
 % T02_HOLMBONFERRONI - Test Case 2: Statistical Rigor (Holm-Bonferroni Correction)
 %
 % Description:
@@ -11,12 +11,18 @@ function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base HERA configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -55,12 +61,9 @@ function passed = t02_HolmBonferroni(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
 
-    % Load lang for calculation
-    lang_t = HERA.get_language();
-
     % Run ranking on noise data
     % We are interested in 'all_alphas' output
-    [~, ~, ~, all_alphas, all_p_vals] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb, lang_t);
+    [~, ~, ~, all_alphas, all_p_vals] = calculate_ranking({data_hb}, eff_hb, thresholds, config_hb, ds_names_hb, pairs_hb, lang);
     
     % Validation 1: The strictest alpha should be Base / Num_Pairs (Classical Check)
     min_alpha_observed = min(all_alphas{1}(:));

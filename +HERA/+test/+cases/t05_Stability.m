@@ -1,8 +1,7 @@
-function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
+function passed = t05_Stability(default_config, thresholds, n_subj, ~, lang)
 % T05_STABILITY - Test Case 5: Stability Check (Identical Data)
 %
 % Description:
-%   Tests algorithm stability when absolute zero-variance inputs are provided.
 %   Tests algorithm stability when absolute zero-variance inputs are provided.
 %   Hypothesis: The algorithm must not crash and must produce a consistent,
 %   deterministic output. NaNs in p-values are expected (singularity) but
@@ -12,12 +11,18 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -47,11 +52,8 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
     ds_names = {'D1', 'D2', 'D3'}; 
     
     try
-        % Load lang for calculation
-        lang_t = HERA.get_language();
-
         % Run ranking with full output capture (suppress internal logs)
-        [~] = evalc('[final_order_z, ~, all_sig_z, ~, p_vals_z] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);');
+        [~] = evalc('[final_order_z, ~, all_sig_z, ~, p_vals_z] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2), lang);');
         
         % --- Assertion 1: Effect Sizes must be Zero/Negligible ---
         % For identical zero-variance data, Cliff's Delta and RelDiff must be 0
@@ -76,7 +78,7 @@ function passed = t05_Stability(default_config, thresholds, n_subj, ~, ~)
         
         % --- Assertion 5: Deterministic Result ---
         % Re-run should produce identical output (suppress internal logs)
-        [~] = evalc('[final_order_z2, ~] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2), lang_t);');
+        [~] = evalc('[final_order_z2, ~] = calculate_ranking({data_zero}, eff_zero, thresholds, config, ds_names, nchoosek(1:3, 2), lang);');
         is_deterministic = isequal(final_order_z, final_order_z2);
         
         % Result Table

@@ -2,7 +2,6 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, lang)
 % T01_SMALLSAMPLE - Test Case 1: Small Sample Size Boundary (Exact Wilcoxon N=10)
 %
 % Description:
-% Description:
 %   Verifies exact p-value calculation, signal detection, and ranking correctness 
 %   for small sample sizes (N < 15).
 %   Hypothesis: For N=10, the algorithm must detect a strong signal correctly
@@ -13,7 +12,7 @@ function passed = t01_SmallSample(default_config, thresholds, ~, ~, lang)
 %   thresholds     - (struct) Base thresholds
 %   ~              - (unused) n_subj override
 %   ~              - (unused) styles
-%   ~              - (unused) lang
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes

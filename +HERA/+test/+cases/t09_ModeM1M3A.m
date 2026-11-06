@@ -1,4 +1,4 @@
-function passed = t09_ModeM1M3A(default_config, thresholds, n_subj, ~, ~)
+function passed = t09_ModeM1M3A(default_config, thresholds, n_subj, ~, lang)
 % T09_MODEM1M3A - Test Case 9: Mode M1_M3A Tie-Break Logic
 %
 % Description:
@@ -11,12 +11,18 @@ function passed = t09_ModeM1M3A(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -50,7 +56,7 @@ function passed = t09_ModeM1M3A(default_config, thresholds, n_subj, ~, ~)
     };
     TestHelper.print_auto_table(h_in, table_data, d_align, h_align);
     
-    [~, final_order] = TestHelper.run_single_test({m1_data, m2_data}, thresholds, config, ds_names_3);
+    [~, final_order] = TestHelper.run_single_test({m1_data, m2_data}, thresholds, config, ds_names_3, lang);
     
     % Result Table
     fprintf('\n[Result]\n');

@@ -5,7 +5,7 @@ classdef SystemTests < matlab.unittest.TestCase
     %   Verifies the core usage modes documented in the README:
     %   1. Developer Mode (Direct API call with data matrices)
     %   2. Batch Mode (JSON Configuration)
-    %   3. Unit Test Wrapper (CLI Argument)
+    %   3. NaN Robustness (Missing Data Handling in Developer Mode)
     %
     %   These tests ensure that the application entry points (start_ranking, run_ranking) 
     %   correctly parse inputs and orchestrate the analysis pipeline.
@@ -50,6 +50,20 @@ classdef SystemTests < matlab.unittest.TestCase
                         fprintf('Warning: Could not delete temp dir: %s\n', dirPath);
                     end
                 end
+                parentDir = fileparts(dirPath);
+                if exist(parentDir, 'dir') && numel(dir(parentDir)) <= 2
+                    try
+                        rmdir(parentDir);
+                    catch
+                    end
+                end
+            end
+        end
+        
+        function restoreDiary(originalState, originalLog)
+            % RESTOREDIARY - Restores the global diary state if it was active before a test
+            if strcmp(originalState, 'on')
+                diary(originalLog);
             end
         end
     end
@@ -82,16 +96,13 @@ classdef SystemTests < matlab.unittest.TestCase
             userInput.language = 'en';
             
             % 3. Run Ranking
-            % Save global diary state allowing to restore it
+            % Save global diary state allowing to restore it automatically
             originalLog = get(0, 'DiaryFile');
             originalState = get(0, 'Diary');
+            cleanUpDiary = onCleanup(@() HERA.test.SystemTests.restoreDiary(originalState, originalLog));
             
             [~, results] = evalc('HERA.run_ranking(userInput);');
-            
-            % Restore global diary state if it was active
-            if strcmp(originalState, 'on')
-                diary(originalLog);
-            end
+            clear cleanUpDiary;
             
             % 4. Verify Output Structure
             testCase.verifyTrue(isfield(results, 'final_rank'), 'Results missing final_rank');
@@ -138,16 +149,13 @@ classdef SystemTests < matlab.unittest.TestCase
             % 3. Call start_ranking in Batch Mode
             % Note: This function has no return, so we check side effects (files created)
             
-            % Save global diary state allowing to restore it
+            % Save global diary state allowing to restore it automatically
             originalLog = get(0, 'DiaryFile');
             originalState = get(0, 'Diary');
+            cleanUpDiary = onCleanup(@() HERA.test.SystemTests.restoreDiary(originalState, originalLog));
             
             [T] = evalc('HERA.start_ranking(''configFile'', jsonPath);');
-            
-            % Restore global diary state if it was active
-            if strcmp(originalState, 'on')
-                diary(originalLog);
-            end
+            clear cleanUpDiary;
             
             % 4. Verify Output Files
             % HERA creates a timestamped folder inside outputDir. Find it.
@@ -224,6 +232,7 @@ classdef SystemTests < matlab.unittest.TestCase
             % 3. Run Ranking (Capture output)
             originalLog = get(0, 'DiaryFile'); % Save diary state
             originalState = get(0, 'Diary');
+            cleanUpDiary = onCleanup(@() HERA.test.SystemTests.restoreDiary(originalState, originalLog));
             
             try
                 [~, results] = evalc('HERA.run_ranking(userInput);');
@@ -231,11 +240,7 @@ classdef SystemTests < matlab.unittest.TestCase
                 testCase.verifyFail(['Ranking failed with NaNs: ' ME.message]);
                 return; % Exit if crashed
             end
-            
-            % Restore diary
-            if strcmp(originalState, 'on')
-                diary(originalLog);
-            end
+            clear cleanUpDiary;
             
             % 4. Verify Results
             % Expected Order: MethodA (1), MethodB (2), MethodC (3)

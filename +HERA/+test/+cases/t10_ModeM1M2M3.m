@@ -1,4 +1,4 @@
-function passed = t10_ModeM1M2M3(default_config, thresholds, n_subj, ~, ~)
+function passed = t10_ModeM1M2M3(default_config, thresholds, n_subj, ~, lang)
 % T10_MODEM1M2M3 - Test Case 10: Mode M1_M2_M3 Fallback Logic
 %
 % Description:
@@ -10,12 +10,18 @@ function passed = t10_ModeM1M2M3(default_config, thresholds, n_subj, ~, ~)
 %   default_config - (struct) Base configuration
 %   thresholds     - (struct) Base thresholds
 %   n_subj         - (int)    Sample size
+%   ~              - (unused) styles
+%   lang           - (struct) Language struct
 %
 % Returns:
 %   passed - (logical) True if test passes
 
     import HERA.test.TestHelper
     import HERA.*
+    
+    if nargin < 5 || isempty(lang)
+        lang = HERA.get_language();
+    end
     
     passed = false;
     tests_passed = 0;
@@ -31,6 +37,7 @@ function passed = t10_ModeM1M2M3(default_config, thresholds, n_subj, ~, ~)
     % Ensure Clean RNG for this sensitive test to prevent noise flipping D1/D2
     s_local = RandStream('mlfg6331_64', 'Seed', 999);
     s_global = RandStream.setGlobalStream(s_local);
+    cleanUpStream = onCleanup(@() RandStream.setGlobalStream(s_global));
 
     fprintf('[Test] Verifying Logic 3B (M3 Sorting when M1/M2 tied).\n');
     fprintf('[Setup] M1/M2 Neutral (~10). M3 Strong D3(20) > D1/D2(10).\n');
@@ -55,7 +62,7 @@ function passed = t10_ModeM1M2M3(default_config, thresholds, n_subj, ~, ~)
     TestHelper.print_auto_table(h_m, table_data, d_align, h_align);
     
     config.ranking_mode = 'M1_M2_M3';
-    [~, final_order] = TestHelper.run_single_test({m1_data, m2_data, m3_data}, thresholds, config, ds_names);
+    [~, final_order] = TestHelper.run_single_test({m1_data, m2_data, m3_data}, thresholds, config, ds_names, lang);
     
     % Result Table
     fprintf('\n[Result]\n');
