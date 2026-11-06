@@ -53,6 +53,13 @@ function [h_fig_global, h_fig_detailed] = bca_convergence(B_vector, overall_stab
         mkdir(subfolder_bca_CI);
     end
 
+    % Save current global font defaults and restore them automatically on exit.
+    orig_axes_font = get(0, 'DefaultAxesFontName');
+    orig_text_font = get(0, 'DefaultTextFontName');
+    cleanup_defaults = onCleanup(@() set(0, ...
+        'DefaultAxesFontName', orig_axes_font, ...
+        'DefaultTextFontName', orig_text_font));
+
     % Set default fonts for this session/plots
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');

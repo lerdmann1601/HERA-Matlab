@@ -145,7 +145,18 @@ hold(ax_rank, 'on');
 set(ax_rank, 'Color', styles.colors.background);
 
 % Prepare data for the rank plot, sorted by the final rank.
-ci_ranks = quantile(results.final_bootstrap_ranks, [0.025, 0.975], 2);
+% Reuse pre-calculated rank confidence intervals if available, otherwise compute dynamically from config.ci_level.
+if isfield(results, 'ci_lower_rank') && isfield(results, 'ci_upper_rank') && ...
+   ~isempty(results.ci_lower_rank) && ~isempty(results.ci_upper_rank)
+    ci_ranks = [results.ci_lower_rank(:), results.ci_upper_rank(:)];
+else
+    if isfield(shared_info, 'config') && isfield(shared_info.config, 'ci_level') && ~isempty(shared_info.config.ci_level)
+        alpha_rank = 1 - shared_info.config.ci_level;
+    else
+        alpha_rank = 0.05;
+    end
+    ci_ranks = quantile(results.final_bootstrap_ranks, [alpha_rank / 2, 1 - (alpha_rank / 2)], 2);
+end
 [~, sort_idx] = sort(results.final_rank);
 sorted_names = dataset_names(sort_idx);
 sorted_ci = ci_ranks(sort_idx, :);

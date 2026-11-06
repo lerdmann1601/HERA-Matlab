@@ -11,7 +11,8 @@ function [is_valid, all_data, dataset_names, num_probanden, num_datasets, pair_i
 %   2. File Loading: Reading CSV/Excel files from a specified folder if no custom data is present.
 %
 %   It checks for consistency (same number of subjects and columns across metrics) and missing values.
-%   In case of issues, it interacts with the user.
+%   In case of issues, it interacts with the user (or proceeds automatically in non-interactive/in-memory mode).
+%   Note on Metric Polarity: Higher values are assumed to indicate better performance; invert error/latency metrics prior to input.
 %
 % Workflow:
 %   1. In-Memory Check: Checks if 'userInput.custom_data' is provided. If so, validates dimensions and 
@@ -272,26 +273,24 @@ end
         fprintf(['\n' lang.load_data.note_pairwise_deletion '\n'])
         pause(0.5);
         
-        % Start a loop to get user confirmation to proceed despite the warnings
-        while true
+        % Determine if running in non-interactive mode (in-memory developer call or quiet mode)
+        is_in_memory = isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data);
+        quiet_mode = isfield(userInput, 'quiet_mode') && userInput.quiet_mode;
+        
+        if is_in_memory || quiet_mode
+            % Automatically proceed in non-interactive / developer mode after logging warnings
+            fprintf([lang.load_data.analysis_continuing '\n']);
+        else
+            % Interactive confirmation using centralized UserInterface helper
             fprintf(['\n' lang.load_data.note_enter_key '\n']);
-            % Prompt the user to confirm if they want to continue
-            prompt = sprintf(lang.load_data.prompt_continue, lang.general.yes_char, lang.general.no_char, lang.general.yes_char);
-            choice = input(prompt, 's');
-            % Set the default choice to 'yes' if the user just presses Enter
-            if isempty(choice), choice = lang.general.yes_char; end
+            prompt_base = regexprep(lang.load_data.prompt_continue, '\s*\(%s/%s\)\s*\[%s\]:\s*$', '');
+            should_continue = HERA.start.UserInterface.get_yes_no_input(prompt_base, true, lang);
             
-            % If the user agrees, break the loop and continue the analysis
-            if strcmpi(choice, lang.general.yes_char)
+            if should_continue
                 fprintf([lang.load_data.analysis_continuing '\n']);
-                break;
-            % If the user chooses to abort, exit the function
-            elseif strcmpi(choice, lang.general.no_char)
+            else
                 fprintf([lang.load_data.analysis_aborted '\n']);
                 return; % Exit function on abort; is_valid remains false
-            % Handle invalid user input
-            else
-                fprintf([lang.load_data.error_invalid_input '\n'], lang.general.yes_char, lang.general.no_char);
             end
         end
     end

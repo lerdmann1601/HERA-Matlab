@@ -41,6 +41,13 @@ function [h_z0, h_a, h_widths] = bca_distributions(z0_d_all, a_d_all, z0_r_all, 
         mkdir(subfolder_bca_CI);
     end
 
+    % Save current global font defaults and restore them automatically on exit.
+    orig_axes_font = get(0, 'DefaultAxesFontName');
+    orig_text_font = get(0, 'DefaultTextFontName');
+    cleanup_defaults = onCleanup(@() set(0, ...
+        'DefaultAxesFontName', orig_axes_font, ...
+        'DefaultTextFontName', orig_text_font));
+
     % Set default fonts
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');

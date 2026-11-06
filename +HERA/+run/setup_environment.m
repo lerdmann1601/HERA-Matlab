@@ -42,8 +42,8 @@ function [userInput, setupData] = setup_environment(userInput)
         userInput.language = defaults.language;
     end
 
-    % Load the specified language pack to localize all console and plot outputs.
-    lang = language_code(userInput.language); 
+    % Load the specified language pack using the centralized Utils helper (supports standard and deployed CTF paths).
+    lang = HERA.start.Utils.language_code(userInput.language); 
 
     % Check if at least one data source is provided (File or Memory).
     if ~isfield(userInput, 'folderPath') && ~isfield(userInput, 'custom_data')
@@ -413,24 +413,4 @@ function [userInput, setupData] = setup_environment(userInput)
     setupData.timestamp = timestamp_folder;
     setupData.num_workers = currentPool.NumWorkers; % Store actual worker count for bootstrap functions
 
-end
-
-function lang = language_code(language_code)
-    % A simplified helper function to load the language JSON file.
-    % This is used in non-interactive contexts like the main run script.
-    % Get path relative to this function.
-    % Note: since this file is in +HERA/+run, we need to go up one level to +HERA, then to language.
-    % Original: was in +HERA/run_ranking.m -> base_path was +HERA.
-    % Now: in +HERA/+run/setup_environment.m -> base_path is +HERA/+run.
-    base_path = fileparts(mfilename('fullpath'));
-    % language folder is in +HERA/language.
-    % base_path is .../+HERA/+run
-    % fileparts(base_path) is .../+HERA
-    hera_path = fileparts(base_path);
-    file_path = fullfile(hera_path, 'language', [language_code, '.json']);
-    if ~exist(file_path, 'file')
-        error('Language file for code "%s" not found at %s.', language_code, file_path);
-    end
-    json_text = fileread(file_path);
-    lang = jsondecode(json_text);
 end

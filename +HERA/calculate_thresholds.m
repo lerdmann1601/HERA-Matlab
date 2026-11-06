@@ -69,15 +69,8 @@ if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
 end
 
-min_batch_size = 100;
-if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
-    min_batch_size = config.system.min_batch_size;
-end
-
-% Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
+% Extract quiet_mode flag safely with default for backward compatibility.
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
-write_csv = isfield(config, 'create_csvs') && config.create_csvs;
-if ~isfield(config, 'create_csvs'), write_csv = true; end 
 
 %% 1. Initialization and Calculation of Initial Statistics
 % Extracts parameters from the configuration structure.
@@ -86,7 +79,6 @@ num_metrics = numel(all_data); % Get dynamic metric count
 num_datasets = size(all_data{1}, 2);
 ci_level = config.ci_level;
 alpha_level = 1 - ci_level;
-ts = config.timestamp; 
 
 % Generates all possible unique pair combinations of the datasets.
 num_pairs = nchoosek(num_datasets, 2);
@@ -227,9 +219,8 @@ else
         % Dynamic vector size based on num_metrics
         temp_stability_vector = zeros(1, num_metrics * 2); % Vector for [d1..dN, r1..rN]
         
-        % Total tasks: all effect types × n_trials.
+        % Total effect types (Metric x [Delta, RelDiff]).
         n_effect_types = num_metrics * 2;
-        total_tasks = n_effect_types * cfg_thr.n_trials;
         
         % Extract values once per effect type (reused for all trials).
         vals_cell = cell(1, n_effect_types);

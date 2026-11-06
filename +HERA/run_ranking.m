@@ -47,7 +47,8 @@ function results = run_ranking(userInput)
 %       Stops the log (Parallel pool remains active for subsequent runs).
 %
 % Inputs:
-%   userInput - (struct) Configuration structure. Must contain ONE of the following data sources:
+%   userInput - (struct) Configuration structure. Must contain ONE of the following data sources
+%               (Note: Higher metric values indicate better performance; invert error/latency metrics prior to input):
 %
 %       A) File-Based Mode (Standard):
 %          .folderPath   - (char) Path to folder containing CSV/XLSX files.

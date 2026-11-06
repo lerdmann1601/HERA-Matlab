@@ -22,6 +22,13 @@ function h_fig_hist_rank = rank_histograms(final_bootstrap_ranks, dataset_names,
 %
 % Author: Lukas von Erdmannsdorff
 
+    % Save current global font defaults and restore them automatically on exit.
+    orig_axes_font = get(0, 'DefaultAxesFontName');
+    orig_text_font = get(0, 'DefaultTextFontName');
+    cleanup_defaults = onCleanup(@() set(0, ...
+        'DefaultAxesFontName', orig_axes_font, ...
+        'DefaultTextFontName', orig_text_font));
+
     % Set global default font properties for the plot.
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');

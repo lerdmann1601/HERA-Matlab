@@ -101,11 +101,6 @@ if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
 end
 
-min_batch_size = 100;
-if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
-    min_batch_size = config.system.min_batch_size;
-end
-
 % Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
 write_csv = isfield(config, 'create_csvs') && config.create_csvs;

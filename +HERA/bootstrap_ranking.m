@@ -90,11 +90,6 @@ if isfield(config, 'system') && isfield(config.system, 'delta_mat_limit')
     delta_mat_limit = config.system.delta_mat_limit;
 end
 
-min_batch_size = 100;
-if isfield(config, 'system') && isfield(config.system, 'min_batch_size')
-    min_batch_size = config.system.min_batch_size;
-end
-
 % Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
 write_csv = isfield(config, 'create_csvs') && config.create_csvs;
@@ -118,6 +113,16 @@ ts = config.timestamp;
 num_datasets_b = size(all_data{1}, 2);
 n_subj_b = num_probanden;
 num_metrics = numel(all_data); % Get dynamic number of metrics
+
+% Determine user-configured confidence interval bounds (default: 0.95 -> [0.025, 0.975]).
+if isfield(config, 'ci_level') && ~isempty(config.ci_level)
+    target_ci = config.ci_level;
+else
+    target_ci = 0.95;
+end
+alpha = 1 - target_ci;
+ci_lower_bound = alpha / 2;
+ci_upper_bound = 1 - (alpha / 2);
 
 % Initialize output arrays for figure handles to prevent errors if no plots are generated.
 h_figs_rank = gobjects(0);
@@ -286,8 +291,8 @@ else
                  end
             end
             
-            % After Br_b iterations, calculate the width of the 95% confidence interval of the ranks for this one trial.
-            ci_bounds_b = quantile(rank_tmp_b, [0.025, 0.975], 2);
+            % After Br_b iterations, calculate the width of the confidence interval of the ranks for this one trial.
+            ci_bounds_b = quantile(rank_tmp_b, [ci_lower_bound, ci_upper_bound], 2);
             ci_widths_b(t_b, :) = ci_bounds_b(:, 2) - ci_bounds_b(:, 1);
         end
         
@@ -542,17 +547,7 @@ end
 
 %% 7. Calculate Rank Confidence Intervals
 % Calculate Rank Confidence Intervals from the bootstrap distribution
-% Respect the user-configured confidence level (e.g., 0.95)
-if isfield(config, 'ci_level') && ~isempty(config.ci_level)
-    target_ci = config.ci_level;
-else
-    target_ci = 0.95; % Default
-end
-
-alpha = 1 - target_ci;
-ci_lower_bound = alpha / 2;
-ci_upper_bound = 1 - (alpha / 2);
-
+% Uses the user-configured confidence level bounds (ci_lower_bound, ci_upper_bound) initialized in Section 1.
 ci_final_ranks = quantile(final_bootstrap_ranks, [ci_lower_bound, ci_upper_bound], 2);
 ci_lower_rank = ci_final_ranks(:, 1);
 ci_upper_rank = ci_final_ranks(:, 2);

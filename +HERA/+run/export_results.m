@@ -47,12 +47,12 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     %% 11. Result Aggregation and Output
     fprintf(['\n' lang.run_ranking.creating_output '\n']);
     
-    % Calculate mean and standard deviation of the raw metrics for the final table.
+    % Calculate mean and standard deviation of the raw metrics for the final table (ignoring NaNs).
     mean_metrics = zeros(num_datasets, num_metrics);
     std_metrics = zeros(num_datasets, num_metrics);
     for i = 1:num_metrics
-        mean_metrics(:, i) = mean(all_data{i}, 1)';
-        std_metrics(:, i) = std(all_data{i}, 0, 1)';
+        mean_metrics(:, i) = mean(all_data{i}, 1, 'omitnan')';
+        std_metrics(:, i) = std(all_data{i}, 0, 1, 'omitnan')';
     end
     
     % Aggregate all analysis results into a single 'results' struct.
@@ -208,21 +208,8 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         % dataset_names: Contains index of dataset names
         json_export_data.dataset_names = shared_info.dataset_names;
         
-        % config: Contains all initial settings
-        json_export_data.config = config;
-
-        % Remove target_memory and performance heuristics from saved config
-        if isfield(json_export_data.config, 'system')
-             sys = json_export_data.config.system;
-             fields_to_remove = {'target_memory', 'jack_vec_limit', 'delta_mat_limit', 'jack_parfor_thr'};
-             % Remove any that exist
-             for f = fields_to_remove
-                 if isfield(sys, f{1})
-                     sys = rmfield(sys, f{1});
-                 end
-             end
-             json_export_data.config.system = sys;
-        end
+        % config: Contains all initial settings (reuse cleaned config from results)
+        json_export_data.config = results.config;
         
         % meta: Contains key execution parameters
         json_export_data.meta = struct();

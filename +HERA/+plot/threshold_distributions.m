@@ -43,6 +43,13 @@ function [h_fig_hist_thr, h_fig_hist_raw] = threshold_distributions(all_bootstat
     
     ts = config.timestamp;
     
+    % Save current global font defaults and restore them automatically on exit.
+    orig_axes_font = get(0, 'DefaultAxesFontName');
+    orig_text_font = get(0, 'DefaultTextFontName');
+    cleanup_defaults = onCleanup(@() set(0, ...
+        'DefaultAxesFontName', orig_axes_font, ...
+        'DefaultTextFontName', orig_text_font));
+
     % Use the passed global styles.
     set(0, 'DefaultAxesFontName', 'Arial');
     set(0, 'DefaultTextFontName', 'Arial');

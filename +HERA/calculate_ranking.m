@@ -9,6 +9,8 @@ function [final_order, final_rank, all_sig_matrices, all_alpha_matrices, all_p_v
 % Description:
 %   This function implements a multi-stage ranking algorithm to determine the order of datasets.
 %   It dynamically adapts the logic based on the number of metrics (1, 2, or 3) and the 'ranking_mode' provided in the config.
+%   Note on Metric Polarity: Higher values are assumed to indicate better performance (e.g., d_val > 0 means x > y).
+%   Error or latency metrics where lower values are better must be inverted prior to analysis.
 %
 % Workflow:
 %   1. Pre-calculation: 
@@ -64,10 +66,8 @@ arguments
     is_clean (1,1) logical = false
 end
 
-% Extract quiet_mode and write_csv flags safely with defaults (for consistency)
+% Extract quiet_mode flag safely with default
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
-write_csv = isfield(config, 'create_csvs') && config.create_csvs;
-if ~isfield(config, 'create_csvs'), write_csv = true; end
 
 % Initialization of basic parameters.
 num_metrics = numel(all_data);
@@ -228,10 +228,18 @@ end
 % Extracts the results for the first (primary) metric.
 sig_metric1_matrix = all_sig_matrices{1};
 
-if isempty(subset_indices)
-    mean_metric1 = mean(all_data{1}, 1)';
+if is_clean
+    if isempty(subset_indices)
+        mean_metric1 = mean(all_data{1}, 1)';
+    else
+        mean_metric1 = mean(all_data{1}(subset_indices, :), 1)';
+    end
 else
-    mean_metric1 = mean(all_data{1}(subset_indices, :), 1)';
+    if isempty(subset_indices)
+        mean_metric1 = mean(all_data{1}, 1, 'omitnan')';
+    else
+        mean_metric1 = mean(all_data{1}(subset_indices, :), 1, 'omitnan')';
+    end
 end
 
 % Counts the number of "wins" (significant comparisons won) for each dataset.
@@ -483,6 +491,7 @@ if nargout >= 6
         swap_details.pairwise_swaps_metric2 = zeros(0, 5);
         swap_details.results_metric2 = cell(m, 7);
         swap_details.metric2_global_swaps = zeros(0, 2);
+        swap_details.cycle_m2 = cycle_detected_m2;
     end
     
     if num_metrics == 3
@@ -497,6 +506,7 @@ if nargout >= 6
         swap_details.results_metric3 = cell(m, 7);
         swap_details.metric3_swaps_a = metric3_swaps_a;
         swap_details.metric3_swaps_b = metric3_swaps_b;
+        swap_details.cycle_m3b = cycle_detected_m3b;
     end
 else
     swap_details = struct(); % Return empty if not requested

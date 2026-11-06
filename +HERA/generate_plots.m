@@ -81,6 +81,15 @@ convergence_report_handles = gobjects(0);
 % Log the start of the plot creation process.
 fprintf(['\n' lang.plots.log_messages.start_creation '\n'], upper(plot_theme));
 
+% Save current global graphics defaults and restore them automatically on exit.
+orig_axes_font = get(0, 'DefaultAxesFontName');
+orig_text_font = get(0, 'DefaultTextFontName');
+orig_axes_color = get(0, 'DefaultAxesColor');
+cleanup_defaults = onCleanup(@() set(0, ...
+    'DefaultAxesFontName', orig_axes_font, ...
+    'DefaultTextFontName', orig_text_font, ...
+    'DefaultAxesColor', orig_axes_color));
+
 % Set global background and font for consistency across all plots.
 set(0, 'DefaultAxesFontName', 'Arial');
 set(0, 'DefaultTextFontName', 'Arial');
