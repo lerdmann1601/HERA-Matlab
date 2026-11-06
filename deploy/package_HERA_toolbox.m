@@ -223,16 +223,23 @@ opts.ToolboxName = 'HERA'; % The display name
 opts.ToolboxVersion = replace(version_str, 'v', '');
 opts.AuthorName = 'Lukas von Erdmannsdorff';
 opts.AuthorEmail = ''; % Optional: Leave empty or fill if known
+opts.AuthorCompany = 'Institute of Neuroradiology, Goethe University Frankfurt';
 
 % Description
 opts.Summary = 'A Scientific Ranking Framework for Paired Benchmarking';
-opts.Description = ['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across up to three quality metrics. ' ...
-    'It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Mean Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings. ' ...
-    'For more information, visit the project website: https://lerdmann1601.github.io/HERA-Matlab/'];
+opts.Description = sprintf(['HERA (Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm) is a MATLAB toolbox designed to automate the objective comparison of algorithms, experimental conditions, or datasets across up to three quality metrics. ' ...
+    'It implements a hierarchical-compensatory logic integrating non-parametric significance testing, robust effect size estimation (Cliff''s Delta and Relative Mean Difference), and bootstrapping to produce data-driven thresholds and statistically robust rankings.\n\n' ...
+    'Documentation & Project Website: https://lerdmann1601.github.io/HERA-Matlab/\n' ...
+    'GitHub Repository: https://github.com/lerdmann1601/HERA-Matlab\n' ...
+    'DOI: https://doi.org/10.5281/zenodo.18274870']);
 
-% Compatibility (Minimum MATLAB Release)
+% Compatibility (Minimum MATLAB Release & Platforms)
 opts.MinimumMatlabRelease = 'R2020a';
 opts.MaximumMatlabRelease = '';
+opts.SupportedPlatforms.Win64 = true;
+opts.SupportedPlatforms.Glnxa64 = true;
+opts.SupportedPlatforms.Maci64 = true;
+opts.SupportedPlatforms.MatlabOnline = true;
 
 opts.ToolboxFiles = validFiles;
 
