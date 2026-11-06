@@ -93,7 +93,7 @@ end
 % Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
 write_csv = isfield(config, 'create_csvs') && config.create_csvs;
-if ~isfield(config, 'create_csvs'), write_csv = true; end
+if ~isfield(config, 'create_csvs'), write_csv = ~quiet_mode; end
 
 %% 1. Initialization and Convergence Check for Optimal B
 % Iteratively tests increasing B-values until the rank CI widths stabilize.
@@ -375,7 +375,7 @@ else
     selected_B_final = round(selected_B_final);
     
     %% 3. Create and save the convergence graphic.
-    if isfield(config, 'create_reports') && config.create_reports
+    if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
         subfolder_ranking = fullfile(graphics_dir, 'Ranking');
         h_fig_rank = HERA.plot.rank_convergence(B_tested_vector_b, stability_vector_b_plotted, ...
                                                 selected_B_final, converged, elbow_idx_rank, ...
@@ -522,13 +522,13 @@ end
 final_bootstrap_ranks = [rank_batches{:}];
 
 %% 4 and 5. Print & Save Bootstrap Rank Distribution
-if write_csv
-    HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, selected_B_final, lang, csv_dir, ts);
+if ~quiet_mode || write_csv
+    HERA.output.save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, selected_B_final, lang, csv_dir, ts, quiet_mode, write_csv);
 end
 
 %% 6. Create and save the histogram distribution of the final ranks
 % Only create this plot if reports are enabled
-if isfield(config, 'create_reports') && config.create_reports
+if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
     subfolder_ranking = fullfile(graphics_dir, 'Ranking');
     h_fig_hist_rank = HERA.plot.rank_histograms(final_bootstrap_ranks, dataset_names, ...
                                                 final_rank, selected_B_final, styles, lang);

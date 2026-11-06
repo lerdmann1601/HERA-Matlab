@@ -1,8 +1,9 @@
-function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts)
+function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts, quiet_mode, write_csv)
 % SAVE_BCA_TABLE - Displays and saves the BCa correction factors table.
 %
 % Syntax:
 %   HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts)
+%   HERA.output.save_bca_table(..., quiet_mode, write_csv)
 %
 % Description:
 %   Prints a structured table of BCa correction factors (Bias z0, Skewness a)
@@ -18,64 +19,80 @@ function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang
 %   num_pairs    - Number of pairs in the analysis.
 %   csv_dir      - Directory to save the CSV file.
 %   ts           - Timestamp string for the filename.
+%   quiet_mode   - (Optional) Logical flag to suppress console output (default: false).
+%   write_csv    - (Optional) Logical flag to write the CSV file (default: true).
 %
 % Author: Lukas von Erdmannsdorff
 
     import HERA.output.format_text
 
+    if nargin < 10 || isempty(quiet_mode)
+        quiet_mode = false;
+    end
+    if nargin < 11 || isempty(write_csv)
+        write_csv = true;
+    end
+
     num_metrics = numel(metric_names);
 
     %% Console Output
     % Prints a formatted table with the summarized correction factors to the console.
-    fprintf(lang.bca.correction_factors.header, num_pairs);
+    if ~quiet_mode
+        fprintf(lang.bca.correction_factors.header, num_pairs);
 
-    % Define headers and prepare for dynamic formatting.
-    header_parts = {lang.bca.correction_factors.factor, lang.csv.headers.median, lang.csv.headers.mean, lang.csv.headers.min, lang.csv.headers.max};
-    alignments = {'l', 'c', 'c', 'c', 'c'}; % First column left, others centered.
+        % Define headers and prepare for dynamic formatting.
+        header_parts = {lang.bca.correction_factors.factor, lang.csv.headers.median, lang.csv.headers.mean, lang.csv.headers.min, lang.csv.headers.max};
+        alignments = {'l', 'c', 'c', 'c', 'c'}; % First column left, others centered.
 
-    for metric_idx = 1:num_metrics
-        fprintf('\n%s:\n', metric_names{metric_idx});
+        for metric_idx = 1:num_metrics
+            fprintf('\n%s:\n', metric_names{metric_idx});
 
-        % Collect and format all data for this metric into a cell array.
-        z0_d = z0_d_all(:, metric_idx);
-        a_d = a_d_all(:, metric_idx);
-        z0_r = z0_r_all(:, metric_idx);
-        a_r = a_r_all(:, metric_idx);
+            % Collect and format all data for this metric into a cell array.
+            z0_d = z0_d_all(:, metric_idx);
+            a_d = a_d_all(:, metric_idx);
+            z0_r = z0_r_all(:, metric_idx);
+            a_r = a_r_all(:, metric_idx);
 
-        table_data = cell(4, numel(header_parts));
-        table_data(1, :) = {lang.bca.correction_factors.bias_delta, sprintf('%+.3f', median(z0_d)), sprintf('%+.3f', ...
-            mean(z0_d)), sprintf('%+.3f', min(z0_d)), sprintf('%+.3f', max(z0_d))};
-        table_data(2, :) = {lang.bca.correction_factors.skew_delta, sprintf('%+.3f', median(a_d)), sprintf('%+.3f', ...
-            mean(a_d)), sprintf('%+.3f', min(a_d)), sprintf('%+.3f', max(a_d))};
-        table_data(3, :) = {lang.bca.correction_factors.bias_rel, sprintf('%+.3f', median(z0_r)), sprintf('%+.3f', ...
-            mean(z0_r)), sprintf('%+.3f', min(z0_r)), sprintf('%+.3f', max(z0_r))};
-        table_data(4, :) = {lang.bca.correction_factors.skew_rel, sprintf('%+.3f', median(a_r)), sprintf('%+.3f', ...
-            mean(a_r)), sprintf('%+.3f', min(a_r)), sprintf('%+.3f', max(a_r))};
+            table_data = cell(4, numel(header_parts));
+            table_data(1, :) = {lang.bca.correction_factors.bias_delta, sprintf('%+.3f', median(z0_d)), sprintf('%+.3f', ...
+                mean(z0_d)), sprintf('%+.3f', min(z0_d)), sprintf('%+.3f', max(z0_d))};
+            table_data(2, :) = {lang.bca.correction_factors.skew_delta, sprintf('%+.3f', median(a_d)), sprintf('%+.3f', ...
+                mean(a_d)), sprintf('%+.3f', min(a_d)), sprintf('%+.3f', max(a_d))};
+            table_data(3, :) = {lang.bca.correction_factors.bias_rel, sprintf('%+.3f', median(z0_r)), sprintf('%+.3f', ...
+                mean(z0_r)), sprintf('%+.3f', min(z0_r)), sprintf('%+.3f', max(z0_r))};
+            table_data(4, :) = {lang.bca.correction_factors.skew_rel, sprintf('%+.3f', median(a_r)), sprintf('%+.3f', ...
+                mean(a_r)), sprintf('%+.3f', min(a_r)), sprintf('%+.3f', max(a_r))};
 
-        % Calculate dynamic column widths based on content.
-        col_widths = cellfun(@strlength, header_parts);
-        for r = 1:size(table_data, 1)
-            for c = 1:size(table_data, 2)
-                col_widths(c) = max(col_widths(c), strlength(table_data{r, c}));
+            % Calculate dynamic column widths based on content.
+            col_widths = cellfun(@strlength, header_parts);
+            for r = 1:size(table_data, 1)
+                for c = 1:size(table_data, 2)
+                    col_widths(c) = max(col_widths(c), strlength(table_data{r, c}));
+                end
             end
-        end
-        col_widths = col_widths + 2; % Add 2 spaces for padding.
+            col_widths = col_widths + 2; % Add 2 spaces for padding.
 
-        % Print the formatted table.
-        header_line = strjoin(arrayfun(@(c) format_text(header_parts{c}, col_widths(c), alignments{c}), 1:numel(header_parts), 'UniformOutput', false), '|');
-        fprintf('%s\n', header_line);
-        fprintf('%s\n', repmat('-', 1, strlength(header_line)));
+            % Print the formatted table.
+            header_line = strjoin(arrayfun(@(c) format_text(header_parts{c}, col_widths(c), alignments{c}), 1:numel(header_parts), 'UniformOutput', false), '|');
+            fprintf('%s\n', header_line);
+            fprintf('%s\n', repmat('-', 1, strlength(header_line)));
 
-        for r = 1:size(table_data, 1)
-            row_line = strjoin(arrayfun(@(c) format_text(table_data{r, c}, col_widths(c), alignments{c}), 1:numel(header_parts), 'UniformOutput', false), '|');
-            fprintf('%s\n', row_line);
+            for r = 1:size(table_data, 1)
+                row_line = strjoin(arrayfun(@(c) format_text(table_data{r, c}, col_widths(c), alignments{c}), 1:numel(header_parts), 'UniformOutput', false), '|');
+                fprintf('%s\n', row_line);
+            end
+            fprintf('%s\n', repmat('-', 1, strlength(header_line)));
         end
-        fprintf('%s\n', repmat('-', 1, strlength(header_line)));
     end
 
     %% CSV Output
     % Save BCa factors as a CSV file
-    fprintf(['\n' lang.bca.saving_csv '\n']);
+    if ~write_csv
+        return;
+    end
+    if ~quiet_mode
+        fprintf(['\n' lang.bca.saving_csv '\n']);
+    end
     [~, fName, fExt] = fileparts(lang.files.bca_factors);
     fName = strrep(fName, '%s_', ''); 
     csv_filename = fullfile(csv_dir, [fName, '_', ts, fExt]);
@@ -134,13 +151,17 @@ function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang
         % Write to CSV using writetable
         writetable(T, csv_filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
         
-        fprintf([lang.bca.csv_saved '\n'], csv_filename);
+        if ~quiet_mode
+            fprintf([lang.bca.csv_saved '\n'], csv_filename);
+        end
 
     catch ME
         % Safety cleanup: Ensure file is closed if an error occurs
         if exist('fileID', 'var') && fileID ~= -1
             fclose(fileID); 
         end
-        fprintf([lang.errors.file_save_error '\n'], ME.message);
+        if ~quiet_mode
+            fprintf([lang.errors.file_save_error '\n'], ME.message);
+        end
     end
 end

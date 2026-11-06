@@ -138,8 +138,14 @@ function [userInput, setupData] = setup_environment(userInput)
         userInput.config.ranking_mode = userInput.ranking_mode;
     end
     
-    % Ensure create_reports is synced to config for deep functions
+    % Ensure create_reports and optional output control flags are synced to config for deep functions
     userInput.config.create_reports = userInput.create_reports;
+    if isfield(userInput, 'quiet_mode')
+        userInput.config.quiet_mode = userInput.quiet_mode;
+    end
+    if isfield(userInput, 'create_csvs')
+        userInput.config.create_csvs = userInput.create_csvs;
+    end
 
     %% 2. Environment Initialization
     % Create a unique output folder name using the current timestamp.

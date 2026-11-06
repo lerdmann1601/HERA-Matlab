@@ -27,9 +27,21 @@ function plot(command, varargin)
     end
 end
 
-function generate_scientific_reports(res_struct, modes, styles, refs, limits, params, out_dir, base_name, ts_str_in)
+function generate_scientific_reports(res_struct, modes, styles, refs, limits, params, out_dir, base_name, ts_str_in, colors_in)
     % Orchestrates the generation of all scientific report plots.
-    colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4]; 
+    if nargin >= 10 && ~isempty(colors_in)
+        colors = colors_in;
+    else
+        full_modes = {'Relaxed', 'Default', 'Strict'};
+        full_colors = [0.8 0.3 0.3; 0.2 0.5 0.8; 0.3 0.7 0.4];
+        [~, mode_indices] = ismember(modes, full_modes);
+        mode_indices = mode_indices(mode_indices > 0);
+        if length(mode_indices) == length(modes)
+            colors = full_colors(mode_indices, :);
+        else
+            colors = full_colors;
+        end
+    end 
     
     if nargin >= 9 && ~isempty(ts_str_in)
         ts_str = ts_str_in;
@@ -243,7 +255,7 @@ function plot_single_report(data, suffix_name, modes, colors, refs, limits, out_
         else
             b.CData = colors;
         end
-        xticklabels(modes);
+        xticks(1:num_modes); xticklabels(modes);
         ylabel('Failure Rate (%)', 'FontWeight', 'bold', 'Color', 'k');
         title(sprintf('Convergence Failures (Limit: %d)', limit_B), 'Color', 'k', 'FontSize', 12);
         ylim([0 115]); 

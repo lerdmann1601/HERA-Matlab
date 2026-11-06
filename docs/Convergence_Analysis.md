@@ -294,8 +294,8 @@ Parameters (e.g., inside `system`, `modes`, `scenarios`, or `refs`) must be nest
 | | `scenarios.End` | double | `null` | Max value boundary. Usually `null`, except when required by bounded distributions like Likert. |
 | | `scenarios.Base2` | double | `null` | Secondary Mean $\mu_2$. Usually `null`, except when rendering a mixed `Bimodal` distribution layout. |
 | | `scenarios.SD` | double | `-` | Standard Deviation / underlying noise ($\sigma$). |
-| **System** | `num_workers` | int/str | `"auto"` | Number of parallel workers. `"auto"` uses `parcluster('local').NumWorkers` to utilize all local available cores. |
-| | `system.target_memory` | int/str | `"auto"` | Target memory per chunk (MB). Overrides dynamic RAM detection with fixed limit. Capping the memory footprint per parallel worker prevents out-of-memory errors during batch processing. If `"auto"`, HERA detects available RAM (reserves 25 MB per 1 GB) and automatically balances simultaneous simulations. |
+| **System** | `system.num_workers` | int/str | `"auto"` | Number of parallel workers (also accepted as top-level `num_workers`). `"auto"` uses `parcluster('local').NumWorkers` to utilize all local available cores. |
+| | `system.target_memory` | int/str | `"auto"` | Target memory per chunk (MB) (also accepted as top-level `target_memory`). Overrides dynamic RAM detection with fixed limit. Capping the memory footprint per parallel worker prevents out-of-memory errors during batch processing. If `"auto"`, HERA detects available RAM (reserves 25 MB per 1 GB) and automatically balances simultaneous simulations. |
 | **Seeds & RNG** | `simulation_seed` | int | `123` | Seeds the main study. Can be locked for strict reproduction. |
 | | `bootstrap_seed_offset` | int | `1000` | Keeps the internal evaluations structurally independent of the outer iterations. |
 | | `scenario_seed_offset` | int | `10000` | Ensures different tested scenarios don't overlap in their RNG seeds. HERA automatically scales this offset based on the number of simulations. |

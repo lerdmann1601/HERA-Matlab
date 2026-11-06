@@ -428,7 +428,7 @@ else
 h_fig_thr_global = gobjects(0); 
 h_fig_thr_detailed = gobjects(0);
 
-if isfield(config, 'create_reports') && config.create_reports
+if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
     [h_fig_thr_global, h_fig_thr_detailed] = HERA.plot.threshold_convergence(...
         B_tested_vector, stability_data_thr, selected_B, config, styles, lang, graphics_dir);
 end
@@ -563,7 +563,7 @@ rel_thresh = max(rel_thresh, min_rel_thresh);
 h_fig_hist_thr = gobjects(0); 
 h_fig_hist_raw = gobjects(0);
 
-if isfield(config, 'create_reports') && config.create_reports
+if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
     [h_fig_hist_thr, h_fig_hist_raw] = HERA.plot.threshold_distributions(...
         all_bootstat_d, all_bootstat_rel, d_vals_all, rel_vals_all, d_thresh, rel_thresh, rel_thresh_b, ...
         selected_B, metric_names, styles, lang, graphics_dir, config);

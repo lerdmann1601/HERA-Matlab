@@ -386,7 +386,7 @@ function results = simulate(scenarios, params, n_sims_per_cond, refs, cfg_base, 
                
         % Incremental Plotting
         try
-            HERA.analysis.convergence.plot('scientific_reports', [scenario_res(sc_idx)], modes, styles, refs, limits, params, final_out_dir, 'Incremental', ts_str);
+            HERA.analysis.convergence.plot('scientific_reports', [scenario_res(sc_idx)], modes, styles, refs, limits, params, final_out_dir, 'Incremental', ts_str, colors);
             
             % Incremental CSV Saving
             % Ensure CSV directory matches what is expected in save_csv
@@ -410,11 +410,14 @@ function [s_idx, m_idx, method_id, res_val, res_cost, res_fail] = run_single_tes
     worker_sim_seed = sd.sim_seed + method_id * 100000;
     stream = RandStream('mlfg6331_64', 'Seed', worker_sim_seed);
     
-    % Create isolated temporary directories for file I/O safety across parallel workers
-    t_obj = getCurrentTask();
-    worker_id = 0; if ~isempty(t_obj), worker_id = t_obj.ID; end
-    worker_tmp = fullfile(tmp, sprintf('worker_%d', worker_id));
-    if ~exist(worker_tmp, 'dir'), mkdir(worker_tmp); end
+    % Create isolated temporary directories for file I/O safety across parallel workers (only if reports or CSVs enabled)
+    worker_tmp = '';
+    if (isfield(cfg, 'create_reports') && cfg.create_reports) || (isfield(cfg, 'create_csvs') && cfg.create_csvs)
+        t_obj = getCurrentTask();
+        worker_id = 0; if ~isempty(t_obj), worker_id = t_obj.ID; end
+        worker_tmp = fullfile(tmp, sprintf('worker_%d', worker_id));
+        if ~exist(worker_tmp, 'dir'), mkdir(worker_tmp); end
+    end
 
     res_val = 0; res_cost = 0; res_fail = false;
     
@@ -540,16 +543,18 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     
     s_idx = batch_sims(i);
     
-    % Create a unique temp dir for this worker to prevent collisions.
-    t_obj = getCurrentTask();
-    if isempty(t_obj)
-        worker_id = 0; % Client/serial execution
-    else
-        worker_id = t_obj.ID;
+    % Create a unique temp dir for this worker to prevent collisions (only if reports or CSVs enabled).
+    worker_temp_dir = '';
+    if (isfield(cfg_base, 'create_reports') && cfg_base.create_reports) || (isfield(cfg_base, 'create_csvs') && cfg_base.create_csvs)
+        t_obj = getCurrentTask();
+        if isempty(t_obj)
+            worker_id = 0; % Client/serial execution
+        else
+            worker_id = t_obj.ID;
+        end
+        worker_temp_dir = fullfile(temp_dir, sprintf('worker_%d', worker_id));
+        if ~exist(worker_temp_dir, 'dir'), mkdir(worker_temp_dir); end
     end
-    
-    worker_temp_dir = fullfile(temp_dir, sprintf('worker_%d', worker_id));
-    if ~exist(worker_temp_dir, 'dir'), mkdir(worker_temp_dir); end
     
     % Bit-Perfect Seeding Constraint
     sim_seed = base_seed + (sc_idx-1)*scenario_seed_offset + s_idx;
@@ -581,7 +586,8 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
     ref_thr_struct = struct('d_thresh', ref_d_t, 'rel_thresh', ref_r_t);
     
     % Memory Management
-    close([h1(:); h2(:); h3(:); h4(:)]);
+    to_close = [h1(:); h2(:); h3(:); h4(:)];
+    close(to_close(isgraphics(to_close)));
     
     % Ref: BCa (Internal parfor activates if called from client thread)
     ref_seed_bca = ref_seed + 2 * reference_step_offset;
@@ -597,7 +603,8 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
             c_ref_bca, cfg_base.metric_names, worker_temp_dir, worker_temp_dir, man_bca, refStream, styles, lang, 'Ref');
 
         % Memory Management
-        close([h1(:); h2(:); h3(:); h4(:); h5(:)]);
+        to_close = [h1(:); h2(:); h3(:); h4(:); h5(:)];
+        close(to_close(isgraphics(to_close)));
     else
         ref_ci_d = [0 0];
     end
@@ -617,7 +624,8 @@ function sim_entry = prepare_simulation(i, batch_sims, sc, sc_idx, base_seed, sc
             worker_temp_dir, worker_temp_dir, man_rnk, refStream, styles, lang, 'Ref');
 
         % Memory Management
-        close([h1(:); h2(:)]);
+        to_close = [h1(:); h2(:)];
+        close(to_close(isgraphics(to_close)));
     else
         boot_r_ref = [0 0; 0 0];
     end

@@ -91,11 +91,11 @@ if ischar(n_sims_per_cond) || isstring(n_sims_per_cond)
     else
         error('First argument must be numeric (n_sims_per_cond) or a path to a .json config file.');
     end
-else
-    % Validate n_sims_per_cond as numeric scalar
-    if ~isnumeric(n_sims_per_cond) || ~isscalar(n_sims_per_cond) || n_sims_per_cond <= 0 || mod(n_sims_per_cond, 1) ~= 0
-        error('n_sims_per_cond must be a positive integer.');
-    end
+end
+
+% Validate n_sims_per_cond as numeric scalar
+if ~isnumeric(n_sims_per_cond) || ~isscalar(n_sims_per_cond) || n_sims_per_cond <= 0 || mod(n_sims_per_cond, 1) ~= 0
+    error('n_sims_per_cond must be a positive integer.');
 end
 
 %% 1. User Input & Initialization
@@ -139,7 +139,9 @@ try
     lang = HERA.get_language();
     styles = HERA.design('light', 2, true);
 catch
-    lang = struct('calculating', 'Calc', 'done', 'Done');
+    lang = struct('calculating', 'Calc', 'done', 'Done', ...
+                  'ranking', struct('checking_stability', ''), ...
+                  'warnings', struct('cycle_detected_m2', '', 'cycle_detected_m3', ''));
     styles = struct();
 end
 
@@ -353,7 +355,7 @@ try
         waitbar(1, hWait, 'Generating Global Report...'); drawnow;
     end
 
-    plot('scientific_reports', results, modes, styles, refs, limits, params, final_out_dir, base_name, char(ts_str));
+    plot('scientific_reports', results, modes, styles, refs, limits, params, final_out_dir, base_name, char(ts_str), colors);
 
     % Pooled CSV results of across all simulations (only if multiple scenarios exist)
     if length(results) > 1

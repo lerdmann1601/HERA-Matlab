@@ -104,7 +104,7 @@ end
 % Extract quiet_mode and write_csv flags safely with defaults for backward compatibility.
 quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
 write_csv = isfield(config, 'create_csvs') && config.create_csvs;
-if ~isfield(config, 'create_csvs'), write_csv = true; end % Default for backward compatibility
+if ~isfield(config, 'create_csvs'), write_csv = ~quiet_mode; end % Default for backward compatibility
 
 %% 1. Dynamic determination of the optimal bootstrap count (B)
 % Iteratively tests increasing B-values until the CI widths stabilize.
@@ -544,7 +544,7 @@ else
     h_fig_bca_global = gobjects(0); 
     h_fig_bca_detailed = gobjects(0);
 
-    if isfield(config, 'create_reports') && config.create_reports
+    if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
         [h_fig_bca_global, h_fig_bca_detailed] = HERA.plot.bca_convergence(...
             B_tested_vector_ci, overall_stability_ci_plotted, stability_matrix_ci(:, :, 1:final_i_ci), ...
             selected_B_ci, config, metric_names, graphics_dir, styles, lang, elbow_indices);
@@ -867,8 +867,8 @@ end
 
 %% 4. Output of BCa Correction Factors
 % Prints a formatted table with the summarized correction factors to the console and saves it to a CSV file.
-if write_csv
-    HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts);
+if ~quiet_mode || write_csv
+    HERA.output.save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang, num_pairs, csv_dir, ts, quiet_mode, write_csv);
 end
 
 %% 5. Generate histogram distributions via Helper Function
@@ -876,7 +876,7 @@ h_fig_hist_z0 = gobjects(0);
 h_fig_hist_a = gobjects(0); 
 h_fig_hist_widths = gobjects(0);
 
-if isfield(config, 'create_reports') && config.create_reports
+if isfield(config, 'create_reports') && config.create_reports && ~quiet_mode
     [h_fig_hist_z0, h_fig_hist_a, h_fig_hist_widths] = HERA.plot.bca_distributions(...
         z0_d_all, a_d_all, z0_r_all, a_r_all, ci_d_all, ci_r_all, metric_names, styles, lang, graphics_dir, ts, B_ci);
 end

@@ -102,10 +102,39 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
         struct('name', 'Discrimination','n', 50,  'Dist', 'Large Effect', 'Base', 10.0, 'Step', 1.50, 'End', NaN,  'Base2', NaN,  'SD', 2.0)  
     ];
     
+    % Scenario Selection Logic ID
+    % Default: Run all defined scenarios
+    selected_idx = 1:length(sc_defs);
+   
+    % Selected Scenarios
+    if isfield(customConfig, 'selected_scenarios') && isnumeric(customConfig.selected_scenarios)
+        selected_idx = customConfig.selected_scenarios(:)';
+        % Validate all indices
+        if any(selected_idx < 1 | selected_idx > length(sc_defs))
+            error('HERA:Analysis:InvalidConfig', ...
+                'selected_scenarios contains invalid indices. Must be between 1 and %d.', length(sc_defs));
+        end
+    elseif isfield(customConfig, 'num_scenarios') && isnumeric(customConfig.num_scenarios)
+        num_target = round(customConfig.num_scenarios);
+        if num_target >= 1 && num_target <= length(sc_defs)
+            selected_idx = 1:num_target;
+        else
+             error('HERA:Analysis:InvalidConfig', ...
+                 'num_scenarios must be between 1 and %d. Provided: %d.', length(sc_defs), num_target);
+        end
+    end
+
     % Parse JSON Overrides for Scenarios
     if isfield(customConfig, 'scenarios') && isstruct(customConfig.scenarios)
-        for i = 1:min(length(sc_defs), length(customConfig.scenarios))
-            ov = customConfig.scenarios(i);
+        % Support both full 8-scenario arrays and already-subsetted arrays (e.g. from exported configuration_*.json)
+        if length(customConfig.scenarios) == length(selected_idx) && length(selected_idx) < length(sc_defs)
+            override_targets = selected_idx;
+        else
+            override_targets = 1:min(length(sc_defs), length(customConfig.scenarios));
+        end
+        for k = 1:length(override_targets)
+            i = override_targets(k);
+            ov = customConfig.scenarios(k);
             % Loop through fields to allow partial overrides
             f_ov = fieldnames(ov);
             for f = 1:length(f_ov)
@@ -128,28 +157,6 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
                     end
                 end
             end
-        end
-    end
-
-    % Scenario Selection Logic ID
-    % Default: Run all defined scenarios
-    selected_idx = 1:length(sc_defs);
-   
-    % Selected Scenarios
-    if isfield(customConfig, 'selected_scenarios') && isnumeric(customConfig.selected_scenarios)
-        selected_idx = customConfig.selected_scenarios;
-        % Validate all indices
-        if any(selected_idx < 1 | selected_idx > length(sc_defs))
-            error('HERA:Analysis:InvalidConfig', ...
-                'selected_scenarios contains invalid indices. Must be between 1 and %d.', length(sc_defs));
-        end
-    elseif isfield(customConfig, 'num_scenarios') && isnumeric(customConfig.num_scenarios)
-        num_target = round(customConfig.num_scenarios);
-        if num_target >= 1 && num_target <= length(sc_defs)
-            selected_idx = 1:num_target;
-        else
-             error('HERA:Analysis:InvalidConfig', ...
-                 'num_scenarios must be between 1 and %d. Provided: %d.', length(sc_defs), num_target);
         end
     end
     
@@ -236,11 +243,6 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     end
     refs.thr = ref_B_thr; refs.bca = ref_B_bca; refs.rnk = ref_B_rnk;
     
-    % Upper limits for visualization (max across all modes)
-    limits.thr = max(cellfun(@(x) x.end, p_thr));
-    limits.bca = max(cellfun(@(x) x.end, p_bca));
-    limits.rnk = max(cellfun(@(x) x.end, p_rank));
-    
     %% 4. Base Framework Config
     cfg_base = HERA.default();
     cfg_base.create_reports = false;
@@ -249,25 +251,9 @@ function [N, modes, scenarios, params, refs, limits, cfg_base, colors, ram_gb] =
     cfg_base.timestamp = 'RobustnessStudy';
     cfg_base.quiet_mode = true;
     cfg_base.create_csvs = false;
-    % Dynamic Target Memory Calculation (Inline)
+    % Dynamic Target Memory Calculation
     try
-        ram_gb = NaN;
-        if ispc
-            [~, sysview] = memory;
-            ram_gb = sysview.PhysicalMemory.Total / (1024^3);
-        elseif ismac
-            [stat, out] = system('sysctl hw.memsize');
-            if stat == 0
-                tok = regexp(out, '\d+', 'match');
-                if ~isempty(tok), ram_gb = str2double(tok{1}) / (1024^3); end
-            end
-        elseif isunix
-            [stat, out] = system('grep MemTotal /proc/meminfo');
-            if stat == 0
-                tok = regexp(out, '\d+', 'match');
-                if ~isempty(tok), ram_gb = str2double(tok{1}) / (1024^2); end  % kB to GB
-            end
-        end
+        [~, ram_gb, ~] = HERA.run.get_target_memory();
         
         if isnan(ram_gb)
              target_mem = 200; % Fallback

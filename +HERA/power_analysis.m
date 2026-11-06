@@ -48,8 +48,11 @@ end
     num_metrics = numel(all_data);
     num_pairs = size(pair_idx_all, 1);
     power_matrices = cell(1, num_metrics);
+    quiet_mode = isfield(config, 'quiet_mode') && config.quiet_mode;
     
-    fprintf(['  ' lang.power.bootstrap_info '\n'], num_simulations);
+    if ~quiet_mode
+        fprintf(['  ' lang.power.bootstrap_info '\n'], num_simulations);
+    end
     
     % Ensure valid integer for parfor
     if isempty(num_simulations) || isnan(num_simulations) || isinf(num_simulations)

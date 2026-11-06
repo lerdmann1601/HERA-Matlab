@@ -133,7 +133,8 @@ function save_results_csv(results, modes, out_dir, ts_str)
     write_header = ~exist(global_filename, 'file');
     
     global_fid = fopen(global_filename, 'a'); % Open in Append mode
-    if global_fid ~= -1
+    can_write_global = (global_fid ~= -1);
+    if can_write_global
         if write_header
             % Header for Aggregated Data
             fprintf(global_fid, 'Scenario;Metric;Mode;Median_Cliffs_d;Median_Error;IQR_Error;Error_Q1;Error_Q3;CI95_Lower;CI95_Upper;Min_Error;Max_Error;Median_Cost_B;IQR_Cost_B;Cost_Q1;Cost_Q3;Cost_CI95_Lower;Cost_CI95_Upper;Min_Cost;Max_Cost;Failure_Rate_Percent\n');
@@ -212,7 +213,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
                     writetable(cell2table(t_T_raw), filename, 'Delimiter', ',', 'WriteMode', 'Append', 'WriteVariableNames', false, 'QuoteStrings', true);
                     
                     % --- B. Calculate & Write Aggregated Stats to Global Summary ---
-                    if global_fid ~= -1
+                    if can_write_global
                         % Calculate Median, IQR, and 95% CI for Errors (approximate normal)
                         err_vals = err_mat(:, mode_idx);
                         err_vals = err_vals(~isnan(err_vals)); % Remove NaNs for stat calculations
