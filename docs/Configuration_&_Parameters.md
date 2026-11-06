@@ -108,7 +108,7 @@ Parameters inside `system` and `bootstrap_*` must be nested correctly as shown.
 | :--- | :--- | :--- | :--- | :--- |
 | **Input/Output** | `folderPath` | string | - | Absolute path to data folder. |
 | | `fileType` | string | - | `.csv` or `.xlsx`. |
-| | `metric_names` | array | - | List of filenames (metrics) in hierarchical order. |
+| | `metric_names` | array | - | List of filenames (metrics) in hierarchical order. *(Note: Higher values indicate better performance. Otherwise, invert metrics prior to input).* |
 | | `output_dir` | string | - | Path to save results. |
 | | `language` | string | `"en"` | Output language code. |
 | **Logic** | `ranking_mode` | string | `"M1_M2_M3"` | Logic mode (`M1`, `M1_M2`, `M1_M3A`, `M1_M2_M3`). |

@@ -22,6 +22,9 @@ A candidate $A$ only "wins" over candidate $B$ if the difference satisfies three
    The Relative Mean Difference ($\text{RelDiff}$) is defined for group means $\bar{x}$ and $\bar{y}$ as:
    $\text{RelDiff} = \frac{\vert\bar{x} - \bar{y}\vert}{\vert\frac{1}{2}(\bar{x} + \bar{y})\vert}$
 
+> [!NOTE]
+> **Metric Polarity**: Across all stages, HERA assumes that **higher metric values indicate better performance** (i.e., $d > 0$ indicates that candidate $X$ outperforms candidate $Y$). Error, loss, or latency and other metrics where lower values are better must be inverted prior to input.
+
 ### Data-Driven Threshold Calculation
 
 To eliminate subjective parameterization, HERA derives the thresholds $\theta_d$ and $\theta_{\text{RelDiff}}$ directly from the data using a *Percentile Bootstrap* procedure. Following the principle of *Empirical Benchmarks*, where the data itself provides the standard for the plausibility and magnitude of differences, the algorithm identifies a distribution-based *Minimal Important Difference (MID)*:

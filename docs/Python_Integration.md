@@ -96,7 +96,8 @@ See [Configuration & Parameters](https://lerdmann1601.github.io/HERA-Matlab/Conf
 This mode allows you to use HERA as a computational engine within your Python
 scripts (e.g., Jupyter Notebooks). You can pass data directly from NumPy/Pandas
 and receive the ranking results as a Python dictionary, enabling seamless
-integration into larger data science pipelines.
+integration into larger data science pipelines. Note that higher metric values
+are assumed to indicate better performance. Otherwise, invert metrics prior to input.
 
 #### Automatic Data Conversion (v1.2.0+)
 
@@ -194,32 +195,37 @@ hera.terminate()
 > This section is strictly for **developers and maintainers** who build and publish the Python package. End users do not need to build anything; they can install directly via `pip install hera-matlab`.
 
 ### Prerequisites
+
 * **MATLAB** with the **MATLAB Compiler SDK** (which provides `compiler.build.pythonPackage`).
 * **Python 3.9–3.12** with `pip` and the `venv` module installed locally.
 * A clean Git working directory with the appropriate release tag checked out (e.g., `v1.4.8`).
 
 ### Step 1: Build Distribution Artifacts
+
 The repository includes an automated build helper script that compiles the MATLAB code, injects metadata, and packages the Python distribution:
 
 ```bash
 ./deploy/build_and_prep_pypi.sh
 ```
 
-> [!NOTE] 
+> [!NOTE]
 > If the `matlab` command is not in your terminal PATH, open MATLAB, navigate to `deploy/`, and run `build_hera_python()`. Then execute `./deploy/build_and_prep_pypi.sh` from your terminal).
 
-### What this script performs:
+### What this script performs
+
 1. **Compilation**: Calls `build_hera_python.m` to generate the raw Python package files in `deploy/output/python`.
 2. **Metadata Injection**: Executes `.github/scripts/prepare_pypi.py` to synchronize version numbers, insert license information, and inject the runtime setup helper (`hera_matlab.install_runtime`).
 3. **Packaging**: Creates an isolated virtual environment (`.venv_build`) and executes `python3 -m build` to produce clean distribution artifacts (`.whl` and `.tar.gz`) in `deploy/dist/`.
 
 ### Step 2: Upload to GitHub Release
+
 1. On GitHub, navigate to **Releases** -> **Draft a new release**.
 2. Select or create the release tag corresponding to your build (e.g., `v1.4.8`).
 3. Upload the `.whl` and `.tar.gz` files from `deploy/dist/` as release assets.
 4. Publish the release.
 
 ### Step 3: Publish to PyPI via GitHub Actions
+
 Since GitHub Actions runners cannot build MATLAB packages without a cloud license, PyPI publication uses PyPI Trusted Publishing to deploy the pre-built release assets:
 
 1. Go to the **Actions** tab in GitHub.
@@ -232,6 +238,6 @@ For further details on CI/CD architecture, see [Automated Build (GitHub Actions)
 > [!IMPORTANT]
 > **Release Scope & Policy**
 >
-> - **Full Suite Releases**: Releases are not just for Python. A release MUST always include all artifacts: the MATLAB Toolbox (`.mltbx`), standalone executables, and the Python distribution.
-> - **Mandatory Review**: All changes must be reviewed and approved by the repository owner before a release is prepared.
-> - **Compliance**: Contributors must strictly follow the rules outlined in [CODE_OF_CONDUCT.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CONTRIBUTING.md).
+> * **Full Suite Releases**: Releases are not just for Python. A release MUST always include all artifacts: the MATLAB Toolbox (`.mltbx`), standalone executables, and the Python distribution.
+> * **Mandatory Review**: All changes must be reviewed and approved by the repository owner before a release is prepared.
+> * **Compliance**: Contributors must strictly follow the rules outlined in [CODE_OF_CONDUCT.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CODE_OF_CONDUCT.md) and [CONTRIBUTING.md](https://github.com/lerdmann1601/HERA-Matlab/blob/main/CONTRIBUTING.md).

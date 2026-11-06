@@ -185,6 +185,9 @@ HERA.start_ranking('convergence', 'path/to/config.json')
 ```
 
 ---
+> [!IMPORTANT]
+> **Metric Polarity**: HERA assumes that **higher metric values indicate better performance**. Metrics where lower values are better (e.g., error rates, loss, or runtime/latency) must be inverted prior to input.
+---
 > [!NOTE]
 > Example use cases with synthetic datasets and results are
 > provided in the `data/examples` directory. See [Example Analysis](https://lerdmann1601.github.io/HERA-Matlab/Example_Analysis) for a

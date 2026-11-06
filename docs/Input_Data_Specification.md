@@ -11,3 +11,6 @@
     (missing data) are handled by automatic `NaN` padding (empty cells) to
     ensure a uniform matrix size, and pairwise deletion is applied during
     analysis.
+* **Metric Polarity**: Higher metric values are assumed to indicate better
+    performance. Metrics where lower values represent better performance (e.g.,
+    error rates, loss, or latency/runtime) must be inverted prior to input.

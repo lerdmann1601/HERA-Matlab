@@ -96,13 +96,13 @@ results = HERA.run_ranking(userInput);
 
 ### Input Structure (`userInput`)
 
-Instead of providing a `folderPath` to CSV or Excel files, pass data matrices directly via `custom_data`:
+Instead of providing a `folderPath` to CSV or Excel files, pass data matrices directly via `custom_data`. Note that higher metric values indicate better performance; invert e.g. error / latency or other metrics prior to input:
 
 ```matlab
-% 1. Prepare Data
+% 1. Prepare Data (Note: Higher values = better performance; otherwise invert  metrics prior to input)
 % Cell array of matrices: each matrix is [n_Subjects x n_Methods]
 data_m1 = randn(50, 5); % Metric 1 (e.g., Accuracy)
-data_m2 = randn(50, 5); % Metric 2 (e.g., Runtime)
+data_m2 = randn(50, 5); % Metric 2 (e.g., Inverted Runtime)
 custom_data = {data_m1, data_m2};
 
 % 2. Configure Parameters
