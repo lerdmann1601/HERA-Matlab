@@ -159,24 +159,25 @@ def generate_synthetic_data(
     output_dir.mkdir(parents=True, exist_ok=True)
 
     candidates = list(means.keys())
-    
-    # Construct 3x3 covariance matrix across the 3 metrics
-    cov = np.full((3, 3), correlation * (noise_level ** 2))
+    n_metrics = len(means[candidates[0]]) if candidates else 3
+
+    # Construct (n_metrics x n_metrics) covariance matrix across all evaluation criteria
+    cov = np.full((n_metrics, n_metrics), correlation * (noise_level ** 2))
     np.fill_diagonal(cov, noise_level ** 2)
 
     # Randomly permute candidate order using dedicated RNG to eliminate input ordering bias
     shuffled_candidates = rng.permutation(candidates).tolist()
 
-    # Generate data per candidate: shape (n_samples, 3)
+    # Generate data per candidate: shape (n_samples, n_metrics)
     data_dict = {}
     for cand in shuffled_candidates:
         mu = means[cand]
         data = rng.multivariate_normal(mu, cov, size=n_samples)
         data_dict[cand] = data
 
-    # Write metric files M1.csv, M2.csv, M3.csv for HERA with randomized column order
+    # Write metric files M1.csv, M2.csv, ... for HERA with randomized column order
     subject_ids = [f"Sub_{i+1}" for i in range(n_samples)]
-    metric_names = ["M1", "M2", "M3"]
+    metric_names = [f"M{i+1}" for i in range(n_metrics)]
 
     for m_idx, m_name in enumerate(metric_names):
         df_metric = pd.DataFrame({"Subject_ID": subject_ids})

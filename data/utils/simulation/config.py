@@ -83,39 +83,133 @@ SEED = int(os.environ.get("HERA_SIM_SEED", 123))
 # Note: Threshold percentile bootstrap (B=2000) provides high precision for null distribution
 # and Holm-Bonferroni significance testing. Setting BCa CI and Rank Stability bootstrap counts
 # to B=50 saves substantial execution time without altering the linear ranking decisions.
-HERA_CONFIG = {
-    "manual_B_thr": 2000,
-    "manual_B_ci": 50,
-    "manual_B_rank": 50,
+HERA_CONFIG: Dict[str, Any] = {
+    "manual_B_thr": int(os.environ.get("HERA_SIM_B_THR", 2000)),
+    "manual_B_ci": int(os.environ.get("HERA_SIM_B_CI", 50)),
+    "manual_B_rank": int(os.environ.get("HERA_SIM_B_RANK", 50)),
     "create_reports": False,
     "create_csvs": False,
     "quiet_mode": True,
-    "ranking_mode": "M1_M2_M3",
+    "ranking_mode": os.environ.get("HERA_SIM_RANKING_MODE", "M1_M2_M3"),
     "run_sensitivity_analysis": False,
     "run_power_analysis": False,
     "reproducible": True
 }
 
+
+def _parse_topsis_weights(raw_weights: str) -> np.ndarray:
+    """
+    Parses a comma- or whitespace-separated weight string into a float64 NumPy array.
+
+    Syntax:
+        weights = _parse_topsis_weights(raw_weights)
+
+    Parameters:
+        raw_weights (str): Weight specification string (e.g., '0.4,0.4,0.2').
+
+    Returns:
+        np.ndarray: 1D float64 criteria weight vector.
+    """
+    parts = [p.strip() for p in raw_weights.replace(",", " ").split() if p.strip()]
+    if not parts:
+        return np.array([0.4, 0.4, 0.2], dtype=np.float64)
+    return np.array([float(x) for x in parts], dtype=np.float64)
+
+
 # Baseline weights for TOPSIS: [0.4, 0.4, 0.2] reflecting hierarchical criteria prioritization
-TOPSIS_WEIGHTS = np.array([0.4, 0.4, 0.2])
+TOPSIS_WEIGHTS: np.ndarray = (
+    _parse_topsis_weights(os.environ["HERA_SIM_TOPSIS_WEIGHTS"])
+    if "HERA_SIM_TOPSIS_WEIGHTS" in os.environ
+    else np.array([0.4, 0.4, 0.2])
+)
+
+
+def apply_method_overrides(
+    hera_mode: Any = None,
+    hera_b_thr: Any = None,
+    hera_b_ci: Any = None,
+    hera_b_rank: Any = None,
+    topsis_weights: Any = None
+) -> None:
+    """
+    Applies user-specified HERA and TOPSIS configuration overrides in-place and to os.environ.
+
+    Syntax:
+        apply_method_overrides(hera_mode, hera_b_thr, hera_b_ci, hera_b_rank, topsis_weights)
+
+    Description:
+        Updates module-level HERA_CONFIG and TOPSIS_WEIGHTS in-place while synchronizing
+        environment variables so that spawned multiprocessing worker processes inherit
+        identical baseline configurations.
+
+    Parameters:
+        hera_mode (Optional[str]): HERA ranking mode ('M1_M2_M3', 'M1_M2', 'M1_M3A_M3B').
+        hera_b_thr (Optional[int]): HERA threshold percentile bootstrap count (B_thr).
+        hera_b_ci (Optional[int]): HERA BCa confidence interval bootstrap count (B_ci).
+        hera_b_rank (Optional[int]): HERA cluster rank stability bootstrap count (B_rank).
+        topsis_weights (Optional[Sequence[float] | str]): TOPSIS criteria weights.
+
+    Returns:
+        None
+
+    Author:
+        Lukas von Erdmannsdorff
+    """
+    global TOPSIS_WEIGHTS
+    if hera_mode is not None:
+        HERA_CONFIG["ranking_mode"] = str(hera_mode)
+        os.environ["HERA_SIM_RANKING_MODE"] = str(hera_mode)
+    if hera_b_thr is not None:
+        HERA_CONFIG["manual_B_thr"] = int(hera_b_thr)
+        os.environ["HERA_SIM_B_THR"] = str(int(hera_b_thr))
+    if hera_b_ci is not None:
+        HERA_CONFIG["manual_B_ci"] = int(hera_b_ci)
+        os.environ["HERA_SIM_B_CI"] = str(int(hera_b_ci))
+    if hera_b_rank is not None:
+        HERA_CONFIG["manual_B_rank"] = int(hera_b_rank)
+        os.environ["HERA_SIM_B_RANK"] = str(int(hera_b_rank))
+    if topsis_weights is not None:
+        if isinstance(topsis_weights, str):
+            parsed = _parse_topsis_weights(topsis_weights)
+        else:
+            parsed = np.asarray(topsis_weights, dtype=np.float64)
+        if parsed.shape == TOPSIS_WEIGHTS.shape:
+            TOPSIS_WEIGHTS[:] = parsed
+        else:
+            TOPSIS_WEIGHTS = parsed
+        os.environ["HERA_SIM_TOPSIS_WEIGHTS"] = ",".join(f"{float(w):g}" for w in TOPSIS_WEIGHTS)
+
+
+# Canonical list of MCDM methods evaluated across the benchmark suite
+METHODS_COMPARED: List[str] = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland"]
 
 # CSV Result Column Schema with Complete Statistical Traceability (Cliff's d & Delta)
-RESULT_COLUMNS = [
+RESULT_COLUMNS: List[str] = [
     "ScenarioID", "Suite", "Candidates", "SampleSize", "Noise",
     "EffectMagnitude", "Delta", "Calibrated_Median_Cliffs_d", "Correlation", "Iteration", "Method",
     "TopChoice", "CompleteRank", "KendallTau", "SpearmanRho",
-    "FalseSuperiority", "Regret", "CompensatoryError", "RankDisplacement", "TopChoiceRankRegret",
+    "FalseSuperiority", "CompensatoryError", "RankDisplacement", "TopChoiceRankRegret",
     "Observed_Cliffs_d_M1", "Observed_Cliffs_d_M2",
     "Observed_Delta_M1", "Observed_Delta_M2",
     "Observed_Median_Cliffs_d"
 ]
 
-METRIC_COLS = [
-    "TopChoice", "CompleteRank", "KendallTau", "SpearmanRho",
-    "FalseSuperiority", "Regret", "CompensatoryError", "RankDisplacement", "TopChoiceRankRegret"
+# Binary indicator metrics (0.0 or 1.0 per trial -> reported via Mean rate, Std, and 95% CI)
+BINARY_METRIC_COLS: List[str] = [
+    "TopChoice", "CompleteRank", "CompensatoryError"
 ]
 
-STATISTICAL_EFFECT_COLS = [
+# Ordinal and continuous rank-error metrics (reported non-parametrically via Median, IQR, Q1/Q3, 95% PI, Min/Max)
+ORDINAL_METRIC_COLS: List[str] = [
+    "KendallTau", "SpearmanRho", "FalseSuperiority", "RankDisplacement", "TopChoiceRankRegret"
+]
+
+METRIC_COLS: List[str] = [
+    "TopChoice", "CompleteRank", "KendallTau", "SpearmanRho",
+    "FalseSuperiority", "CompensatoryError", "RankDisplacement", "TopChoiceRankRegret"
+]
+
+STATISTICAL_EFFECT_COLS: List[str] = [
     "Observed_Cliffs_d_M1", "Observed_Cliffs_d_M2",
     "Observed_Delta_M1", "Observed_Delta_M2",
     "Observed_Median_Cliffs_d"

@@ -123,6 +123,8 @@ def evaluate_single_trial(args: Tuple[int, float, int, int]) -> List[Dict[str, A
                         "SampleSize": 50,
                         "Noise": noise,
                         "EffectMagnitude": "Medium",
+                        "Delta": 5.0,
+                        "Calibrated_Median_Cliffs_d": 0.50,
                         "Correlation": 0.0,
                         "Iteration": iter_idx,
                         "Method": m_name,

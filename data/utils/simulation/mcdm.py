@@ -10,7 +10,7 @@ Author: Lukas von Erdmannsdorff
 import json
 import shutil
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 import numpy as np
 from scipy import stats
 
@@ -22,13 +22,14 @@ def run_hera_ranking(
     executor: HERAExecutor, 
     input_dir: Path, 
     output_dir: Path, 
-    seed: Optional[int] = None
+    seed: Optional[int] = None,
+    hera_config: Optional[Dict[str, Any]] = None
 ) -> Dict[str, int]:
     """
     Executes HERA ranking engine and extracts linear ranking from JSON output.
 
     Syntax:
-        rank_dict = run_hera_ranking(executor, input_dir, output_dir, seed=seed)
+        rank_dict = run_hera_ranking(executor, input_dir, output_dir, seed=seed, hera_config=None)
 
     Description:
         Constructs a temporary HERA execution configuration JSON, runs the HERA
@@ -40,6 +41,7 @@ def run_hera_ranking(
         input_dir (Path): Directory containing M1.csv, M2.csv, M3.csv.
         output_dir (Path): Output directory for HERA reports and results.
         seed (Optional[int]): Random seed for HERA internal bootstrap reproducibility.
+        hera_config (Optional[Dict[str, Any]]): Optional override mapping for HERA_CONFIG.
 
     Returns:
         Dict[str, int]: Mapping of candidate name to assigned integer rank (1 = top choice).
@@ -51,21 +53,25 @@ def run_hera_ranking(
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 
+    active_cfg = hera_config if hera_config is not None else HERA_CONFIG
+    detected_metrics = sorted(f.stem for f in input_dir.glob("M*.csv"))
+    metric_names = detected_metrics if detected_metrics else ["M1", "M2", "M3"]
+
     config_path = output_dir / "config.json"
     user_input = {
         "folderPath": str(input_dir.resolve()),
-        "metric_names": ["M1", "M2", "M3"],
+        "metric_names": metric_names,
         "output_dir": str(output_dir.resolve()),
         "fileType": ".csv",
-        "ranking_mode": HERA_CONFIG["ranking_mode"],
-        "create_reports": HERA_CONFIG["create_reports"],
-        "create_csvs": HERA_CONFIG["create_csvs"],
-        "quiet_mode": HERA_CONFIG["quiet_mode"],
-        "run_sensitivity_analysis": HERA_CONFIG["run_sensitivity_analysis"],
-        "run_power_analysis": HERA_CONFIG["run_power_analysis"],
-        "manual_B_thr": HERA_CONFIG["manual_B_thr"],
-        "manual_B_ci": HERA_CONFIG["manual_B_ci"],
-        "manual_B_rank": HERA_CONFIG["manual_B_rank"],
+        "ranking_mode": active_cfg["ranking_mode"],
+        "create_reports": active_cfg["create_reports"],
+        "create_csvs": active_cfg["create_csvs"],
+        "quiet_mode": active_cfg["quiet_mode"],
+        "run_sensitivity_analysis": active_cfg["run_sensitivity_analysis"],
+        "run_power_analysis": active_cfg["run_power_analysis"],
+        "manual_B_thr": active_cfg["manual_B_thr"],
+        "manual_B_ci": active_cfg["manual_B_ci"],
+        "manual_B_rank": active_cfg["manual_B_rank"],
         "reproducible": True
     }
     if seed is not None:
@@ -108,12 +114,15 @@ except ImportError:
     _PYMCDM_AVAILABLE = False
 
 
-def run_topsis_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
+def run_topsis_baseline(
+    data_dict: Dict[str, np.ndarray],
+    weights: Optional[np.ndarray] = None
+) -> Dict[str, int]:
     """
     Executes standard TOPSIS with vector normalization and user weights.
 
     Syntax:
-        rank_dict = run_topsis_baseline(data_dict)
+        rank_dict = run_topsis_baseline(data_dict, weights=None)
 
     Description:
         Implements Technique for Order Preference by Similarity to Ideal Solution (TOPSIS).
@@ -121,7 +130,8 @@ def run_topsis_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
         with seamless mathematical fallback to equivalent vectorized NumPy engine.
 
     Parameters:
-        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, 3) arrays.
+        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, n_metrics) arrays.
+        weights (Optional[np.ndarray]): Optional criteria weight vector override (defaults to TOPSIS_WEIGHTS).
 
     Returns:
         Dict[str, int]: Mapping of candidate name to assigned integer rank (1 = top choice).
@@ -130,14 +140,15 @@ def run_topsis_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
         Lukas von Erdmannsdorff
     """
     cands = list(data_dict.keys())
-    means = np.array([np.mean(data_dict[c], axis=0) for c in cands], dtype=np.float64)  # Shape: (N, 3)
+    means = np.array([np.mean(data_dict[c], axis=0) for c in cands], dtype=np.float64)
+    active_weights = np.asarray(weights, dtype=np.float64) if weights is not None else TOPSIS_WEIGHTS
 
     if _PYMCDM_AVAILABLE:
         try:
             # PyMCDM standard TOPSIS: criteria types = 1 (all benefit metrics)
             topsis_engine = PyMCDMTopsis(normalization_function=pymcdm_vector_norm)
             types = np.ones(means.shape[1], dtype=int)
-            pref = topsis_engine(means, TOPSIS_WEIGHTS, types)
+            pref = topsis_engine(means, active_weights, types)
             # Higher relative closeness is superior -> rank 1 is highest score
             ranks = stats.rankdata(-pref, method="ordinal")
             return {c: int(r) for c, r in zip(cands, ranks)}
@@ -151,7 +162,7 @@ def run_topsis_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
     norm_matrix = means / denom
 
     # Weighted normalized decision matrix
-    weighted_matrix = norm_matrix * TOPSIS_WEIGHTS
+    weighted_matrix = norm_matrix * active_weights
 
     # Ideal positive and negative solutions
     v_plus = np.max(weighted_matrix, axis=0)
@@ -177,11 +188,11 @@ def run_borda_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
         rank_dict = run_borda_baseline(data_dict)
 
     Description:
-        Computes metric-wise ranks for each candidate across M1, M2, and M3,
+        Computes metric-wise ranks for each candidate across all evaluation criteria,
         sums rank positions, and assigns final ranks (lowest sum = Rank 1).
 
     Parameters:
-        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, 3) arrays.
+        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, n_metrics) arrays.
 
     Returns:
         Dict[str, int]: Mapping of candidate name to assigned integer rank (1 = top choice).
@@ -191,9 +202,10 @@ def run_borda_baseline(data_dict: Dict[str, np.ndarray]) -> Dict[str, int]:
     """
     cands = list(data_dict.keys())
     means = np.array([np.mean(data_dict[c], axis=0) for c in cands])
+    n_metrics = means.shape[1]
 
     rank_sum = np.zeros(len(cands))
-    for m in range(3):
+    for m in range(n_metrics):
         # Higher mean is better -> rank 1 for highest mean
         r = stats.rankdata(-means[:, m], method="ordinal")
         rank_sum += r
@@ -211,9 +223,9 @@ def run_wilcoxon_copeland_baseline(data_dict: Dict[str, np.ndarray], alpha: floa
         rank_dict = run_wilcoxon_copeland_baseline(data_dict, alpha=0.05)
 
     Description:
-        For each candidate pair (c1, c2) and each metric m in {M1, M2, M3}:
+        For each candidate pair (c1, c2) and each metric m in {M1, ..., M_k}:
           - Evaluates H0: median difference == 0 using paired Wilcoxon signed-rank test.
-          - P-values p_(1) <= p_(2) <= p_(3) are evaluated using the step-down Holm-Bonferroni procedure:
+          - P-values p_(1) <= ... <= p_(k) are evaluated using the step-down Holm-Bonferroni procedure:
               Reject H_(k) if p_(k) < alpha / (m_total - k + 1), for k = 1, ..., m_total.
           - If significant:
               mean(diff) > 0 -> c1 receives +1 win, c2 receives -1 loss
@@ -225,7 +237,7 @@ def run_wilcoxon_copeland_baseline(data_dict: Dict[str, np.ndarray], alpha: floa
         Candidates are ordinally ranked by net tournament score (descending).
 
     Parameters:
-        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, 3) arrays.
+        data_dict (Dict[str, np.ndarray]): Dictionary mapping candidate names to (n_samples, n_metrics) arrays.
         alpha (float): Family-Wise Error Rate significance threshold (default: 0.05).
 
     Returns:
@@ -236,6 +248,7 @@ def run_wilcoxon_copeland_baseline(data_dict: Dict[str, np.ndarray], alpha: floa
     """
     cands = list(data_dict.keys())
     scores = np.zeros(len(cands))
+    n_metrics = data_dict[cands[0]].shape[1] if cands else 3
 
     for i, c1 in enumerate(cands):
         for j in range(i + 1, len(cands)):
@@ -243,7 +256,7 @@ def run_wilcoxon_copeland_baseline(data_dict: Dict[str, np.ndarray], alpha: floa
             p_vals = []
             mean_diffs = []
             
-            for m in range(3):
+            for m in range(n_metrics):
                 diff = data_dict[c1][:, m] - data_dict[c2][:, m]
                 if np.all(diff == 0):
                     p_vals.append(1.0)
@@ -283,14 +296,14 @@ def run_wilcoxon_copeland_baseline(data_dict: Dict[str, np.ndarray], alpha: floa
 def evaluate_ranking(
     pred_rank_dict: Dict[str, int], 
     true_order: List[str], 
-    true_means: Dict[str, List[float]],
+    true_means: Optional[Dict[str, List[float]]] = None,
     suite: str = "Core"
 ) -> Dict[str, float]:
     """
     Computes quantitative ranking evaluation metrics against ground truth.
 
     Syntax:
-        metrics = evaluate_ranking(pred_rank_dict, true_order, true_means, suite='Core')
+        metrics = evaluate_ranking(pred_rank_dict, true_order, true_means=None, suite='Core')
 
     Description:
         Quantifies ranking fidelity, top-choice accuracy, pairwise inversions,
@@ -300,7 +313,6 @@ def evaluate_ranking(
           - KendallTau: Kendall's rank correlation coefficient tau.
           - SpearmanRho: Spearman's monotonic rank correlation coefficient rho.
           - FalseSuperiority: Pairwise inversion rate (proportion of pairs ranked backwards).
-          - Regret: Difference between true M1 of C1 and true M1 of chosen #1 model.
           - CompensatoryError: 1.0 if the compensatory candidate (C_N) is ranked in top half (<= N/2).
           - RankDisplacement: Mean absolute rank displacement (|predicted - true|).
           - TopChoiceRankRegret: True rank position of selected top model minus 1.
@@ -308,7 +320,7 @@ def evaluate_ranking(
     Parameters:
         pred_rank_dict (Dict[str, int]): Predicted integer ranks per candidate.
         true_order (List[str]): Ground-truth ordered candidate identifiers.
-        true_means (Dict[str, List[float]]): Ground-truth mean performance vectors.
+        true_means (Optional[Dict[str, List[float]]]): Ground-truth mean performance vectors (retained for API compatibility).
         suite (str): Active experimental benchmark suite name.
 
     Returns:
@@ -346,21 +358,15 @@ def evaluate_ranking(
                 inversions += 1
     false_superiority = inversions / max(1, total_pairs)
 
-    # 6. Expected Regret on primary metric M1
-    chosen_best = true_order[np.argmin(pred_ranks)]
-    max_m1 = true_means[true_order[0]][0]
-    chosen_m1 = true_means[chosen_best][0]
-    regret = float(max_m1 - chosen_m1)
-
-    # 7. Compensatory Error Rate (selection of compensatory candidate C_N in top half <= N/2)
+    # 6. Compensatory Error Rate (selection of compensatory candidate C_N in top half <= N/2)
     flawed_cand = f"C{n_cands}"
     flawed_rank = pred_rank_dict.get(flawed_cand, n_cands)
     comp_error = 1.0 if flawed_rank <= (n_cands // 2) else 0.0
 
-    # 8. Mean Absolute Rank Displacement (Displacement from ground truth: average |pred_rank - true_rank|)
+    # 7. Mean Absolute Rank Displacement (Displacement from ground truth: average |pred_rank - true_rank|)
     rank_displacement = float(np.mean(np.abs(pred_ranks - true_ranks)))
 
-    # 9. Top-Choice Selection Rank Regret: true rank of candidate chosen as #1 minus 1 (0 if true C1 is picked)
+    # 8. Top-Choice Selection Rank Regret: true rank of candidate chosen as #1 minus 1 (0 if true C1 is picked)
     chosen_best_cand = [c for c, r in pred_rank_dict.items() if r == 1][0]
     top_choice_rank_regret = float(true_order.index(chosen_best_cand))
 
@@ -370,7 +376,6 @@ def evaluate_ranking(
         "KendallTau": tau,
         "SpearmanRho": rho,
         "FalseSuperiority": false_superiority,
-        "Regret": regret,
         "CompensatoryError": comp_error,
         "RankDisplacement": rank_displacement,
         "TopChoiceRankRegret": top_choice_rank_regret

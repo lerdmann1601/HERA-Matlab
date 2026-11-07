@@ -106,8 +106,9 @@ try:
         NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS,
         EFFECT_CALIBRATION, EFFECT_MAGNITUDES, DEFAULT_EFFECT, DEFAULT_NOISE,
         CORRELATIONS, DEFAULT_CORRELATION, ITERATIONS, SEED,
-        HERA_CONFIG, TOPSIS_WEIGHTS,
-        RESULT_COLUMNS, METRIC_COLS, STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
+        HERA_CONFIG, TOPSIS_WEIGHTS, METHODS_COMPARED, apply_method_overrides,
+        RESULT_COLUMNS, METRIC_COLS, BINARY_METRIC_COLS, ORDINAL_METRIC_COLS,
+        STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
         make_scenario, build_scenarios_grid
     )
     from .system import (
@@ -141,8 +142,9 @@ except ImportError:
         NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS,
         EFFECT_CALIBRATION, EFFECT_MAGNITUDES, DEFAULT_EFFECT, DEFAULT_NOISE,
         CORRELATIONS, DEFAULT_CORRELATION, ITERATIONS, SEED,
-        HERA_CONFIG, TOPSIS_WEIGHTS,
-        RESULT_COLUMNS, METRIC_COLS, STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
+        HERA_CONFIG, TOPSIS_WEIGHTS, METHODS_COMPARED, apply_method_overrides,
+        RESULT_COLUMNS, METRIC_COLS, BINARY_METRIC_COLS, ORDINAL_METRIC_COLS,
+        STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
         make_scenario, build_scenarios_grid
     )
     from simulation.system import (
@@ -177,8 +179,9 @@ __all__ = [
     "NUM_CANDIDATES_LIST", "SAMPLE_SIZES", "NOISE_LEVELS",
     "EFFECT_CALIBRATION", "EFFECT_MAGNITUDES", "DEFAULT_EFFECT", "DEFAULT_NOISE",
     "CORRELATIONS", "DEFAULT_CORRELATION", "ITERATIONS", "SEED",
-    "HERA_CONFIG", "TOPSIS_WEIGHTS",
-    "RESULT_COLUMNS", "METRIC_COLS", "STATISTICAL_EFFECT_COLS", "CANDIDATE_RANK_COLUMNS",
+    "HERA_CONFIG", "TOPSIS_WEIGHTS", "METHODS_COMPARED", "apply_method_overrides",
+    "RESULT_COLUMNS", "METRIC_COLS", "BINARY_METRIC_COLS", "ORDINAL_METRIC_COLS",
+    "STATISTICAL_EFFECT_COLS", "CANDIDATE_RANK_COLUMNS",
     "make_scenario", "build_scenarios_grid",
     "suppress_stdout_stderr", "format_time_duration",
     "get_system_ram_gb", "get_optimal_worker_count",
@@ -188,7 +191,8 @@ __all__ = [
     "run_hera_ranking", "run_topsis_baseline", "run_borda_baseline",
     "run_wilcoxon_copeland_baseline", "evaluate_ranking",
     "append_results_to_csv", "compute_aggregate_summary", "compute_pooled_summary",
-    "compute_superordinate_summary", "compute_detailed_pooled_statistics", "export_superordinate_csvs",
+    "compute_benchmark_summary", "compute_superordinate_summary",
+    "compute_detailed_pooled_statistics", "export_summary_csvs", "export_superordinate_csvs",
     "update_global_summary_file", "save_checkpoint",
     "save_scenario_configuration", "save_method_configuration", "save_candidate_configuration",
     "execute_single_iteration", "run_sliding_window_pipeline",
@@ -250,9 +254,49 @@ def main() -> None:
         default=os.environ.get("HERA_SIM_OUTPUT_DIR", None),
         help="Custom output directory path (default: Simulation_Output_<timestamp> inside data directory, or via HERA_SIM_OUTPUT_DIR env var)"
     )
+    parser.add_argument(
+        "--hera-mode",
+        type=str,
+        choices=["M1_M2_M3", "M1_M2", "M1_M3A_M3B"],
+        default=None,
+        help=f"Override HERA hierarchical ranking mode (default: {HERA_CONFIG['ranking_mode']}, or via HERA_SIM_RANKING_MODE env var)"
+    )
+    parser.add_argument(
+        "--hera-b-thr",
+        type=int,
+        default=None,
+        help=f"Override HERA threshold percentile bootstrap count B_thr (default: {HERA_CONFIG['manual_B_thr']}, or via HERA_SIM_B_THR env var)"
+    )
+    parser.add_argument(
+        "--hera-b-ci",
+        type=int,
+        default=None,
+        help=f"Override HERA BCa CI bootstrap count B_ci (default: {HERA_CONFIG['manual_B_ci']}, or via HERA_SIM_B_CI env var)"
+    )
+    parser.add_argument(
+        "--hera-b-rank",
+        type=int,
+        default=None,
+        help=f"Override HERA cluster rank stability bootstrap count B_rank (default: {HERA_CONFIG['manual_B_rank']}, or via HERA_SIM_B_RANK env var)"
+    )
+    parser.add_argument(
+        "--topsis-weights",
+        nargs="+",
+        default=None,
+        help="Override TOPSIS criteria weights, e.g. --topsis-weights 0.4 0.4 0.2 or '0.5,0.3,0.2' (or via HERA_SIM_TOPSIS_WEIGHTS env var)"
+    )
     args, _ = parser.parse_known_args()
     sim_iterations = args.iterations
     sim_seed = args.seed
+
+    raw_topsis_w = " ".join(args.topsis_weights) if args.topsis_weights else None
+    apply_method_overrides(
+        hera_mode=args.hera_mode,
+        hera_b_thr=args.hera_b_thr,
+        hera_b_ci=args.hera_b_ci,
+        hera_b_rank=args.hera_b_rank,
+        topsis_weights=raw_topsis_w
+    )
 
     # 2. Initialize Dedicated Timestamped Directory Hierarchy (CSVs, Graphics, Reports)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -317,7 +361,7 @@ def main() -> None:
         num_workers = min(num_workers, sim_iterations)
 
     # 8. Print Formatted Academic Study Header
-    print_study_header(logger, timestamp, all_scenarios, sim_iterations, ram_gb, num_workers, hera_mode)
+    print_study_header(logger, timestamp, all_scenarios, sim_iterations, ram_gb, num_workers, hera_mode, seed=sim_seed)
 
     # 9. Export Benchmark Parameter Tables & 300 DPI Publication Graphics
     scenarios_csv, scenarios_png = save_scenario_configuration(all_scenarios, csv_dir, timestamp, graphics_dir=graphics_dir)
@@ -350,7 +394,7 @@ def main() -> None:
         "topsis_weights": TOPSIS_WEIGHTS.tolist(),
         "total_scenarios": len(all_scenarios),
         "executed_scenarios": len(scenarios),
-        "methods_compared": ["HERA", "TOPSIS", "Borda", "Copeland"],
+        "methods_compared": METHODS_COMPARED,
         "metrics_evaluated": METRIC_COLS,
         "statistical_effect_metrics": STATISTICAL_EFFECT_COLS
     }

@@ -18,6 +18,9 @@ import os
 
 # Suppress noisy third-party package notifications to maintain pristine console logs
 os.environ["OUTDATED_IGNORE"] = "1"
+if "MPLCONFIGDIR" not in os.environ and not os.access(os.path.expanduser("~/.matplotlib"), os.W_OK):
+    import tempfile
+    os.environ["MPLCONFIGDIR"] = os.path.join(tempfile.gettempdir(), "matplotlib_hera_cache")
 
 # Enforce strict single-thread execution per worker across all numerical libraries
 # on macOS (Apple Silicon / Accelerate vecLib, OpenBLAS, MKL, OpenMP, NumExpr)
@@ -35,8 +38,9 @@ from .config import (
     NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS,
     EFFECT_CALIBRATION, EFFECT_MAGNITUDES, DEFAULT_EFFECT, DEFAULT_NOISE,
     CORRELATIONS, DEFAULT_CORRELATION, ITERATIONS, SEED,
-    HERA_CONFIG, TOPSIS_WEIGHTS,
-    RESULT_COLUMNS, METRIC_COLS, STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
+    HERA_CONFIG, TOPSIS_WEIGHTS, METHODS_COMPARED, apply_method_overrides,
+    RESULT_COLUMNS, METRIC_COLS, BINARY_METRIC_COLS, ORDINAL_METRIC_COLS,
+    STATISTICAL_EFFECT_COLS, CANDIDATE_RANK_COLUMNS,
     make_scenario, build_scenarios_grid
 )
 
@@ -61,16 +65,25 @@ from .mcdm import (
 
 from .reporting import (
     append_results_to_csv, compute_aggregate_summary, compute_pooled_summary,
-    compute_superordinate_summary, compute_detailed_pooled_statistics, export_superordinate_csvs,
+    compute_benchmark_summary, compute_superordinate_summary,
+    compute_detailed_pooled_statistics, export_summary_csvs, export_superordinate_csvs,
     update_global_summary_file, save_checkpoint,
     save_scenario_configuration, save_method_configuration, save_candidate_configuration
 )
 
-from .plot_results import (
-    generate_all_plots, generate_global_summary_pdf,
-    plot_pooled_core_distributions, plot_pooled_core_marginal_scales,
-    plot_pooled_compensatory_stress, plot_pooled_sensitivity_summary
-)
+try:
+    from .plot_results import (
+        generate_all_plots, generate_global_summary_pdf,
+        plot_pooled_core_distributions, plot_pooled_core_marginal_scales,
+        plot_pooled_compensatory_stress, plot_pooled_sensitivity_summary
+    )
+except ImportError:
+    generate_all_plots = None
+    generate_global_summary_pdf = None
+    plot_pooled_core_distributions = None
+    plot_pooled_core_marginal_scales = None
+    plot_pooled_compensatory_stress = None
+    plot_pooled_sensitivity_summary = None
 
 from .simulate import (
     execute_single_iteration, run_sliding_window_pipeline
@@ -83,8 +96,9 @@ __all__ = [
     "NUM_CANDIDATES_LIST", "SAMPLE_SIZES", "NOISE_LEVELS",
     "EFFECT_CALIBRATION", "EFFECT_MAGNITUDES", "DEFAULT_EFFECT", "DEFAULT_NOISE",
     "CORRELATIONS", "DEFAULT_CORRELATION", "ITERATIONS", "SEED",
-    "HERA_CONFIG", "TOPSIS_WEIGHTS",
-    "RESULT_COLUMNS", "METRIC_COLS", "STATISTICAL_EFFECT_COLS", "CANDIDATE_RANK_COLUMNS",
+    "HERA_CONFIG", "TOPSIS_WEIGHTS", "METHODS_COMPARED", "apply_method_overrides",
+    "RESULT_COLUMNS", "METRIC_COLS", "BINARY_METRIC_COLS", "ORDINAL_METRIC_COLS",
+    "STATISTICAL_EFFECT_COLS", "CANDIDATE_RANK_COLUMNS",
     "make_scenario", "build_scenarios_grid",
     "suppress_stdout_stderr", "format_time_duration",
     "get_system_ram_gb", "get_optimal_worker_count",
@@ -94,7 +108,8 @@ __all__ = [
     "run_hera_ranking", "run_topsis_baseline", "run_borda_baseline",
     "run_wilcoxon_copeland_baseline", "evaluate_ranking",
     "append_results_to_csv", "compute_aggregate_summary", "compute_pooled_summary",
-    "compute_superordinate_summary", "compute_detailed_pooled_statistics", "export_superordinate_csvs",
+    "compute_benchmark_summary", "compute_superordinate_summary",
+    "compute_detailed_pooled_statistics", "export_summary_csvs", "export_superordinate_csvs",
     "update_global_summary_file", "save_checkpoint",
     "save_scenario_configuration", "save_method_configuration", "save_candidate_configuration",
     "generate_all_plots", "generate_global_summary_pdf",

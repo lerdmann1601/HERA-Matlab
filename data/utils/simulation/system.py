@@ -18,7 +18,7 @@ from contextlib import contextmanager
 
 from .config import (
     SEED, NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS,
-    HERA_CONFIG
+    HERA_CONFIG, TOPSIS_WEIGHTS
 )
 
 
@@ -209,13 +209,14 @@ def print_study_header(
     iterations: int,
     ram_gb: float,
     num_workers: int,
-    hera_mode: str
+    hera_mode: str,
+    seed: int = SEED
 ) -> None:
     """
     Prints a structured academic ASCII header matching HERA's +analysis publication standard.
 
     Syntax:
-        print_study_header(logger, timestamp, scenarios, iterations, ram_gb, num_workers, hera_mode)
+        print_study_header(logger, timestamp, scenarios, iterations, ram_gb, num_workers, hera_mode, seed=SEED)
 
     Description:
         Formats and logs comprehensive study banner including execution timestamp,
@@ -230,6 +231,7 @@ def print_study_header(
         ram_gb (float): Host physical memory in GB.
         num_workers (int): Number of allocated worker processes.
         hera_mode (str): Active computational backend string.
+        seed (int): Active base PRNG seed.
 
     Returns:
         None
@@ -239,6 +241,7 @@ def print_study_header(
     """
     total_runs = len(scenarios) * iterations
     ram_per_worker = (ram_gb - 3.0) / max(1, num_workers)
+    w_disp = [round(float(w), 4) for w in TOPSIS_WEIGHTS]
     
     div_heavy = "=" * 70
     div_light = "-" * 70
@@ -254,7 +257,7 @@ def print_study_header(
     logger.info(f"  Parallel Processing:   {num_workers} concurrent worker processes (Sliding-Window Pipeline)")
     logger.info(f"  Python Environment:    {platform.python_version()}")
     logger.info(f"  HERA Engine Backend:   {hera_mode} (MATLAB CLI -singleCompThread)")
-    logger.info(f"  PRNG Random Seed:      {SEED} (Deterministic PCG64 stream per condition)")
+    logger.info(f"  PRNG Random Seed:      {seed} (Deterministic PCG64 stream per condition)")
     logger.info(f"  Total Evaluations:     {total_runs} Monte Carlo runs ({total_runs * 4} ranking outputs)")
     logger.info(div_light)
     logger.info(" Experimental Benchmarking Grid:")
@@ -278,7 +281,7 @@ def print_study_header(
     logger.info(f"  HERA Ranking Mode:     {HERA_CONFIG['ranking_mode']} (Sequential Non-Compensatory Hierarchical)")
     logger.info(f"  HERA Threshold Bootstr: Percentile Null Bootstrap (B_thr = {HERA_CONFIG['manual_B_thr']})")
     logger.info("  HERA Decision Logic:   Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance")
-    logger.info("  MCDM Baseline Methods: TOPSIS (Weights: [0.4, 0.4, 0.2]), Borda Count,")
+    logger.info(f"  MCDM Baseline Methods: TOPSIS (Weights: {w_disp}), Borda Count,")
     logger.info("                         Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)")
     logger.info(div_heavy + "\n")
 

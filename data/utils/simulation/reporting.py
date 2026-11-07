@@ -19,9 +19,10 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from .config import (
-    RESULT_COLUMNS, METRIC_COLS, STATISTICAL_EFFECT_COLS,
-    EFFECT_CALIBRATION, HERA_CONFIG,
-    DEFAULT_CANDIDATES, DEFAULT_SAMPLE_SIZE, DEFAULT_NOISE
+    RESULT_COLUMNS, METRIC_COLS, BINARY_METRIC_COLS, ORDINAL_METRIC_COLS,
+    STATISTICAL_EFFECT_COLS, EFFECT_CALIBRATION, HERA_CONFIG, TOPSIS_WEIGHTS,
+    DEFAULT_CANDIDATES, DEFAULT_SAMPLE_SIZE, DEFAULT_NOISE,
+    SUITE_CORE, SUITE_SAMPLE_SIZE, SUITE_EFFECT, SUITE_CORRELATION
 )
 
 
@@ -60,9 +61,85 @@ def append_results_to_csv(
     df_chunk.to_csv(csv_path, mode="a", header=False, index=False)
 
 
+def _populate_group_metrics(
+    row: Dict[str, Any],
+    group: pd.DataFrame,
+    include_scenario_effects: bool = False
+) -> None:
+    """
+    Populates statistically appropriate summary columns for binary and ordinal metrics in-place.
+
+    Syntax:
+        _populate_group_metrics(row, group, include_scenario_effects=False)
+
+    Description:
+        Enforces scale-appropriate statistical reporting aligned with HERA's +analysis standards:
+          - Binary indicator metrics (BINARY_METRIC_COLS): Mean rate, Std, and 95% confidence bounds
+            (omitting degenerate 0/1 quantile columns).
+          - Ordinal & rank metrics (ORDINAL_METRIC_COLS): Non-parametric Median, IQR, Q1, Q3,
+            95% empirical percentile interval (2.5th-97.5th), Min, and Max (omitting parametric Mean/Std).
+          - Empirical scenario effect checks (optional): Non-parametric Median and IQR of Observed_Median_Cliffs_d
+            and pairwise M1/M2 medians for scenario calibration traceability.
+
+    Parameters:
+        row (Dict[str, Any]): Target summary row dictionary to populate.
+        group (pd.DataFrame): Grouped simulation trials DataFrame.
+        include_scenario_effects (bool): Whether to append concise scenario-level empirical effect medians.
+
+    Returns:
+        None
+
+    Author:
+        Lukas von Erdmannsdorff
+    """
+    # 1. Binary Indicator Metrics: Rate (Mean), Std, 95% CI
+    for m in BINARY_METRIC_COLS:
+        if m not in group.columns:
+            continue
+        vals = group[m].dropna().values
+        n_obs = len(vals)
+        if n_obs == 0:
+            continue
+        p = float(np.mean(vals))
+        se = float(np.sqrt(max(0.0, p * (1.0 - p)) / n_obs))
+        row[f"{m}_Mean"] = p
+        row[f"{m}_Std"] = float(np.std(vals, ddof=1)) if n_obs > 1 else 0.0
+        row[f"{m}_CI95_Lower"] = float(max(0.0, p - 1.959963984540054 * se))
+        row[f"{m}_CI95_Upper"] = float(min(1.0, p + 1.959963984540054 * se))
+
+    # 2. Ordinal & Continuous Rank Metrics: Non-Parametric Median, IQR, Q1, Q3, 95% PI, Min, Max
+    for m in ORDINAL_METRIC_COLS:
+        if m not in group.columns:
+            continue
+        vals = group[m].dropna().values
+        if len(vals) == 0:
+            continue
+        row[f"{m}_Median"] = float(np.median(vals))
+        row[f"{m}_IQR"] = float(stats.iqr(vals))
+        row[f"{m}_Q1"] = float(np.percentile(vals, 25))
+        row[f"{m}_Q3"] = float(np.percentile(vals, 75))
+        row[f"{m}_CI95_Lower"] = float(np.percentile(vals, 2.5))
+        row[f"{m}_CI95_Upper"] = float(np.percentile(vals, 97.5))
+        row[f"{m}_Min"] = float(np.min(vals))
+        row[f"{m}_Max"] = float(np.max(vals))
+
+    # 3. Concise Empirical Effect Calibration Check (Scenario-level property)
+    if include_scenario_effects:
+        if "Observed_Median_Cliffs_d" in group.columns:
+            d_vals = group["Observed_Median_Cliffs_d"].dropna().values
+            if len(d_vals) > 0:
+                row["Observed_Median_Cliffs_d_Median"] = float(np.median(d_vals))
+                row["Observed_Median_Cliffs_d_IQR"] = float(stats.iqr(d_vals))
+        for eff_col in ["Observed_Cliffs_d_M1", "Observed_Cliffs_d_M2", "Observed_Delta_M1", "Observed_Delta_M2"]:
+            if eff_col in group.columns:
+                e_vals = group[eff_col].dropna().values
+                if len(e_vals) > 0:
+                    row[f"{eff_col}_Median"] = float(np.median(e_vals))
+
+
 def compute_aggregate_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculates pooled descriptive statistics matching HERA's +analysis standard.
+    Calculates scenario-level descriptive statistics matching HERA's +analysis standard.
 
     Syntax:
         df_summary = compute_aggregate_summary(df_results)
@@ -70,8 +147,9 @@ def compute_aggregate_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     Description:
         Aggregates raw Monte Carlo trial results across experimental conditions
         (ScenarioID, Suite, Candidates, SampleSize, Noise, EffectMagnitude, Delta, Correlation, Method).
-        Computes Mean, Std, Median, IQR, Q1, Q3, 95% Bootstrap/Empirical CIs, Min, and Max
-        for every evaluated metric.
+        Reports scale-appropriate statistics: Mean/Std/95% CI for binary recovery indicators and
+        non-parametric Median/IQR/Q1/Q3/95% PI/Min/Max for ordinal ranking metrics, alongside
+        concise empirical Cliff's d calibration checks.
 
     Parameters:
         df_results (pd.DataFrame): Raw trial-level simulation results DataFrame.
@@ -85,33 +163,17 @@ def compute_aggregate_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     if df_results.empty:
         return pd.DataFrame()
 
-    raw_group_cols = ["ScenarioID", "Suite", "Candidates", "SampleSize", "Noise", "EffectMagnitude", "Delta", "Calibrated_Median_Cliffs_d", "Correlation", "Method"]
+    raw_group_cols = [
+        "ScenarioID", "Suite", "Candidates", "SampleSize", "Noise",
+        "EffectMagnitude", "Delta", "Calibrated_Median_Cliffs_d", "Correlation", "Method"
+    ]
     group_cols = [c for c in raw_group_cols if c in df_results.columns]
     summary_rows = []
 
-    active_metric_cols = [c for c in (METRIC_COLS + STATISTICAL_EFFECT_COLS) if c in df_results.columns]
-
     for keys, group in df_results.groupby(group_cols):
         row = dict(zip(group_cols, keys))
-        n_trials = len(group)
-        row["N_Trials"] = n_trials
-
-        for m in active_metric_cols:
-            vals = group[m].dropna().values
-            if len(vals) == 0:
-                continue
-            row[f"{m}_Mean"] = float(np.mean(vals))
-            row[f"{m}_Std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
-            row[f"{m}_Median"] = float(np.median(vals))
-            row[f"{m}_IQR"] = float(stats.iqr(vals))
-            row[f"{m}_Q1"] = float(np.percentile(vals, 25))
-            row[f"{m}_Q3"] = float(np.percentile(vals, 75))
-            row[f"{m}_CI95_Lower"] = float(np.percentile(vals, 2.5))
-            row[f"{m}_CI95_Upper"] = float(np.percentile(vals, 97.5))
-            row[f"{m}_Min"] = float(np.min(vals))
-            row[f"{m}_Max"] = float(np.max(vals))
-
-        row["Failure_Rate_Percent"] = 0.0
+        row["N_Trials"] = len(group)
+        _populate_group_metrics(row, group, include_scenario_effects=True)
         summary_rows.append(row)
 
     return pd.DataFrame(summary_rows)
@@ -160,31 +222,31 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     # 1. Core Grand Pooled
     slices.append((
         "Core Benchmark (Grand Pooled)",
-        "Core",
+        SUITE_CORE,
         "All Standard Conditions (N: 10-14, n: 25-100, noise: 2-10%)",
-        lambda df: df["Suite"] == "Core"
+        lambda df: df["Suite"] == SUITE_CORE
     ))
     
     # 2. Core Candidate Scale Margins
     if "Candidates" in df_results.columns:
-        core_cands = sorted(df_results[df_results["Suite"] == "Core"]["Candidates"].dropna().unique())
+        core_cands = sorted(df_results[df_results["Suite"] == SUITE_CORE]["Candidates"].dropna().unique())
         for N in core_cands:
             slices.append((
                 f"Core Scale (N = {int(N)} Candidates)",
-                "Core",
+                SUITE_CORE,
                 f"Candidate Set N = {int(N)}",
-                lambda df, n_val=N: (df["Suite"] == "Core") & (df["Candidates"] == n_val)
+                lambda df, n_val=N: (df["Suite"] == SUITE_CORE) & (df["Candidates"] == n_val)
             ))
             
     # 3. Core Cohort Sample Size Margins (Evaluated across sample sizes n in {25, 50, 100})
     for n_val in [25, 50, 100]:
         slices.append((
             f"Cohort Sample Size (n = {n_val})",
-            "Sample Size Sensitivity",
+            SUITE_SAMPLE_SIZE,
             f"Cohort Size n = {n_val} (at N = {DEFAULT_CANDIDATES})",
             lambda df, sv=n_val: (
-                (df["Suite"].isin(["SampleSizeSensitivity", "Sample Size Sensitivity"]) & (df["SampleSize"] == sv)) |
-                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
+                (df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) & (df["SampleSize"] == sv)) |
+                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
             )
         ))
             
@@ -195,11 +257,11 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                            ("Large", "Large Effect (Delta = 8.0%, d ~ 0.80)")]:
             slices.append((
                 f"Effect Sensitivity ({eff})",
-                "Effect Magnitude Sensitivity",
+                SUITE_EFFECT,
                 label,
                 lambda df, e_val=eff: (
-                    (df["Suite"].isin(["EffectSensitivity", "Effect Magnitude Sensitivity"]) & (df["EffectMagnitude"] == e_val)) |
-                    ((e_val == "Medium") & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                    (df["Suite"].isin(["EffectSensitivity", SUITE_EFFECT]) & (df["EffectMagnitude"] == e_val)) |
+                    ((e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
                 )
             ))
             
@@ -209,11 +271,11 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                             (0.5, "Correlated Criteria (rho = 0.5)")]:
             slices.append((
                 f"Correlation Sensitivity (rho = {corr})",
-                "Correlation Sensitivity",
+                SUITE_CORRELATION,
                 label,
                 lambda df, c_val=corr: (
-                    (df["Suite"].isin(["CorrelationSensitivity", "Correlation Sensitivity"]) & (df["Correlation"] == c_val)) |
-                    ((c_val == 0.0) & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                    (df["Suite"].isin(["CorrelationSensitivity", SUITE_CORRELATION]) & (df["Correlation"] == c_val)) |
+                    ((c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
                 )
             ))
             
@@ -225,6 +287,8 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
             "Compensatory Model Trap (CN in top half)",
             lambda df: (df["Suite"] == "Compensatory")
         ))
+
+    has_comp_col = "CompensatoryError" in df_results.columns and not df_results["CompensatoryError"].dropna().empty
 
     rows = []
     for scen_title, suite, cond_label, mask_fn in slices:
@@ -283,7 +347,7 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                 "TopChoiceRankRegret_Median (Ranks)": regret_med,
                 "TopChoiceRankRegret_IQR (Ranks)": regret_iqr
             }
-            if "CompensatoryError" in m_sub.columns and m_sub["CompensatoryError"].dropna().any():
+            if has_comp_col:
                 row["CompensatoryError_Rate (%)"] = get_rate("CompensatoryError")
             rows.append(row)
 
@@ -296,14 +360,17 @@ compute_superordinate_summary = compute_benchmark_summary
 
 def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculates granular non-parametric pooled statistics matching calc_pooled_csv.m schema.
+    Calculates granular non-parametric and rate pooled statistics matching calc_pooled_csv.m schema.
 
     Syntax:
         df_detailed = compute_detailed_pooled_statistics(df_results)
 
     Description:
-        Produces a standardized long-format dataset with complete descriptive properties:
-        Scenario;Metric;Method;N_Trials;Median;IQR;Q1;Q3;CI95_Lower;CI95_Upper;Min;Max;Failure_Rate_Percent.
+        Produces a standardized long-format dataset across MCDM evaluation metrics:
+          - Binary indicator metrics (TopChoice, CompleteRank, CompensatoryError):
+            populated with Mean, Std, CI95_Lower, CI95_Upper.
+          - Ordinal rank metrics (KendallTau, SpearmanRho, FalseSuperiority, RankDisplacement, TopChoiceRankRegret):
+            populated with non-parametric Median, IQR, Q1, Q3, CI95_Lower, CI95_Upper, Min, Max.
 
     Parameters:
         df_results (pd.DataFrame): Simulation results dataset.
@@ -317,7 +384,7 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
     if df_results.empty:
         return pd.DataFrame()
 
-    active_metric_cols = [c for c in (METRIC_COLS + STATISTICAL_EFFECT_COLS) if c in df_results.columns]
+    active_metric_cols = [c for c in METRIC_COLS if c in df_results.columns]
     
     target_methods = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland", "Copeland"]
     available_methods = [m for m in target_methods if m in df_results["Method"].unique()]
@@ -326,30 +393,30 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
 
     # Superordinate grouping conditions
     conditions = [
-        ("Core_Grand_Pooled", lambda df: df["Suite"] == "Core"),
+        ("Core_Grand_Pooled", lambda df: df["Suite"] == SUITE_CORE),
         ("Compensatory_Stress_Pooled", lambda df: df["Suite"] == "Compensatory")
     ]
     if "Candidates" in df_results.columns:
-        for N in sorted(df_results[df_results["Suite"] == "Core"]["Candidates"].dropna().unique()):
-            conditions.append((f"Core_N_{int(N)}", lambda df, n_val=N: (df["Suite"] == "Core") & (df["Candidates"] == n_val)))
+        for N in sorted(df_results[df_results["Suite"] == SUITE_CORE]["Candidates"].dropna().unique()):
+            conditions.append((f"Core_N_{int(N)}", lambda df, n_val=N: (df["Suite"] == SUITE_CORE) & (df["Candidates"] == n_val)))
     if "SampleSize" in df_results.columns:
         for n_val in [25, 50, 100]:
             conditions.append((f"Cohort_n_{n_val}", lambda df, sv=n_val: (
-                (df["Suite"].isin(["SampleSizeSensitivity", "Sample Size Sensitivity"]) & (df["SampleSize"] == sv)) |
-                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
+                (df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) & (df["SampleSize"] == sv)) |
+                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
             )))
     if "EffectMagnitude" in df_results.columns:
         for eff in ["Small", "Medium", "Large"]:
             conditions.append((f"Effect_{eff}", lambda df, e_val=eff: (
-                (df["Suite"].isin(["EffectSensitivity", "Effect Magnitude Sensitivity"]) & (df["EffectMagnitude"] == e_val)) |
-                ((e_val == "Medium") & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                (df["Suite"].isin(["EffectSensitivity", SUITE_EFFECT]) & (df["EffectMagnitude"] == e_val)) |
+                ((e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
             )))
     if "Correlation" in df_results.columns:
         for corr in [0.0, 0.5]:
             c_tag = "Independent" if corr == 0.0 else "Correlated"
             conditions.append((f"Correlation_{c_tag}", lambda df, c_val=corr: (
-                (df["Suite"].isin(["CorrelationSensitivity", "Correlation Sensitivity"]) & (df["Correlation"] == c_val)) |
-                ((c_val == 0.0) & (df["Suite"] == "Core") & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                (df["Suite"].isin(["CorrelationSensitivity", SUITE_CORRELATION]) & (df["Correlation"] == c_val)) |
+                ((c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
             )))
 
     rows = []
@@ -366,25 +433,45 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
             n_trials = len(m_sub)
             for m in active_metric_cols:
                 vals = m_sub[m].dropna().values
-                if len(vals) == 0:
+                n_obs = len(vals)
+                if n_obs == 0:
                     continue
-                rows.append({
-                    "Scenario": scen_name,
-                    "Metric": m,
-                    "Method": method,
-                    "N_Trials": n_trials,
-                    "Mean": round(float(np.mean(vals)), 4),
-                    "Std": round(float(np.std(vals, ddof=1)), 4) if len(vals) > 1 else 0.0,
-                    "Median": round(float(np.median(vals)), 4),
-                    "IQR": round(float(stats.iqr(vals)), 4),
-                    "Q1": round(float(np.percentile(vals, 25)), 4),
-                    "Q3": round(float(np.percentile(vals, 75)), 4),
-                    "CI95_Lower": round(float(np.percentile(vals, 2.5)), 4),
-                    "CI95_Upper": round(float(np.percentile(vals, 97.5)), 4),
-                    "Min": round(float(np.min(vals)), 4),
-                    "Max": round(float(np.max(vals)), 4),
-                    "Failure_Rate_Percent": 0.0
-                })
+                if m in BINARY_METRIC_COLS:
+                    p = float(np.mean(vals))
+                    se = float(np.sqrt(max(0.0, p * (1.0 - p)) / n_obs))
+                    rows.append({
+                        "Scenario": scen_name,
+                        "Metric": m,
+                        "Method": method,
+                        "N_Trials": n_trials,
+                        "Mean": round(p, 4),
+                        "Std": round(float(np.std(vals, ddof=1)), 4) if n_obs > 1 else 0.0,
+                        "Median": np.nan,
+                        "IQR": np.nan,
+                        "Q1": np.nan,
+                        "Q3": np.nan,
+                        "CI95_Lower": round(float(max(0.0, p - 1.959963984540054 * se)), 4),
+                        "CI95_Upper": round(float(min(1.0, p + 1.959963984540054 * se)), 4),
+                        "Min": np.nan,
+                        "Max": np.nan
+                    })
+                else:
+                    rows.append({
+                        "Scenario": scen_name,
+                        "Metric": m,
+                        "Method": method,
+                        "N_Trials": n_trials,
+                        "Mean": np.nan,
+                        "Std": np.nan,
+                        "Median": round(float(np.median(vals)), 4),
+                        "IQR": round(float(stats.iqr(vals)), 4),
+                        "Q1": round(float(np.percentile(vals, 25)), 4),
+                        "Q3": round(float(np.percentile(vals, 75)), 4),
+                        "CI95_Lower": round(float(np.percentile(vals, 2.5)), 4),
+                        "CI95_Upper": round(float(np.percentile(vals, 97.5)), 4),
+                        "Min": round(float(np.min(vals)), 4),
+                        "Max": round(float(np.max(vals)), 4)
+                    })
 
     return pd.DataFrame(rows)
 
@@ -397,9 +484,9 @@ def compute_pooled_summary(df_results: pd.DataFrame) -> pd.DataFrame:
         df_pooled = compute_pooled_summary(df_results)
 
     Description:
-        Aggregates metrics both overall (All_Pooled) and per experimental suite (Core,
-        Sensitivity suites), calculating full descriptive metrics (Mean, Std, Median, IQR,
-        Q1, Q3, CIs, Min, Max).
+        Aggregates MCDM evaluation metrics both overall (All_Pooled) and per experimental suite
+        (Core, Sensitivity suites), reporting Mean/Std/95% CI for binary indicators and
+        non-parametric Median/IQR/Q1/Q3/95% PI/Min/Max for ordinal ranking metrics.
 
     Parameters:
         df_results (pd.DataFrame): Simulation results dataset.
@@ -413,47 +500,18 @@ def compute_pooled_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     if df_results.empty:
         return pd.DataFrame()
 
-    active_metric_cols = [c for c in (METRIC_COLS + STATISTICAL_EFFECT_COLS) if c in df_results.columns]
     summary_rows = []
 
     # 1. Overall Pooling by Method
     for method, group in df_results.groupby("Method"):
         row = {"Suite": "All_Pooled", "Method": method, "N_Trials": len(group)}
-        for m in active_metric_cols:
-            vals = group[m].dropna().values
-            if len(vals) == 0:
-                continue
-            row[f"{m}_Mean"] = float(np.mean(vals))
-            row[f"{m}_Std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
-            row[f"{m}_Median"] = float(np.median(vals))
-            row[f"{m}_IQR"] = float(stats.iqr(vals))
-            row[f"{m}_Q1"] = float(np.percentile(vals, 25))
-            row[f"{m}_Q3"] = float(np.percentile(vals, 75))
-            row[f"{m}_CI95_Lower"] = float(np.percentile(vals, 2.5))
-            row[f"{m}_CI95_Upper"] = float(np.percentile(vals, 97.5))
-            row[f"{m}_Min"] = float(np.min(vals))
-            row[f"{m}_Max"] = float(np.max(vals))
-        row["Failure_Rate_Percent"] = 0.0
+        _populate_group_metrics(row, group, include_scenario_effects=False)
         summary_rows.append(row)
 
     # 2. Granular Pooling by Suite and Method
     for (suite, method), group in df_results.groupby(["Suite", "Method"]):
         row = {"Suite": suite, "Method": method, "N_Trials": len(group)}
-        for m in active_metric_cols:
-            vals = group[m].dropna().values
-            if len(vals) == 0:
-                continue
-            row[f"{m}_Mean"] = float(np.mean(vals))
-            row[f"{m}_Std"] = float(np.std(vals, ddof=1)) if len(vals) > 1 else 0.0
-            row[f"{m}_Median"] = float(np.median(vals))
-            row[f"{m}_IQR"] = float(stats.iqr(vals))
-            row[f"{m}_Q1"] = float(np.percentile(vals, 25))
-            row[f"{m}_Q3"] = float(np.percentile(vals, 75))
-            row[f"{m}_CI95_Lower"] = float(np.percentile(vals, 2.5))
-            row[f"{m}_CI95_Upper"] = float(np.percentile(vals, 97.5))
-            row[f"{m}_Min"] = float(np.min(vals))
-            row[f"{m}_Max"] = float(np.max(vals))
-        row["Failure_Rate_Percent"] = 0.0
+        _populate_group_metrics(row, group, include_scenario_effects=False)
         summary_rows.append(row)
 
     return pd.DataFrame(summary_rows)
@@ -738,15 +796,20 @@ def save_method_configuration(
     Author:
         Lukas von Erdmannsdorff
     """
+    b_thr = int(HERA_CONFIG.get("manual_B_thr", 2000))
+    raw_mode = str(HERA_CONFIG.get("ranking_mode", "M1_M2_M3"))
+    mode_arrow = raw_mode.replace("_", " -> ")
+    w_str = ", ".join(f"{float(w):.2f}" for w in TOPSIS_WEIGHTS)
+
     records = [
         {
             "Framework": "HERA", 
-            "Core Parameters": "Threshold Bootstrap\n(B = 2000)", 
-            "Specification / Baseline Setup": "Sequential Hierarchical (M1 -> M2 -> M3);\nHolm-Bonferroni FWER control (alpha = 0.05)"
+            "Core Parameters": f"Threshold Bootstrap\n(B = {b_thr})", 
+            "Specification / Baseline Setup": f"Sequential Hierarchical ({mode_arrow});\nHolm-Bonferroni FWER control (alpha = 0.05)"
         },
         {
             "Framework": "TOPSIS", 
-            "Core Parameters": "Criteria Weights:\nw = [0.40, 0.40, 0.20]", 
+            "Core Parameters": f"Criteria Weights:\nw = [{w_str}]", 
             "Specification / Baseline Setup": "Vector Normalization; Euclidean distance to\nideal solutions; relative closeness ranking"
         },
         {

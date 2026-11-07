@@ -67,6 +67,9 @@ except ImportError:
         DEFAULT_CORRELATION = 0.0
         NUM_CANDIDATES_LIST = [10, 12, 14]
         SUITE_CORE = "Core"
+        SUITE_SAMPLE_SIZE = "Sample Size Sensitivity"
+        SUITE_EFFECT = "Effect Magnitude Sensitivity"
+        SUITE_CORRELATION = "Correlation Sensitivity"
         compute_superordinate_summary = None
 
 # --- Directory Configuration ---
@@ -2043,9 +2046,16 @@ def plot_pooled_core_marginal_scales(
     Author:
         Lukas von Erdmannsdorff
     """
-    df_core = df[df["Suite"] == "Core"]
+    df_core = df[df["Suite"] == SUITE_CORE]
     if df_core.empty:
         df_core = df
+
+    df_sample = df[
+        df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) |
+        ((df["Suite"] == SUITE_CORE) & (df["Noise"] == DEFAULT_NOISE))
+    ]
+    if df_sample.empty:
+        df_sample = df_core
 
     fig, axes = plt.subplots(2, 2, figsize=(13, 9.6))
     fig.suptitle("Candidate Scalability and Sample Size Margins", fontweight="bold", fontsize=13.5, y=0.985)
@@ -2088,14 +2098,14 @@ def plot_pooled_core_marginal_scales(
 
     # (B1) TopChoice vs Sample Size n
     ax = axes[1, 0]
-    plot_method_lines(ax, df_core, "SampleSize", "TopChoice")
+    plot_method_lines(ax, df_sample, "SampleSize", "TopChoice")
     ax.set_title(r"(B1) Top-Choice Recovery vs. Sample Size ($\mathbf{n}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Sample Size ($n$)")
     ax.set_ylabel("Top-Choice Recovery (Mean [95% CI], %)")
     ax.set_ylim(-0.02, 1.05)
     ax.yaxis.set_major_locator(MultipleLocator(0.20))
     ax.yaxis.set_major_formatter(PercentFormatter(1.0, decimals=0))
-    samples = sorted(df_core["SampleSize"].dropna().unique())
+    samples = sorted(df_sample["SampleSize"].dropna().unique())
     if samples:
         ax.set_xticks(samples)
     if ax.get_legend():
@@ -2103,7 +2113,7 @@ def plot_pooled_core_marginal_scales(
 
     # (B2) Kendall Tau vs Sample Size n
     ax = axes[1, 1]
-    plot_method_lines(ax, df_core, "SampleSize", "KendallTau", estimator=np.median, errorbar=("pi", 50))
+    plot_method_lines(ax, df_sample, "SampleSize", "KendallTau", estimator=np.median, errorbar=("pi", 50))
     ax.set_title(r"(B2) Rank Correlation vs. Sample Size ($\mathbf{n}$)", fontweight="bold", loc="left")
     ax.set_xlabel(r"Sample Size ($n$)")
     ax.set_ylabel(r"Kendall's $\tau$ (Median [IQR])")
@@ -2290,8 +2300,8 @@ def plot_pooled_sensitivity_summary(
     # Panel 1: Effect Magnitude (Small, Medium, Large)
     order_eff = ["Small", "Medium", "Large"]
     sub_eff = df[
-        ((df["Suite"] == "EffectSensitivity") & (df["EffectMagnitude"].isin(order_eff))) |
-        ((df["Suite"] == "Core") & (df["Candidates"] == ref_N) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+        (df["Suite"].isin(["EffectSensitivity", SUITE_EFFECT]) & (df["EffectMagnitude"].isin(order_eff))) |
+        ((df["Suite"] == SUITE_CORE) & (df["Candidates"] == ref_N) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
     ]
     if not sub_eff.empty:
         sns.barplot(
@@ -2309,8 +2319,8 @@ def plot_pooled_sensitivity_summary(
 
     # Panel 2: Correlation Sensitivity (rho = 0.0 vs rho = 0.5)
     sub_corr = df[
-        ((df["Suite"] == "CorrelationSensitivity") & (df["Correlation"].isin([0.0, 0.5]))) |
-        ((df["Suite"] == "Core") & (df["Candidates"] == ref_N) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+        (df["Suite"].isin(["CorrelationSensitivity", SUITE_CORRELATION]) & (df["Correlation"].isin([0.0, 0.5]))) |
+        ((df["Suite"] == SUITE_CORE) & (df["Candidates"] == ref_N) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
     ].copy()
     if not sub_corr.empty:
         sub_corr["CorrelationLabel"] = sub_corr["Correlation"].map({0.0: r"Independent ($\rho = 0.0$)", 0.5: r"Correlated ($\rho = 0.5$)"})

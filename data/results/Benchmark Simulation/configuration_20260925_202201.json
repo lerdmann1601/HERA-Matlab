@@ -33,7 +33,7 @@
     "HERA",
     "TOPSIS",
     "Borda",
-    "Copeland"
+    "Wilcoxon-Copeland"
   ],
   "metrics_evaluated": [
     "TopChoice",
@@ -41,7 +41,6 @@
     "KendallTau",
     "SpearmanRho",
     "FalseSuperiority",
-    "Regret",
     "CompensatoryError",
     "RankDisplacement",
     "TopChoiceRankRegret"
