@@ -351,11 +351,7 @@ def evaluate_ranking(
 
     # 5. False Superiority Rate (Pairwise Inversions)
     total_pairs = n_cands * (n_cands - 1) // 2
-    inversions = 0
-    for i in range(n_cands):
-        for j in range(i + 1, n_cands):
-            if pred_ranks[j] < pred_ranks[i]:
-                inversions += 1
+    inversions = int(np.triu(pred_ranks[:, None] > pred_ranks[None, :], k=1).sum())
     false_superiority = inversions / max(1, total_pairs)
 
     # 6. Compensatory Error Rate (selection of compensatory candidate C_N in top half <= N/2)

@@ -3,7 +3,7 @@ Main Simulation Script for HERA Methodological Ground-Truth Validation.
 
 This script performs a comprehensive Monte Carlo study to benchmark the linear HERA 
 ranking algorithm against standard Multi-Criteria Decision Making (MCDM) baselines 
-(TOPSIS, Borda Count, and Copeland Scoring) under controlled ground-truth conditions.
+(TOPSIS, Borda Count, and Wilcoxon-Copeland) under controlled ground-truth conditions.
 
 Methodological validation dimensions:
 - Known ground-truth ranking hierarchy with varying:
@@ -18,8 +18,9 @@ Methodological validation dimensions:
   * Kendall's Tau Rank Correlation (Ordinal alignment with ground truth)
   * Spearman's Rho Rank Correlation (Monotonic rank distance)
   * False Superiority Rate (Proportion of pairwise inversions: Inversions / (N*(N-1)/2))
-  * Expected Regret (Loss in true primary metric M1 vs chosen candidate #1)
   * Compensatory Error Rate (Mistaken selection of models with severe secondary deficit despite high tertiary scores)
+  * Rank Displacement (Mean absolute rank displacement |predicted - true|)
+  * Top-Choice Rank Regret (True rank position of selected top model minus 1)
 
 High-Performance Architecture & macOS / Python Standards:
 - Modular Subscript Architecture: Clean separation of concerns mirroring MATLAB's
@@ -40,25 +41,30 @@ High-Performance Architecture & macOS / Python Standards:
 - Empirical Effect Size Traceability: Calculates and logs nominal Delta, empirical Cliff's d,
   mean differences, and pooled scenario statistics (matching +HERA/+analysis).
 - Configuration Reporting: Exports complete scenario grid and method parameter tables
-  (HERA Thresholds only, TOPSIS, Borda, Copeland) as CSV and 300 DPI publication graphics.
+  (HERA, TOPSIS, Borda Count, Wilcoxon-Copeland) as CSV and 300 DPI publication graphics.
 
 Outputs generated in <data_folder>/Simulation_Output_<timestamp>/:
-1. configuration_<timestamp>.json     : Complete metadata, seeds, parameter configs, and environment info.
-2. scenarios_<timestamp>.csv          : Detailed index and definitions of all experimental conditions.
-3. scenario_configuration_<ts>.png/pdf: 300 DPI publication graphic of scenario benchmark grid.
-4. method_parameters_<timestamp>.csv  : Methodological parameter specifications (streamlined).
-5. method_parameters_<ts>.png/pdf     : 300 DPI publication graphic of method parameter tables.
-6. candidate_profiles_<timestamp>.csv : Candidate ground-truth scaling across M1, M2, M3 (Median & IQR for N=10, 12, 14).
-7. candidate_profiles_<ts>.png/pdf    : 300 DPI publication graphic of candidate ground-truth ranking scaling.
-8. simulation_results_<timestamp>.csv : Full raw dataset containing every Monte Carlo trial (streamed).
-9. candidate_ranks_<timestamp>.csv    : Detailed candidate-level true vs predicted ranks.
-10. global_summary_<timestamp>.csv    : Aggregated scenario metrics (Mean, Median, IQR, 95% CI, Min, Max).
-11. pooled_results_<timestamp>.csv    : Grand pooled summary across all conditions (matching calc_pooled_csv.m).
-12. simulation_log_<timestamp>.txt   : Execution diary logging runtimes and diagnostic details.
-13. checkpoint_<timestamp>.json       : Live state tracker for progress monitoring and resumption.
+1. configuration_<timestamp>.json          : Complete metadata, seeds, parameter configs, and environment info.
+2. benchmark_summary_<timestamp>.csv       : Executive side-by-side benchmark summary across suites and scales.
+3. Global_Summary_<timestamp>.pdf          : Consolidated multi-page master publication report.
+4. CSVs/scenarios_<timestamp>.csv          : Detailed index and definitions of all experimental conditions.
+5. CSVs/method_parameters_<timestamp>.csv  : Methodological parameter specifications (streamlined).
+6. CSVs/candidate_profiles_<timestamp>.csv : Candidate ground-truth scaling across M1, M2, M3 (Median & IQR for N=10, 12, 14).
+7. CSVs/simulation_results_<timestamp>.csv : Full raw dataset containing every Monte Carlo trial (streamed).
+8. CSVs/candidate_ranks_<timestamp>.csv    : Detailed candidate-level true vs predicted ranks.
+9. CSVs/global_summary_<timestamp>.csv     : Aggregated scenario metrics (Mean/95% CI for rates, Median/IQR/95% PI for ordinal metrics).
+10. CSVs/pooled_results_<timestamp>.csv    : Grand pooled summary across all conditions (matching calc_pooled_csv.m).
+11. CSVs/pooled_results_detailed_<ts>.csv  : Long-format pooled non-parametric and rate statistics.
+12. Graphics/*.png                         : 300 DPI publication graphics (configuration tables and benchmark figures).
+13. Reports/Executive_Summary_<ts>.pdf     : Focused multi-page executive summary report.
+14. simulation_log_<timestamp>.txt         : Execution diary logging runtimes and diagnostic details.
+15. checkpoint_<timestamp>.json            : Live state tracker for progress monitoring and resumption.
 
 Usage:
-    python3 run_simulation.py
+    python3 run_simulation.py [-i ITERATIONS] [-w WORKERS] [--seed SEED] [-o OUTPUT_DIR]
+                              [--hera-mode {M1_M2_M3,M1_M2,M1_M3A_M3B}] [--hera-b-thr B_THR]
+                              [--hera-b-ci B_CI] [--hera-b-rank B_RANK]
+                              [--topsis-weights W1 W2 W3]
 
 Author: Lukas von Erdmannsdorff
 """
@@ -66,6 +72,9 @@ Author: Lukas von Erdmannsdorff
 import os
 # Suppress noisy third-party package notifications to maintain pristine console logs
 os.environ["OUTDATED_IGNORE"] = "1"
+if "MPLCONFIGDIR" not in os.environ and not os.access(os.path.expanduser("~/.matplotlib"), os.W_OK):
+    import tempfile
+    os.environ["MPLCONFIGDIR"] = os.path.join(tempfile.gettempdir(), "matplotlib_hera_cache")
 
 # Enforce strict single-thread execution per worker across all numerical libraries
 # on macOS (Apple Silicon / Accelerate vecLib, OpenBLAS, MKL, OpenMP, NumExpr)
@@ -285,6 +294,18 @@ def main() -> None:
         default=None,
         help="Override TOPSIS criteria weights, e.g. --topsis-weights 0.4 0.4 0.2 or '0.5,0.3,0.2' (or via HERA_SIM_TOPSIS_WEIGHTS env var)"
     )
+    parser.add_argument(
+        "--suite",
+        type=str,
+        default=None,
+        help="Optional suite filter to execute only matching scenarios (e.g. 'Core', 'Effect Magnitude Sensitivity')"
+    )
+    parser.add_argument(
+        "--scenarios",
+        nargs="+",
+        default=None,
+        help="Optional scenario ID filter to execute specific conditions (e.g. --scenarios SC_001 SC_022 or 'SC_001,SC_022')"
+    )
     args, _ = parser.parse_known_args()
     sim_iterations = args.iterations
     sim_seed = args.seed
@@ -354,6 +375,21 @@ def main() -> None:
     # 7. Construct Orthogonal Experimental Scenario Grid
     all_scenarios = build_scenarios_grid()
     scenarios = list(all_scenarios)
+
+    if args.suite:
+        suite_query = args.suite.strip().lower()
+        scenarios = [s for s in scenarios if suite_query in str(s["Suite"]).lower()]
+        logger.info(f"[Filter] Suite filter '{args.suite}' active: selected {len(scenarios)}/{len(all_scenarios)} scenarios.")
+
+    if args.scenarios:
+        req_ids = {
+            tok.strip().upper()
+            for item in args.scenarios
+            for tok in item.replace(",", " ").split()
+            if tok.strip()
+        }
+        scenarios = [s for s in scenarios if s["ScenarioID"].upper() in req_ids]
+        logger.info(f"[Filter] Scenario ID filter active ({sorted(req_ids)}): selected {len(scenarios)}/{len(all_scenarios)} scenarios.")
 
     if os.environ.get("HERA_SMOKE_TEST") == "1":
         logger.info("[Smoke Test] HERA_SMOKE_TEST detected. Restricting execution to 1 scenario for end-to-end verification.")

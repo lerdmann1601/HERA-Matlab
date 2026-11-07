@@ -35,7 +35,7 @@ if str(BASE_DIR) not in sys.path:
 
 try:
     from .config import CANDIDATE_RANK_COLUMNS
-    from .engine import HERAExecutor
+    from .engine import HERAExecutor, get_worker_executor
     from .synthesis import get_ground_truth_means, generate_synthetic_data
     from .mcdm import (
         run_hera_ranking, run_topsis_baseline, run_borda_baseline,
@@ -44,7 +44,7 @@ try:
     from .reporting import append_results_to_csv
 except ImportError:
     from simulation.config import CANDIDATE_RANK_COLUMNS
-    from simulation.engine import HERAExecutor
+    from simulation.engine import HERAExecutor, get_worker_executor
     from simulation.synthesis import get_ground_truth_means, generate_synthetic_data
     from simulation.mcdm import (
         run_hera_ranking, run_topsis_baseline, run_borda_baseline,
@@ -94,14 +94,11 @@ def evaluate_single_trial(args: Tuple[int, float, int, int]) -> List[Dict[str, A
             in_dir.mkdir(parents=True, exist_ok=True)
             out_dir.mkdir(parents=True, exist_ok=True)
 
-            # Stagger slightly to avoid MATLAB launch contention
-            time.sleep(np.random.uniform(0.5, 2.5))
-
-            executor = HERAExecutor()
+            executor = get_worker_executor(DATA_DIR.parent.resolve())
             means, true_order = get_ground_truth_means("Core", N, delta=5.0)
             data = generate_synthetic_data(means, n_samples=50, noise_level=noise, correlation=0.0, output_dir=in_dir, rng=rng)
             
-            hera_r = run_hera_ranking(executor, in_dir, out_dir)
+            hera_r = run_hera_ranking(executor, in_dir, out_dir, seed=seed)
             top_r = run_topsis_baseline(data)
             borda_r = run_borda_baseline(data)
             wilc_r = run_wilcoxon_copeland_baseline(data)

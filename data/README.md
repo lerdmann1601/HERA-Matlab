@@ -60,8 +60,8 @@ You can use the datasets in `examples/` to run HERA. To reproduce the results, a
 The `utils/` folder provides automated Python tooling for running workflows, benchmarking simulations, and generating publication figures:
 
 - `run_workflow.py`: Runs the automated stability analysis workflow across decreasing contrast enhancement levels (Example 2). Expects the `Alpha_*` input folders inside `utils/data/` (which can be copied from `examples/Example_2_workflow/data/`) and writes outputs to `utils/results/`.
-- `run_simulation.py`: Runs Monte Carlo ground-truth validation simulations benchmarking HERA against standard MCDM baselines (TOPSIS, Borda Count, and Copeland Scoring). Reference results are stored in `results/Benchmark Simulation/`.
-- `plot_results.py`: Generates publication-ready figures and report summaries from simulation outputs.
+- `run_simulation.py`: Runs Monte Carlo ground-truth validation simulations benchmarking HERA against standard MCDM baselines (TOPSIS, Borda Count, and Wilcoxon-Copeland). Supports optional CLI flags to customize run parameters (`-i/--iterations`, `-w/--workers`, `--seed`, `-o/--output`) as well as baseline method configurations (`--hera-mode`, `--hera-b-thr`, `--hera-b-ci`, `--hera-b-rank`, `--topsis-weights`). Reference results are stored in `results/Benchmark Simulation/`.
+- `plot_results.py`: Generates publication-ready figures and multi-page PDF report summaries from simulation outputs (optionally accepting a target run directory or `simulation_results_*.csv` path).
 - `simulation/`: Modular package containing the simulation engine, rank stability evaluation, MCDM baselines, and data synthesis.
 
 > [!NOTE]
@@ -73,8 +73,14 @@ To use the Python utilities:
 cd utils
 pip install -r requirements.txt
 python run_workflow.py
-# or: python run_simulation.py
-# or: python plot_results.py
+
+# Ground-truth simulation (default settings or custom CLI overrides):
+python run_simulation.py
+# python run_simulation.py -i 100 --seed 123 --hera-mode M1_M2_M3 --hera-b-thr 2000 --topsis-weights 0.4 0.4 0.2
+
+# Re-generate plots & PDF reports from the latest or a specific simulation folder:
+python plot_results.py
+# python plot_results.py "../results/Benchmark Simulation"
 ```
 
 ---

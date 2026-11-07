@@ -114,12 +114,13 @@ def _populate_group_metrics(
         vals = group[m].dropna().values
         if len(vals) == 0:
             continue
-        row[f"{m}_Median"] = float(np.median(vals))
-        row[f"{m}_IQR"] = float(stats.iqr(vals))
-        row[f"{m}_Q1"] = float(np.percentile(vals, 25))
-        row[f"{m}_Q3"] = float(np.percentile(vals, 75))
-        row[f"{m}_CI95_Lower"] = float(np.percentile(vals, 2.5))
-        row[f"{m}_CI95_Upper"] = float(np.percentile(vals, 97.5))
+        q2_5, q25, med, q75, q97_5 = np.percentile(vals, [2.5, 25.0, 50.0, 75.0, 97.5])
+        row[f"{m}_Median"] = float(med)
+        row[f"{m}_IQR"] = float(q75 - q25)
+        row[f"{m}_Q1"] = float(q25)
+        row[f"{m}_Q3"] = float(q75)
+        row[f"{m}_CI95_Lower"] = float(q2_5)
+        row[f"{m}_CI95_Upper"] = float(q97_5)
         row[f"{m}_Min"] = float(np.min(vals))
         row[f"{m}_Max"] = float(np.max(vals))
 
@@ -456,6 +457,7 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
                         "Max": np.nan
                     })
                 else:
+                    q2_5, q25, med, q75, q97_5 = np.percentile(vals, [2.5, 25.0, 50.0, 75.0, 97.5])
                     rows.append({
                         "Scenario": scen_name,
                         "Metric": m,
@@ -463,12 +465,12 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
                         "N_Trials": n_trials,
                         "Mean": np.nan,
                         "Std": np.nan,
-                        "Median": round(float(np.median(vals)), 4),
-                        "IQR": round(float(stats.iqr(vals)), 4),
-                        "Q1": round(float(np.percentile(vals, 25)), 4),
-                        "Q3": round(float(np.percentile(vals, 75)), 4),
-                        "CI95_Lower": round(float(np.percentile(vals, 2.5)), 4),
-                        "CI95_Upper": round(float(np.percentile(vals, 97.5)), 4),
+                        "Median": round(float(med), 4),
+                        "IQR": round(float(q75 - q25), 4),
+                        "Q1": round(float(q25), 4),
+                        "Q3": round(float(q75), 4),
+                        "CI95_Lower": round(float(q2_5), 4),
+                        "CI95_Upper": round(float(q97_5), 4),
                         "Min": round(float(np.min(vals)), 4),
                         "Max": round(float(np.max(vals)), 4)
                     })
@@ -832,7 +834,6 @@ def save_method_configuration(
     target_graphics_dir = graphics_dir if graphics_dir is not None else out_dir
     target_graphics_dir.mkdir(parents=True, exist_ok=True)
     png_path = target_graphics_dir / f"method_parameters_{timestamp}.png"
-    pdf_path = target_graphics_dir / f"method_parameters_{timestamp}.pdf"
 
     fig, ax = plt.subplots(figsize=(11.5, 3.8), dpi=300)
     ax.axis("off")

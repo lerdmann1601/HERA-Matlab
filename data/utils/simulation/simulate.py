@@ -14,7 +14,7 @@ import shutil
 import signal
 import logging
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
+from typing import Callable, Dict, List, Tuple, Any, Optional
 from collections import deque
 import multiprocessing as mp
 import concurrent.futures
@@ -112,7 +112,7 @@ def execute_single_iteration(task_args: Dict[str, Any]) -> Dict[str, Any]:
           1. Generates synthetic multi-metric data with seeded PRNG stream.
           2. Computes empirical effect sizes (Cliff's d and Delta on M1 and M2).
           3. Evaluates all MCDM methods (HERA, TOPSIS, Borda, Wilcoxon-Copeland).
-          4. Scores ranking fidelity against ground truth (recovery, Kendall's tau, Spearman's rho, inversions, regret).
+          4. Scores ranking fidelity against ground truth (recovery, Kendall's tau, Spearman's rho, inversions, rank displacement, top-choice rank regret).
           5. Guarantees workspace teardown and automatic retries on transient errors.
 
     Parameters:
@@ -285,7 +285,7 @@ def run_sliding_window_pipeline(
     candidate_ranks_csv: Path,
     summary_csv: Path,
     checkpoint_json: Path,
-    get_ground_truth_means_fn: Any
+    get_ground_truth_means_fn: Callable[[str, int, float], Tuple[Dict[str, List[float]], List[str]]]
 ) -> Tuple[List[Dict[str, Any]], float, bool]:
     """
     Executes the high-performance non-blocking sliding-window pipeline.
