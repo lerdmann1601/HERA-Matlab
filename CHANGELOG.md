@@ -4,8 +4,26 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.8) are considered legacy.
+> Previous versions (including all versions prior to 1.4.9) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
+
+---
+
+## [1.4.9] - 2026-11-07
+
+### Added
+
+* **Dynamic Plot Scaling & Toolbox Branding:** Added automatic figure scaling across plots for large candidate sets or long labels, dark-mode logo support across README and documentation themes, and enriched `.mltbx` toolbox metadata.
+
+### Changed
+
+* **Output Control, Convergence & Startup Flow:** Decoupled console table output (`quiet_mode`) from CSV generation (`create_csvs`), updated table formatting and metric precision (`%.3f ± %.3f`), unified convergence RAM detection, and relocated the startup update check.
+* **Benchmark Simulation & Documentation:** Optimized Monte Carlo benchmark simulation and reporting scripts, expanded `data/README.md`, and refined methodological guidelines and ranking mode documentation.
+
+### Fixed
+
+* **NaN Robustness & Non-Interactive Loading:** Refined NaN handling for primary metric tie-breaking and final summary statistics, fixed missing cycle fields for `<3` metrics, and updated `load_data.m` to proceed without interactive prompts when missing values occur.
+* **Confidence Intervals, Plot Exports & Packaging:** Fixed hardcoded 95% quantiles in rank stability convergence to respect `config.ci_level`, fixed `exportgraphics` figure handle targets, corrected sensitivity permutation indexing and `+convergence` subset overrides, and implemented isolated temporary staging for `.mltbx` packaging.
 
 ---
 
@@ -211,6 +229,7 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
+[1.4.9]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...v1.4.7
 [1.4.6]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.5...v1.4.6

@@ -58,7 +58,7 @@ is_cicd = ~isempty(getenv('GITHUB_ACTIONS'));
 if is_cicd
     version_raw = getenv('GITHUB_REF_NAME');
     if isempty(version_raw) || ~startsWith(version_raw, 'v')
-        error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.8) must be set via GITHUB_REF_NAME.');
+        error('Error: Could not determine a valid version for the build. In CI/CD environments, a Git Tag (e.g., v1.4.9) must be set via GITHUB_REF_NAME.');
     end
 else
     % Local build: Use get_version() helper
