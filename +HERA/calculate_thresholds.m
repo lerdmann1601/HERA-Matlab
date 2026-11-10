@@ -138,9 +138,11 @@ for metric_idx = 1:num_metrics
     % Calculates the minimum relative difference based on the median SEM.
     % Also ignores NaN values for the grand mean.
     grand_mean = mean(data_matrix(:), 'omitnan');
+    zero_tol = 1e-12;
 
-    % Protects against division by zero if all data are NaN.
-    if grand_mean == 0 || isnan(grand_mean)
+    % Protects against division by zero (or near-zero floating-point noise in zero-centered data)
+    % and handles cases where all data are NaN.
+    if abs(grand_mean) <= zero_tol || isnan(grand_mean)
         min_rel_dynamic(metric_idx) = 0;
     else
         min_rel_dynamic(metric_idx) = (multiplier * median_sem) / abs(grand_mean);

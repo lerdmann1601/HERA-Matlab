@@ -27,14 +27,16 @@ function rel_diff = relative_difference(x, y)
     mx = mean(x, 1);
     my = mean(y, 1);
     
-    % Check for zero-sum to avoid division by zero.
+    % Check for zero-sum (within floating-point tolerance for z-transformed / zero-centered data)
+    % to avoid division by zero or near-zero noise inflation.
+    zero_tol = 1e-12;
     sum_means = mx + my;
     
     % Initialize result
     rel_diff = zeros(size(mx));
     
     % Mask for valid (non-zero) denominators
-    valid_mask = sum_means ~= 0;
+    valid_mask = abs(sum_means) > zero_tol;
     
     if any(valid_mask)
          % Calculate relative difference for valid columns.
@@ -42,8 +44,8 @@ function rel_diff = relative_difference(x, y)
          mean_pair = abs((mx(valid_mask) + my(valid_mask)) / 2); 
          diff_val = abs(mx(valid_mask) - my(valid_mask));
          
-         % Safety check: Ensure non-zero denominator.
-         safe_mask = mean_pair ~= 0;
+         % Safety check: Ensure non-zero denominator beyond floating-point noise floor.
+         safe_mask = mean_pair > zero_tol;
          
          % Map back to original indices
          valid_indices = find(valid_mask);
