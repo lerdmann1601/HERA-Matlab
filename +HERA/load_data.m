@@ -51,16 +51,24 @@ end
     num_datasets = 0;
     pair_idx_all = [];
 
+    % Determine execution mode to suppress interactive console pauses in batch/developer runs
+    is_in_memory = isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data);
+    quiet_mode = isfield(userInput, 'quiet_mode') && userInput.quiet_mode;
+    is_diagnostic_batch = isfield(userInput, 'create_reports') && ~userInput.create_reports;
+    use_pause = ~is_in_memory && ~quiet_mode && ~is_diagnostic_batch;
+
     %% Check for In-Memory Data 
     % Allows calling the toolbox directly with matrices instead of files.
-    if isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data)
+    if is_in_memory
         fprintf(['\n' lang.load_data.in_memory_detected '\n']);
         
         try
             all_data = userInput.custom_data;
             
-            % Validate structure (must be cell array of matrices)
-            if ~iscell(all_data) || ~all(cellfun(@isnumeric, all_data))
+            % Validate structure (must be non-empty cell array of real numeric 2D matrices without Inf and with >= 2 columns)
+            is_valid_cell = iscell(all_data) && ~isempty(all_data) && ...
+                all(cellfun(@(m) isnumeric(m) && isreal(m) && ismatrix(m) && size(m, 1) >= 1 && size(m, 2) >= 2 && ~any(isinf(m), 'all'), all_data));
+            if ~is_valid_cell
                 error(lang.load_data.error_custom_data_format);
             end
             
@@ -122,7 +130,7 @@ end
                 % Construct the full path to the current metric file
                 filepath = fullfile(userInput.folderPath, [metric_name, file_extension]);
                 fprintf([' -> ' lang.load_data.reading_metric '\n'], i, filepath);
-                pause(0.5); % Brief pause for better readability in the console
+                if use_pause, pause(0.5); end % Brief pause for better readability in interactive console
                 
                 % Automatically detect import options for robust file reading
                 opts = detectImportOptions(filepath);
@@ -146,10 +154,10 @@ end
                      metric_data = cell2mat(metric_data);
                 end
                 
-                % Verify that the data matrix contains only numeric or NaN values
-                is_all_numeric_or_nan = all(isnumeric(metric_data) | isnan(metric_data), 'all');
+                % Verify that the data matrix is numeric, real, and contains only finite or NaN values (no Inf)
+                is_all_numeric_or_nan = isnumeric(metric_data) && isreal(metric_data) && ~any(isinf(metric_data), 'all');
                 if ~is_all_numeric_or_nan
-                    % Throw an error if non-numeric data is found
+                    % Throw an error if non-numeric or infinite data is found
                     error(lang.load_data.error_non_numeric, [metric_name, file_extension]);
                 end
     
@@ -188,14 +196,14 @@ end
         fprintf(['\n' lang.load_data.load_success '\n']);
         fprintf('-------------------------------------------\n');
         fprintf([lang.load_data.summary_subjects '\n'], num_probanden);
-        pause(0.5);
+        if use_pause, pause(0.5); end
         fprintf([lang.load_data.summary_datasets '\n'], num_datasets);
-        pause(0.5);
+        if use_pause, pause(0.5); end
         fprintf(['\n' lang.load_data.summary_datasets_analyzed '\n']);
-        for i = 1:numel(dataset_names), fprintf('  -> %s\n', dataset_names{i}); pause(0.5); end
+        for i = 1:numel(dataset_names), fprintf('  -> %s\n', dataset_names{i}); if use_pause, pause(0.5); end; end
         fprintf(['\n' lang.load_data.summary_primary_metrics '\n']);
         fprintf('%s\n', strjoin(userInput.metric_names, ' -> '));
-        pause(0.5);
+        if use_pause, pause(0.5); end
     end
 
     %% Validate data for missing values
@@ -221,7 +229,7 @@ end
     % Iterate through each metric to check for missing values
     for m_idx = 1:numel(userInput.metric_names) 
         fprintf(['  ' lang.load_data.metric_label '\n'], userInput.metric_names{m_idx});
-        pause(0.5);
+        if use_pause, pause(0.5); end
         data_metric = all_data{m_idx};
         
         % Iterate through each pair of datasets
@@ -256,11 +264,11 @@ end
     % If any warnings were generated, display a summary and prompt the user for action
     if ~isempty(low_n_pairs_warnings)
         fprintf(['\n' lang.load_data.summary_header '\n']);
-        pause(0.5);
+        if use_pause, pause(0.5); end
         % Print each collected warning message
         for k = 1:numel(low_n_pairs_warnings)
             fprintf('%s\n', low_n_pairs_warnings{k}); 
-            pause(0.5);
+            if use_pause, pause(0.5); end
         end
         
         % If a critical warning occurred, the analysis cannot continue. Abort the process.
@@ -271,11 +279,7 @@ end
         
         % Inform the user about the pairwise deletion approach and its implications
         fprintf(['\n' lang.load_data.note_pairwise_deletion '\n'])
-        pause(0.5);
-        
-        % Determine if running in non-interactive mode (in-memory developer call or quiet mode)
-        is_in_memory = isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data);
-        quiet_mode = isfield(userInput, 'quiet_mode') && userInput.quiet_mode;
+        if use_pause, pause(0.5); end
         
         if is_in_memory || quiet_mode
             % Automatically proceed in non-interactive / developer mode after logging warnings

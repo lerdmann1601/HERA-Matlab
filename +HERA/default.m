@@ -64,9 +64,9 @@ defaults.system.min_batch_size = 100;      % Min batch size for parfor
 defaults.bootstrap_seed_offset = 1000;
 
 % Manual Bootstrap Defaults (Empty = Automatic Mode)
-defaults.manual_B_thr = 2000;
-defaults.manual_B_ci = 10000;
-defaults.manual_B_rank = 500;
+defaults.manual_B_thr = [];
+defaults.manual_B_ci = [];
+defaults.manual_B_rank = [];
 
 % Thresholds (Percentile Bootstrap)
 cfg_thr = struct();

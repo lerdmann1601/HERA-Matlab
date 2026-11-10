@@ -199,11 +199,17 @@ function [userInput, setupData] = setup_environment(userInput)
     [~, base_name, ~] = fileparts(log_filename);
     diary(char(log_path));
     
+    % Determine execution mode to suppress interactive console pauses in batch/developer runs
+    is_in_memory = isfield(userInput, 'custom_data') && ~isempty(userInput.custom_data);
+    is_quiet = isfield(userInput, 'quiet_mode') && userInput.quiet_mode;
+    is_diagnostic_batch = isfield(userInput, 'create_reports') && ~userInput.create_reports;
+    use_pause = ~is_in_memory && ~is_quiet && ~is_diagnostic_batch;
+
     fprintf('=======================\n');
     fprintf('%s\n', lang.run_ranking.header);
     fprintf('=======================\n');
     fprintf('Version: %s\n', HERA.get_version());
-    pause(0.5);
+    if use_pause, pause(0.5); end
 
     % Optional: Automatic Update Check
     % Executed if enabled in userInput (default: true). Runs at most once per session.
@@ -264,64 +270,64 @@ function [userInput, setupData] = setup_environment(userInput)
     else
         fprintf([lang.run_ranking.reproducibility_false '\n']); 
     end
-    pause(0.5);
+    if use_pause, pause(0.5); end
 
     % Display settings for threshold calculation.
     cfg = config; % local alias
-    fprintf(['\n-> ' lang.run_ranking.percentile_bootstrap '\n']); pause(0.5);
+    fprintf(['\n-> ' lang.run_ranking.percentile_bootstrap '\n']); if use_pause, pause(0.5); end
     if ~isempty(cfg.manual_B_thr)
-        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_thr); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_thr); if use_pause, pause(0.5); end
     else
         cfg_thr = cfg.bootstrap_thresholds;
-        fprintf(['   ' lang.run_ranking.method_auto '\n']); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_auto '\n']); if use_pause, pause(0.5); end
         if isempty(cfg_thr.smoothing_window)
-            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); if use_pause, pause(0.5); end
         else
-            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); pause(0.5);
-            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_thr.smoothing_window); pause(0.5);
-            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_thr.convergence_streak_needed); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_thr.smoothing_window); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_thr.convergence_streak_needed); if use_pause, pause(0.5); end
         end
-        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_thr.B_start, cfg_thr.B_step, cfg_thr.B_end); pause(0.5);
-        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_thr.n_trials); pause(0.5);
-        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_thr.convergence_tolerance * 100); pause(0.5);
+        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_thr.B_start, cfg_thr.B_step, cfg_thr.B_end); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_thr.n_trials); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_thr.convergence_tolerance * 100); if use_pause, pause(0.5); end
     end
 
     % Display settings for BCa confidence interval calculation.
-    fprintf(['\n-> ' lang.run_ranking.bca_bootstrap '\n']); pause(0.5);
+    fprintf(['\n-> ' lang.run_ranking.bca_bootstrap '\n']); if use_pause, pause(0.5); end
     if ~isempty(cfg.manual_B_ci)
-        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_ci); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_ci); if use_pause, pause(0.5); end
     else
         cfg_ci = cfg.bootstrap_ci;
-        fprintf(['   ' lang.run_ranking.method_auto '\n']); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_auto '\n']); if use_pause, pause(0.5); end
         if isempty(cfg_ci.smoothing_window)
-            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); if use_pause, pause(0.5); end
         else
-            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); pause(0.5);
-            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_ci.smoothing_window); pause(0.5);
-            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_ci.convergence_streak_needed); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_ci.smoothing_window); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_ci.convergence_streak_needed); if use_pause, pause(0.5); end
         end
-        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_ci.B_start, cfg_ci.B_step, cfg_ci.B_end); pause(0.5);
-        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_ci.n_trials); pause(0.5);
-        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_ci.convergence_tolerance * 100); pause(0.5);
+        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_ci.B_start, cfg_ci.B_step, cfg_ci.B_end); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_ci.n_trials); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_ci.convergence_tolerance * 100); if use_pause, pause(0.5); end
     end
 
     % Display settings for rank stability analysis.
-    fprintf(['\n-> ' lang.run_ranking.cluster_bootstrap '\n']); pause(0.5);
+    fprintf(['\n-> ' lang.run_ranking.cluster_bootstrap '\n']); if use_pause, pause(0.5); end
     if ~isempty(cfg.manual_B_rank)
-        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_rank); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_manual '\n'], cfg.manual_B_rank); if use_pause, pause(0.5); end
     else
         cfg_rank = cfg.bootstrap_ranks;
-        fprintf(['   ' lang.run_ranking.method_auto '\n']); pause(0.5);
+        fprintf(['   ' lang.run_ranking.method_auto '\n']); if use_pause, pause(0.5); end
         if isempty(cfg_rank.smoothing_window)
-            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_simple '\n']); if use_pause, pause(0.5); end
         else
-            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); pause(0.5);
-            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_rank.smoothing_window); pause(0.5);
-            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_rank.convergence_streak_needed); pause(0.5);
+            fprintf(['   ' lang.run_ranking.convergence_robust '\n']); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.smoothing_window '\n'], cfg_rank.smoothing_window); if use_pause, pause(0.5); end
+            fprintf(['   ' lang.run_ranking.stable_runs '\n'], cfg_rank.convergence_streak_needed); if use_pause, pause(0.5); end
         end
-        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_rank.B_start, cfg_rank.B_step, cfg_rank.B_end); pause(0.5);
-        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_rank.n_trials); pause(0.5);
-        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_rank.convergence_tolerance * 100); pause(0.5);
+        fprintf(['   ' lang.run_ranking.b_range '\n'], cfg_rank.B_start, cfg_rank.B_step, cfg_rank.B_end); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.trials_per_b '\n'], cfg_rank.n_trials); if use_pause, pause(0.5); end
+        fprintf(['   ' lang.run_ranking.tolerance '\n'], cfg_rank.convergence_tolerance * 100); if use_pause, pause(0.5); end
     end
 
     fprintf('--------------------------------------------------\n');

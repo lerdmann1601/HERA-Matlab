@@ -99,17 +99,22 @@ function [userInput, config, configLoadedFromFile, main_choice] = MainConfig(def
                 userInput.num_workers = UserInterface.get_worker_input(lang.prompts.workers, defaults.num_workers, lang);
                 
                 % Individual bootstrap settings for each analysis step.
+                % Fallback prompt suggestions when defaults.manual_B_* is empty (Automatic Mode default).
+                if ~isempty(defaults.manual_B_thr), manual_b_thr_default = defaults.manual_B_thr; else, manual_b_thr_default = 2000; end
+                if ~isempty(defaults.manual_B_ci),  manual_b_ci_default  = defaults.manual_B_ci;  else, manual_b_ci_default  = 10000; end
+                if ~isempty(defaults.manual_B_rank),manual_b_rank_default = defaults.manual_B_rank;else, manual_b_rank_default = 500; end
+                
                 fprintf('\n%s:\n', lang.prompts.bootstrap_thresholds);
                 [userInput.manual_B_thr, userInput.bootstrap_thresholds] = UserInterface.configure_bootstrap_step(defaults.bootstrap_thresholds, ...
-                    defaults.manual_B_thr, lang.prompts.bootstrap_thresholds, lang);
+                    manual_b_thr_default, lang.prompts.bootstrap_thresholds, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_bca);
                 [userInput.manual_B_ci, userInput.bootstrap_ci] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ci, ...
-                    defaults.manual_B_ci, lang.prompts.bootstrap_bca, lang);
+                    manual_b_ci_default, lang.prompts.bootstrap_bca, lang);
                 
                 fprintf('\n%s:\n', lang.prompts.bootstrap_ranking);
                 [userInput.manual_B_rank, userInput.bootstrap_ranks] = UserInterface.configure_bootstrap_step(defaults.bootstrap_ranks, ...
-                    defaults.manual_B_rank, lang.prompts.bootstrap_ranking, lang);
+                    manual_b_rank_default, lang.prompts.bootstrap_ranking, lang);
                 config = userInput;
                 break; % Exit the choice loop.
             % Case 3: Load configuration from a file.
