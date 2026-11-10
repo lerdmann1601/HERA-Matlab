@@ -61,9 +61,7 @@ end
     num_simulations = double(int32(round(num_simulations)));
 
     for m = 1:num_metrics
-        % Initialize Win Counters for all pairs
-        % We count wins for (i,j) and (j,i) separately
-        % Map pair index k to (i,j)
+        % Initialize win counters for all unique pairwise comparisons k = (i,j)
         win_counts = zeros(num_pairs, 1); 
         
         data_metric = all_data{m};
