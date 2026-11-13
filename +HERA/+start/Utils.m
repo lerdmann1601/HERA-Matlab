@@ -153,9 +153,15 @@ classdef Utils
             % Outputs:
             %   s - (struct) The sanitized structure.
             
+            % Identifier, path, and label fields must never be coerced to numeric types
+            text_fields = {'folderPath', 'output_dir', 'fileType', 'language', ...
+                           'plot_theme', 'ranking_mode', 'metric_names', ...
+                           'available_metrics', 'dataset_names', 'timestamp'};
+
             fields = fieldnames(s);
             for i = 1:numel(fields)
                 val = s.(fields{i});
+                is_text_field = any(strcmp(fields{i}, text_fields));
               
                 if isstruct(val)
                     % Recursively clean struct content (handle struct arrays correctly)
@@ -172,7 +178,7 @@ classdef Utils
                             val{k} = HERA.start.Utils.clean_struct(c_val);
                         elseif isnumeric(c_val)
                             val{k} = double(c_val);
-                        elseif isstring(c_val) || ischar(c_val)
+                        elseif (isstring(c_val) || ischar(c_val)) && ~is_text_field
                              % Convert numeric strings (e.g. "3") to doubles
                              num_val = str2double(c_val);
                              if all(~isnan(num_val), 'all') && all(~isinf(num_val), 'all') && all(isreal(num_val), 'all')
@@ -185,7 +191,7 @@ classdef Utils
                 elseif isnumeric(val)
                     s.(fields{i}) = double(val);
                 
-                elseif isstring(val) || ischar(val)
+                elseif (isstring(val) || ischar(val)) && ~is_text_field
                      % Convert numeric strings (e.g. "3") to doubles
                      num_val = str2double(val);
                      if all(~isnan(num_val), 'all') && all(~isinf(num_val), 'all') && all(isreal(num_val), 'all')

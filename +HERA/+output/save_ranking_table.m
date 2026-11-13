@@ -134,7 +134,7 @@ function save_ranking_table(final_bootstrap_ranks, final_rank, dataset_names, se
                   lang.ranking.csv_frequency_percent, ... 
                   lang.ranking.csv_frequency_count};     
         
-        % Write the header using semicolon as delimiter (to match the data writetable below)
+        % Write the header using comma as delimiter (to match the data writetable below)
         fprintf(fileID, '%s\n', strjoin(header, ','));
         fclose(fileID);
         

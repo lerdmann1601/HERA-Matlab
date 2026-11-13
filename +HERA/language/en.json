@@ -258,6 +258,7 @@
         "import_header": "Importing data from folder: %s",
         "reading_metric": "Reading metric %d: %s",
         "error_non_numeric": "Error in file \"%s\": The file contains non-numeric values. Missing values should be empty or marked as NaN.",
+        "error_min_datasets": "Error in file \"%s\": At least 2 datasets (columns) are required for comparison.",
         "error_inconsistent_subjects": "Inconsistent data: File \"%s\" has %d subjects. The first file had %d.",
         "error_inconsistent_columns": "Inconsistent data: The column names in \"%s\" do not match the first file.",
         "error_loading_failed": "ERROR: The data could not be loaded or validated correctly.",

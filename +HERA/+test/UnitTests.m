@@ -227,6 +227,9 @@ classdef UnitTests < matlab.unittest.TestCase
             inputStruct.val1 = '3';
             inputStruct.val2 = '4.5';
             inputStruct.val3 = 'not_a_number';
+            inputStruct.folderPath = '2026';
+            inputStruct.metric_names = {'1', '2'};
+            inputStruct.dataset_names = {'01', '02'};
             
             result = Utils.clean_struct(inputStruct);
             
@@ -236,6 +239,9 @@ classdef UnitTests < matlab.unittest.TestCase
             testCase.verifyEqual(result.val2, 4.5);
             
             testCase.verifyEqual(result.val3, 'not_a_number', 'Non-numeric strings should be untouched');
+            testCase.verifyEqual(result.folderPath, '2026', 'Numeric-looking paths must stay text');
+            testCase.verifyEqual(result.metric_names, {'1', '2'}, 'Numeric-looking metric names must stay text');
+            testCase.verifyEqual(result.dataset_names, {'01', '02'}, 'Numeric-looking dataset names must stay text');
         end
         
         function test_clean_struct_recursive_cell(testCase)

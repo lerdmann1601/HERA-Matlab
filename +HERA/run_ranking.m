@@ -56,24 +56,35 @@ function results = run_ranking(userInput)
 %          .metric_names - (cell) Names of metrics to analyze (must match filenames).
 %
 %       B) Direct Injection Mode (Developer):
-%          .custom_data  - (cell) {M x 1} Cell array of matrices. Each cell contains an [N_Subjects x N_Datasets] matrix.
-%          .metric_names - (cell) Names of metrics (must match number of matrices).
-%          .system       - (struct) Optional performance settings (e.g., .target_memory, .jack_vec_limit).
-%          .dataset_names- (cell, optional) Names of the columns/datasets.
+%          .custom_data   - (cell) {1 x M} or {M x 1} Cell array of [N_Subjects x N_Datasets] matrices.
+%          .metric_names  - (cell) Names of metrics (must match number of matrices).
+%          .dataset_names - (cell, optional) Names of the columns/datasets.
 %
 %       Common Settings (Optional overrides):
-%          .ranking_mode - (char) 'M1', 'M1_M2', 'M1_M3A', or 'M1_M2_M3' (Default: M1_M2_M3).
-%          .output_dir   - (char) Path to save results (Default: current dir).
-%          .num_workers  - (int) Number of parallel workers or 'auto'.
-%          .ci_level     - (double) Confidence level for Intervals (Default: 0.95).
+%          .ranking_mode  - (char) 'M1', 'M1_M2', 'M1_M3A', or 'M1_M2_M3' (Default: M1_M2_M3).
+%          .output_dir    - (char) Path to save results (Default: current dir).
+%          .num_workers   - (int/char) Number of parallel workers or 'auto'.
+%          .ci_level      - (double) Confidence level for Intervals (Default: 0.95).
+%          .alphas        - (double array) Significance levels per metric (Default: 0.05).
+%          .reproducible  - (logical) Enable fixed RNG seeding (Default: true).
+%          .seed          - (int) Base RNG seed (Default: 123).
+%          .create_reports- (logical) Generate PDF reports and plots (Default: true).
+%          .create_csvs   - (logical) Write BCa/Bootstrap CSV tables (Default: ~quiet_mode).
+%          .quiet_mode    - (logical) Suppress verbose console output and pauses (Default: false).
+%          .manual_B_thr  - (int) Manual bootstrap count for thresholds ([] = auto).
+%          .manual_B_ci   - (int) Manual bootstrap count for CIs ([] = auto).
+%          .manual_B_rank - (int) Manual bootstrap count for ranking ([] = auto).
+%          .system        - (struct) Optional internal performance tuning heuristics.
 %
 % Outputs:
 %   results - (Optional) Struct containing detailed analysis results:
+%       .dataset_names         - {1 x N} Cell array of dataset names.
 %       .final_rank            - [N x 1] Final rank for each dataset (1 = best).
 %       .final_order           - [1 x N] Indices of datasets in ranked order.
 %       .final_bootstrap_ranks - [N x B] Bootstrapped rank distribution for stability analysis.
 %       .ci_lower_rank         - [N x 1] Lower bound of Rank CI.
 %       .ci_upper_rank         - [N x 1] Upper bound of Rank CI.
+%       .thresholds            - Struct of effect size thresholds (.d_thresh, .rel_thresh, .rel_thresh_b, .min_rel_thresh).
 %
 %       .all_sig_matrices      - {1 x M} Cell array of logical matrices (significant wins).
 %       .all_p_value_matrices  - {1 x M} Cell array of raw p-values (Wilcoxon).
@@ -83,14 +94,23 @@ function results = run_ranking(userInput)
 %       .rel_vals_all          - [Pairs x M] Relative differences.
 %       .ci_d_all              - [Pairs x 2 x M] BCa Confidence Intervals for Delta.
 %       .ci_r_all              - [Pairs x 2 x M] BCa Confidence Intervals for RelDiff.
+%       .z0_d_all              - [Pairs x M] BCa bias-correction factors (z0) for Delta.
+%       .a_d_all               - [Pairs x M] BCa acceleration factors (a) for Delta.
+%       .z0_r_all              - [Pairs x M] BCa bias-correction factors (z0) for RelDiff.
+%       .a_r_all               - [Pairs x M] BCa acceleration factors (a) for RelDiff.
 %
 %       .swap_details          - Struct containing logs of logic-based rank swaps.
-%       .intermediate_orders   - Struct containing rankings after each stage (M1, M2...).
+%       .intermediate_orders   - Struct containing rankings after each stage (M1, M2, M3).
 %
 %       .borda_results         - (If sensitivity active) Struct with consensus ranking scores.
 %       .power_results         - (If power active) Struct with post-hoc power estimates.
 %       .all_permutation_ranks - [N x Perms] Ranks for all sensitivity permutations.
 %       .selected_permutations - [Perms x Metrics] Indices of metric permutations.
+%
+%       .stats                 - Struct containing descriptive statistics (.mean, .std).
+%       .config                - Struct containing the resolved run configuration (system heuristics stripped).
+%       .meta                  - Struct containing run metadata (.timestamp, .version, .n_datasets,
+%                                .n_subjects, .pair_indices, .metric_list, .stability_analysis, .bootstrap_B).
 %
 %   Additionally, the function generates the following files in 'userInput.output_dir':
 %       - Log file (.txt) with console output.

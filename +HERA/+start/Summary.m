@@ -39,12 +39,9 @@ function Summary(userInput, configLoadedFromFile, lang)
         end
     end
     % Determine if the graphics theme is relevant for the summary.
-    % It is shown if reports are enabled OR if automatic convergence is used (which generates plots).
-    % If everything is manual and reports are off, no graphics are created, so the theme is irrelevant.
-    show_theme_summary = userInput.create_reports || ...
-                         (isempty(userInput.config.manual_B_thr) || ...
-                          isempty(userInput.config.manual_B_ci) || ...
-                          isempty(userInput.config.manual_B_rank));            
+    % All graphic outputs (including convergence plots) are controlled by create_reports.
+    % When reports are disabled, no graphics are created, so the theme is irrelevant.
+    show_theme_summary = userInput.create_reports;
     if ~configLoadedFromFile
         fprintf('\n%s\n', lang.summary.title);
         pause(0.5);

@@ -73,6 +73,8 @@ end
         % This is necessary because Holm-Bonferroni requires all pairs to be calculated together.
         parfor sim = 1:num_simulations
             s_worker = s; % Worker-specific stream for reproducibility
+            % Each simulation draws from its own independent substream within a metric; across metrics,
+            % reusing Substream = sim implements Common Random Numbers (paired bootstrap resampling).
             s_worker.Substream = sim;
             
             % 1. Draw Bootstrap Sample

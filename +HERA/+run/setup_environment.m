@@ -130,8 +130,10 @@ function [userInput, setupData] = setup_environment(userInput)
         userInput.config = userInput;
     end
     
-    % Ensure metric_names are synced to config (critical for interactive mode)
+    % Ensure metric_names and auto-corrected parameters are synced to config (critical for interactive mode)
     userInput.config.metric_names = userInput.metric_names;
+    userInput.config.alphas = userInput.alphas;
+    userInput.config.selected_permutations = userInput.selected_permutations;
     
     % Ensure ranking_mode is synced to config (critical for calculate_ranking logic)
     if isfield(userInput, 'ranking_mode')

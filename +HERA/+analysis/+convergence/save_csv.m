@@ -33,7 +33,7 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
         try
             s_fid = fopen(scenarios_filename, 'w');
             if s_fid ~= -1
-                fprintf(s_fid, 'Index;Scenario_Name;n;Distribution;Data_Summary\n');
+                fprintf(s_fid, 'Index,Scenario_Name,n,Distribution,Data_Summary\n');
                 fclose(s_fid);
                 
                 s_T = cell(length(scenarios), 5);
@@ -51,7 +51,7 @@ function save_config_csv(modes, scenarios, params, out_dir, ts_str)
             p_fid = fopen(p_filename, 'w');
             if p_fid ~= -1
                 mode_str = strjoin(modes, ',');
-                fprintf(p_fid, 'Metric;Parameter;%s\n', mode_str);
+                fprintf(p_fid, 'Metric,Parameter,%s\n', mode_str);
                 fclose(p_fid);
                 
                 param_metrics = {};
@@ -137,7 +137,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
     if can_write_global
         if write_header
             % Header for Aggregated Data
-            fprintf(global_fid, 'Scenario;Metric;Mode;Median_Cliffs_d;Median_Error;IQR_Error;Error_Q1;Error_Q3;CI95_Lower;CI95_Upper;Min_Error;Max_Error;Median_Cost_B;IQR_Cost_B;Cost_Q1;Cost_Q3;Cost_CI95_Lower;Cost_CI95_Upper;Min_Cost;Max_Cost;Failure_Rate_Percent\n');
+            fprintf(global_fid, 'Scenario,Metric,Mode,Median_Cliffs_d,Median_Error,IQR_Error,Error_Q1,Error_Q3,CI95_Lower,CI95_Upper,Min_Error,Max_Error,Median_Cost_B,IQR_Cost_B,Cost_Q1,Cost_Q3,Cost_CI95_Lower,Cost_CI95_Upper,Min_Cost,Max_Cost,Failure_Rate_Percent\n');
         end
         fclose(global_fid);
     else
@@ -177,7 +177,7 @@ function save_results_csv(results, modes, out_dir, ts_str)
             end
 
             % Write Header for Detailed Scenario File (Raw Data)
-            fprintf(fileID, 'SimID;Metric;Mode;Error;Cost;Fail\n');
+            fprintf(fileID, 'SimID,Metric,Mode,Error,Cost,Fail\n');
             fclose(fileID);
             
             % Iterate over each metric type

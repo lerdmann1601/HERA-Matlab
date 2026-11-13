@@ -146,6 +146,9 @@ end
                 
                 % Extract the raw data matrix
                 metric_data = T{:, 2:end};
+                if size(metric_data, 2) < 2
+                    error(lang.load_data.error_min_datasets, [metric_name, file_extension]);
+                end
                 % Handle cases where data might be loaded as a cell array (e.g., with empty cells)
                 if iscell(metric_data)
                      % Replace empty cells with NaN for consistent numerical processing

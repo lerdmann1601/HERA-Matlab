@@ -45,7 +45,7 @@ def run_ranking(userInput: Dict[str, Any], **kwargs: Any) -> Dict[str, Any]:
         # Direct Injection Mode (NumPy arrays are automatically converted)
         config = {
             "custom_data": [numpy_array_1, numpy_array_2],
-            "metric_names": ["Runtime", "Accuracy"],
+            "metric_names": ["Throughput", "Accuracy"],
             "ranking_mode": "M1_M2",
             # ... other options
         }

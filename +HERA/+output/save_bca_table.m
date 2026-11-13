@@ -108,8 +108,8 @@ function save_bca_table(z0_d_all, a_d_all, z0_r_all, a_r_all, metric_names, lang
         header = {'Metric', lang.csv.headers.effect_size, lang.csv.headers.correction_factor, ...
                   lang.csv.headers.median, lang.csv.headers.mean, ...
                   lang.csv.headers.min, lang.csv.headers.max};
-        % Write the header and close file
-        fprintf(fileID, '%s;%s;%s;%s;%s;%s;%s\n', header{:});
+        % Write the header using comma delimiter (matching the numeric rows below) and close file
+        fprintf(fileID, '%s\n', strjoin(header, ','));
         fclose(fileID);
         
         % Pre-allocate cell array for string formatting

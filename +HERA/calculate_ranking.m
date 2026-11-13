@@ -192,7 +192,7 @@ for metric_idx = 1:num_metrics
             r_val = rel_vals(pair_idx);
             
             % Additional check if the effect sizes exceed the thresholds (practical relevance).
-            % Fix: Added epsilon (1e-9) to handle floating point issues where d_val == d_thr
+            % Fix: Added epsilon (1e-9) to handle floating point issues where d_val == d_thr or r_val == r_thr
             if abs(d_val) >= (d_thr - 1e-9) && r_val >= (r_thr - 1e-9)
                 if d_val > 0 % d_val > 0 means i is better than j (x > y in calculation).
                     sig_matrix(i, j) = true;

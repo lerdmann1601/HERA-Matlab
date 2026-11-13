@@ -109,11 +109,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
     results.meta.timestamp = base_name;
     results.meta.pair_indices = analysis_results.pair_idx_all;
     
-    if isfield(userInput, 'available_metrics')
-        results.meta.metric_list = userInput.available_metrics;
-    else
-        results.meta.metric_list = metric_names;
-    end
+    results.meta.metric_list = metric_names;
     
     results.meta.stability_analysis = struct();
     results.meta.stability_analysis.thresholds = analysis_results.stability_data_thr;
@@ -219,7 +215,7 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         json_export_data.meta.timestamp = shared_info.log_basename;
         
         json_export_data.meta.pair_indices = shared_info.pair_idx_all;
-        json_export_data.meta.metric_list = shared_info.available_metrics;
+        json_export_data.meta.metric_list = shared_info.metric_names;
         
         % bootstrap_B
         json_export_data.meta.stability_analysis = struct();
@@ -292,6 +288,6 @@ function results = export_results(analysis_results, all_data, dataset_names, num
         if exist('fid', 'var') && fid ~= -1
             fclose(fid);
         end
-        fprintf([lang.errors.file_save_error_details '\n'], ME.message); 
+        fprintf([lang.errors.json_save_error_details '\n'], ME.message);
     end
 end

@@ -57,10 +57,10 @@ function start_ranking(varargin)
 %
 %   7.  Graphics & Output:
 %       - Selects the graphical theme for all plots ('light', 'dark', 'colourblind light', or 'colourblind dark').
-%       - Report Generation: Option to enable/disable the creation of PDF reports 
-%         and complex summary plots ('create_reports'). 
-%         Disabling this puts the tool in "Diagnostic Batch Mode" (faster execution, 
-%         only JSON/CSV data and essential convergence plots are saved).
+%       - Report & Plot Generation: Option to enable/disable the creation of PDF reports
+%         and all graphic plots ('create_reports'), including convergence plots.
+%         Disabling this puts the tool in "Data-Only Mode" (faster execution,
+%         only JSON/CSV data and log files are saved).
 %       - Defines the main output folder where all results will be saved.
 %       - Offers to save the current settings as a reusable .json configuration file.
 %

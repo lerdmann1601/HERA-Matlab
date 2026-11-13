@@ -55,13 +55,8 @@ function [userInput, config] = Statistics(userInput, config, configLoadedFromFil
         %% Report Generation and Graphics Style
         userInput.create_reports = UserInterface.get_yes_no_input(lang.prompts.create_reports, defaults.create_reports, lang);
         
-        % Logic: Only ask for Theme if we are creating reports, OR if we are doing automatic convergence
-        ask_for_theme = false;
-        if userInput.create_reports
-            ask_for_theme = true;
-        elseif isempty(config.manual_B_thr) || isempty(config.manual_B_ci) || isempty(config.manual_B_rank)
-            ask_for_theme = true; % Need theme for convergence plots
-        end
+        % Only ask for Theme when graphic reports and plots are enabled (create_reports == false skips all plots)
+        ask_for_theme = userInput.create_reports;
 
         userInput.plot_theme = 'light'; % Default theme.
         if ask_for_theme
