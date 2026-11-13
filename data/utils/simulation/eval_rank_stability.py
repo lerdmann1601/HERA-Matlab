@@ -178,7 +178,17 @@ def main() -> None:
     total_tasks = len(tasks)
     print(f"[Stability Benchmark] Launching {total_tasks} trials across N={candidate_scales} (pooled across sigma in {noise_levels}%)...")
     
-    out_csv = DATA_DIR / "Simulation_Output" / "candidate_ranks.csv"
+    sim_link = DATA_DIR / "Simulation_Output"
+    if sim_link.exists():
+        run_dir = sim_link.resolve()
+        csvs_dir = run_dir / "CSVs" if (run_dir / "CSVs").exists() or (run_dir / "Graphics").exists() else run_dir
+        plots_dir = run_dir / "Graphics" if (run_dir / "Graphics").exists() or (run_dir / "CSVs").exists() else (run_dir / "plots")
+    else:
+        run_dir = DATA_DIR / "results" / f"Rank_Stability_{time.strftime('%Y%m%d_%H%M%S')}"
+        csvs_dir = run_dir / "CSVs"
+        plots_dir = run_dir / "Graphics"
+
+    out_csv = csvs_dir / "candidate_ranks.csv"
     out_csv.parent.mkdir(parents=True, exist_ok=True)
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         pd.DataFrame(columns=CANDIDATE_RANK_COLUMNS).to_csv(f, index=False)
@@ -206,7 +216,6 @@ def main() -> None:
         from . import plot_results
     except ImportError:
         import plot_results
-    plots_dir = DATA_DIR / "Simulation_Output" / "plots"
     plots_dir.mkdir(parents=True, exist_ok=True)
     plot_results.plot_candidate_rank_stability(plots_dir / "middle_field_rank_stability.png", out_csv)
     print(f"[Done] Figure 10 re-rendered with all 3 scales: {plots_dir / 'middle_field_rank_stability.png'}")

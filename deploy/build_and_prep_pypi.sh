@@ -12,12 +12,12 @@ set -e
 #   upload to a GitHub Release.
 #
 # Workflow:
-#   1.  MATLAB Build: Triggers 'build_HERA_python' if MATLAB is available.
+#   1.  MATLAB Build: Triggers 'build_hera_python' if MATLAB is available.
 #   2.  Verification: Checks if the package was generated correctly.
 #   3.  Distribution: Runs 'python3 -m build' to generate distribution artifacts.
 #
 # Inputs:
-#   None (Relies on 'build_HERA_python.m' in the same directory)
+#   None (Relies on 'build_hera_python.m' in the same directory)
 #
 # Outputs:
 #   Distribution files are placed in 'deploy/dist'.

@@ -46,16 +46,15 @@ Instead of running `python3 script.py`, run:
 
 You may want to add this to your PATH variable for easier access.
 
-> [!WARNING]
+> [!NOTE]
 > **Python Version Compatibility:**
-> HERA (via MATLAB Runtime) currently supports **Python 3.9, 3.10, 3.11, and 3.12**.
-> **Python 3.13 is NOT supported.**
+> HERA (via MATLAB Runtime R2025b) **officially supports Python 3.9, 3.10, 3.11, and 3.12**.
 >
-> If you have Python 3.13 installed, `mwpython` will fail to load your packages.
-> **Solution:** Create and activate a Virtual Environment with Python 3.12 before running `mwpython`.
+> **Python 3.13+** is also usable (via the Python Stable ABI `abi3`), but MATLAB Runtime will emit a `UserWarning` upon import indicating that your Python version is newer than the officially validated 3.9–3.12 range.
+> If you prefer a strictly validated environment without compatibility warnings, create and activate a Virtual Environment with Python 3.12 before running `mwpython`:
 >
 > ```bash
-> # Example using brew to install python 3.12
+> # Optional: Virtual Environment with officially supported Python 3.12
 > brew install python@3.12
 > /opt/homebrew/bin/python3.12 -m venv .venv_hera
 > source .venv_hera/bin/activate
@@ -197,7 +196,7 @@ hera.terminate()
 ### Prerequisites
 
 * **MATLAB** with the **MATLAB Compiler SDK** (which provides `compiler.build.pythonPackage`).
-* **Python 3.9–3.12** with `pip` and the `venv` module installed locally.
+* **Python 3.9+** with `pip` and the `venv` module installed locally (Python 3.9–3.12 officially supported by MATLAB Runtime; Python 3.13+ emits a compatibility warning).
 * A clean Git working directory with the appropriate release tag checked out (e.g., `v1.4.9`).
 
 ### Step 1: Build Distribution Artifacts

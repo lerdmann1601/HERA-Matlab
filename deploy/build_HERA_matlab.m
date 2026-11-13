@@ -1,8 +1,8 @@
 function build_HERA_matlab()
-% BUILD_HERA - Compiles HERA and creates an Installer with auto-runtime download.
+% BUILD_HERA_MATLAB - Compiles HERA and creates an Installer with auto-runtime download.
 %
 % Syntax:
-%   build_hera()
+%   build_HERA_matlab()
 %
 % Description:
 %   This script automates the deployment process using the 'compiler.build' workflow.
@@ -28,7 +28,7 @@ function build_HERA_matlab()
 clc
     %% 1. Initialization and Path Detection
     % Determine the project root directory relative to this script.
-    % This script is located in <ProjectRoot>/deploy/build_hera.m
+    % This script is located in <ProjectRoot>/deploy/build_HERA_matlab.m
     
     % Get the full path of this script
     scriptPath = mfilename('fullpath');
@@ -113,7 +113,7 @@ clc
                 searchPattern = 'if \[ "x\$1" = "x" \]; then(.*?)else';
                 
                 replacePattern = [ ...
-                    'if [ "x$1" = "x" ] || [ ! -d "$1/runtime/maca64" ]; then\n' ...
+                    'if [ "x$1" = "x" ] || [ ! -d "$1/runtime/' computer('arch') '" ]; then\n' ...
                     '  echo "=========================================="\n' ...
                     '  echo "ERROR: Missing or invalid MATLAB Runtime directory."\n' ...
                     '  echo "Usage: $0 <deployedMCRroot> [args]"\n' ...

@@ -46,7 +46,7 @@ jobs:
             addpath('deploy');
             build_HERA_matlab();
             package_HERA_toolbox();
-            build_HERA_python();
+            build_hera_python();
 
 
       - name: Archive Artifacts

@@ -33,7 +33,7 @@ The workflow performs the following steps:
    system (macOS/Linux/Windows) using the `deploy/build_HERA_matlab.m` script.
 3. **Toolbox Packaging**: Packages the code as a MATLAB Toolbox (`.mltbx`) using
 `package_HERA_toolbox.m`.
-4. **Python Build**: Compiles the Python interface using `build_HERA_python.m`.
+4. **Python Build**: Compiles the Python interface using `build_hera_python.m`.
 5. **Artifact Upload**: Uploads the compiled installer, toolbox, and Python
    package as build artifacts, which can be downloaded from the GitHub Actions
    run page.

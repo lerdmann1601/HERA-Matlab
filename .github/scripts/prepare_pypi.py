@@ -266,8 +266,9 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
         'Topic :: Software Development :: Libraries :: Python Modules',
     ]
 
-    # Python Version Constraint
-    setup_dict['python_requires'] = '>=3.9, <3.13'
+    # Python Version Constraint (MATLAB R2025b links against abi3; Python 3.13+
+    # works with MATLAB Runtime's built-in compatibility UserWarning)
+    setup_dict['python_requires'] = '>=3.9'
     
     # Add dependencies
     setup_dict['install_requires'] = ['outdated>=0.2.0']
@@ -324,6 +325,9 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                 # --- INJECTED RUNTIME CHECK END ---
                 """)
             
+            init_func_regex = re.compile(
+                r'def initialize\(\):\n(?:[ \t]+"""[\s\S]*?"""\n)?[ \t]+return _pir\.initialize_package\(\)'
+            )
             init_func_pattern = "def initialize():"
             init_check_code = textwrap.dedent(f"""\
                 __version__ = "{new_version}"
@@ -341,6 +345,7 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                         pass
 
                 def initialize():
+                    \"\"\"Initialize package and return a wrapped HERA runtime handle.\"\"\"
                     # Check for updates (non-blocking)
                     warn_if_outdated()
                     
@@ -352,14 +357,16 @@ def prepare_distribution(target_dir: Optional[str] = None) -> None:
                         print("    python3 -m hera_matlab.install_runtime")
                         raise _initialization_error
                     
-                    # Return Smart Wrapper
+                    # Return Smart Wrapper around initialized MATLAB package handle
                     from .runtime_wrapper import HeraSmartWrapper
-                    return HeraSmartWrapper(_pir.get_matlab_instance())
-                """)
+                    return HeraSmartWrapper(_pir.initialize_package())""")
 
             if strict_init_pattern in init_content:
                 init_content = init_content.replace(strict_init_pattern, robust_init_block)
-                init_content = init_content.replace(init_func_pattern, init_check_code)
+                if init_func_regex.search(init_content):
+                    init_content = init_func_regex.sub(lambda _: init_check_code, init_content, count=1)
+                else:
+                    init_content = init_content.replace(init_func_pattern, init_check_code + "\n", 1)
                 with open(init_path, "w") as f:
                     f.write(init_content)
                 print("  - Success: __init__.py patched.")

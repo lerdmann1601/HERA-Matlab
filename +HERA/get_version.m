@@ -5,8 +5,8 @@ function version_str = get_version()
 %   version_str = HERA.get_version()
 %
 % Description:
-%   Attempts to retrieve the version string from the Git repository using 'git describe --tags --always --dirty'. 
-%   This provides improved traceability by including the latest tag, commit offset, and dirty state.
+%   Attempts to retrieve the latest release tag from the Git repository using 'git describe --tags --abbrev=0'.
+%   This ensures consistent release version labeling across deployments and outputs.
 %
 %   If the Git command fails (e.g., Git not installed, not a repository, 
 %   or no tags found), it falls back to defined default version. 
@@ -14,7 +14,7 @@ function version_str = get_version()
 %   Please make sure to update this version if a new tag is created!
 %
 % Outputs:
-%   version_str - (char) The version string (e.g., 'v1.4.2').
+%   version_str - (char) The version string (e.g., 'v1.4.9').
 %
 % Author: Lukas von Erdmannsdorff
 

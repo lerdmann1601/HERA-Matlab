@@ -49,6 +49,7 @@ import matplotlib.pyplot as plt
 
 # --- Configuration ---
 BASE_DIR = Path(__file__).parent.resolve()
+REPO_ROOT = BASE_DIR.parent.parent
 DATA_DIR = BASE_DIR / "data"
 RESULTS_DIR = BASE_DIR / "results"
 
@@ -56,19 +57,19 @@ RESULTS_DIR = BASE_DIR / "results"
 CURRENT_OS = platform.system()
 
 if CURRENT_OS == "Darwin":
-    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "macos"
+    DEFAULT_DEPLOY_DIR = REPO_ROOT / "release" / "macos"
     DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
     DEFAULT_MCR_PATH = "/Applications/MATLAB_R2025b.app" 
 elif CURRENT_OS == "Windows":
-    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "windows"
+    DEFAULT_DEPLOY_DIR = REPO_ROOT / "release" / "windows"
     DEFAULT_EXE_NAME = "HERA_Runtime.exe"
     DEFAULT_MCR_PATH = r"C:\Program Files\MATLAB\R2025b"
 elif CURRENT_OS == "Linux":
-    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release" / "linux"
+    DEFAULT_DEPLOY_DIR = REPO_ROOT / "release" / "linux"
     DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
     DEFAULT_MCR_PATH = "/usr/local/MATLAB/R2025b"
 else:
-    DEFAULT_DEPLOY_DIR = BASE_DIR.parent.parent.parent / "release"
+    DEFAULT_DEPLOY_DIR = REPO_ROOT / "release"
     DEFAULT_EXE_NAME = "run_HERA_Runtime.sh"
     DEFAULT_MCR_PATH = ""
 
@@ -213,8 +214,7 @@ class HERAWorkflow:
             logging.warning(" -> PyPI install seemed successful but import failed.")
         
         # 2. Fallback: Look for wheels in the project deploy/dist directory
-        project_root = BASE_DIR.parent.parent.parent
-        dist_dir = project_root / "deploy" / "dist"
+        dist_dir = REPO_ROOT / "deploy" / "dist"
 
         if not dist_dir.exists():
             logging.warning(f"[Warning] Distribution directory not found at {dist_dir}. Cannot auto-install.")
@@ -259,10 +259,11 @@ class HERAWorkflow:
         
         # 2. Check Release/Deploy and Standard Installation Paths
         potential_dirs = [
-            BASE_DIR.parent.parent.parent / "release" / "macos",
-            BASE_DIR.parent.parent.parent / "release" / "windows",
-            BASE_DIR.parent.parent.parent / "release" / "linux",
-            BASE_DIR.parent.parent.parent / "deploy" / "output",
+            REPO_ROOT / "release" / "macos",
+            REPO_ROOT / "release" / "windows",
+            REPO_ROOT / "release" / "linux",
+            REPO_ROOT / "deploy" / "output" / "matlab",
+            REPO_ROOT / "deploy" / "output",
             Path("/Applications/HERA_Runtime/application"),
             Path("C:/Program Files/HERA_Runtime/application"),
             Path(f"{Path.home()}/Applications/HERA_Runtime/application"),
@@ -277,7 +278,7 @@ class HERAWorkflow:
                 return exe_path
                 
         # 3. Fallback: HERA_Launcher.command (Mac specific)
-        launcher_path = BASE_DIR.parent.parent.parent / "release" / "macos" / "HERA_Launcher.command"
+        launcher_path = REPO_ROOT / "release" / "macos" / "HERA_Launcher.command"
         if launcher_path.exists():
             return launcher_path
 
@@ -339,7 +340,7 @@ class HERAWorkflow:
              logging.error(f"\n[Error] HERA executable NOT found and MATLAB is NOT in the system path!")
              logging.info(f"  To fix this, either:")
              logging.info(f"  1. Install the 'hera_matlab' Python package.")
-             logging.info(f"  2. Build the project using 'deploy/build_hera.m'")
+             logging.info(f"  2. Build the project using 'deploy/build_HERA_matlab.m'")
              logging.info(f"  3. Ensure 'matlab' is accessible from the terminal.")
              return False
 
@@ -366,7 +367,7 @@ class HERAWorkflow:
                 return False
         else:
             # Local MATLAB
-            repo_root = BASE_DIR.parent.parent.parent.resolve()
+            repo_root = REPO_ROOT.resolve()
             matlab_cmd_str = f"setup_HERA; HERA.start_ranking('configFile', '{config_path}');"
             cmd = [str(hera_cmd), "-batch", matlab_cmd_str]
             
