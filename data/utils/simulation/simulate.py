@@ -14,7 +14,7 @@ import shutil
 import signal
 import logging
 from pathlib import Path
-from typing import Callable, Dict, List, Tuple, Any, Optional
+from typing import Callable, Dict, List, Tuple, Any
 from collections import deque
 import multiprocessing as mp
 import concurrent.futures
@@ -539,6 +539,9 @@ def run_sliding_window_pipeline(
 
                         if is_tty:
                             clear_terminal_line()
+                        if not track["logged_start"]:
+                            track["logged_start"] = True
+                            log_scenario_header(track, total_scenarios, logger, is_tty)
                         logger.info(
                             f"[{time_str_end}] [Overall: {track['sc_idx']:02d}/{total_scenarios:02d} ({total_study_pct:4.1f}%)] {sc_id} "
                             f"-> Completed in {format_time_duration(sc_duration)} ({sc_avg_iter:4.2f}s/it) | "
@@ -548,7 +551,11 @@ def run_sliding_window_pipeline(
                         # Announce subsequent scenario in strict sequential order
                         next_sc_idx = track["sc_idx"] + 1
                         for _, n_track in scenario_tracker.items():
-                            if n_track["sc_idx"] == next_sc_idx and not n_track["logged_start"]:
+                            if (
+                                n_track["sc_idx"] == next_sc_idx
+                                and not n_track["logged_start"]
+                                and n_track["t_end"] is None
+                            ):
                                 n_track["logged_start"] = True
                                 if n_track["t_start"] is None:
                                     n_track["t_start"] = time.time()

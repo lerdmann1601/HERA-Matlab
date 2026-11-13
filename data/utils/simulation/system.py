@@ -16,10 +16,8 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from contextlib import contextmanager
 
-from .config import (
-    SEED, NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS,
-    HERA_CONFIG, TOPSIS_WEIGHTS
-)
+from . import config as _sim_config
+from .config import SEED, NUM_CANDIDATES_LIST, SAMPLE_SIZES, NOISE_LEVELS
 
 
 @contextmanager
@@ -241,7 +239,13 @@ def print_study_header(
     """
     total_runs = len(scenarios) * iterations
     ram_per_worker = (ram_gb - 3.0) / max(1, num_workers)
-    w_disp = [round(float(w), 4) for w in TOPSIS_WEIGHTS]
+    w_disp = [round(float(w), 4) for w in _sim_config.TOPSIS_WEIGHTS]
+    active_hera_cfg = _sim_config.HERA_CONFIG
+    backend_desc = (
+        "Compiled Python Package (hera_matlab)"
+        if hera_mode == "python_pkg"
+        else "MATLAB CLI -singleCompThread"
+    )
     
     div_heavy = "=" * 70
     div_light = "-" * 70
@@ -256,7 +260,7 @@ def print_study_header(
     logger.info(f"  Physical Memory:       {ram_gb:.1f} GB RAM (~{ram_per_worker:.1f} GB/worker allocated)")
     logger.info(f"  Parallel Processing:   {num_workers} concurrent worker processes (Sliding-Window Pipeline)")
     logger.info(f"  Python Environment:    {platform.python_version()}")
-    logger.info(f"  HERA Engine Backend:   {hera_mode} (MATLAB CLI -singleCompThread)")
+    logger.info(f"  HERA Engine Backend:   {hera_mode} ({backend_desc})")
     logger.info(f"  PRNG Random Seed:      {seed} (Deterministic PCG64 stream per condition)")
     logger.info(f"  Total Evaluations:     {total_runs} Monte Carlo runs ({total_runs * 4} ranking outputs)")
     logger.info(div_light)
@@ -268,18 +272,17 @@ def print_study_header(
     logger.info("    * Small:  Delta =  2.5%  ==>  Cliff's d ~ 0.25 (range: 0.20 - 0.30)")
     logger.info("    * Medium: Delta =  5.0%  ==>  Cliff's d ~ 0.50 (range: 0.45 - 0.60)")
     logger.info("    * Large:  Delta =  8.0%  ==>  Cliff's d ~ 0.80 (range: 0.75 - 0.90)")
-    logger.info("    * Stress: Delta = 12.0%  ==>  Cliff's d ~ 0.95 (range: > 0.90)")
     logger.info(f"  Inter-Metric Coupling: rho in {{0.0 (Independent), 0.5 (Correlated)}}")
     logger.info(div_light)
     logger.info(" Synthetic Multi-Metric Ground-Truth Paradigm:")
-    logger.info("  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: ~80.0%)")
-    logger.info("  Secondary Metric (M2): Secondary priority criterion (C1 holds +7.0% margin over C2)")
-    logger.info("  Tertiary Metric (M3):  Tie-breaking criterion (C4 tertiary margin: 85.0%)")
-    logger.info("  Asymmetric Profile (C_N): Trade-off model (Deficit M2: 60.0%, Elevated M3: 99.0%)")
+    logger.info("  Primary Metric (M1):   Primary benchmark ranking criterion (Baseline: 80.0%)")
+    logger.info("  Secondary Metric (M2): Secondary priority criterion (Baseline: 75.0%; C1 holds +7.0% margin over C2)")
+    logger.info("  Tertiary Metric (M3):  Tie-breaking criterion (Baseline: 80.0%; C4 holds +Delta margin over C5)")
+    logger.info("  Asymmetric Profile (C_N): Trade-off model (M1: 75.0%, Deficit M2: 60.0%, Elevated M3: 99.0%)")
     logger.info(div_light)
     logger.info(" Statistical & Algorithmic Configurations:")
-    logger.info(f"  HERA Ranking Mode:     {HERA_CONFIG['ranking_mode']} (Sequential Non-Compensatory Hierarchical)")
-    logger.info(f"  HERA Threshold Bootstr: Percentile Null Bootstrap (B_thr = {HERA_CONFIG['manual_B_thr']})")
+    logger.info(f"  HERA Ranking Mode:     {active_hera_cfg['ranking_mode']} (Sequential Non-Compensatory Hierarchical)")
+    logger.info(f"  HERA Threshold Bootstr: Percentile Null Bootstrap (B_thr = {active_hera_cfg['manual_B_thr']})")
     logger.info("  HERA Decision Logic:   Holm-Bonferroni FWER Control (alpha = 0.05), Cliff's d Dominance")
     logger.info(f"  MCDM Baseline Methods: TOPSIS (Weights: {w_disp}), Borda Count,")
     logger.info("                         Wilcoxon-Copeland (Step-Down Holm FWER Control, alpha = 0.05)")

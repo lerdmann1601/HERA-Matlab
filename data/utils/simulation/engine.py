@@ -7,8 +7,8 @@ and the local MATLAB CLI backend with isolated single-thread allocation (-single
 Author: Lukas von Erdmannsdorff
 """
 
-import sys
 import glob
+import atexit
 import shutil
 import platform
 import logging
@@ -112,7 +112,8 @@ class HERAExecutor:
 
         Parameters:
             config_path (Path): Path to the temporary JSON configuration file for the run.
-            timeout (float): Execution timeout in seconds (default: 300.0).
+            timeout (float): Execution timeout in seconds for MATLAB CLI subprocess calls
+                (not enforced in `python_pkg` mode; default: 300.0).
 
         Returns:
             None
@@ -124,7 +125,8 @@ class HERAExecutor:
             if self.mode == "python_pkg":
                 self.engine.start_ranking("configFile", str(config_path.resolve()), nargout=0)
             elif self.mode == "matlab_cli":
-                cmd_str = f"setup_HERA; HERA.start_ranking('configFile', '{config_path.resolve()}');"
+                escaped_cfg = str(config_path.resolve()).replace("'", "''")
+                cmd_str = f"setup_HERA; HERA.start_ranking('configFile', '{escaped_cfg}');"
                 # Enforce -singleCompThread to prevent core oversubscription among parallel workers
                 cmd = [
                     str(self.matlab_bin),
@@ -161,6 +163,8 @@ class HERAExecutor:
                     self.engine.terminate()
             except Exception:
                 pass
+            finally:
+                self.engine = None
 
 
 # Global worker executor singleton for multiprocessing worker processes
@@ -190,4 +194,5 @@ def get_worker_executor(repo_root: Path) -> HERAExecutor:
     global _WORKER_EXECUTOR
     if _WORKER_EXECUTOR is None:
         _WORKER_EXECUTOR = HERAExecutor(logger=None, repo_root=repo_root)
+        atexit.register(_WORKER_EXECUTOR.terminate)
     return _WORKER_EXECUTOR

@@ -14,7 +14,7 @@ from typing import Any, Dict, List, Optional
 import numpy as np
 from scipy import stats
 
-from .config import HERA_CONFIG, TOPSIS_WEIGHTS
+from . import config as _sim_config
 from .engine import HERAExecutor
 
 
@@ -53,7 +53,7 @@ def run_hera_ranking(
         shutil.rmtree(output_dir, ignore_errors=True)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    active_cfg = hera_config if hera_config is not None else HERA_CONFIG
+    active_cfg = hera_config if hera_config is not None else _sim_config.HERA_CONFIG
     detected_metrics = sorted(f.stem for f in input_dir.glob("M*.csv"))
     metric_names = detected_metrics if detected_metrics else ["M1", "M2", "M3"]
 
@@ -72,7 +72,7 @@ def run_hera_ranking(
         "manual_B_thr": active_cfg["manual_B_thr"],
         "manual_B_ci": active_cfg["manual_B_ci"],
         "manual_B_rank": active_cfg["manual_B_rank"],
-        "reproducible": True
+        "reproducible": bool(active_cfg.get("reproducible", True))
     }
     if seed is not None:
         user_input["seed"] = int(seed)
@@ -141,7 +141,7 @@ def run_topsis_baseline(
     """
     cands = list(data_dict.keys())
     means = np.array([np.mean(data_dict[c], axis=0) for c in cands], dtype=np.float64)
-    active_weights = np.asarray(weights, dtype=np.float64) if weights is not None else TOPSIS_WEIGHTS
+    active_weights = np.asarray(weights, dtype=np.float64) if weights is not None else _sim_config.TOPSIS_WEIGHTS
 
     if _PYMCDM_AVAILABLE:
         try:
@@ -320,8 +320,10 @@ def evaluate_ranking(
     Parameters:
         pred_rank_dict (Dict[str, int]): Predicted integer ranks per candidate.
         true_order (List[str]): Ground-truth ordered candidate identifiers.
-        true_means (Optional[Dict[str, List[float]]]): Ground-truth mean performance vectors (retained for API compatibility).
-        suite (str): Active experimental benchmark suite name.
+        true_means (Optional[Dict[str, List[float]]]): Ground-truth mean performance vectors
+            (unused; retained for API backwards-compatibility).
+        suite (str): Active experimental benchmark suite name
+            (unused; retained for API backwards-compatibility).
 
     Returns:
         Dict[str, float]: Dictionary mapping evaluation metric names to calculated scores.
@@ -355,7 +357,7 @@ def evaluate_ranking(
     false_superiority = inversions / max(1, total_pairs)
 
     # 6. Compensatory Error Rate (selection of compensatory candidate C_N in top half <= N/2)
-    flawed_cand = f"C{n_cands}"
+    flawed_cand = true_order[-1]
     flawed_rank = pred_rank_dict.get(flawed_cand, n_cands)
     comp_error = 1.0 if flawed_rank <= (n_cands // 2) else 0.0
 
@@ -363,7 +365,12 @@ def evaluate_ranking(
     rank_displacement = float(np.mean(np.abs(pred_ranks - true_ranks)))
 
     # 8. Top-Choice Selection Rank Regret: true rank of candidate chosen as #1 minus 1 (0 if true C1 is picked)
-    chosen_best_cand = [c for c, r in pred_rank_dict.items() if r == 1][0]
+    top_cands = [c for c, r in pred_rank_dict.items() if r == 1]
+    if not top_cands:
+        raise ValueError(
+            f"evaluate_ranking expected at least one candidate with rank 1 in pred_rank_dict, got ranks: {sorted(set(pred_rank_dict.values()))}"
+        )
+    chosen_best_cand = top_cands[0]
     top_choice_rank_regret = float(true_order.index(chosen_best_cand))
 
     return {

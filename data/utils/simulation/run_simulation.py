@@ -10,7 +10,7 @@ Methodological validation dimensions:
   * Number of candidates (N in {10, 12, 14})
   * Sample size (n in {25, 50, 100})
   * Noise level (sigma in {2.0, 4.0, 6.0, 8.0, 10.0} %)
-  * Effect magnitude (Delta in {2.5, 5.0, 8.0, 12.0} % / Cliff's d calibration)
+  * Effect magnitude (Delta in {2.5, 5.0, 8.0} % / Cliff's d calibration)
   * Metric correlation (rho in {0.0, 0.5})
 - Quantitative evaluation metrics:
   * Top-Choice Recovery Rate (Accuracy of identifying true top candidate C1)
@@ -86,7 +86,6 @@ os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
 import sys
-import time
 import json
 import shutil
 import atexit
@@ -308,6 +307,8 @@ def main() -> None:
     )
     args, _ = parser.parse_known_args()
     sim_iterations = args.iterations
+    if sim_iterations <= 0:
+        parser.error("--iterations must be a positive integer.")
     sim_seed = args.seed
 
     raw_topsis_w = " ".join(args.topsis_weights) if args.topsis_weights else None
@@ -391,13 +392,17 @@ def main() -> None:
         scenarios = [s for s in scenarios if s["ScenarioID"].upper() in req_ids]
         logger.info(f"[Filter] Scenario ID filter active ({sorted(req_ids)}): selected {len(scenarios)}/{len(all_scenarios)} scenarios.")
 
+    if not scenarios:
+        logger.error("[Error] No scenarios matched the specified --suite / --scenarios filters. Aborting.")
+        sys.exit(1)
+
     if os.environ.get("HERA_SMOKE_TEST") == "1":
         logger.info("[Smoke Test] HERA_SMOKE_TEST detected. Restricting execution to 1 scenario for end-to-end verification.")
         scenarios = scenarios[:1]
         num_workers = min(num_workers, sim_iterations)
 
     # 8. Print Formatted Academic Study Header
-    print_study_header(logger, timestamp, all_scenarios, sim_iterations, ram_gb, num_workers, hera_mode, seed=sim_seed)
+    print_study_header(logger, timestamp, scenarios, sim_iterations, ram_gb, num_workers, hera_mode, seed=sim_seed)
 
     # 9. Export Benchmark Parameter Tables & 300 DPI Publication Graphics
     scenarios_csv, scenarios_png = save_scenario_configuration(all_scenarios, csv_dir, timestamp, graphics_dir=graphics_dir)

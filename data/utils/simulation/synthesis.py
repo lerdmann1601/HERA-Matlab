@@ -82,7 +82,7 @@ def get_ground_truth_means(
              Evaluates whether ranking methods preserve criterion hierarchy when candidates exhibit non-uniform trade-offs.
 
     Parameters:
-        suite (str): Benchmark suite name.
+        suite (str): Benchmark suite name (retained for API backwards-compatibility under the unified paradigm).
         num_candidates (int): Total number of candidate AI models N.
         delta (float): Between-candidate performance delta (%).
 
@@ -165,7 +165,9 @@ def generate_synthetic_data(
     cov = np.full((n_metrics, n_metrics), correlation * (noise_level ** 2))
     np.fill_diagonal(cov, noise_level ** 2)
 
-    # Randomly permute candidate order using dedicated RNG to eliminate input ordering bias
+    # Randomly permute candidate order using dedicated RNG to eliminate input ordering bias.
+    # Cross-module invariant: MCDM baselines break exact score ties using insertion order
+    # via scipy.stats.rankdata(..., method="ordinal"); shuffling ensures tie-breaking is unbiased.
     shuffled_candidates = rng.permutation(candidates).tolist()
 
     # Generate data per candidate: shape (n_samples, n_metrics)

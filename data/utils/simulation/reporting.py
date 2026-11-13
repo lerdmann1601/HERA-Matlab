@@ -19,10 +19,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+from . import config as _sim_config
 from .config import (
     RESULT_COLUMNS, METRIC_COLS, BINARY_METRIC_COLS, ORDINAL_METRIC_COLS,
-    STATISTICAL_EFFECT_COLS, EFFECT_CALIBRATION, HERA_CONFIG, TOPSIS_WEIGHTS,
-    DEFAULT_CANDIDATES, DEFAULT_SAMPLE_SIZE, DEFAULT_NOISE,
+    EFFECT_CALIBRATION, DEFAULT_CANDIDATES, DEFAULT_SAMPLE_SIZE, DEFAULT_NOISE,
     SUITE_CORE, SUITE_SAMPLE_SIZE, SUITE_EFFECT, SUITE_CORRELATION
 )
 
@@ -864,11 +864,12 @@ def save_method_configuration(
     Author:
         Lukas von Erdmannsdorff
     """
-    b_thr = int(HERA_CONFIG.get("manual_B_thr", 2000))
-    raw_mode = str(HERA_CONFIG.get("ranking_mode", "M1_M2_M3"))
+    active_hera_cfg = _sim_config.HERA_CONFIG
+    b_thr = int(active_hera_cfg.get("manual_B_thr", 2000))
+    raw_mode = str(active_hera_cfg.get("ranking_mode", "M1_M2_M3"))
     mode_arrow = raw_mode.replace("_", " -> ")
-    alpha_hera = float(HERA_CONFIG.get("alpha", 0.05))
-    w_str = ", ".join(f"{float(w):.2f}" for w in TOPSIS_WEIGHTS)
+    alpha_hera = float(active_hera_cfg.get("alpha", 0.05))
+    w_str = ", ".join(f"{float(w):.2f}" for w in _sim_config.TOPSIS_WEIGHTS)
 
     records = [
         {

@@ -34,7 +34,7 @@ NOISE_LEVELS = [2.0, 4.0, 6.0, 8.0, 10.0]
 # Small Effect:  Delta =  2.5% -> Median Cliff's d ~ 0.25 (Calibrated range: 0.20 - 0.30)
 # Medium Effect: Delta =  5.0% -> Median Cliff's d ~ 0.50 (Calibrated range: 0.45 - 0.60)
 # Large Effect:  Delta =  8.0% -> Median Cliff's d ~ 0.80 (Calibrated range: 0.75 - 0.90)
-# Stress / Trap: Delta = 12.0% -> Median Cliff's d ~ 0.95 (Calibrated range: > 0.90)
+# Fixed / Legacy: Delta = 12.0% -> Median Cliff's d ~ 0.95 (optional legacy lookup; not in EFFECT_MAGNITUDES grid)
 EFFECT_CALIBRATION = {
     "Small": {
         "delta": 2.5,
@@ -157,26 +157,40 @@ def apply_method_overrides(
     """
     global TOPSIS_WEIGHTS
     if hera_mode is not None:
-        HERA_CONFIG["ranking_mode"] = str(hera_mode)
-        os.environ["HERA_SIM_RANKING_MODE"] = str(hera_mode)
+        mode_str = str(hera_mode)
+        valid_modes = {"M1_M2_M3", "M1_M2", "M1_M3A_M3B"}
+        if mode_str not in valid_modes:
+            raise ValueError(f"Invalid HERA ranking mode '{mode_str}'. Expected one of {sorted(valid_modes)}.")
+        HERA_CONFIG["ranking_mode"] = mode_str
+        os.environ["HERA_SIM_RANKING_MODE"] = mode_str
     if hera_b_thr is not None:
-        HERA_CONFIG["manual_B_thr"] = int(hera_b_thr)
-        os.environ["HERA_SIM_B_THR"] = str(int(hera_b_thr))
+        val = int(hera_b_thr)
+        if val <= 0:
+            raise ValueError(f"hera_b_thr must be positive, got {val}.")
+        HERA_CONFIG["manual_B_thr"] = val
+        os.environ["HERA_SIM_B_THR"] = str(val)
     if hera_b_ci is not None:
-        HERA_CONFIG["manual_B_ci"] = int(hera_b_ci)
-        os.environ["HERA_SIM_B_CI"] = str(int(hera_b_ci))
+        val = int(hera_b_ci)
+        if val <= 0:
+            raise ValueError(f"hera_b_ci must be positive, got {val}.")
+        HERA_CONFIG["manual_B_ci"] = val
+        os.environ["HERA_SIM_B_CI"] = str(val)
     if hera_b_rank is not None:
-        HERA_CONFIG["manual_B_rank"] = int(hera_b_rank)
-        os.environ["HERA_SIM_B_RANK"] = str(int(hera_b_rank))
+        val = int(hera_b_rank)
+        if val <= 0:
+            raise ValueError(f"hera_b_rank must be positive, got {val}.")
+        HERA_CONFIG["manual_B_rank"] = val
+        os.environ["HERA_SIM_B_RANK"] = str(val)
     if topsis_weights is not None:
         if isinstance(topsis_weights, str):
             parsed = _parse_topsis_weights(topsis_weights)
         else:
             parsed = np.asarray(topsis_weights, dtype=np.float64)
-        if parsed.shape == TOPSIS_WEIGHTS.shape:
-            TOPSIS_WEIGHTS[:] = parsed
-        else:
-            TOPSIS_WEIGHTS = parsed
+        if parsed.ndim != 1 or parsed.size != TOPSIS_WEIGHTS.size or not np.all(np.isfinite(parsed)) or np.any(parsed < 0) or np.sum(parsed) <= 0:
+            raise ValueError(
+                f"Invalid TOPSIS weights {parsed.tolist()}: expected {TOPSIS_WEIGHTS.size} finite non-negative weights with positive sum."
+            )
+        TOPSIS_WEIGHTS[:] = parsed
         os.environ["HERA_SIM_TOPSIS_WEIGHTS"] = ",".join(f"{float(w):g}" for w in TOPSIS_WEIGHTS)
 
 

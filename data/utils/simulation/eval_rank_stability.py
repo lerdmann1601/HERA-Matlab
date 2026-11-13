@@ -35,7 +35,7 @@ if str(BASE_DIR) not in sys.path:
 
 try:
     from .config import CANDIDATE_RANK_COLUMNS
-    from .engine import HERAExecutor, get_worker_executor
+    from .engine import get_worker_executor
     from .synthesis import get_ground_truth_means, generate_synthetic_data
     from .mcdm import (
         run_hera_ranking, run_topsis_baseline, run_borda_baseline,
@@ -44,7 +44,7 @@ try:
     from .reporting import append_results_to_csv
 except ImportError:
     from simulation.config import CANDIDATE_RANK_COLUMNS
-    from simulation.engine import HERAExecutor, get_worker_executor
+    from simulation.engine import get_worker_executor
     from simulation.synthesis import get_ground_truth_means, generate_synthetic_data
     from simulation.mcdm import (
         run_hera_ranking, run_topsis_baseline, run_borda_baseline,
@@ -179,6 +179,7 @@ def main() -> None:
     print(f"[Stability Benchmark] Launching {total_tasks} trials across N={candidate_scales} (pooled across sigma in {noise_levels}%)...")
     
     out_csv = DATA_DIR / "Simulation_Output" / "candidate_ranks.csv"
+    out_csv.parent.mkdir(parents=True, exist_ok=True)
     with open(out_csv, "w", newline="", encoding="utf-8") as f:
         pd.DataFrame(columns=CANDIDATE_RANK_COLUMNS).to_csv(f, index=False)
         
@@ -206,6 +207,7 @@ def main() -> None:
     except ImportError:
         import plot_results
     plots_dir = DATA_DIR / "Simulation_Output" / "plots"
+    plots_dir.mkdir(parents=True, exist_ok=True)
     plot_results.plot_candidate_rank_stability(plots_dir / "middle_field_rank_stability.png", out_csv)
     print(f"[Done] Figure 10 re-rendered with all 3 scales: {plots_dir / 'middle_field_rank_stability.png'}")
 

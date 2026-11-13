@@ -28,9 +28,8 @@ Author: Lukas von Erdmannsdorff
 """
 
 import os
-import shutil
 from pathlib import Path
-from typing import Tuple, Dict, List, Optional, Any
+from typing import Tuple, Optional, Any
 from datetime import datetime
 
 import matplotlib
@@ -50,7 +49,6 @@ try:
         DEFAULT_EFFECT, DEFAULT_CORRELATION, NUM_CANDIDATES_LIST,
         SUITE_CORE, SUITE_SAMPLE_SIZE, SUITE_EFFECT, SUITE_CORRELATION
     )
-    from .reporting import compute_superordinate_summary
 except ImportError:
     try:
         from simulation.config import (
@@ -58,7 +56,6 @@ except ImportError:
             DEFAULT_EFFECT, DEFAULT_CORRELATION, NUM_CANDIDATES_LIST,
             SUITE_CORE, SUITE_SAMPLE_SIZE, SUITE_EFFECT, SUITE_CORRELATION
         )
-        from simulation.reporting import compute_superordinate_summary
     except ImportError:
         DEFAULT_CANDIDATES = 12
         DEFAULT_SAMPLE_SIZE = 50
@@ -70,7 +67,6 @@ except ImportError:
         SUITE_SAMPLE_SIZE = "Sample Size Sensitivity"
         SUITE_EFFECT = "Effect Magnitude Sensitivity"
         SUITE_CORRELATION = "Correlation Sensitivity"
-        compute_superordinate_summary = None
 
 # --- Directory Configuration ---
 BASE_DIR = Path(__file__).parent.resolve()
@@ -693,6 +689,37 @@ def plot_master_overview(
     plt.close(fig)
 
 
+def _filter_noise_sweep_baseline(df: pd.DataFrame) -> pd.DataFrame:
+    """Filters simulation results to the baseline noise-sweep condition (n = 50, Medium effect, rho = 0.0).
+
+    Syntax:
+        df_sub = _filter_noise_sweep_baseline(df)
+
+    Description:
+        Restricts the simulation DataFrame to the standardized baseline condition
+        (SampleSize == DEFAULT_SAMPLE_SIZE, EffectMagnitude == DEFAULT_EFFECT,
+        Correlation == DEFAULT_CORRELATION) so that SampleSizeSensitivity trials at
+        sigma = 4.0% (n in {25, 100}) are excluded from noise-sweep plots. Falls back
+        to filtering only by EffectMagnitude and Correlation if SampleSize is absent or
+        the baseline sample size is not present in partial datasets.
+
+    Parameters:
+        df (pd.DataFrame): Raw Monte Carlo simulation results dataset.
+
+    Returns:
+        pd.DataFrame: Filtered subset matching the baseline noise-sweep condition.
+
+    Author:
+        Lukas von Erdmannsdorff
+    """
+    base_mask = (df["EffectMagnitude"] == DEFAULT_EFFECT) & (df["Correlation"] == DEFAULT_CORRELATION)
+    if "SampleSize" in df.columns:
+        sub = df[(df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & base_mask]
+        if not sub.empty:
+            return sub
+    return df[base_mask]
+
+
 def plot_faceted_top_choice(
     df: pd.DataFrame, 
     output_path: Path, 
@@ -720,7 +747,7 @@ def plot_faceted_top_choice(
     Author:
         Lukas von Erdmannsdorff
     """
-    df_core = df[(df["EffectMagnitude"] == "Medium") & (df["Correlation"] == 0.0)]
+    df_core = _filter_noise_sweep_baseline(df)
     candidates = sorted(df_core["Candidates"].unique())
     if not candidates:
         candidates = [10, 12, 14]
@@ -784,7 +811,7 @@ def plot_faceted_complete_rank(
     Author:
         Lukas von Erdmannsdorff
     """
-    df_core = df[(df["EffectMagnitude"] == "Medium") & (df["Correlation"] == 0.0)]
+    df_core = _filter_noise_sweep_baseline(df)
     candidates = sorted(df_core["Candidates"].unique())
     if not candidates:
         candidates = [10, 12, 14]
@@ -848,7 +875,7 @@ def plot_faceted_rank_displacement(
     Author:
         Lukas von Erdmannsdorff
     """
-    df_core = df[(df["EffectMagnitude"] == "Medium") & (df["Correlation"] == 0.0)]
+    df_core = _filter_noise_sweep_baseline(df)
     candidates = sorted(df_core["Candidates"].unique())
     if not candidates:
         candidates = [10, 12, 14]
@@ -943,7 +970,7 @@ def plot_faceted_false_superiority(
     Author:
         Lukas von Erdmannsdorff
     """
-    df_core = df[(df["EffectMagnitude"] == "Medium") & (df["Correlation"] == 0.0)]
+    df_core = _filter_noise_sweep_baseline(df)
     candidates = sorted(df_core["Candidates"].unique())
     if not candidates:
         candidates = [10, 12, 14]
@@ -1654,6 +1681,18 @@ def plot_candidate_rank_stability(
         print("    [Notice] candidate_ranks.csv contains none of the target methods. Skipped Figure 10.")
         return
 
+    # Restrict to the baseline condition annotated in the subtitle (n=50, sigma=4%, Medium effect, rho=0.0)
+    req_cols = {"SampleSize", "Noise", "EffectMagnitude", "Correlation"}
+    if req_cols.issubset(df_ranks.columns):
+        df_base = df_ranks[
+            (df_ranks["SampleSize"] == DEFAULT_SAMPLE_SIZE)
+            & (df_ranks["Noise"] == DEFAULT_NOISE)
+            & (df_ranks["EffectMagnitude"] == DEFAULT_EFFECT)
+            & (df_ranks["Correlation"] == DEFAULT_CORRELATION)
+        ]
+        if not df_base.empty:
+            df_ranks = df_base
+
     # Detect candidate scales present in dataset
     scales = sorted(df_ranks["Candidates"].unique()) if "Candidates" in df_ranks.columns else []
     if not scales:
@@ -2159,9 +2198,11 @@ def plot_pooled_compensatory_stress(
     Author:
         Lukas von Erdmannsdorff
     """
+    if "Suite" not in df.columns:
+        return None
     sub = df[df["Suite"] == "Compensatory"]
     if sub.empty:
-        sub = df
+        return None
     
     target_methods = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland", "Copeland"]
     methods = [m for m in target_methods if m in sub["Method"].unique()]
@@ -2416,8 +2457,10 @@ def plot_superordinate_table_figure(
 
         tau_str = f"{row['KendallTau_Median']:.3f} [{row['KendallTau_IQR']:.3f}]" if "KendallTau_Median" in row and pd.notna(row['KendallTau_Median']) else "N/A"
         fsr_str = f"{row['FalseSuperiority_Median (%)']:.2f} [{row['FalseSuperiority_IQR (%)']:.2f}]" if "FalseSuperiority_Median (%)" in row and pd.notna(row['FalseSuperiority_Median (%)']) else "N/A"
-        disp_str = f"{row['RankDisplacement_Median (Ranks)']:.2f} [{row['RankDisplacement_IQR (Ranks)']:.2f}]" if "RankDisplacement_Median (Ranks)" in row and pd.notna(row['RankDisplacement_Median (Ranks)']) else (
-            f"{row['ExpectedRegret_Median (%)']:.2f} [{row['ExpectedRegret_IQR (%)']:.2f}]" if "ExpectedRegret_Median (%)" in row and pd.notna(row['ExpectedRegret_Median (%)']) else "N/A"
+        disp_str = (
+            f"{row['RankDisplacement_Median (Ranks)']:.2f} [{row['RankDisplacement_IQR (Ranks)']:.2f}]"
+            if "RankDisplacement_Median (Ranks)" in row and pd.notna(row["RankDisplacement_Median (Ranks)"])
+            else "N/A"
         )
 
         # CompensatoryError: Rate (%) or Median [IQR]
@@ -2429,10 +2472,12 @@ def plot_superordinate_table_figure(
             cer_str = "N/A"
 
         scen_name = row.get("Benchmark_Suite", row.get("Superordinate_Scenario", "Grand Pooled"))
+        n_trials_val = row.get("N_Trials")
+        n_trials_str = f"{int(n_trials_val)}" if pd.notna(n_trials_val) else "N/A"
         display_rows.append([
             str(scen_name),
-            str(row["Method"]),
-            f"{int(row['N_Trials'])}",
+            str(row.get("Method", "N/A")),
+            n_trials_str,
             tc_str,
             cr_str,
             tau_str,
