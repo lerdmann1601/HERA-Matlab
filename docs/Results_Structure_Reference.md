@@ -8,7 +8,7 @@
 | `d_val` | Cliff's Delta | Non-parametric effect size measuring the probability of one dataset outperforming another. Range: [-1, 1]. |
 | `r_val` | RelDiff | Percentage-based relative difference of the means between two datasets. |
 | `sig` | Significant | Logical `true` if `p_val <= alpha` (Holm-Bonferroni corrected). |
-| `rel` | Relevant | Logical `true` if `abs(d_val) >= d_thresh` AND `r_val >= rel_thresh`. |
+| `rel` | Relevant | Logical `true` if `abs(d_val) >= d_thresh - 1e-9` AND `r_val >= rel_thresh - 1e-9` (includes a `1e-9` floating-point boundary tolerance on both effect-size thresholds). |
 
 ## Ranking Logic & Hierarchy
 

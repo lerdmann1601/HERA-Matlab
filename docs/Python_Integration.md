@@ -127,7 +127,7 @@ data_m2 = np.array([[1.0, 3.0], [1.2, 2.9]])
 
 config = {
     'custom_data': [data_m1, data_m2],
-    'metric_names': ['Runtime', 'Accuracy'],
+    'metric_names': ['Throughput', 'Accuracy'],
     'dataset_names': ['Method A', 'Method B'],
     'ranking_mode': 'M1_M2',
     'output_dir': 'hera_numpy_results'

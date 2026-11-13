@@ -1,4 +1,4 @@
-Metric;Effect Size;Correction Factor;Median;Mean;Min;Max
+Metric,Effect Size,Correction Factor,Median,Mean,Min,Max
 "OC","Cliff's Delta","Bias (z0)","+0.000","+0.010","-0.152","+0.124"
 "OC","Cliff's Delta","Skewness (a)","+0.000","+0.010","-0.063","+0.101"
 "OC","Relative Difference","Bias (z0)","-0.007","-0.005","-0.056","+0.079"
