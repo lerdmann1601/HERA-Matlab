@@ -7,6 +7,7 @@ Handles incremental streaming CSV export, checkpointing, grand pooled summaries
 Author: Lukas von Erdmannsdorff
 """
 
+import os
 import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Any, Optional
@@ -54,11 +55,58 @@ def append_results_to_csv(
     """
     if not records:
         return
+    csv_path = Path(csv_path)
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    write_header = (not csv_path.exists()) or (csv_path.stat().st_size == 0)
     df_chunk = pd.DataFrame(records)
     cols = expected_cols if expected_cols is not None else (RESULT_COLUMNS if "TopChoice" in df_chunk.columns else list(df_chunk.columns))
-    valid_cols = [c for c in cols if c in df_chunk.columns]
-    df_chunk = df_chunk[valid_cols]
-    df_chunk.to_csv(csv_path, mode="a", header=False, index=False)
+    # Preserve full target column order (filling missing fields with NaN) so rows never misalign with CSV headers
+    df_chunk = df_chunk.reindex(columns=cols)
+    with open(csv_path, mode="a", newline="", encoding="utf-8") as f:
+        df_chunk.to_csv(f, header=write_header, index=False)
+        f.flush()
+        os.fsync(f.fileno())
+
+
+def _compute_binary_rate_stats(vals: np.ndarray) -> Tuple[float, float, float, float]:
+    """
+    Computes mean rate, sample standard deviation, and clipped Wald 95% confidence bounds.
+    """
+    n_obs = len(vals)
+    p = float(np.mean(vals))
+    std_val = float(np.std(vals, ddof=1)) if n_obs > 1 else 0.0
+    # Retain clipped Wald normal-approximation bounds for strict bit-identity with existing CSV outputs
+    se = float(np.sqrt(max(0.0, p * (1.0 - p)) / n_obs))
+    ci_low = float(max(0.0, p - 1.959963984540054 * se))
+    ci_high = float(min(1.0, p + 1.959963984540054 * se))
+    return p, std_val, ci_low, ci_high
+
+
+def _compute_ordinal_stats(vals: np.ndarray) -> Tuple[float, float, float, float, float, float, float, float]:
+    """
+    Computes Median, IQR, Q1, Q3, empirical 2.5th-97.5th percentile interval, Min, and Max.
+    """
+    q2_5, q25, med, q75, q97_5 = np.percentile(vals, [2.5, 25.0, 50.0, 75.0, 97.5])
+    return (
+        float(med),
+        float(q75 - q25),
+        float(q25),
+        float(q75),
+        float(q2_5),
+        float(q97_5),
+        float(np.min(vals)),
+        float(np.max(vals))
+    )
+
+
+def _resolve_available_methods(df_results: pd.DataFrame) -> List[str]:
+    """
+    Returns benchmark method names present in df_results in canonical comparison order.
+    """
+    target_methods = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland", "Copeland"]
+    present = df_results["Method"].unique()
+    available = [m for m in target_methods if m in present]
+    return available if available else list(present)
 
 
 def _populate_group_metrics(
@@ -74,10 +122,11 @@ def _populate_group_metrics(
 
     Description:
         Enforces scale-appropriate statistical reporting aligned with HERA's +analysis standards:
-          - Binary indicator metrics (BINARY_METRIC_COLS): Mean rate, Std, and 95% confidence bounds
+          - Binary indicator metrics (BINARY_METRIC_COLS): Mean rate, Std, and clipped Wald 95% confidence bounds
             (omitting degenerate 0/1 quantile columns).
           - Ordinal & rank metrics (ORDINAL_METRIC_COLS): Non-parametric Median, IQR, Q1, Q3,
-            95% empirical percentile interval (2.5th-97.5th), Min, and Max (omitting parametric Mean/Std).
+            95% empirical percentile interval (2.5th-97.5th, stored under CI95_Lower/CI95_Upper matching
+            calc_pooled_csv.m schema), Min, and Max (omitting parametric Mean/Std).
           - Empirical scenario effect checks (optional): Non-parametric Median and IQR of Observed_Median_Cliffs_d
             and pairwise M1/M2 medians for scenario calibration traceability.
 
@@ -97,15 +146,13 @@ def _populate_group_metrics(
         if m not in group.columns:
             continue
         vals = group[m].dropna().values
-        n_obs = len(vals)
-        if n_obs == 0:
+        if len(vals) == 0:
             continue
-        p = float(np.mean(vals))
-        se = float(np.sqrt(max(0.0, p * (1.0 - p)) / n_obs))
+        p, std_val, ci_low, ci_high = _compute_binary_rate_stats(vals)
         row[f"{m}_Mean"] = p
-        row[f"{m}_Std"] = float(np.std(vals, ddof=1)) if n_obs > 1 else 0.0
-        row[f"{m}_CI95_Lower"] = float(max(0.0, p - 1.959963984540054 * se))
-        row[f"{m}_CI95_Upper"] = float(min(1.0, p + 1.959963984540054 * se))
+        row[f"{m}_Std"] = std_val
+        row[f"{m}_CI95_Lower"] = ci_low
+        row[f"{m}_CI95_Upper"] = ci_high
 
     # 2. Ordinal & Continuous Rank Metrics: Non-Parametric Median, IQR, Q1, Q3, 95% PI, Min, Max
     for m in ORDINAL_METRIC_COLS:
@@ -114,15 +161,15 @@ def _populate_group_metrics(
         vals = group[m].dropna().values
         if len(vals) == 0:
             continue
-        q2_5, q25, med, q75, q97_5 = np.percentile(vals, [2.5, 25.0, 50.0, 75.0, 97.5])
-        row[f"{m}_Median"] = float(med)
-        row[f"{m}_IQR"] = float(q75 - q25)
-        row[f"{m}_Q1"] = float(q25)
-        row[f"{m}_Q3"] = float(q75)
-        row[f"{m}_CI95_Lower"] = float(q2_5)
-        row[f"{m}_CI95_Upper"] = float(q97_5)
-        row[f"{m}_Min"] = float(np.min(vals))
-        row[f"{m}_Max"] = float(np.max(vals))
+        med, iqr_val, q25, q75, q2_5, q97_5, min_val, max_val = _compute_ordinal_stats(vals)
+        row[f"{m}_Median"] = med
+        row[f"{m}_IQR"] = iqr_val
+        row[f"{m}_Q1"] = q25
+        row[f"{m}_Q3"] = q75
+        row[f"{m}_CI95_Lower"] = q2_5
+        row[f"{m}_CI95_Upper"] = q97_5
+        row[f"{m}_Min"] = min_val
+        row[f"{m}_Max"] = max_val
 
     # 3. Concise Empirical Effect Calibration Check (Scenario-level property)
     if include_scenario_effects:
@@ -169,10 +216,13 @@ def compute_aggregate_summary(df_results: pd.DataFrame) -> pd.DataFrame:
         "EffectMagnitude", "Delta", "Calibrated_Median_Cliffs_d", "Correlation", "Method"
     ]
     group_cols = [c for c in raw_group_cols if c in df_results.columns]
+    if not group_cols:
+        return pd.DataFrame()
     summary_rows = []
 
-    for keys, group in df_results.groupby(group_cols):
-        row = dict(zip(group_cols, keys))
+    for keys, group in df_results.groupby(group_cols, dropna=False):
+        key_tuple = keys if isinstance(keys, tuple) else (keys,)
+        row = dict(zip(group_cols, key_tuple))
         row["N_Trials"] = len(group)
         _populate_group_metrics(row, group, include_scenario_effects=True)
         summary_rows.append(row)
@@ -210,17 +260,15 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     Author:
         Lukas von Erdmannsdorff
     """
-    if df_results.empty:
+    if df_results.empty or "Method" not in df_results.columns or "Suite" not in df_results.columns:
         return pd.DataFrame()
 
-    target_methods = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland", "Copeland"]
-    available_methods = [m for m in target_methods if m in df_results["Method"].unique()]
-    if not available_methods:
-        available_methods = list(df_results["Method"].unique())
+    available_methods = _resolve_available_methods(df_results)
+    has_core_baseline_cols = all(c in df_results.columns for c in ("Candidates", "SampleSize", "Noise"))
 
     slices = []
     
-    # 1. Core Grand Pooled
+    # 1. Core Grand Pooled (stratification label preserved verbatim for bit-identity with archived benchmark CSVs)
     slices.append((
         "Core Benchmark (Grand Pooled)",
         SUITE_CORE,
@@ -240,16 +288,20 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
             ))
             
     # 3. Core Cohort Sample Size Margins (Evaluated across sample sizes n in {25, 50, 100})
-    for n_val in [25, 50, 100]:
-        slices.append((
-            f"Cohort Sample Size (n = {n_val})",
-            SUITE_SAMPLE_SIZE,
-            f"Cohort Size n = {n_val} (at N = {DEFAULT_CANDIDATES})",
-            lambda df, sv=n_val: (
-                (df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) & (df["SampleSize"] == sv)) |
-                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
-            )
-        ))
+    if "SampleSize" in df_results.columns:
+        for n_val in [25, 50, 100]:
+            slices.append((
+                f"Cohort Sample Size (n = {n_val})",
+                SUITE_SAMPLE_SIZE,
+                f"Cohort Size n = {n_val} (at N = {DEFAULT_CANDIDATES})",
+                lambda df, sv=n_val: (
+                    (df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) & (df["SampleSize"] == sv)) |
+                    (
+                        has_core_baseline_cols and
+                        (sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE)
+                    )
+                )
+            ))
             
     # 4. Effect Magnitude Sensitivity Suite (Small, Medium, Large)
     if "EffectMagnitude" in df_results.columns:
@@ -262,7 +314,10 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                 label,
                 lambda df, e_val=eff: (
                     (df["Suite"].isin(["EffectSensitivity", SUITE_EFFECT]) & (df["EffectMagnitude"] == e_val)) |
-                    ((e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                    (
+                        has_core_baseline_cols and
+                        (e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE)
+                    )
                 )
             ))
             
@@ -276,7 +331,10 @@ def compute_benchmark_summary(df_results: pd.DataFrame) -> pd.DataFrame:
                 label,
                 lambda df, c_val=corr: (
                     (df["Suite"].isin(["CorrelationSensitivity", SUITE_CORRELATION]) & (df["Correlation"] == c_val)) |
-                    ((c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                    (
+                        has_core_baseline_cols and
+                        (c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE)
+                    )
                 )
             ))
             
@@ -382,15 +440,12 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
     Author:
         Lukas von Erdmannsdorff
     """
-    if df_results.empty:
+    if df_results.empty or "Method" not in df_results.columns or "Suite" not in df_results.columns:
         return pd.DataFrame()
 
     active_metric_cols = [c for c in METRIC_COLS if c in df_results.columns]
-    
-    target_methods = ["HERA", "TOPSIS", "Borda", "Wilcoxon-Copeland", "Copeland"]
-    available_methods = [m for m in target_methods if m in df_results["Method"].unique()]
-    if not available_methods:
-        available_methods = list(df_results["Method"].unique())
+    available_methods = _resolve_available_methods(df_results)
+    has_core_baseline_cols = all(c in df_results.columns for c in ("Candidates", "SampleSize", "Noise"))
 
     # Superordinate grouping conditions
     conditions = [
@@ -404,20 +459,29 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
         for n_val in [25, 50, 100]:
             conditions.append((f"Cohort_n_{n_val}", lambda df, sv=n_val: (
                 (df["Suite"].isin(["SampleSizeSensitivity", SUITE_SAMPLE_SIZE]) & (df["SampleSize"] == sv)) |
-                ((sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE))
+                (
+                    has_core_baseline_cols and
+                    (sv == DEFAULT_SAMPLE_SIZE) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["Noise"] == DEFAULT_NOISE)
+                )
             )))
     if "EffectMagnitude" in df_results.columns:
         for eff in ["Small", "Medium", "Large"]:
             conditions.append((f"Effect_{eff}", lambda df, e_val=eff: (
                 (df["Suite"].isin(["EffectSensitivity", SUITE_EFFECT]) & (df["EffectMagnitude"] == e_val)) |
-                ((e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                (
+                    has_core_baseline_cols and
+                    (e_val == "Medium") & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE)
+                )
             )))
     if "Correlation" in df_results.columns:
         for corr in [0.0, 0.5]:
             c_tag = "Independent" if corr == 0.0 else "Correlated"
             conditions.append((f"Correlation_{c_tag}", lambda df, c_val=corr: (
                 (df["Suite"].isin(["CorrelationSensitivity", SUITE_CORRELATION]) & (df["Correlation"] == c_val)) |
-                ((c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE))
+                (
+                    has_core_baseline_cols and
+                    (c_val == 0.0) & (df["Suite"] == SUITE_CORE) & (df["Candidates"] == DEFAULT_CANDIDATES) & (df["SampleSize"] == DEFAULT_SAMPLE_SIZE) & (df["Noise"] == DEFAULT_NOISE)
+                )
             )))
 
     rows = []
@@ -434,30 +498,28 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
             n_trials = len(m_sub)
             for m in active_metric_cols:
                 vals = m_sub[m].dropna().values
-                n_obs = len(vals)
-                if n_obs == 0:
+                if len(vals) == 0:
                     continue
                 if m in BINARY_METRIC_COLS:
-                    p = float(np.mean(vals))
-                    se = float(np.sqrt(max(0.0, p * (1.0 - p)) / n_obs))
+                    p, std_val, ci_low, ci_high = _compute_binary_rate_stats(vals)
                     rows.append({
                         "Scenario": scen_name,
                         "Metric": m,
                         "Method": method,
                         "N_Trials": n_trials,
                         "Mean": round(p, 4),
-                        "Std": round(float(np.std(vals, ddof=1)), 4) if n_obs > 1 else 0.0,
+                        "Std": round(std_val, 4),
                         "Median": np.nan,
                         "IQR": np.nan,
                         "Q1": np.nan,
                         "Q3": np.nan,
-                        "CI95_Lower": round(float(max(0.0, p - 1.959963984540054 * se)), 4),
-                        "CI95_Upper": round(float(min(1.0, p + 1.959963984540054 * se)), 4),
+                        "CI95_Lower": round(ci_low, 4),
+                        "CI95_Upper": round(ci_high, 4),
                         "Min": np.nan,
                         "Max": np.nan
                     })
                 else:
-                    q2_5, q25, med, q75, q97_5 = np.percentile(vals, [2.5, 25.0, 50.0, 75.0, 97.5])
+                    med, iqr_val, q25, q75, q2_5, q97_5, min_val, max_val = _compute_ordinal_stats(vals)
                     rows.append({
                         "Scenario": scen_name,
                         "Metric": m,
@@ -465,14 +527,14 @@ def compute_detailed_pooled_statistics(df_results: pd.DataFrame) -> pd.DataFrame
                         "N_Trials": n_trials,
                         "Mean": np.nan,
                         "Std": np.nan,
-                        "Median": round(float(med), 4),
-                        "IQR": round(float(q75 - q25), 4),
-                        "Q1": round(float(q25), 4),
-                        "Q3": round(float(q75), 4),
-                        "CI95_Lower": round(float(q2_5), 4),
-                        "CI95_Upper": round(float(q97_5), 4),
-                        "Min": round(float(np.min(vals)), 4),
-                        "Max": round(float(np.max(vals)), 4)
+                        "Median": round(med, 4),
+                        "IQR": round(iqr_val, 4),
+                        "Q1": round(q25, 4),
+                        "Q3": round(q75, 4),
+                        "CI95_Lower": round(q2_5, 4),
+                        "CI95_Upper": round(q97_5, 4),
+                        "Min": round(min_val, 4),
+                        "Max": round(max_val, 4)
                     })
 
     return pd.DataFrame(rows)
@@ -499,22 +561,23 @@ def compute_pooled_summary(df_results: pd.DataFrame) -> pd.DataFrame:
     Author:
         Lukas von Erdmannsdorff
     """
-    if df_results.empty:
+    if df_results.empty or "Method" not in df_results.columns:
         return pd.DataFrame()
 
     summary_rows = []
 
     # 1. Overall Pooling by Method
-    for method, group in df_results.groupby("Method"):
+    for method, group in df_results.groupby("Method", dropna=False):
         row = {"Suite": "All_Pooled", "Method": method, "N_Trials": len(group)}
         _populate_group_metrics(row, group, include_scenario_effects=False)
         summary_rows.append(row)
 
     # 2. Granular Pooling by Suite and Method
-    for (suite, method), group in df_results.groupby(["Suite", "Method"]):
-        row = {"Suite": suite, "Method": method, "N_Trials": len(group)}
-        _populate_group_metrics(row, group, include_scenario_effects=False)
-        summary_rows.append(row)
+    if "Suite" in df_results.columns:
+        for (suite, method), group in df_results.groupby(["Suite", "Method"], dropna=False):
+            row = {"Suite": suite, "Method": method, "N_Trials": len(group)}
+            _populate_group_metrics(row, group, include_scenario_effects=False)
+            summary_rows.append(row)
 
     return pd.DataFrame(summary_rows)
 
@@ -623,6 +686,8 @@ def update_global_summary_file(summary_csv: Path, df_all_results: pd.DataFrame) 
     """
     if df_all_results.empty:
         return
+    summary_csv = Path(summary_csv)
+    summary_csv.parent.mkdir(parents=True, exist_ok=True)
     df_summary = compute_aggregate_summary(df_all_results)
     temp_summary = summary_csv.with_suffix(".tmp")
     df_summary.to_csv(temp_summary, index=False)
@@ -650,9 +715,13 @@ def save_checkpoint(checkpoint_file: Path, state_data: Dict[str, Any]) -> None:
     Author:
         Lukas von Erdmannsdorff
     """
+    checkpoint_file = Path(checkpoint_file)
+    checkpoint_file.parent.mkdir(parents=True, exist_ok=True)
     temp_ckpt = checkpoint_file.with_suffix(".tmp")
     with open(temp_ckpt, "w", encoding="utf-8") as f:
         json.dump(state_data, f, indent=2)
+        f.flush()
+        os.fsync(f.fileno())
     temp_ckpt.replace(checkpoint_file)
 
 
@@ -702,7 +771,6 @@ def save_scenario_configuration(
         deltas = sorted(group["Delta"].unique().tolist())
         rhos = sorted(group["Correlation"].unique().tolist())
 
-        eff_parts = []
         cliffs_parts = []
         for d in deltas:
             calib = None
@@ -711,10 +779,8 @@ def save_scenario_configuration(
                     calib = c_info
                     break
             if calib:
-                eff_parts.append(f"{d:g}% ({calib['label'].split()[0]})")
                 cliffs_parts.append(f"d ≈ {calib['median_cliffs_d']:.2f} [{calib['cliffs_d_range']}]")
             else:
-                eff_parts.append(f"{d:g}%")
                 cliffs_parts.append("N/A")
 
         # Format benchmark suite label with proper word spacing
@@ -801,13 +867,14 @@ def save_method_configuration(
     b_thr = int(HERA_CONFIG.get("manual_B_thr", 2000))
     raw_mode = str(HERA_CONFIG.get("ranking_mode", "M1_M2_M3"))
     mode_arrow = raw_mode.replace("_", " -> ")
+    alpha_hera = float(HERA_CONFIG.get("alpha", 0.05))
     w_str = ", ".join(f"{float(w):.2f}" for w in TOPSIS_WEIGHTS)
 
     records = [
         {
             "Framework": "HERA", 
             "Core Parameters": f"Threshold Bootstrap\n(B = {b_thr})", 
-            "Specification / Baseline Setup": f"Sequential Hierarchical ({mode_arrow});\nHolm-Bonferroni FWER control (alpha = 0.05)"
+            "Specification / Baseline Setup": f"Sequential Hierarchical ({mode_arrow});\nHolm-Bonferroni FWER control (alpha = {alpha_hera:g})"
         },
         {
             "Framework": "TOPSIS", 
@@ -930,11 +997,11 @@ def save_candidate_configuration(
         
         for rank_idx, cand in enumerate(order, 1):
             mu = means[cand]
-            # Simulate n_sims trials of sample_size observations with noise
+            # Pool unclipped synthetic observation samples to match synthesis.py data generation
             trials = rng.normal(loc=mu, scale=noise, size=(n_sims, sample_size, 3))
             all_obs = trials.reshape(-1, 3)
             
-            # Benchmark Ground-Truth Role Rationale
+            # Benchmark Ground-Truth Role Rationale (strings retained verbatim for bit-identity with archived CSVs)
             if cand == "C1":
                 role = "True Rank 1: Multi-Criteria Leader (M2 margin over C2 by +7.0%)"
             elif cand == "C2":
