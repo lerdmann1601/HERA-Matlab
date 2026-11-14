@@ -4,8 +4,22 @@ All notable changes to this project will be documented in this file.
 
 > [!WARNING]
 > For the time being, only the latest version is actively supported.
-> Previous versions (including all versions prior to 1.4.9) are considered legacy.
+> Previous versions (including all versions prior to 1.4.10) are considered legacy.
 > Corresponding GitHub releases may have been removed, but the code remains accessible via Git tags for reproducibility.
+
+---
+
+## [1.4.10] - 2026-11-14
+
+### Changed
+
+* **Batch Mode, CSV Formatting & Numerical Tolerance:** Suppressed interactive console pauses in batch mode (`setup_environment.m`, `MainConfig.m`, `load_data.m`, `default.m`) with bootstrap configuration fallbacks, standardized remaining convergence and output CSV tables to comma delimiters, and added floating-point zero-check tolerances (`1e-12`) in `relative_difference.m` and `calculate_thresholds.m`.
+* **Benchmark Simulation, Reporting & Python 3.13+ Support:** Refactored simulation reporting and plotting helpers (`data/utils/simulation/`) with consistent benchmark reports and symlink-safe `eval_rank_stability.py` outputs, and relaxed PyPI `python_requires` to `>=3.9` so Python 3.13+ works via MATLAB Runtime's Stable ABI (`abi3`) with its built-in compatibility warning (updating `docs/Python_Integration.md`, `docs/Automated_Build.md`, and `mkdocs.yml`).
+
+### Fixed
+
+* **Python Runtime Initialization & `run_ranking` Return Marshaling:** Fixed `hera_matlab.initialize()` calling the non-existent `_pir.get_matlab_instance()` in `.github/scripts/prepare_pypi.py` (using `_pir.initialize_package()` without dangling code) and added `sanitize_for_python` in `deploy/wrappers/run_ranking.m` so 2D/multi-dimensional cell arrays (such as `swap_details.results_metric1/2/3`) marshal cleanly to Python without raising `ValueError`.
+* **Workflow Paths, Build Scripts & CI Configuration:** Corrected repository root detection and `deploy/output/matlab` lookup in `data/utils/run_workflow.py`, fixed `build_hera_python()` invocation in `.github/workflows/build_release.yml`, updated `deploy/build_HERA_matlab.m` architecture validation to use `computer('arch')`, and aligned version/header docstrings across `+HERA/get_version.m` and `deploy/build_and_prep_pypi.sh`.
 
 ---
 
@@ -229,6 +243,7 @@ All notable changes to this project will be documented in this file.
 
 * **Initial Release of the HERA MATLAB Runtime for MacOS.**
 
+[1.4.10]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.9...v1.4.10
 [1.4.9]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.8...v1.4.9
 [1.4.8]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.7...v1.4.8
 [1.4.7]: https://github.com/lerdmann1601/HERA-Matlab/compare/v1.4.6...v1.4.7

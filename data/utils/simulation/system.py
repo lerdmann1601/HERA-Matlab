@@ -370,5 +370,5 @@ def print_study_completion(
     logger.info(" If you use this software or benchmark in your research, please cite:")
     logger.info(" von Erdmannsdorff, L. (2026). HERA: Hierarchical-Compensatory, Effect-Size-Driven Ranking Algorithm")
     logger.info(" Preprint: https://doi.org/10.2139/ssrn.7227474")
-    logger.info(" Software (Version 1.4.9): https://doi.org/10.5281/zenodo.18274870")
+    logger.info(" Software (Version 1.4.10): https://doi.org/10.5281/zenodo.18274870")
     logger.info(div_heavy + "\n")

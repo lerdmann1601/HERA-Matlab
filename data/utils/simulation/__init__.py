@@ -31,7 +31,7 @@ os.environ["OPENBLAS_NUM_THREADS"] = "1"
 os.environ["MKL_NUM_THREADS"] = "1"
 os.environ["NUMEXPR_NUM_THREADS"] = "1"
 
-__version__ = "1.4.9"
+__version__ = "1.4.10"
 
 from .config import (
     DATA_DIR, TEMP_DIR,
